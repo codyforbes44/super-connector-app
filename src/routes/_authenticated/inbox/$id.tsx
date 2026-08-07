@@ -1,0 +1,223 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, Phone, Send, StickyNote } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { clockTime, errorMessage, formatPhone } from "@/lib/format";
+import {
+  addInternalNote,
+  markConversationRead,
+  sendMessage,
+  startCall,
+} from "@/lib/twilio.functions";
+import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/_authenticated/inbox/$id")({
+  head: () => ({
+    meta: [
+      { title: "Conversation — Signalbox" },
+      { name: "description", content: "Read and reply to a Twilio conversation thread." },
+      { property: "og:title", content: "Conversation — Signalbox" },
+      { property: "og:description", content: "Read and reply to a Twilio conversation thread." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: ThreadScreen,
+});
+
+function ThreadScreen() {
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [draft, setDraft] = useState("");
+  const [noteMode, setNoteMode] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const conversation = useQuery({
+    queryKey: ["conversation", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const messages = useQuery({
+    queryKey: ["messages", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", id)
+        .order("created_at");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`thread-${id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
+        () => {
+          void queryClient.invalidateQueries({ queryKey: ["messages", id] });
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [id, queryClient]);
+
+  useEffect(() => {
+    void markConversationRead({ data: { conversationId: id } }).then(() =>
+      queryClient.invalidateQueries({ queryKey: ["conversations"] }),
+    );
+  }, [id, queryClient]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ block: "end" });
+  }, [messages.data]);
+
+  const convo = conversation.data;
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!convo || !draft.trim()) return;
+    setBusy(true);
+    const text = draft;
+    setDraft("");
+    try {
+      if (noteMode) {
+        await addInternalNote({ data: { conversationId: id, body: text } });
+      } else {
+        await sendMessage({
+          data: {
+            appNumber: convo.app_number,
+            to: convo.contact_number,
+            body: text,
+            channel: convo.channel === "whatsapp" ? "whatsapp" : "sms",
+          },
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["messages", id] });
+    } catch (error) {
+      setDraft(text);
+      toast.error(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function call() {
+    if (!convo) return;
+    try {
+      await startCall({ data: { appNumber: convo.app_number, to: convo.contact_number } });
+      toast.success("Calling your phone now — answer to be connected.");
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  }
+
+  return (
+    <div className="flex min-h-dvh flex-col">
+      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-background/95 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur">
+        <Button size="icon" variant="ghost" onClick={() => void navigate({ to: "/inbox" })}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold">
+            {convo?.contact_name || formatPhone(convo?.contact_number)}
+          </p>
+          <p className="truncate text-[0.7rem] text-muted-foreground">
+            {convo?.channel === "whatsapp" ? "WhatsApp" : "SMS"} via{" "}
+            {formatPhone(convo?.app_number)}
+          </p>
+        </div>
+        <Button size="icon" variant="ghost" onClick={call}>
+          <Phone className="h-5 w-5" />
+          <span className="sr-only">Call contact</span>
+        </Button>
+      </header>
+
+      <div className="flex-1 space-y-2 px-3 py-4">
+        {(messages.data ?? []).map((m) => {
+          const mine = m.direction !== "inbound";
+          const media = Array.isArray(m.media) ? (m.media as Array<{ url: string }>) : [];
+          return (
+            <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
+              <div
+                className={cn(
+                  "max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm",
+                  m.is_internal_note
+                    ? "border border-dashed border-primary/50 bg-primary/10 text-foreground"
+                    : mine
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-secondary-foreground",
+                )}
+              >
+                {m.is_internal_note ? (
+                  <p className="mb-1 flex items-center gap-1 text-[0.65rem] font-semibold tracking-wide text-primary uppercase">
+                    <StickyNote className="h-3 w-3" /> Internal note
+                  </p>
+                ) : null}
+                {m.body ? <p className="whitespace-pre-wrap">{m.body}</p> : null}
+                {media.length ? (
+                  <p className="mt-1 text-[0.7rem] opacity-80">
+                    {media.length} attachment{media.length === 1 ? "" : "s"}
+                  </p>
+                ) : null}
+                <p className="tabular mt-1 text-[0.65rem] opacity-70">
+                  {clockTime(m.created_at)}
+                  {m.status && mine && !m.is_internal_note ? ` · ${m.status}` : ""}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+        <div ref={bottomRef} />
+      </div>
+
+      <form
+        onSubmit={submit}
+        className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/95 px-3 py-2 backdrop-blur"
+      >
+        <div className="flex items-end gap-2">
+          <Button
+            type="button"
+            size="icon"
+            variant={noteMode ? "default" : "ghost"}
+            onClick={() => setNoteMode(!noteMode)}
+          >
+            <StickyNote className="h-4 w-4" />
+            <span className="sr-only">Toggle internal note</span>
+          </Button>
+          <Textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={1}
+            maxLength={1500}
+            placeholder={noteMode ? "Internal note (not sent)" : "Message"}
+            className="max-h-32 min-h-11 resize-none rounded-xl"
+          />
+          <Button type="submit" size="icon" disabled={busy || !draft.trim()}>
+            <Send className="h-4 w-4" />
+            <span className="sr-only">Send</span>
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
