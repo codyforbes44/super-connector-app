@@ -40,6 +40,26 @@ export const Route = createFileRoute("/api/public/twilio/status")({
           if (Object.keys(patch).length) {
             await supabaseAdmin.from("calls").update(patch).eq("sid", callSid);
           }
+
+          const status = (patch.status ?? "").toLowerCase();
+          const missed = ["no-answer", "busy", "failed", "canceled"].includes(status);
+          const voicemail = Boolean(patch.recording_url);
+          if (missed || voicemail) {
+            const { data: call } = await supabaseAdmin
+              .from("calls")
+              .select("app_number, from_number, direction")
+              .eq("sid", callSid)
+              .maybeSingle();
+            if (call && call.direction === "inbound") {
+              const { notifyNumberWatchers } = await import("@/lib/push.server");
+              await notifyNumberWatchers(supabaseAdmin as never, call.app_number as string, {
+                title: voicemail ? "New voicemail" : "Missed call",
+                body: `${call.from_number} → ${call.app_number}`,
+                url: "/calls",
+                tag: `call-${callSid}`,
+              });
+            }
+          }
         }
 
         return new Response("ok");

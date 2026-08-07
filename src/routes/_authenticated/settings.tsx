@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage } from "@/lib/format";
+import { PushNotifications } from "@/components/PushNotifications";
 import { accountOverview, listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -101,6 +102,10 @@ function SettingsScreen() {
           Save profile
         </Button>
       </section>
+
+      <div className="border-t border-border">
+        <PushNotifications />
+      </div>
 
       {boot.isAdmin ? (
         <>

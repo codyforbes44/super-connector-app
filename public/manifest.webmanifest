@@ -1,0 +1,14 @@
+{
+  "name": "Signalbox — Twilio Command Center",
+  "short_name": "Signalbox",
+  "start_url": "/inbox",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101216",
+  "theme_color": "#1a1c22",
+  "icons": [
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
