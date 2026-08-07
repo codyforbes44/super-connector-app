@@ -2,6 +2,7 @@ import { Mic, MicOff, Phone, PhoneOff, Volume2, Grid3x3 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { formatPhone } from "@/lib/format";
+import { haptic } from "@/lib/haptics";
 import { useVoice } from "@/lib/voice-device";
 import { startRingtone, stopRingtone } from "@/lib/ringtone";
 import { cn } from "@/lib/utils";
@@ -75,11 +76,12 @@ export function InCallScreen() {
               <button
                 key={digit}
                 type="button"
+                onPointerDown={() => haptic("light")}
                 onClick={() => {
                   voice.sendDigit(digit);
                   setTyped((prev) => (prev + digit).slice(0, 24));
                 }}
-                className="key-raised mx-auto flex h-14 w-14 items-center justify-center rounded-full font-display text-lg font-semibold"
+                className="key-raised mx-auto flex h-14 w-14 items-center justify-center rounded-full font-display text-lg font-semibold transition-transform duration-75 active:scale-95"
               >
                 {digit}
               </button>

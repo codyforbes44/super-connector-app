@@ -1,5 +1,7 @@
 import { Delete } from "lucide-react";
 
+import { haptic } from "@/lib/haptics";
+
 const KEYS = [
   { digit: "1", letters: "" },
   { digit: "2", letters: "ABC" },
@@ -31,7 +33,15 @@ export function Dialpad({
         {value ? (
           <button
             type="button"
-            onClick={() => onChange(value.slice(0, -1))}
+            onClick={() => {
+              haptic("medium");
+              onChange(value.slice(0, -1));
+            }}
+            onContextMenu={(event) => {
+              event.preventDefault();
+              haptic("heavy");
+              onChange("");
+            }}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors active:text-foreground"
           >
             <Delete className="h-5 w-5" />
@@ -45,8 +55,9 @@ export function Dialpad({
           <button
             key={key.digit}
             type="button"
+            onPointerDown={() => haptic("light")}
             onClick={() => onChange((value + key.digit).slice(0, 20))}
-            className="key-raised mx-auto flex h-16 w-16 flex-col items-center justify-center rounded-full"
+            className="key-raised mx-auto flex h-16 w-16 flex-col items-center justify-center rounded-full transition-transform duration-75 active:scale-95"
           >
             <span className="font-display text-xl leading-none font-semibold">{key.digit}</span>
             {key.letters ? (
