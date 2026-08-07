@@ -231,6 +231,7 @@ export async function sendMessage(
     channel: "sms" | "whatsapp";
     mediaUrls?: string[];
     sendAt?: string | null;
+    messagingServiceSid?: string | null;
   },
 ) {
   const { numbers } = await allowedNumbers(supabase, userId);
@@ -247,11 +248,15 @@ export async function sendMessage(
 
   const prefix = data.channel === "whatsapp" ? "whatsapp:" : "";
   const params: Record<string, unknown> = {
-    From: `${prefix}${appNumber}`,
     To: `${prefix}${to}`,
     Body: data.body,
     StatusCallback: webhookUrl("status"),
   };
+  if (data.messagingServiceSid && data.channel === "sms") {
+    params["MessagingServiceSid"] = data.messagingServiceSid;
+  } else {
+    params["From"] = `${prefix}${appNumber}`;
+  }
   if (data.mediaUrls?.length) params["MediaUrl"] = data.mediaUrls;
   if (data.sendAt) {
     params["SendAt"] = new Date(data.sendAt).toISOString();
@@ -502,20 +507,27 @@ export async function getCallRecordings(supabase: SB, userId: string, data: { si
 
 export async function getRecordingAudio(supabase: SB, userId: string, data: { sid: string }) {
   await allowedNumbers(supabase, userId);
-  const lovableKey = process.env["LOVABLE_API_KEY"]!;
-  const connectionKey = process.env["TWILIO_API_KEY"]!;
-  const response = await fetch(
-    `https://connector-gateway.lovable.dev/twilio/Recordings/${data.sid}.mp3`,
-    {
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": connectionKey,
-      },
-    },
-  );
+  const sid = process.env["TWILIO_ACCOUNT_SID"];
+  const token = process.env["TWILIO_AUTH_TOKEN"];
+  const response = sid && token
+    ? await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${sid}/Recordings/${data.sid}.mp3`,
+        { headers: { Authorization: `Basic ${btoa(`${sid}:${token}`)}` } },
+      )
+    : await fetch(`https://connector-gateway.lovable.dev/twilio/Recordings/${data.sid}.mp3`, {
+        headers: {
+          Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]!}`,
+          "X-Connection-Api-Key": process.env["TWILIO_API_KEY"]!,
+        },
+      });
   if (!response.ok) throw new Error(`Could not load recording [${response.status}]`);
   const buffer = await response.arrayBuffer();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  const base64 = btoa(binary);
   return { dataUrl: `data:audio/mpeg;base64,${base64}` };
 }
 
