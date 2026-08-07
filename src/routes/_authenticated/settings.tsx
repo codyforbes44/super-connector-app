@@ -101,12 +101,16 @@ function SettingsScreen() {
             <ul className="space-y-2">
               {(team.data ?? []).map((member) => (
                 <li key={member.id} className="flex items-center gap-2">
-                  <div className="min-w-0 flex-1">
+                  <Link
+                    to="/admin/$userId"
+                    params={{ userId: member.id }}
+                    className="min-w-0 flex-1"
+                  >
                     <p className="truncate text-sm font-medium">
                       {member.display_name || member.email}
                     </p>
                     <p className="truncate text-[0.7rem] text-muted-foreground">{member.email}</p>
-                  </div>
+                  </Link>
                   {boot.role === "owner" ? (
                     <Select
                       value={member.roles[0] ?? "agent"}
@@ -142,6 +146,20 @@ function SettingsScreen() {
             </ul>
           </section>
 
+          <section className="border-t border-border px-4 py-4">
+            <Link
+              to="/advanced"
+              className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
+            >
+              <SlidersHorizontal className="h-4 w-4 text-primary" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold">Advanced</p>
+                <p className="text-[0.7rem] text-muted-foreground">
+                  Account health, routing endpoints and the API console
+                </p>
+              </div>
+            </Link>
+          </section>
         </>
       ) : null}
 
