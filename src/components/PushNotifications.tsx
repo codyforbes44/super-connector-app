@@ -109,21 +109,21 @@ export function PushNotifications() {
           a modern mobile browser.
         </p>
       ) : permission === "denied" ? (
-        <p className="rounded-xl bg-secondary px-3 py-2.5 text-xs text-muted-foreground">
+        <p className="glass-panel rounded-2xl px-3 py-2.5 text-xs text-muted-foreground">
           Notifications are blocked in your browser settings for this site. Allow them, then reload
           to turn alerts on.
         </p>
       ) : thisDevice ? (
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" className="h-11" disabled={busy} onClick={turnOff}>
+          <Button variant="secondary" className="h-11 rounded-full" disabled={busy} onClick={turnOff}>
             <BellOff className="mr-2 h-4 w-4" /> Turn off on this device
           </Button>
-          <Button variant="ghost" className="h-11" disabled={busy} onClick={test}>
+          <Button variant="ghost" className="h-11 rounded-full" disabled={busy} onClick={test}>
             Send test alert
           </Button>
         </div>
       ) : (
-        <Button className="h-11 w-full" disabled={busy} onClick={turnOn}>
+        <Button className="key-signal h-11 w-full rounded-full" disabled={busy} onClick={turnOn}>
           <Bell className="mr-2 h-4 w-4" /> Enable alerts on this device
         </Button>
       )}
