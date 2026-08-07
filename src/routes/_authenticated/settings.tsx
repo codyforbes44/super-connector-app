@@ -103,6 +103,10 @@ function SettingsScreen() {
         </Button>
       </section>
 
+      <div className="border-t border-border">
+        <PushNotifications />
+      </div>
+
       {boot.isAdmin ? (
         <>
           <section className="space-y-3 border-t border-border px-4 py-4">
