@@ -59,6 +59,7 @@ export function CallingSettings() {
   const [routePattern, setRoutePattern] = useState("");
   const [routeCallerId, setRouteCallerId] = useState("");
   const [routeLabel, setRouteLabel] = useState("");
+  const [testTo, setTestTo] = useState((boot.profile?.agent_phone as string | null) ?? "");
 
   const callerIds = useQuery({
     queryKey: ["caller-ids"],
@@ -80,7 +81,8 @@ export function CallingSettings() {
   const refreshBoot = () => queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
 
   const testCall = useMutation({
-    mutationFn: () => sendTestCall({ data: { appNumber: defaultNumber || null } }),
+    mutationFn: () =>
+      sendTestCall({ data: { appNumber: defaultNumber || null, to: testTo.trim() || null } }),
     onSuccess: (result) =>
       toast.success(`Calling ${formatPhone(result.to)} from ${formatPhone(result.callerId)}…`),
     onError: (error) => toast.error(errorMessage(error)),
