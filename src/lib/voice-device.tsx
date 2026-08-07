@@ -3,6 +3,12 @@ import { toast } from "sonner";
 
 import { getVoiceToken, setVoicePresence } from "@/lib/twilio.functions";
 import { errorMessage } from "@/lib/format";
+import {
+  ensureMicrophone,
+  readMicPermission,
+  watchMicPermission,
+  type MicState,
+} from "@/lib/media";
 
 type Call = {
   disconnect: () => void;
@@ -28,8 +34,10 @@ type VoiceContextValue = {
   startedAt: number | null;
   error: string | null;
   ready: boolean;
+  micState: MicState;
+  requestMic: () => Promise<boolean>;
   call: (to: string, callerId: string) => Promise<void>;
-  accept: () => void;
+  accept: () => void | Promise<void>;
   hangup: () => void;
   toggleMute: () => void;
   sendDigit: (digit: string) => void;
@@ -69,6 +77,28 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   const [muted, setMuted] = useState(false);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [micState, setMicState] = useState<MicState>("unknown");
+
+  useEffect(() => {
+    let dispose: (() => void) | undefined;
+    void readMicPermission().then(setMicState);
+    void watchMicPermission(setMicState).then((off) => {
+      dispose = off;
+    });
+    return () => dispose?.();
+  }, []);
+
+  const requestMic = useCallback(async () => {
+    try {
+      await ensureMicrophone();
+      setMicState("granted");
+      return true;
+    } catch (err) {
+      setMicState(await readMicPermission());
+      toast.error(errorMessage(err));
+      return false;
+    }
+  }, []);
 
   const resetCall = useCallback(() => {
     callRef.current = null;
@@ -185,6 +215,8 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     async (to: string, callerId: string) => {
       const device = deviceRef.current;
       if (!device) throw new Error(error ?? "In-app calling isn't available yet.");
+      await ensureMicrophone();
+      setMicState("granted");
       const outgoing = await device.connect({ params: { To: to, CallerId: callerId } });
       bindCall(outgoing, "outbound", to);
     },
@@ -200,8 +232,16 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     startedAt,
     error,
     ready: status === "ready",
+    micState,
+    requestMic,
     call,
-    accept: () => callRef.current?.accept(),
+    accept: async () => {
+      const active = callRef.current;
+      if (!active) return;
+      const ok = await requestMic();
+      if (!ok) return;
+      active.accept();
+    },
     hangup: () => {
       const active = callRef.current;
       if (!active) return;

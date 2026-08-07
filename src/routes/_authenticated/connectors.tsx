@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, Check, CircleSlash, Loader2, Plug, ChevronRight } from "lucide-react";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { DeviceAccess } from "@/components/DeviceAccess";
 import { Button } from "@/components/ui/button";
 import { getConnectorsOverview } from "@/lib/connectors.functions";
 import { cn } from "@/lib/utils";
@@ -76,6 +77,7 @@ function ConnectorsScreen() {
         />
       ) : data ? (
         <div className="space-y-6 px-4 py-4">
+          <DeviceAccess />
           <section className="glass-panel space-y-4 rounded-3xl p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">

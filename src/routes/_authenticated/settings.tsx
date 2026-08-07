@@ -21,6 +21,7 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { useSubscription } from "@/hooks/useSubscription";
 import { errorMessage } from "@/lib/format";
 import { PushNotifications } from "@/components/PushNotifications";
+import { DeviceAccess } from "@/components/DeviceAccess";
 import { CallingSettings } from "@/components/CallingSettings";
 import { EmailNotifications } from "@/components/EmailNotifications";
 import { VoiceSetup } from "@/components/VoiceSetup";
@@ -101,6 +102,7 @@ function SettingsScreen() {
 
       <div className="border-t border-border">
         <PushNotifications />
+        <DeviceAccess />
         <EmailNotifications />
       </div>
 
