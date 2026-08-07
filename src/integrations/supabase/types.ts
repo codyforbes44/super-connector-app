@@ -336,6 +336,39 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          handled: boolean
+          id: string
+          message: string
+          name: string
+          source: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          handled?: boolean
+          id?: string
+          message: string
+          name: string
+          source?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          handled?: boolean
+          id?: string
+          message?: string
+          name?: string
+          source?: string
+        }
+        Relationships: []
+      }
       lookups: {
         Row: {
           created_at: string
@@ -595,6 +628,54 @@ export type Database = {
           },
         ]
       }
+      plans: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          features: Json
+          highlighted: boolean
+          included_numbers: number
+          included_seats: number | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          sort_order: number
+          tagline: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          features?: Json
+          highlighted?: boolean
+          included_numbers?: number
+          included_seats?: number | null
+          name: string
+          price_monthly?: number
+          price_yearly?: number
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          features?: Json
+          highlighted?: boolean
+          included_numbers?: number
+          included_seats?: number | null
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           agent_phone: string | null
@@ -651,6 +732,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          billing_interval: string
+          cancel_at_period_end: boolean
+          comped: boolean
+          created_at: string
+          current_period_end: string | null
+          id: string
+          plan_code: string | null
+          seats: number
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          suspended: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_interval?: string
+          cancel_at_period_end?: boolean
+          comped?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_code?: string | null
+          seats?: number
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          suspended?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_interval?: string
+          cancel_at_period_end?: boolean
+          comped?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_code?: string | null
+          seats?: number
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          suspended?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_code_fkey"
+            columns: ["plan_code"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       templates: {
         Row: {
@@ -747,6 +887,7 @@ export type Database = {
         Args: { _number: string; _user_id: string }
         Returns: boolean
       }
+      has_active_subscription: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -755,6 +896,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "owner" | "admin" | "agent" | "super_admin"
