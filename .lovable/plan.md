@@ -1,40 +1,36 @@
-# Connector & API Resource Review
+# Unlock Full Twilio Access
 
-## What is actually connected today
+With `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` saved, the direct-API transport already built into the app can now reach every Twilio subdomain the connector gateway could not. This plan turns that on and hardens the webhooks.
 
-| Resource | Status | Notes |
-|---|---|---|
-| Twilio (`Cody's Twilio`, gateway-backed) | Linked to this project | Powers every messaging, voice, number and console feature |
-| Lovable Cloud (database, auth, storage, realtime) | Enabled | Tables, RLS, `mms-media` bucket |
-| Lovable AI key | Provisioned | Present, but no AI feature uses it yet |
-| Web Push (VAPID keys) | Configured | Inbound message + missed call alerts |
-| `TWILIO_WEBHOOK_TOKEN` | Configured | Shared secret in the webhook query string |
-| `ELEVENLABS_API_KEY` | Stored secret, unused | No code references it |
-| Workspace connectors not linked | Gmail, Resend, Maps, Firecrawl, Perplexity, Semrush, TikTok, Calendar | Available if wanted |
+## 1. Verify the credentials work
 
-## Findings and advice
+Call a harmless endpoint on each transport (account fetch, Lookup v2, Verify service list) and confirm real responses come back before touching UI.
 
-1. **Twilio coverage is partial by design.** The connector gateway only reaches `api.twilio.com/2010-04-01/Accounts/{Sid}`. Verify, Lookup v2, Messaging Services (A2P/10DLC), Studio, Conversations, TaskRouter, Insights and TrustHub live on other subdomains and currently return the "add your Account SID and Auth Token" message. Saving a Twilio Account SID + Auth Token is the single highest-impact step — the server layer already dual-routes, so it unlocks that surface with no rewrite.
+## 2. Light up the gated features
 
-2. **Biggest functional gap: in-app calling.** Calls today are Twilio-bridged (Twilio rings your phone, then the contact). Talkyto/Toktiv/Mango dial from inside the app via Voice SDK access tokens, which needs a TwiML App SID, API Key SID/Secret and a push credential.
+These screens currently show "add your Account SID and Auth Token"; after verification they should work unchanged:
 
-3. **Webhook auth should be upgraded.** Endpoints are protected by a token in the URL query string. Twilio signs every request with `X-Twilio-Signature`; validating that is the standard, stronger approach — also unlocked by having the Auth Token.
+- **Tools → Verify**: create services, send and check OTPs (SMS, voice, email, WhatsApp).
+- **Tools → Lookup**: Lookup v2 with line-type intelligence, caller name, SIM swap and reachability packages.
+- **Console**: all non-`api` hosts (messaging, studio, conversations, insights, trusthub, numbers, events, sync, taskrouter, pricing, voice).
 
-4. **Media handling.** Inbound MMS/WhatsApp media are stored as Twilio-hosted links needing account auth, proxied at view time. Copying media into the `mms-media` bucket on receipt makes threads faster and survives Twilio's retention window.
+Remove the "credentials required" empty states and replace them with real error handling, and show a connection-status row in Settings (account name, type, status, balance) so it's obvious the direct transport is live.
 
-5. **Unused resources.** `ELEVENLABS_API_KEY` is referenced nowhere — either remove it or put it to work (voicemail greetings, AI voice replies). `LOVABLE_API_KEY` must stay (the Twilio gateway needs it) and could also power thread summaries, smart replies and transcription cleanup at no extra key cost.
+## 3. Harden webhook authentication
 
-6. **Optional connectors that fit.** Resend for email fallback/daily digests; Gmail if agents should reply from one inbox. Maps, TikTok, Semrush, Firecrawl and Perplexity are not relevant to this product.
+Replace the query-string token check on the SMS, voice and status endpoints with real Twilio request-signature validation (`X-Twilio-Signature`, HMAC-SHA1 over the full URL plus sorted POST params, timing-safe compare). Keep the existing token as a fallback so nothing breaks while numbers are re-wired, and log rejected requests.
 
-7. **Operational safety.** Before real traffic, enable SMS Pumping Protection and tighten SMS Geo Permissions in the Twilio console — the composer and raw console can send to arbitrary destinations.
+## 4. Add Messaging Services (A2P/10DLC)
 
-## Suggested order of work
+A new section under Numbers to list Messaging Services, view the numbers in each pool, see A2P brand/campaign registration status, and pick a Messaging Service as the sender for outbound messages instead of a single number. This is the piece US business texting actually depends on and is a direct gap versus the competitors named.
 
-1. Save Twilio Account SID + Auth Token, then confirm Verify/Lookup/Messaging tabs light up.
-2. Switch webhooks to `X-Twilio-Signature` validation.
-3. Add Messaging Service / A2P registration and Conversations screens.
-4. Add in-app Voice SDK calling (TwiML App + API Key).
-5. Mirror inbound media into storage.
-6. Decide on ElevenLabs: use it for voice, or delete the secret.
+## Technical notes
 
-This review changes no code. Tell me which items to take on and I'll plan the build.
+- `src/lib/twilio.server.ts` already routes `host: "api"` through the Lovable gateway and every other host directly with Basic auth from the new secrets — no transport rewrite needed.
+- Signature validation uses Web Crypto HMAC-SHA1 (available in the Worker runtime); the raw form body must be read before parsing.
+- Recording and media fetches can now use Basic auth directly rather than the gateway proxy, which simplifies `getRecordingAudio` and `signMediaUrl`.
+- Secrets are read inside handlers only; nothing new is exposed to the browser.
+
+## Not in this plan
+
+In-app Voice SDK calling (needs a TwiML App SID plus an API Key SID/Secret), mirroring inbound media into storage, and AI features on the existing Lovable AI key. Say the word and I'll plan those next.
