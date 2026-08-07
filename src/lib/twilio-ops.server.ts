@@ -136,9 +136,29 @@ export async function updateNumberSettings(
   return { ok: true };
 }
 
-export async function wireNumber(supabase: SB, userId: string, data: { sid: string }) {
+export async function wireNumber(
+  supabase: SB,
+  userId: string,
+  data: { sid: string; applicationSid?: string | null },
+) {
   await requireAdmin(supabase, userId);
   const admin = await adminClient();
+  const appSid = data.applicationSid ?? (await defaultTwimlAppSid(admin));
+  if (appSid) {
+    await twilioRequest({
+      method: "POST",
+      path: `/IncomingPhoneNumbers/${data.sid}.json`,
+      params: {
+        VoiceApplicationSid: appSid,
+        SmsApplicationSid: appSid,
+        StatusCallback: webhookUrl("status"),
+        StatusCallbackMethod: "POST",
+      },
+    });
+    await admin.from("phone_numbers").update({ webhook_wired: true }).eq("sid", data.sid);
+    await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid });
+    return { ok: true, applicationSid: appSid };
+  }
   await twilioRequest({
     method: "POST",
     path: `/IncomingPhoneNumbers/${data.sid}.json`,
@@ -155,7 +175,7 @@ export async function wireNumber(supabase: SB, userId: string, data: { sid: stri
   });
   await admin.from("phone_numbers").update({ webhook_wired: true }).eq("sid", data.sid);
   await audit(admin, userId, "numbers.wire", { sid: data.sid });
-  return { ok: true };
+  return { ok: true, applicationSid: null };
 }
 
 export async function searchAvailableNumbers(
@@ -855,4 +875,166 @@ export async function signMediaUrl(supabase: SB, _userId: string, data: { path: 
     .createSignedUrl(data.path, 60 * 60 * 24);
   if (error) throw error;
   return { url: signed.signedUrl };
+}
+
+/* ------------------------------------------------------------ twiml apps */
+
+type TwimlApp = {
+  sid: string;
+  friendly_name: string;
+  voice_url?: string | null;
+  sms_url?: string | null;
+  voice_method?: string | null;
+  status_callback?: string | null;
+};
+
+/** SID of the TwiML App this workspace uses for in-app calling, if any. */
+export async function defaultTwimlAppSid(admin: SB): Promise<string | null> {
+  const { data } = await admin
+    .from("twiml_apps")
+    .select("sid")
+    .eq("is_default", true)
+    .maybeSingle();
+  return (data?.sid as string | undefined) ?? null;
+}
+
+function twimlAppParams() {
+  return {
+    VoiceUrl: webhookUrl("app-voice"),
+    VoiceMethod: "POST",
+    VoiceFallbackUrl: webhookUrl("app-voice"),
+    VoiceFallbackMethod: "POST",
+    StatusCallback: webhookUrl("status"),
+    StatusCallbackMethod: "POST",
+    SmsUrl: webhookUrl("sms"),
+    SmsMethod: "POST",
+    SmsFallbackUrl: webhookUrl("sms"),
+    SmsFallbackMethod: "POST",
+    SmsStatusCallback: webhookUrl("status"),
+  };
+}
+
+export async function listTwimlApps(supabase: SB, userId: string) {
+  await requireAdmin(supabase, userId);
+  const admin = await adminClient();
+  const [remote, { data: local }] = await Promise.all([
+    twilioRequest<{ applications: TwimlApp[] }>({
+      path: "/Applications.json",
+      params: { PageSize: 50 },
+    }).catch(() => ({ applications: [] as TwimlApp[] })),
+    admin.from("twiml_apps").select("sid, is_default"),
+  ]);
+  const defaults = new Set(
+    (local ?? []).filter((row) => row.is_default).map((row) => row.sid as string),
+  );
+  return asJson(
+    (remote.applications ?? []).map((app) => ({ ...app, is_default: defaults.has(app.sid) })),
+  ) as Json[];
+}
+
+export async function createTwimlApp(supabase: SB, userId: string, data: { name: string }) {
+  await requireAdmin(supabase, userId);
+  const app = await twilioRequest<TwimlApp>({
+    method: "POST",
+    path: "/Applications.json",
+    params: { FriendlyName: data.name, ...twimlAppParams() },
+  });
+  const admin = await adminClient();
+  const { count } = await admin.from("twiml_apps").select("id", { count: "exact", head: true });
+  await admin.from("twiml_apps").upsert(
+    {
+      sid: app.sid,
+      friendly_name: app.friendly_name,
+      voice_url: webhookUrl("app-voice"),
+      sms_url: webhookUrl("sms"),
+      is_default: (count ?? 0) === 0,
+    },
+    { onConflict: "sid" },
+  );
+  await audit(admin, userId, "twiml.app.create", { sid: app.sid, name: data.name });
+  return asJson(app);
+}
+
+/** Re-point an existing TwiML App (ours or one made in the Twilio console) at Signalbox. */
+export async function syncTwimlApp(supabase: SB, userId: string, data: { sid: string }) {
+  await requireAdmin(supabase, userId);
+  const app = await twilioRequest<TwimlApp>({
+    method: "POST",
+    path: `/Applications/${data.sid}.json`,
+    params: twimlAppParams(),
+  });
+  const admin = await adminClient();
+  await admin.from("twiml_apps").upsert(
+    {
+      sid: app.sid,
+      friendly_name: app.friendly_name,
+      voice_url: webhookUrl("app-voice"),
+      sms_url: webhookUrl("sms"),
+    },
+    { onConflict: "sid" },
+  );
+  await audit(admin, userId, "twiml.app.sync", { sid: data.sid });
+  return asJson(app);
+}
+
+export async function setDefaultTwimlApp(supabase: SB, userId: string, data: { sid: string }) {
+  await requireAdmin(supabase, userId);
+  const app = await twilioRequest<TwimlApp>({ path: `/Applications/${data.sid}.json` });
+  const admin = await adminClient();
+  await admin.from("twiml_apps").update({ is_default: false }).eq("is_default", true);
+  await admin.from("twiml_apps").upsert(
+    {
+      sid: app.sid,
+      friendly_name: app.friendly_name,
+      voice_url: app.voice_url ?? null,
+      sms_url: app.sms_url ?? null,
+      is_default: true,
+    },
+    { onConflict: "sid" },
+  );
+  await audit(admin, userId, "twiml.app.default", { sid: data.sid });
+  return { ok: true };
+}
+
+export async function deleteTwimlApp(supabase: SB, userId: string, data: { sid: string }) {
+  await requireAdmin(supabase, userId);
+  await twilioRequest({ method: "DELETE", path: `/Applications/${data.sid}.json` });
+  const admin = await adminClient();
+  await admin.from("twiml_apps").delete().eq("sid", data.sid);
+  await audit(admin, userId, "twiml.app.delete", { sid: data.sid });
+  return { ok: true };
+}
+
+/* ------------------------------------------------------------ voice token */
+
+/** Short-lived Voice SDK token for the signed-in user's device. */
+export async function voiceToken(supabase: SB, userId: string) {
+  const admin = await adminClient();
+  const appSid = await defaultTwimlAppSid(admin);
+  if (!appSid) {
+    throw new Error(
+      "In-app calling isn't set up yet. An admin can create the TwiML App in Settings.",
+    );
+  }
+  await allowedNumbers(supabase, userId);
+  const { mintVoiceToken } = await import("./voice-token.server");
+  return asJson(await mintVoiceToken({ userId, applicationSid: appSid }));
+}
+
+export async function voiceSetupStatus(supabase: SB, userId: string) {
+  await requireAdmin(supabase, userId);
+  const admin = await adminClient();
+  const { data } = await admin
+    .from("twiml_apps")
+    .select("sid, friendly_name, voice_url, sms_url, is_default")
+    .order("created_at", { ascending: true });
+  return asJson({
+    apps: data ?? [],
+    hasApiKey: Boolean(
+      process.env["TWILIO_API_KEY_SID"] && process.env["TWILIO_API_KEY_SECRET"],
+    ),
+    voiceUrl: webhookUrl("app-voice"),
+    smsUrl: webhookUrl("sms"),
+    statusUrl: webhookUrl("status"),
+  });
 }

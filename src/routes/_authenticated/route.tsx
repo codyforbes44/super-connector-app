@@ -2,6 +2,8 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { AppShell } from "@/components/AppShell";
+import { InCallScreen } from "@/components/InCallScreen";
+import { VoiceProvider } from "@/lib/voice-device";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -27,16 +29,19 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedLayout() {
   return (
-    <AppShell>
-      <Suspense
-        fallback={
-          <div className="flex min-h-dvh items-center justify-center">
-            <span className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
-          </div>
-        }
-      >
-        <Outlet />
-      </Suspense>
-    </AppShell>
+    <VoiceProvider>
+      <AppShell>
+        <Suspense
+          fallback={
+            <div className="flex min-h-dvh items-center justify-center">
+              <span className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
+      </AppShell>
+      <InCallScreen />
+    </VoiceProvider>
   );
 }

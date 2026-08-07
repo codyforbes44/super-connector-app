@@ -41,7 +41,9 @@ export type Database = {
       calls: {
         Row: {
           answered_by: string | null
+          answered_in_app: boolean
           app_number: string
+          client_identity: string | null
           created_at: string
           direction: string
           duration: number | null
@@ -57,7 +59,9 @@ export type Database = {
         }
         Insert: {
           answered_by?: string | null
+          answered_in_app?: boolean
           app_number: string
+          client_identity?: string | null
           created_at?: string
           direction: string
           duration?: number | null
@@ -73,7 +77,9 @@ export type Database = {
         }
         Update: {
           answered_by?: string | null
+          answered_in_app?: boolean
           app_number?: string
+          client_identity?: string | null
           created_at?: string
           direction?: string
           duration?: number | null
@@ -413,6 +419,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      twiml_apps: {
+        Row: {
+          created_at: string
+          friendly_name: string
+          id: string
+          is_default: boolean
+          sid: string
+          sms_url: string | null
+          updated_at: string
+          voice_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          friendly_name: string
+          id?: string
+          is_default?: boolean
+          sid: string
+          sms_url?: string | null
+          updated_at?: string
+          voice_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          friendly_name?: string
+          id?: string
+          is_default?: boolean
+          sid?: string
+          sms_url?: string | null
+          updated_at?: string
+          voice_url?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

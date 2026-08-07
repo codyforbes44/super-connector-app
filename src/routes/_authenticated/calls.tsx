@@ -34,6 +34,7 @@ import {
   startCall,
 } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
+import { useVoice } from "@/lib/voice-device";
 
 export const Route = createFileRoute("/_authenticated/calls")({
   head: () => ({
@@ -52,6 +53,7 @@ export const Route = createFileRoute("/_authenticated/calls")({
 function CallsScreen() {
   const boot = useBootstrap();
   const queryClient = useQueryClient();
+  const voice = useVoice();
   const [dialing, setDialing] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [from, setFrom] = useState(boot.numbers[0]?.phone_number ?? "");
@@ -87,8 +89,12 @@ function CallsScreen() {
   async function dial(event: React.FormEvent) {
     event.preventDefault();
     try {
-      await startCall({ data: { appNumber: from, to } });
-      toast.success("Calling your phone now — answer to be connected.");
+      if (voice.ready) {
+        await voice.call(to.trim(), from);
+      } else {
+        await startCall({ data: { appNumber: from, to } });
+        toast.success("Calling your phone now — answer to be connected.");
+      }
       setDialing(false);
       setTo("");
     } catch (error) {
@@ -245,8 +251,9 @@ function CallsScreen() {
             </div>
 
             <p className="text-center text-xs text-muted-foreground">
-              Twilio rings your own phone first, then bridges the contact with your Twilio caller
-              ID.
+              {voice.ready
+                ? "Calls connect right here in the app using your Twilio caller ID."
+                : "In-app calling is offline, so Twilio will ring your own phone first and bridge the call."}
             </p>
           </form>
         </SheetContent>
