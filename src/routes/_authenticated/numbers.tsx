@@ -97,7 +97,10 @@ function NumbersScreen() {
 
       {boot.isAdmin ? (
         <div className="px-4 py-3">
-          <Button className="h-12 w-full font-semibold" onClick={() => setBuying(true)}>
+          <Button
+            className="key-signal h-12 w-full rounded-full font-semibold"
+            onClick={() => setBuying(true)}
+          >
             <Search className="mr-2 h-4 w-4" />
             Find & buy a number
           </Button>
@@ -122,11 +125,11 @@ function NumbersScreen() {
           }
         />
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="space-y-2 px-3 pb-4">
           {boot.numbers.map((n) => {
             const owner = (team.data ?? []).find((t) => t.id === n.assigned_to);
             return (
-              <li key={n.sid} className="px-4 py-3">
+              <li key={n.sid} className="glass-panel rounded-3xl px-4 py-3">
                 <button
                   type="button"
                   className="w-full text-left"
