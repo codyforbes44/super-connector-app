@@ -51,7 +51,7 @@ export async function saveAssistant(
   userId: string,
   args: {
     sid: string;
-    answerMode: "classic" | "ai_agent";
+    answerMode: "classic" | "ai_greeting" | "ai_agent";
     voiceId: string | null;
     agentId: string | null;
   },
@@ -59,6 +59,9 @@ export async function saveAssistant(
   await requireAdmin(supabase, userId);
   if (args.answerMode === "ai_agent" && !args.agentId) {
     throw new Error("Pick an ElevenLabs agent before switching to the AI assistant.");
+  }
+  if (args.answerMode === "ai_greeting" && !args.voiceId) {
+    throw new Error("Pick a voice before switching to the AI-voiced greeting.");
   }
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin
@@ -72,6 +75,70 @@ export async function saveAssistant(
   if (error) throw error;
   await audit(supabaseAdmin, userId, "elevenlabs.assistant.save", { ...args });
   return { ok: true };
+}
+
+export type AgentDraft = {
+  name: string;
+  prompt: string;
+  firstMessage: string;
+  language: string;
+  voiceId: string | null;
+};
+
+function cleanAgent(draft: AgentDraft): el.AgentInput {
+  const name = draft.name.trim();
+  if (!name) throw new Error("Give the agent a name.");
+  return {
+    name: name.slice(0, 80),
+    prompt: draft.prompt.trim().slice(0, 8000),
+    firstMessage: draft.firstMessage.trim().slice(0, 400),
+    language: draft.language || "en",
+    voiceId: draft.voiceId || null,
+  };
+}
+
+export async function getAgent(supabase: SupabaseClient, userId: string, args: { agentId: string }) {
+  await allowedNumbers(supabase, userId);
+  return el.getAgent(args.agentId);
+}
+
+export async function createAgent(supabase: SupabaseClient, userId: string, draft: AgentDraft) {
+  await requireAdmin(supabase, userId);
+  const result = await el.createAgent(cleanAgent(draft));
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await audit(supabaseAdmin, userId, "elevenlabs.agent.create", {
+    agent_id: result.agent_id,
+    name: draft.name,
+  });
+  return result;
+}
+
+export async function updateAgent(
+  supabase: SupabaseClient,
+  userId: string,
+  args: AgentDraft & { agentId: string },
+) {
+  await requireAdmin(supabase, userId);
+  await el.updateAgent(args.agentId, cleanAgent(args));
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await audit(supabaseAdmin, userId, "elevenlabs.agent.update", { agent_id: args.agentId });
+  return { ok: true as const };
+}
+
+export async function deleteAgent(
+  supabase: SupabaseClient,
+  userId: string,
+  args: { agentId: string },
+) {
+  await requireAdmin(supabase, userId);
+  await el.deleteAgent(args.agentId);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await supabaseAdmin
+    .from("phone_numbers")
+    .update({ elevenlabs_agent_id: null, answer_mode: "classic" })
+    .eq("elevenlabs_agent_id", args.agentId);
+  await audit(supabaseAdmin, userId, "elevenlabs.agent.delete", { agent_id: args.agentId });
+  return { ok: true as const };
 }
 
 export type AssistantProfile = {
