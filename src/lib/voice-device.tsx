@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { getVoiceToken } from "@/lib/twilio.functions";
+import { getVoiceToken, setVoicePresence } from "@/lib/twilio.functions";
 import { errorMessage } from "@/lib/format";
 
 type Call = {
@@ -60,6 +60,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   } | null>(null);
   const callRef = useRef<Call | null>(null);
   const refreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const presenceRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [status, setStatus] = useState<DeviceStatus>("idle");
   const [callState, setCallState] = useState<CallState>("idle");
@@ -121,10 +122,22 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
         });
         deviceRef.current = device as unknown as typeof deviceRef.current;
 
-        device.on("registered", () => setStatus("ready"));
+        device.on("registered", () => {
+          setStatus("ready");
+          // Tell the server this device can take calls, and keep saying so.
+          const beat = () => {
+            void setVoicePresence({ data: { online: true } }).catch(() => {});
+          };
+          beat();
+          if (presenceRef.current) clearInterval(presenceRef.current);
+          presenceRef.current = setInterval(beat, 45_000);
+        });
         device.on("error", (err: { message?: string }) => {
           setError(err?.message ?? "Voice device error");
           setStatus("unavailable");
+          if (presenceRef.current) clearInterval(presenceRef.current);
+          presenceRef.current = null;
+          void setVoicePresence({ data: { online: false } }).catch(() => {});
         });
         device.on("incoming", (call: unknown) => {
           const incoming = call as Call;
@@ -160,6 +173,9 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
       if (refreshRef.current) clearTimeout(refreshRef.current);
+      if (presenceRef.current) clearInterval(presenceRef.current);
+      presenceRef.current = null;
+      void setVoicePresence({ data: { online: false } }).catch(() => {});
       deviceRef.current?.destroy();
       deviceRef.current = null;
     };
