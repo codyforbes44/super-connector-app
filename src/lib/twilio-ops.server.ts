@@ -136,6 +136,127 @@ export async function updateNumberSettings(
   return { ok: true };
 }
 
+/* ------------------------------------------------------- caller ID / default */
+
+type OutgoingCallerId = {
+  sid: string;
+  phone_number: string;
+  friendly_name: string | null;
+  date_created?: string;
+};
+
+/** Verified outbound caller IDs on the account. */
+export async function listCallerIds(supabase: SB, userId: string) {
+  await allowedNumbers(supabase, userId);
+  const res = await twilioRequest<{ outgoing_caller_ids: OutgoingCallerId[] }>({
+    path: "/OutgoingCallerIds.json",
+    params: { PageSize: 100 },
+  });
+  return (res.outgoing_caller_ids ?? []).map((item) => ({
+    sid: item.sid,
+    phoneNumber: item.phone_number,
+    friendlyName: item.friendly_name,
+    dateCreated: item.date_created ?? null,
+  }));
+}
+
+/**
+ * Kicks off caller ID verification: Twilio calls the number and reads out the
+ * returned six-digit code, which the caller types on the keypad.
+ */
+export async function requestCallerIdVerification(
+  supabase: SB,
+  userId: string,
+  data: { phoneNumber: string; friendlyName?: string },
+) {
+  await requireAdmin(supabase, userId);
+  const phoneNumber = normalizePhone(data.phoneNumber);
+  const res = await twilioRequest<{ validation_code: string; phone_number: string }>({
+    method: "POST",
+    path: "/OutgoingCallerIds.json",
+    params: {
+      PhoneNumber: phoneNumber,
+      FriendlyName: data.friendlyName || phoneNumber,
+    },
+  });
+  const admin = await adminClient();
+  await audit(admin, userId, "callerid.verify_request", { phoneNumber });
+  return { validationCode: res.validation_code, phoneNumber: res.phone_number ?? phoneNumber };
+}
+
+export async function deleteCallerId(
+  supabase: SB,
+  userId: string,
+  data: { sid: string; phoneNumber?: string },
+) {
+  await requireAdmin(supabase, userId);
+  await twilioRequest({ method: "DELETE", path: `/OutgoingCallerIds/${data.sid}.json` });
+  const admin = await adminClient();
+  if (data.phoneNumber) {
+    await admin
+      .from("phone_numbers")
+      .update({ outbound_caller_id: null })
+      .eq("outbound_caller_id", normalizePhone(data.phoneNumber));
+  }
+  await audit(admin, userId, "callerid.delete", { sid: data.sid });
+  return { ok: true };
+}
+
+/** Per-number outbound caller ID. Pass null to present the SignalBox number. */
+export async function setOutboundCallerId(
+  supabase: SB,
+  userId: string,
+  data: { sid: string; callerId: string | null },
+) {
+  await requireAdmin(supabase, userId);
+  let value: string | null = null;
+  if (data.callerId) {
+    value = normalizePhone(data.callerId);
+    const verified = await listCallerIds(supabase, userId);
+    if (!verified.some((item) => normalizePhone(item.phoneNumber) === value)) {
+      throw new Error("That number isn't a verified caller ID yet. Verify it first.");
+    }
+  }
+  const admin = await adminClient();
+  await admin.from("phone_numbers").update({ outbound_caller_id: value }).eq("sid", data.sid);
+  await audit(admin, userId, "numbers.caller_id", { sid: data.sid, callerId: value });
+  return { ok: true };
+}
+
+/** The number this user's dialer and composer start from. */
+export async function setDefaultNumber(
+  supabase: SB,
+  userId: string,
+  data: { phoneNumber: string | null },
+) {
+  let value: string | null = null;
+  if (data.phoneNumber) {
+    value = normalizePhone(data.phoneNumber);
+    const { numbers } = await allowedNumbers(supabase, userId);
+    if (!numbers.includes(value)) throw new Error("You are not assigned to that number.");
+  }
+  const { error } = await supabase
+    .from("profiles")
+    .update({ default_number: value })
+    .eq("id", userId);
+  if (error) throw new Error(error.message);
+  return { ok: true };
+}
+
+/**
+ * Which number the recipient sees for calls placed from `appNumber`.
+ * Falls back to the SignalBox number when no verified caller ID is attached.
+ */
+export async function resolveOutboundCallerId(client: SB, appNumber: string): Promise<string> {
+  const { data } = await client
+    .from("phone_numbers")
+    .select("outbound_caller_id")
+    .eq("phone_number", appNumber)
+    .maybeSingle();
+  const value = (data?.outbound_caller_id as string | null) ?? null;
+  return value ? normalizePhone(value) : appNumber;
+}
+
 export async function wireNumber(
   supabase: SB,
   userId: string,
@@ -483,7 +604,8 @@ export async function startCall(
   }
 
   const target = normalizePhone(data.to);
-  const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${appNumber}"><Number>${target}</Number></Dial></Response>`;
+  const callerId = await resolveOutboundCallerId(supabase, appNumber);
+  const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${callerId}"><Number>${target}</Number></Dial></Response>`;
 
   const call = await twilioRequest<{ sid: string; status: string }>({
     method: "POST",

@@ -728,6 +728,7 @@ export type Database = {
           friendly_name: string | null
           greeting_audio_path: string | null
           id: string
+          outbound_caller_id: string | null
           phone_number: string
           sid: string
           voicemail_greeting: string | null
@@ -758,6 +759,7 @@ export type Database = {
           friendly_name?: string | null
           greeting_audio_path?: string | null
           id?: string
+          outbound_caller_id?: string | null
           phone_number: string
           sid: string
           voicemail_greeting?: string | null
@@ -788,6 +790,7 @@ export type Database = {
           friendly_name?: string | null
           greeting_audio_path?: string | null
           id?: string
+          outbound_caller_id?: string | null
           phone_number?: string
           sid?: string
           voicemail_greeting?: string | null
@@ -877,6 +880,7 @@ export type Database = {
           agent_phone: string | null
           avatar_url: string | null
           created_at: string
+          default_number: string | null
           display_name: string | null
           email: string | null
           id: string
@@ -890,6 +894,7 @@ export type Database = {
           agent_phone?: string | null
           avatar_url?: string | null
           created_at?: string
+          default_number?: string | null
           display_name?: string | null
           email?: string | null
           id: string
@@ -903,6 +908,7 @@ export type Database = {
           agent_phone?: string | null
           avatar_url?: string | null
           created_at?: string
+          default_number?: string | null
           display_name?: string | null
           email?: string | null
           id?: string

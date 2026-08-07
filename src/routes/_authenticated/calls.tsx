@@ -88,7 +88,9 @@ function CallsScreen() {
   const navigate = useNavigate({ from: Route.fullPath });
   const [dialing, setDialing] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [from, setFrom] = useState(boot.numbers[0]?.phone_number ?? "");
+  const [from, setFrom] = useState(
+    (boot.profile?.default_number as string | null) ?? boot.numbers[0]?.phone_number ?? "",
+  );
   const [to, setTo] = useState("");
   const [audio, setAudio] = useState<string | null>(null);
   const [detail, setDetail] = useState<CallRow | null>(null);
@@ -344,6 +346,15 @@ function CallsScreen() {
                   ))}
                 </SelectContent>
               </Select>
+              {(() => {
+                const selected = boot.numbers.find((n) => n.phone_number === from);
+                const presented = selected?.outbound_caller_id as string | null | undefined;
+                return presented ? (
+                  <p className="text-[0.7rem] text-muted-foreground">
+                    Recipients see your verified caller ID {formatPhone(presented)}.
+                  </p>
+                ) : null;
+              })()}
             </div>
 
             <div className="flex items-center justify-center gap-8">
