@@ -216,7 +216,10 @@ function BuySheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-3xl">
+      <SheetContent
+        side="bottom"
+        className="app-gradient max-h-[85dvh] overflow-y-auto rounded-t-[2rem] border-border"
+      >
         <SheetHeader className="px-0">
           <SheetTitle className="font-display">Find a number</SheetTitle>
         </SheetHeader>
@@ -227,7 +230,7 @@ function BuySheet({
               <Input
                 value={country}
                 onChange={(e) => setCountry(e.target.value.toUpperCase().slice(0, 2))}
-                className="h-11"
+                className="h-11 rounded-full px-4"
               />
             </div>
             <div className="space-y-1.5">
@@ -236,13 +239,13 @@ function BuySheet({
                 value={areaCode}
                 onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
                 inputMode="numeric"
-                className="h-11"
+                className="h-11 rounded-full px-4"
               />
             </div>
             <div className="space-y-1.5">
               <Label>Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger className="h-11 w-full">
+                <SelectTrigger className="h-11 w-full rounded-full px-4">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -254,7 +257,7 @@ function BuySheet({
             </div>
           </div>
           <Button
-            className="h-11 w-full"
+            className="h-11 w-full rounded-full"
             variant="secondary"
             onClick={() => search.mutate()}
             disabled={search.isPending}
@@ -262,9 +265,12 @@ function BuySheet({
             {search.isPending ? "Searching…" : "Search Twilio inventory"}
           </Button>
 
-          <ul className="divide-y divide-border">
+          <ul className="space-y-2">
             {results.map((r) => (
-              <li key={r.phone_number} className="flex items-center gap-3 py-2.5">
+              <li
+                key={r.phone_number}
+                className="glass-panel flex items-center gap-3 rounded-2xl px-3.5 py-2.5"
+              >
                 <div className="min-w-0 flex-1">
                   <p className="tabular text-sm font-semibold">{formatPhone(r.phone_number)}</p>
                   <p className="truncate text-[0.7rem] text-muted-foreground">
@@ -273,6 +279,7 @@ function BuySheet({
                 </div>
                 <Button
                   size="sm"
+                  className="key-call rounded-full"
                   onClick={() => buy.mutate(r.phone_number)}
                   disabled={buy.isPending}
                 >
