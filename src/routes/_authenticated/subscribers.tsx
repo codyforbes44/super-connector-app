@@ -70,12 +70,12 @@ function SubscribersScreen() {
           <EmptyState
             icon={ShieldCheck}
             title="Restricted"
-            body="Only the super admin can view subscribers."
+            description="Only the super admin can view subscribers."
           />
         ) : null}
 
         {!query.isLoading && !query.isError && rows.length === 0 ? (
-          <EmptyState icon={ShieldCheck} title="No accounts yet" body="New signups appear here." />
+          <EmptyState icon={ShieldCheck} title="No accounts yet" description="New signups appear here." />
         ) : null}
 
         {rows.map((row) => {
