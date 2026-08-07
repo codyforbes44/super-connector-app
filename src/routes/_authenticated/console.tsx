@@ -93,12 +93,17 @@ function ConsoleScreen() {
   }
 
   return (
-    <div className="pb-6">
-      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-background/95 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur">
-        <Button size="icon" variant="ghost" onClick={() => void navigate({ to: "/settings" })}>
+    <div className="app-gradient min-h-dvh pb-6">
+      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border/60 bg-background/40 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur-xl">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="rounded-full"
+          onClick={() => void navigate({ to: "/settings" })}
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="font-display text-lg font-semibold">API console</h1>
+        <h1 className="font-display text-lg font-semibold tracking-tight">API console</h1>
       </header>
 
       <div className="space-y-4 px-4 py-4">
@@ -112,7 +117,7 @@ function ConsoleScreen() {
           <div className="space-y-1.5">
             <Label>Host</Label>
             <Select value={host} onValueChange={setHost}>
-              <SelectTrigger className="h-11 w-full">
+              <SelectTrigger className="h-11 w-full rounded-full px-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -127,7 +132,7 @@ function ConsoleScreen() {
           <div className="space-y-1.5">
             <Label>Method</Label>
             <Select value={method} onValueChange={setMethod}>
-              <SelectTrigger className="h-11 w-full">
+              <SelectTrigger className="h-11 w-full rounded-full px-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -148,7 +153,7 @@ function ConsoleScreen() {
             value={path}
             onChange={(e) => setPath(e.target.value)}
             maxLength={400}
-            className="h-11 font-mono text-xs"
+            className="h-11 rounded-full px-4 font-mono text-xs"
           />
         </div>
 
@@ -160,11 +165,15 @@ function ConsoleScreen() {
             onChange={(e) => setParams(e.target.value)}
             rows={4}
             maxLength={4000}
-            className="font-mono text-xs"
+            className="rounded-2xl font-mono text-xs"
           />
         </div>
 
-        <Button className="h-12 w-full font-semibold" onClick={run} disabled={busy}>
+        <Button
+          className="key-signal h-12 w-full rounded-full font-semibold"
+          onClick={run}
+          disabled={busy}
+        >
           {busy ? "Calling Twilio…" : "Send request"}
         </Button>
 
@@ -178,7 +187,7 @@ function ConsoleScreen() {
             >
               {response.status} {response.ok ? "OK" : "Error"}
             </p>
-            <pre className="no-scrollbar max-h-96 overflow-auto rounded-xl border border-border bg-card p-3 font-mono text-[0.7rem] whitespace-pre-wrap">
+            <pre className="glass-panel no-scrollbar max-h-96 overflow-auto rounded-2xl p-3 font-mono text-[0.7rem] whitespace-pre-wrap">
               {response.body}
             </pre>
           </div>

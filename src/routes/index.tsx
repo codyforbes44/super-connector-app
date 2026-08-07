@@ -54,17 +54,26 @@ const FEATURES = [
 
 function Landing() {
   return (
-    <div className="mx-auto w-full max-w-lg px-5 pt-[calc(env(safe-area-inset-top)+3rem)] pb-16">
-      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
-        <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+    <div className="app-gradient relative mx-auto w-full max-w-lg overflow-hidden px-5 pt-[calc(env(safe-area-inset-top)+3rem)] pb-16">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 -right-16 h-64 w-64 rounded-full bg-primary/25 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-64 -left-20 h-56 w-56 rounded-full bg-success/20 blur-3xl"
+      />
+
+      <span className="glass-panel relative inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground">
+        <span className="h-1.5 w-1.5 rounded-full bg-success" />
         Twilio, unrestricted
       </span>
 
-      <h1 className="font-display mt-5 text-4xl leading-[1.05] font-semibold">
+      <h1 className="font-display relative mt-5 text-4xl leading-[1.05] font-semibold">
         Your whole Twilio account.
         <span className="text-primary"> One mobile app.</span>
       </h1>
-      <p className="mt-4 text-[0.95rem] leading-relaxed text-muted-foreground">
+      <p className="relative mt-4 text-[0.95rem] leading-relaxed text-muted-foreground">
         Signalbox is the command center Talkyto, Toktiv and Mango don&apos;t give you: a live
         omnichannel inbox, real telephony, full number administration — and a raw API console for
         everything else.
@@ -72,20 +81,20 @@ function Landing() {
 
       <Link
         to="/auth"
-        className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
+        className="key-call relative mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-semibold transition-transform active:scale-[0.98]"
       >
         Open the command center
         <ArrowRight className="h-4 w-4" />
       </Link>
 
-      <ul className="mt-10 space-y-3">
+      <ul className="relative mt-10 space-y-3">
         {FEATURES.map((feature) => (
           <li
             key={feature.title}
-            className="rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+            className="glass-panel rounded-3xl p-4 transition-colors hover:border-primary/40"
           >
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+              <span className="key-raised mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
                 <feature.icon className="h-[1.05rem] w-[1.05rem] text-primary" />
               </span>
               <div>

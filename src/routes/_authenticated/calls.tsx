@@ -4,6 +4,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   PhoneCall,
+  PhoneOff,
   PhoneOutgoing,
   Play,
   RefreshCw,
@@ -12,8 +13,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { Dialpad } from "@/components/Dialpad";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -124,14 +125,18 @@ function CallsScreen() {
       />
 
       <div className="px-4 py-3">
-        <Button className="h-12 w-full font-semibold" onClick={() => setDialing(true)}>
-          <PhoneOutgoing className="mr-2 h-4 w-4" />
-          New call
-        </Button>
+        <button
+          type="button"
+          onClick={() => setDialing(true)}
+          className="key-call flex w-full items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold transition-transform active:scale-[0.98]"
+        >
+          <PhoneOutgoing className="h-4 w-4" />
+          Open dialer
+        </button>
       </div>
 
       {audio ? (
-        <div className="px-4 pb-3">
+        <div className="glass-panel mx-4 mb-3 rounded-3xl p-3">
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <audio className="w-full" controls autoPlay src={audio} />
         </div>
@@ -149,18 +154,20 @@ function CallsScreen() {
           }
         />
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="space-y-2 px-3 pb-4">
           {(calls.data ?? []).map((call) => {
             const inbound = call.direction === "inbound";
             const other = inbound ? call.from_number : call.to_number;
             return (
-              <li key={call.id} className="flex items-center gap-3 px-4 py-3">
+              <li key={call.id} className="glass-panel flex items-center gap-3 rounded-3xl px-3.5 py-3">
                 <span
                   className={cn(
-                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
                     call.status === "no-answer" || call.status === "failed"
-                      ? "bg-destructive/15 text-destructive"
-                      : "bg-secondary text-muted-foreground",
+                      ? "key-end"
+                      : inbound
+                        ? "key-call"
+                        : "key-signal",
                   )}
                 >
                   {inbound ? (
@@ -178,10 +185,14 @@ function CallsScreen() {
                 <span className="tabular text-[0.7rem] text-muted-foreground">
                   {relativeTime(call.started_at)}
                 </span>
-                <Button size="icon" variant="ghost" onClick={() => playRecording(call.sid)}>
+                <button
+                  type="button"
+                  onClick={() => playRecording(call.sid)}
+                  className="key-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-foreground"
+                >
                   <Play className="h-4 w-4" />
                   <span className="sr-only">Play recording</span>
-                </Button>
+                </button>
               </li>
             );
           })}
@@ -189,19 +200,19 @@ function CallsScreen() {
       )}
 
       <Sheet open={dialing} onOpenChange={setDialing}>
-        <SheetContent side="bottom" className="rounded-t-3xl">
+        <SheetContent side="bottom" className="app-gradient rounded-t-[2rem] border-border">
           <SheetHeader className="px-0">
-            <SheetTitle className="font-display">New call</SheetTitle>
+            <SheetTitle className="font-display text-center">Dialer</SheetTitle>
           </SheetHeader>
-          <form onSubmit={dial} className="space-y-4 pb-[env(safe-area-inset-bottom)]">
-            <p className="text-xs text-muted-foreground">
-              Twilio rings your own phone first, then bridges the contact with your Twilio caller
-              ID.
-            </p>
+          <form onSubmit={dial} className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+            <Dialpad value={to} onChange={setTo} />
+
             <div className="space-y-1.5">
-              <Label>Caller ID</Label>
+              <Label className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">
+                Caller ID
+              </Label>
               <Select value={from} onValueChange={setFrom}>
-                <SelectTrigger className="h-11 w-full">
+                <SelectTrigger className="h-11 w-full rounded-full px-4">
                   <SelectValue placeholder="Number" />
                 </SelectTrigger>
                 <SelectContent>
@@ -213,22 +224,30 @@ function CallsScreen() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="call-to">Call</Label>
-              <Input
-                id="call-to"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                inputMode="tel"
-                required
-                maxLength={20}
-                placeholder="+1 555 010 2030"
-                className="h-11"
-              />
+
+            <div className="flex items-center justify-center gap-8">
+              <button
+                type="button"
+                onClick={() => setDialing(false)}
+                className="key-end flex h-16 w-16 items-center justify-center rounded-full transition-transform active:scale-95"
+              >
+                <PhoneOff className="h-6 w-6" />
+                <span className="sr-only">Close dialer</span>
+              </button>
+              <button
+                type="submit"
+                disabled={!to.trim()}
+                className="key-call flex h-16 w-16 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-40"
+              >
+                <PhoneCall className="h-6 w-6" />
+                <span className="sr-only">Connect call</span>
+              </button>
             </div>
-            <Button type="submit" className="h-12 w-full font-semibold">
-              Connect call
-            </Button>
+
+            <p className="text-center text-xs text-muted-foreground">
+              Twilio rings your own phone first, then bridges the contact with your Twilio caller
+              ID.
+            </p>
           </form>
         </SheetContent>
       </Sheet>

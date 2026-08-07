@@ -97,7 +97,10 @@ function NumbersScreen() {
 
       {boot.isAdmin ? (
         <div className="px-4 py-3">
-          <Button className="h-12 w-full font-semibold" onClick={() => setBuying(true)}>
+          <Button
+            className="key-signal h-12 w-full rounded-full font-semibold"
+            onClick={() => setBuying(true)}
+          >
             <Search className="mr-2 h-4 w-4" />
             Find & buy a number
           </Button>
@@ -122,11 +125,11 @@ function NumbersScreen() {
           }
         />
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="space-y-2 px-3 pb-4">
           {boot.numbers.map((n) => {
             const owner = (team.data ?? []).find((t) => t.id === n.assigned_to);
             return (
-              <li key={n.sid} className="px-4 py-3">
+              <li key={n.sid} className="glass-panel rounded-3xl px-4 py-3">
                 <button
                   type="button"
                   className="w-full text-left"
@@ -213,7 +216,10 @@ function BuySheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-3xl">
+      <SheetContent
+        side="bottom"
+        className="app-gradient max-h-[85dvh] overflow-y-auto rounded-t-[2rem] border-border"
+      >
         <SheetHeader className="px-0">
           <SheetTitle className="font-display">Find a number</SheetTitle>
         </SheetHeader>
@@ -224,7 +230,7 @@ function BuySheet({
               <Input
                 value={country}
                 onChange={(e) => setCountry(e.target.value.toUpperCase().slice(0, 2))}
-                className="h-11"
+                className="h-11 rounded-full px-4"
               />
             </div>
             <div className="space-y-1.5">
@@ -233,13 +239,13 @@ function BuySheet({
                 value={areaCode}
                 onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
                 inputMode="numeric"
-                className="h-11"
+                className="h-11 rounded-full px-4"
               />
             </div>
             <div className="space-y-1.5">
               <Label>Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger className="h-11 w-full">
+                <SelectTrigger className="h-11 w-full rounded-full px-4">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -251,7 +257,7 @@ function BuySheet({
             </div>
           </div>
           <Button
-            className="h-11 w-full"
+            className="h-11 w-full rounded-full"
             variant="secondary"
             onClick={() => search.mutate()}
             disabled={search.isPending}
@@ -259,9 +265,12 @@ function BuySheet({
             {search.isPending ? "Searching…" : "Search Twilio inventory"}
           </Button>
 
-          <ul className="divide-y divide-border">
+          <ul className="space-y-2">
             {results.map((r) => (
-              <li key={r.phone_number} className="flex items-center gap-3 py-2.5">
+              <li
+                key={r.phone_number}
+                className="glass-panel flex items-center gap-3 rounded-2xl px-3.5 py-2.5"
+              >
                 <div className="min-w-0 flex-1">
                   <p className="tabular text-sm font-semibold">{formatPhone(r.phone_number)}</p>
                   <p className="truncate text-[0.7rem] text-muted-foreground">
@@ -270,6 +279,7 @@ function BuySheet({
                 </div>
                 <Button
                   size="sm"
+                  className="key-call rounded-full"
                   onClick={() => buy.mutate(r.phone_number)}
                   disabled={buy.isPending}
                 >
@@ -337,7 +347,10 @@ function NumberSheet({
 
   return (
     <Sheet open onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side="bottom" className="max-h-[88dvh] overflow-y-auto rounded-t-3xl">
+      <SheetContent
+        side="bottom"
+        className="app-gradient max-h-[88dvh] overflow-y-auto rounded-t-[2rem] border-border"
+      >
         <SheetHeader className="px-0">
           <SheetTitle className="font-display tabular">
             {formatPhone(number.phone_number)}
@@ -350,13 +363,13 @@ function NumberSheet({
               value={friendlyName}
               onChange={(e) => setFriendlyName(e.target.value)}
               maxLength={64}
-              className="h-11"
+              className="h-11 rounded-full px-4"
             />
           </div>
           <div className="space-y-1.5">
             <Label>Assigned agent</Label>
             <Select value={assigned} onValueChange={setAssigned}>
-              <SelectTrigger className="h-11 w-full">
+              <SelectTrigger className="h-11 w-full rounded-full px-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -377,7 +390,7 @@ function NumberSheet({
               placeholder="Leave empty to send to voicemail"
               inputMode="tel"
               maxLength={20}
-              className="h-11"
+              className="h-11 rounded-full px-4"
             />
           </div>
           <div className="space-y-1.5">
@@ -386,18 +399,22 @@ function NumberSheet({
               value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
               maxLength={300}
-              className="h-11"
+              className="h-11 rounded-full px-4"
             />
           </div>
 
-          <Button className="h-12 w-full font-semibold" onClick={save} disabled={busy}>
+          <Button
+            className="key-signal h-12 w-full rounded-full font-semibold"
+            onClick={save}
+            disabled={busy}
+          >
             Save changes
           </Button>
 
           <div className="flex gap-2">
             <Button
               variant="secondary"
-              className="flex-1"
+              className="flex-1 rounded-full"
               onClick={async () => {
                 try {
                   await wireNumber({ data: { sid: number.sid } });
@@ -413,7 +430,7 @@ function NumberSheet({
             </Button>
             <Button
               variant="ghost"
-              className="text-destructive"
+              className="key-end rounded-full"
               onClick={async () => {
                 if (!confirm("Release this number back to Twilio? This cannot be undone.")) return;
                 try {

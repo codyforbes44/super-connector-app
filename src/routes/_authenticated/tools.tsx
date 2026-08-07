@@ -48,9 +48,13 @@ function ToolsScreen() {
       <ScreenHeader title="Tools" subtitle="Verify OTP · Lookup intelligence" />
       <div className="px-4 py-3">
         <Tabs defaultValue="verify">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="verify">Verify</TabsTrigger>
-            <TabsTrigger value="lookup">Lookup</TabsTrigger>
+          <TabsList className="glass-panel grid w-full grid-cols-2 rounded-full p-1">
+            <TabsTrigger value="verify" className="rounded-full">
+              Verify
+            </TabsTrigger>
+            <TabsTrigger value="lookup" className="rounded-full">
+              Lookup
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="verify" className="pt-4">
             <VerifyPanel />
@@ -80,7 +84,7 @@ function VerifyPanel() {
 
   if (services.isError) {
     return (
-      <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+      <p className="glass-panel rounded-3xl p-4 text-sm text-muted-foreground">
         {errorMessage(services.error)}
       </p>
     );
@@ -92,13 +96,13 @@ function VerifyPanel() {
   return (
     <div className="space-y-4">
       {list.length === 0 ? (
-        <div className="space-y-3 rounded-xl border border-dashed border-border p-4">
+        <div className="glass-panel space-y-3 rounded-3xl p-4">
           <p className="text-sm text-muted-foreground">
             No Verify service exists yet. Create one to start sending one-time passcodes.
           </p>
           <Button
             variant="secondary"
-            className="w-full"
+            className="w-full rounded-full"
             onClick={async () => {
               try {
                 await createVerifyService({ data: { name: "Signalbox" } });
@@ -116,7 +120,7 @@ function VerifyPanel() {
         <div className="space-y-1.5">
           <Label>Service</Label>
           <Select value={activeService} onValueChange={setService}>
-            <SelectTrigger className="h-11 w-full">
+            <SelectTrigger className="h-11 w-full rounded-full px-4">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -139,13 +143,13 @@ function VerifyPanel() {
             onChange={(e) => setPhone(e.target.value)}
             inputMode="tel"
             maxLength={20}
-            className="h-11"
+            className="h-11 rounded-full px-4"
           />
         </div>
         <div className="space-y-1.5">
           <Label>Channel</Label>
           <Select value={channel} onValueChange={setChannel}>
-            <SelectTrigger className="h-11 w-full">
+            <SelectTrigger className="h-11 w-full rounded-full px-4">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -159,7 +163,7 @@ function VerifyPanel() {
       </div>
 
       <Button
-        className="h-11 w-full"
+        className="key-signal h-11 w-full rounded-full"
         disabled={!activeService || !phone}
         onClick={async () => {
           try {
@@ -181,12 +185,12 @@ function VerifyPanel() {
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 10))}
             inputMode="numeric"
-            className="tabular h-11"
+            className="tabular h-11 rounded-full px-4"
           />
         </div>
         <Button
           variant="secondary"
-          className="h-11"
+          className="h-11 rounded-full"
           disabled={!activeService || !code}
           onClick={async () => {
             try {
@@ -231,15 +235,19 @@ function LookupPanel() {
             onChange={(e) => setPhone(e.target.value)}
             inputMode="tel"
             maxLength={20}
-            className="h-11"
+            className="h-11 rounded-full px-4"
           />
         </div>
-        <Button className="h-11" disabled={!phone || run.isPending} onClick={() => run.mutate()}>
+        <Button
+          className="key-signal h-11 rounded-full"
+          disabled={!phone || run.isPending}
+          onClick={() => run.mutate()}
+        >
           Look up
         </Button>
       </div>
 
-      <ul className="divide-y divide-border">
+      <ul className="space-y-2">
         {(history.data ?? []).map((row) => {
           const result = (row.result ?? {}) as {
             valid?: boolean;
@@ -248,7 +256,7 @@ function LookupPanel() {
             line_type_intelligence?: { type?: string; carrier_name?: string } | null;
           };
           return (
-            <li key={row.id} className="py-3">
+            <li key={row.id} className="glass-panel rounded-2xl px-3.5 py-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="tabular text-sm font-semibold">{formatPhone(row.phone_number)}</p>
                 <span className="text-[0.7rem] text-muted-foreground">

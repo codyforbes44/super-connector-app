@@ -133,10 +133,20 @@ function ThreadScreen() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-background/95 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur">
+      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-background/55 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur-xl">
         <Button size="icon" variant="ghost" onClick={() => void navigate({ to: "/inbox" })}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
+        <span
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+            convo?.channel === "whatsapp"
+              ? "ring-glow-success bg-success/20 text-success"
+              : "ring-glow bg-primary/20 text-primary",
+          )}
+        >
+          {(convo?.contact_name || convo?.contact_number || "?").slice(0, 2).toUpperCase()}
+        </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">
             {convo?.contact_name || formatPhone(convo?.contact_number)}
@@ -146,10 +156,14 @@ function ThreadScreen() {
             {formatPhone(convo?.app_number)}
           </p>
         </div>
-        <Button size="icon" variant="ghost" onClick={call}>
+        <button
+          type="button"
+          onClick={call}
+          className="key-call flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95"
+        >
           <Phone className="h-5 w-5" />
           <span className="sr-only">Call contact</span>
-        </Button>
+        </button>
       </header>
 
       <div className="flex-1 space-y-2 px-3 py-4">
@@ -160,12 +174,12 @@ function ThreadScreen() {
             <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
               <div
                 className={cn(
-                  "max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm",
+                  "max-w-[80%] rounded-3xl px-4 py-2.5 text-sm shadow-[var(--shadow-key)]",
                   m.is_internal_note
                     ? "border border-dashed border-primary/50 bg-primary/10 text-foreground"
                     : mine
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground",
+                      ? "key-signal rounded-br-lg"
+                      : "glass-panel rounded-bl-lg text-foreground",
                 )}
               >
                 {m.is_internal_note ? (
@@ -192,30 +206,36 @@ function ThreadScreen() {
 
       <form
         onSubmit={submit}
-        className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/95 px-3 py-2 backdrop-blur"
+        className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/60 px-3 py-2 backdrop-blur-xl"
       >
-        <div className="flex items-end gap-2">
-          <Button
+        <div className="glass-panel flex items-end gap-2 rounded-full p-1.5">
+          <button
             type="button"
-            size="icon"
-            variant={noteMode ? "default" : "ghost"}
             onClick={() => setNoteMode(!noteMode)}
+            className={cn(
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95",
+              noteMode ? "key-signal" : "key-raised text-muted-foreground",
+            )}
           >
             <StickyNote className="h-4 w-4" />
             <span className="sr-only">Toggle internal note</span>
-          </Button>
+          </button>
           <Textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={1}
             maxLength={1500}
             placeholder={noteMode ? "Internal note (not sent)" : "Message"}
-            className="max-h-32 min-h-11 resize-none rounded-xl"
+            className="max-h-32 min-h-10 resize-none rounded-2xl border-0 bg-transparent px-2 py-2.5 shadow-none focus-visible:ring-0"
           />
-          <Button type="submit" size="icon" disabled={busy || !draft.trim()}>
+          <button
+            type="submit"
+            disabled={busy || !draft.trim()}
+            className="key-call flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-50"
+          >
             <Send className="h-4 w-4" />
             <span className="sr-only">Send</span>
-          </Button>
+          </button>
         </div>
       </form>
     </div>

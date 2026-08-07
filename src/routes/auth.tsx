@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Mail, PhoneCall } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -88,21 +89,34 @@ function AuthScreen() {
 
   if (checkEmail) {
     return (
-      <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-6 text-center">
-        <h1 className="font-display text-2xl font-semibold">Check your inbox</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          We sent a confirmation link to <span className="text-foreground">{email}</span>. Open it
-          to finish creating your Signalbox account.
-        </p>
-        <Button variant="ghost" className="mt-6" onClick={() => setCheckEmail(false)}>
-          Back to sign in
-        </Button>
+      <div className="app-gradient mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-6">
+        <div className="glass-panel rounded-[2rem] px-6 py-10 text-center">
+          <span className="key-signal mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full">
+            <Mail className="h-6 w-6" />
+          </span>
+          <h1 className="font-display text-2xl font-semibold">Check your inbox</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            We sent a confirmation link to <span className="text-foreground">{email}</span>. Open it
+            to finish creating your Signalbox account.
+          </p>
+          <Button variant="ghost" className="mt-6" onClick={() => setCheckEmail(false)}>
+            Back to sign in
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-6 py-12">
+    <div className="app-gradient relative mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center overflow-hidden px-6 py-12">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-16 right-0 h-56 w-56 rounded-full bg-primary/25 blur-3xl"
+      />
+      <div className="glass-panel relative rounded-[2rem] p-6">
+      <span className="key-signal mb-5 flex h-14 w-14 items-center justify-center rounded-full">
+        <PhoneCall className="h-6 w-6" />
+      </span>
       <h1 className="font-display text-3xl font-semibold">
         {mode === "signin" ? "Welcome back" : "Create your account"}
       </h1>
@@ -115,7 +129,7 @@ function AuthScreen() {
       <Button
         type="button"
         variant="secondary"
-        className="mt-7 h-12 w-full text-sm font-semibold"
+        className="mt-7 h-12 w-full rounded-full text-sm font-semibold"
         disabled={busy}
         onClick={handleGoogle}
       >
@@ -136,7 +150,7 @@ function AuthScreen() {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="h-12"
+            className="h-12 rounded-full px-4"
               autoComplete="name"
               maxLength={80}
             />
@@ -150,7 +164,7 @@ function AuthScreen() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-12"
+            className="h-12 rounded-full px-4"
             autoComplete="email"
             maxLength={255}
           />
@@ -164,24 +178,29 @@ function AuthScreen() {
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-12"
+            className="h-12 rounded-full px-4"
             autoComplete={mode === "signin" ? "current-password" : "new-password"}
           />
         </div>
-        <Button type="submit" className="h-12 w-full text-sm font-semibold" disabled={busy}>
+        <Button
+          type="submit"
+          className="key-call h-12 w-full rounded-full text-sm font-semibold"
+          disabled={busy}
+        >
           {mode === "signin" ? "Sign in" : "Create account"}
         </Button>
       </form>
 
       <button
         type="button"
-        className="mt-6 text-sm text-muted-foreground underline-offset-4 hover:underline"
+        className="mt-6 text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
         onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
       >
         {mode === "signin"
           ? "No account yet? Create one"
           : "Already have an account? Sign in"}
       </button>
+      </div>
     </div>
   );
 }
