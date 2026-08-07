@@ -41,6 +41,12 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
         );
 
         const { VOICE_CONFIG_COLUMNS } = await import("@/lib/voice-answer.server");
+        try {
+          const { noteForwardedCall } = await import("@/lib/byo.server");
+          await noteForwardedCall(supabaseAdmin as never, appNumber);
+        } catch {
+          // forwarding bookkeeping must never break an inbound call
+        }
         const { data: number } = await supabaseAdmin
           .from("phone_numbers")
           .select(`forward_to, ${VOICE_CONFIG_COLUMNS}`)
