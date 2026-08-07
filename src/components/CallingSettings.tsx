@@ -24,9 +24,9 @@ import {
   sendTestCall,
   setDefaultNumber,
   setOutboundCallerId,
+  updateMyProfile,
   upsertCallerIdRoute,
 } from "@/lib/twilio.functions";
-import { updateMyProfile } from "@/lib/twilio.functions";
 
 const NONE = "__none__";
 
