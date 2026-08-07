@@ -39,8 +39,10 @@ const VoiceContext = createContext<VoiceContextValue | null>(null);
 
 type Grant = { token: string; identity: string; expiresAt: string };
 
-async function fetchGrant(): Promise<Grant> {
-  return (await getVoiceToken()) as unknown as Grant;
+type GrantResult = { ok: true; grant: Grant } | { ok: false; reason: string };
+
+async function fetchGrant(): Promise<GrantResult> {
+  return (await getVoiceToken()) as unknown as GrantResult;
 }
 
 export function useVoice(): VoiceContextValue {
@@ -103,9 +105,15 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     async function boot() {
       setStatus("registering");
       try {
-        const { Device } = await import("@twilio/voice-sdk");
-        const grant = await fetchGrant();
+        const result = await fetchGrant();
         if (cancelled) return;
+        if (!result.ok) {
+          setError(result.reason);
+          setStatus("unavailable");
+          return;
+        }
+        const grant = result.grant;
+        const { Device } = await import("@twilio/voice-sdk");
 
         const device = new Device(grant.token, {
           logLevel: "error",
@@ -136,7 +144,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
         refreshRef.current = setTimeout(async () => {
           try {
             const next = await fetchGrant();
-            device.updateToken(next.token);
+            if (next.ok) device.updateToken(next.grant.token);
           } catch {
             /* the next boot will retry */
           }
