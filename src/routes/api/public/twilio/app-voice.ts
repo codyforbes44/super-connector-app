@@ -92,7 +92,9 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
 
         const { data: number } = await supabaseAdmin
           .from("phone_numbers")
-          .select("assigned_to, forward_to, voicemail_greeting")
+          .select(
+            "assigned_to, forward_to, voicemail_greeting, answer_mode, elevenlabs_agent_id, greeting_audio_path",
+          )
           .eq("phone_number", appNumber)
           .maybeSingle();
 
@@ -129,12 +131,18 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           });
         }
 
-        const fallback = number?.forward_to
-          ? `<Dial callerId="${esc(appNumber)}" timeout="20" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}"><Number>${esc(number.forward_to as string)}</Number></Dial>`
-          : `<Say voice="alice">${esc(
-              (number?.voicemail_greeting as string) ||
-                "Thanks for calling. Please leave a message after the tone.",
-            )}</Say><Record maxLength="120" playBeep="true" transcribe="true" /><Say voice="alice">We did not receive a recording. Goodbye.</Say>`;
+        const { voicemailTwiml } = await import("@/lib/voice-answer.server");
+        const unanswered = await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
+          callSid,
+          from,
+          appNumber,
+        });
+        const aiAnswering = number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id;
+
+        const fallback =
+          number?.forward_to && !aiAnswering
+            ? `<Dial callerId="${esc(appNumber)}" timeout="20" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}"><Number>${esc(number.forward_to as string)}</Number></Dial>`
+            : unanswered;
 
         if (identities.length === 0) return xml(fallback);
 

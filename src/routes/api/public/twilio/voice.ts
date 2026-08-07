@@ -42,7 +42,9 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
 
         const { data: number } = await supabaseAdmin
           .from("phone_numbers")
-          .select("forward_to, voicemail_greeting")
+          .select(
+            "forward_to, voicemail_greeting, answer_mode, elevenlabs_agent_id, greeting_audio_path",
+          )
           .eq("phone_number", appNumber)
           .maybeSingle();
 
@@ -57,17 +59,21 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           requireInteraction: true,
         });
 
-        if (number?.forward_to) {
+        const aiAnswering = number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id;
+
+        if (number?.forward_to && !aiAnswering) {
           return xml(
             `<Dial callerId="${escapeXml(appNumber)}" timeout="20" record="record-from-answer-dual" recordingStatusCallback="${escapeXml(url.origin + url.pathname.replace("/voice", "/status") + url.search)}"><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
           );
         }
 
-        const greeting =
-          number?.voicemail_greeting ||
-          "Thanks for calling. Please leave a message after the tone.";
+        const { voicemailTwiml } = await import("@/lib/voice-answer.server");
         return xml(
-          `<Say voice="alice">${escapeXml(greeting)}</Say><Record maxLength="120" playBeep="true" transcribe="true" /><Say voice="alice">We did not receive a recording. Goodbye.</Say>`,
+          await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
+            callSid: get("CallSid"),
+            from: get("From"),
+            appNumber,
+          }),
         );
       },
     },

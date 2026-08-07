@@ -15,6 +15,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { Dialpad } from "@/components/Dialpad";
 import { Button } from "@/components/ui/button";
@@ -315,6 +316,7 @@ function CallsScreen() {
               ))}
             </dl>
           ) : null}
+          {detail ? <AiCallTranscript callSid={detail.sid} /> : null}
         </SheetContent>
       </Sheet>
 

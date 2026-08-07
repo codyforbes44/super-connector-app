@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
 import { MessagingServicesSection } from "@/components/MessagingServices";
+import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -307,6 +308,9 @@ type NumberRow = {
   voicemail_greeting: string | null;
   assigned_to: string | null;
   webhook_wired: boolean;
+  answer_mode?: string | null;
+  elevenlabs_voice_id?: string | null;
+  elevenlabs_agent_id?: string | null;
 };
 
 function NumberSheet({
@@ -407,6 +411,8 @@ function NumberSheet({
               className="h-11 rounded-full px-4"
             />
           </div>
+
+          <VoiceAssistant number={number} onChanged={onChanged} />
 
           <Button
             className="key-signal h-12 w-full rounded-full font-semibold"

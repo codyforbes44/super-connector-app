@@ -21,6 +21,7 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage } from "@/lib/format";
 import { PushNotifications } from "@/components/PushNotifications";
 import { VoiceSetup } from "@/components/VoiceSetup";
+import { ElevenLabsStatus } from "@/components/ElevenLabsStatus";
 import { accountOverview, listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -118,6 +119,7 @@ function SettingsScreen() {
       {boot.isAdmin ? (
         <>
           <VoiceSetup />
+          <ElevenLabsStatus />
           <section className="space-y-3 border-t border-border px-4 py-4">
             <h2 className="font-display text-sm font-semibold">Twilio account</h2>
             {overview.isError ? (
