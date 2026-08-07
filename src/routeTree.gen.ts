@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicTwilioSmsRouteImport } from './routes/api/public/twilio/sms'
+import { Route as ApiPublicTwilioVoiceRouteImport } from './routes/api/public/twilio/voice'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const ApiPublicTwilioSmsRoute = ApiPublicTwilioSmsRouteImport.update({
   path: '/api/public/twilio/sms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTwilioVoiceRoute = ApiPublicTwilioVoiceRouteImport.update({
+  id: '/api/public/twilio/voice',
+  path: '/api/public/twilio/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
+  '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
+  '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
+  '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/twilio/sms'
+  fullPaths: '/' | '/api/public/twilio/sms' | '/api/public/twilio/voice'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/twilio/sms'
-  id: '__root__' | '/' | '/api/public/twilio/sms'
+  to: '/' | '/api/public/twilio/sms' | '/api/public/twilio/voice'
+  id: '__root__' | '/' | '/api/public/twilio/sms' | '/api/public/twilio/voice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiPublicTwilioSmsRoute: typeof ApiPublicTwilioSmsRoute
+  ApiPublicTwilioVoiceRoute: typeof ApiPublicTwilioVoiceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTwilioSmsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/twilio/voice': {
+      id: '/api/public/twilio/voice'
+      path: '/api/public/twilio/voice'
+      fullPath: '/api/public/twilio/voice'
+      preLoaderRoute: typeof ApiPublicTwilioVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiPublicTwilioSmsRoute: ApiPublicTwilioSmsRoute,
+  ApiPublicTwilioVoiceRoute: ApiPublicTwilioVoiceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
