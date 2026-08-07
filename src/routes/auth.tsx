@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Mail, PhoneCall } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
