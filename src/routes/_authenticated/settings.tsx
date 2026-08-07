@@ -1,11 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Bot, Copy, CreditCard, LogOut, Plug, Terminal, Users } from "lucide-react";
+import { Bot, CreditCard, LogOut, Plug, SlidersHorizontal, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,19 +23,21 @@ import { PushNotifications } from "@/components/PushNotifications";
 import { DeviceAccess } from "@/components/DeviceAccess";
 import { CallingSettings } from "@/components/CallingSettings";
 import { EmailNotifications } from "@/components/EmailNotifications";
-import { VoiceSetup } from "@/components/VoiceSetup";
-import { ElevenLabsStatus } from "@/components/ElevenLabsStatus";
-import { accountOverview, listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
+import { Badge } from "@/components/ui/badge";
+import { listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — SixVox" },
-      { name: "description", content: "Profile, team roles, account usage and delivery endpoints." },
+      {
+        name: "description",
+        content: "Your profile, alerts, calling preferences and plan in one place.",
+      },
       { property: "og:title", content: "Settings — SixVox" },
       {
         property: "og:description",
-        content: "Profile, team roles, account usage and delivery endpoints.",
+        content: "Your profile, alerts, calling preferences and plan in one place.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -52,21 +53,6 @@ function SettingsScreen() {
   const queryClient = useQueryClient();
   const [displayName, setDisplayName] = useState(boot.profile?.display_name ?? "");
   const team = useQuery({ queryKey: ["team"], queryFn: () => listTeam(), enabled: boot.isAdmin });
-  const overview = useQuery({
-    queryKey: ["account-overview"],
-    queryFn: () => accountOverview(),
-    enabled: boot.isAdmin,
-    retry: false,
-  });
-
-  const balance = overview.data?.balance as { balance?: string; currency?: string } | null;
-  const account = overview.data?.account as {
-    directApi?: boolean;
-    friendlyName?: string | null;
-    status?: string | null;
-    type?: string | null;
-    sidSuffix?: string | null;
-  } | null;
 
   return (
     <div className="pb-6">
