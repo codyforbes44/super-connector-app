@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_conversations: {
+        Row: {
+          agent_id: string | null
+          app_number: string
+          call_sid: string
+          conversation_id: string | null
+          created_at: string
+          id: string
+          summary: string | null
+          transcript: Json
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          app_number: string
+          call_sid: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          summary?: string | null
+          transcript?: Json
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          app_number?: string
+          call_sid?: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          summary?: string | null
+          transcript?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -283,12 +319,16 @@ export type Database = {
       }
       phone_numbers: {
         Row: {
+          answer_mode: string
           assigned_to: string | null
           capabilities: Json
           channel_whatsapp: boolean
           created_at: string
+          elevenlabs_agent_id: string | null
+          elevenlabs_voice_id: string | null
           forward_to: string | null
           friendly_name: string | null
+          greeting_audio_path: string | null
           id: string
           phone_number: string
           sid: string
@@ -296,12 +336,16 @@ export type Database = {
           webhook_wired: boolean
         }
         Insert: {
+          answer_mode?: string
           assigned_to?: string | null
           capabilities?: Json
           channel_whatsapp?: boolean
           created_at?: string
+          elevenlabs_agent_id?: string | null
+          elevenlabs_voice_id?: string | null
           forward_to?: string | null
           friendly_name?: string | null
+          greeting_audio_path?: string | null
           id?: string
           phone_number: string
           sid: string
@@ -309,12 +353,16 @@ export type Database = {
           webhook_wired?: boolean
         }
         Update: {
+          answer_mode?: string
           assigned_to?: string | null
           capabilities?: Json
           channel_whatsapp?: boolean
           created_at?: string
+          elevenlabs_agent_id?: string | null
+          elevenlabs_voice_id?: string | null
           forward_to?: string | null
           friendly_name?: string | null
+          greeting_audio_path?: string | null
           id?: string
           phone_number?: string
           sid?: string
