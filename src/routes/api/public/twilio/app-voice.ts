@@ -146,7 +146,9 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           });
         }
 
-        const { voicemailTwiml } = await import("@/lib/voice-answer.server");
+        const { voicemailTwiml, ringbackTwiml, RING_SECONDS } = await import(
+          "@/lib/voice-answer.server"
+        );
         const unanswered = await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
           callSid,
           from,
@@ -156,10 +158,13 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
 
         const fallback =
           number?.forward_to && !aiAnswering
-            ? `<Dial callerId="${esc(appNumber)}" timeout="20" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}"><Number>${esc(number.forward_to as string)}</Number></Dial>`
+            ? `<Dial callerId="${esc(appNumber)}" timeout="${RING_SECONDS}" ringTone="us" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}"><Number>${esc(number.forward_to as string)}</Number></Dial>${unanswered}`
             : unanswered;
 
-        if (identities.length === 0) return xml(fallback);
+        // Let the caller hear three rings before voicemail or the AI answers.
+        if (identities.length === 0) {
+          return xml(number?.forward_to && !aiAnswering ? fallback : ringbackTwiml() + fallback);
+        }
 
         const clients = identities
           .slice(0, 10)
@@ -167,7 +172,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           .join("");
 
         return xml(
-          `<Dial callerId="${esc(from)}" timeout="20" answerOnBridge="true" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}">${clients}</Dial>${fallback}`,
+          `<Dial callerId="${esc(from)}" timeout="${RING_SECONDS}" ringTone="us" answerOnBridge="true" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}">${clients}</Dial>${fallback}`,
         );
       },
     },

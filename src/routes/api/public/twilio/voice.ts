@@ -60,19 +60,23 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
 
         const aiAnswering = number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id;
 
+        const { voicemailTwiml, ringbackTwiml, RING_SECONDS } = await import(
+          "@/lib/voice-answer.server"
+        );
+
         if (number?.forward_to && !aiAnswering) {
           return xml(
-            `<Dial callerId="${escapeXml(appNumber)}" timeout="20" record="record-from-answer-dual" recordingStatusCallback="${escapeXml(url.origin + url.pathname.replace("/voice", "/status") + url.search)}"><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
+            `<Dial callerId="${escapeXml(appNumber)}" timeout="${RING_SECONDS}" ringTone="us" record="record-from-answer-dual" recordingStatusCallback="${escapeXml(url.origin + url.pathname.replace("/voice", "/status") + url.search)}"><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
           );
         }
 
-        const { voicemailTwiml } = await import("@/lib/voice-answer.server");
         return xml(
-          await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
+          ringbackTwiml() +
+            (await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
             callSid: get("CallSid"),
             from: get("From"),
             appNumber,
-          }),
+            })),
         );
       },
     },
