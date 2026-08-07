@@ -64,11 +64,9 @@ export async function gatewayRequest<T = unknown>(opts: {
   };
   if (opts.json !== undefined) headers["Content-Type"] = "application/json";
 
-  const res = await fetch(url.toString(), {
-    method: opts.method ?? "GET",
-    headers,
-    body: opts.json === undefined ? undefined : JSON.stringify(opts.json),
-  });
+  const init: RequestInit = { method: opts.method ?? "GET", headers };
+  if (opts.json !== undefined) init.body = JSON.stringify(opts.json);
+  const res = await fetch(url.toString(), init);
 
   const text = await res.text();
   if (!res.ok) {
