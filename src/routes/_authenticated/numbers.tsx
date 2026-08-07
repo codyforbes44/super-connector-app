@@ -197,7 +197,7 @@ function BuySheet({
 
   const search = useMutation({
     mutationFn: () =>
-      searchAvailableNumbers({ data: { country, areaCode: areaCode || undefined, type } }),
+      searchAvailableNumbers({ data: areaCode ? { country, areaCode, type } : { country, type } }),
     onSuccess: (data) => setResults(data as unknown as Available[]),
     onError: (error) => toast.error(errorMessage(error)),
   });
