@@ -38,6 +38,22 @@ import {
 } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
 import { useVoice } from "@/lib/voice-device";
+import type { Tables } from "@/integrations/supabase/types";
+
+type CallRow = Tables<"calls">;
+
+const sel = (s: string): string => s;
+
+function rangeStart(range: CallFilterState["range"]): string | null {
+  if (range === "all") return null;
+  const now = new Date();
+  if (range === "today") {
+    now.setHours(0, 0, 0, 0);
+    return now.toISOString();
+  }
+  const days = range === "7d" ? 7 : 30;
+  return new Date(now.getTime() - days * 86_400_000).toISOString();
+}
 
 export const Route = createFileRoute("/_authenticated/calls")({
   validateSearch: (search: Record<string, unknown>): CallFilterState => {
