@@ -15,6 +15,18 @@ export function escapeXml(value: string): string {
   );
 }
 
+/** Three US ring cycles (~6s each) before anything answers the call. */
+export const RING_SECONDS = 18;
+
+/**
+ * Rings the caller without answering. Dialing an identity that is never
+ * registered keeps the call in a ringing state for the full timeout, and
+ * ringTone gives the caller audible ringing instead of silence.
+ */
+export function ringbackTwiml(seconds: number = RING_SECONDS): string {
+  return `<Dial timeout="${seconds}" ringTone="us"><Client>sixvox-ringback</Client></Dial>`;
+}
+
 export type NumberVoiceConfig = {
   answer_mode?: string | null;
   elevenlabs_agent_id?: string | null;
