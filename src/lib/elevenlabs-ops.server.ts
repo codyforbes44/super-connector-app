@@ -74,6 +74,61 @@ export async function saveAssistant(
   return { ok: true };
 }
 
+export type AssistantProfile = {
+  sid: string;
+  prompt: string | null;
+  firstMessage: string | null;
+  tone: string;
+  language: string;
+  fallback: "voicemail" | "forward" | "hangup";
+  fallbackNumber: string | null;
+  maxDuration: number;
+};
+
+/** Full per-number assistant behaviour: prompt, tone and fallback handling. */
+export async function saveAssistantProfile(
+  supabase: SupabaseClient,
+  userId: string,
+  args: AssistantProfile,
+) {
+  await requireAdmin(supabase, userId);
+  if (args.fallback === "forward" && !args.fallbackNumber?.trim()) {
+    throw new Error("Add a fallback number to forward to, or pick another fallback.");
+  }
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { error } = await supabaseAdmin
+    .from("phone_numbers")
+    .update({
+      ai_prompt: args.prompt?.trim() || null,
+      ai_first_message: args.firstMessage?.trim() || null,
+      ai_tone: args.tone,
+      ai_language: args.language,
+      ai_fallback: args.fallback,
+      ai_fallback_number: args.fallbackNumber?.trim() || null,
+      ai_max_duration: Math.min(Math.max(args.maxDuration, 30), 3600),
+    })
+    .eq("sid", args.sid);
+  if (error) throw error;
+  await audit(supabaseAdmin, userId, "elevenlabs.assistant.profile", { sid: args.sid });
+  return { ok: true };
+}
+
+export async function getAssistantProfile(
+  supabase: SupabaseClient,
+  userId: string,
+  args: { sid: string },
+) {
+  await allowedNumbers(supabase, userId);
+  const { data, error } = await supabase
+    .from("phone_numbers")
+    .select("*")
+    .eq("sid", args.sid)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Number not found.");
+  return data;
+}
+
 /** Synthesize the greeting once and cache it in storage for Twilio to play. */
 export async function renderGreeting(
   supabase: SupabaseClient,
