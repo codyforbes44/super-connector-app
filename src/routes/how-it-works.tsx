@@ -2,9 +2,9 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 
-const TITLE = "How it works — Signalbox onboarding in minutes";
+const TITLE = "How it works — SignalBox onboarding in minutes";
 const DESCRIPTION =
-  "Connect Twilio, claim your numbers, invite your team and start answering calls and texts from Signalbox in under ten minutes.";
+  "Connect Twilio, claim your numbers, invite your team and start answering calls and texts from SignalBox in under ten minutes.";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -27,7 +27,7 @@ const STEPS = [
   },
   {
     title: "Connect Twilio",
-    body: "Signalbox talks to your Twilio account through a secure connection. Numbers, messages, calls and usage sync straight in.",
+    body: "SignalBox talks to your Twilio account through a secure connection. Numbers, messages, calls and usage sync straight in.",
   },
   {
     title: "Wire your numbers",

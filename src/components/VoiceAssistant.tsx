@@ -148,7 +148,7 @@ export function VoiceAssistant({
       </div>
 
       <div className="space-y-1.5">
-        <Label>ElevenLabs voice</Label>
+        <Label>AI voice</Label>
         <Select value={voiceId} onValueChange={setVoiceId}>
           <SelectTrigger className="h-11 w-full rounded-full px-4">
             <SelectValue placeholder={voices.isLoading ? "Loading voices…" : "Pick a voice"} />

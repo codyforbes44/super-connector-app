@@ -21,12 +21,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/console")({
   head: () => ({
     meta: [
-      { title: "API console — Signalbox" },
-      { name: "description", content: "Call any Twilio REST endpoint directly from your phone." },
-      { property: "og:title", content: "API console — Signalbox" },
+      { title: "API console — SignalBox" },
+      { name: "description", content: "Advanced REST console for your SignalBox platform account." },
+      { property: "og:title", content: "API console — SignalBox" },
       {
         property: "og:description",
-        content: "Call any Twilio REST endpoint directly from your phone.",
+        content: "Advanced REST console for your SignalBox platform account.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -174,7 +174,7 @@ function ConsoleScreen() {
           onClick={run}
           disabled={busy}
         >
-          {busy ? "Calling Twilio…" : "Send request"}
+          {busy ? "Sending…" : "Send request"}
         </Button>
 
         {response ? (

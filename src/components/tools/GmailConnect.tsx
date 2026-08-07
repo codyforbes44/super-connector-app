@@ -122,7 +122,7 @@ export function GmailConnect({ compact = false }: { compact?: boolean }) {
               ? `${data.accountEmail ?? "Google account"}${
                   data.connectedAt ? ` · linked ${relativeTime(data.connectedAt)}` : ""
                 }`
-              : "Signalbox reads notification threads and sends replies as you — nothing else."}
+              : "SignalBox reads notification threads and sends replies as you — nothing else."}
           </p>
         </div>
       </div>

@@ -69,9 +69,9 @@ export const Route = createFileRoute("/_authenticated/calls")({
   },
   head: () => ({
     meta: [
-      { title: "Calls — Signalbox" },
+      { title: "Calls — SignalBox" },
       { name: "description", content: "Twilio call history, click-to-call and recordings." },
-      { property: "og:title", content: "Calls — Signalbox" },
+      { property: "og:title", content: "Calls — SignalBox" },
       { property: "og:description", content: "Twilio call history, click-to-call and recordings." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -222,7 +222,7 @@ function CallsScreen() {
           description="Place a call, adjust your filters, or pull your recent Twilio voice history into the app."
           action={
             <Button variant="secondary" onClick={sync} disabled={syncing}>
-              Sync from Twilio
+              Sync my numbers
             </Button>
           }
         />

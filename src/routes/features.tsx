@@ -16,7 +16,7 @@ import {
 
 import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 
-const TITLE = "Features — Signalbox Twilio command center";
+const TITLE = "Features — SignalBox Twilio command center";
 const DESCRIPTION =
   "Omnichannel inbox, in-app calling, AI voicemail assistants, number provisioning, Verify, Lookup and an unrestricted Twilio API console.";
 
@@ -126,7 +126,7 @@ function FeaturesPage() {
           Built for people who actually run their business on Twilio.
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          Talkyto, Toktiv and Mango each give you a slice. Signalbox gives you the whole account —
+          Talkyto, Toktiv and Mango each give you a slice. SignalBox gives you the whole account —
           messaging, telephony, provisioning, AI and raw API access, on a phone.
         </p>
       </Section>

@@ -25,13 +25,13 @@ import {
 export const Route = createFileRoute("/_authenticated/assistant/$sid")({
   head: () => ({
     meta: [
-      { title: "AI assistant setup — Signalbox" },
+      { title: "AI assistant setup — SignalBox" },
       {
         name: "description",
         content:
           "Tune the AI voicemail assistant prompt, tone and fallback behaviour for a phone number.",
       },
-      { property: "og:title", content: "AI assistant setup — Signalbox" },
+      { property: "og:title", content: "AI assistant setup — SignalBox" },
       {
         property: "og:description",
         content:
@@ -213,7 +213,7 @@ function AssistantConfigScreen() {
                 rows={2}
                 maxLength={400}
                 className="rounded-2xl"
-                placeholder="Hi, thanks for calling Signalbox — how can I help?"
+                placeholder="Hi, thanks for calling SignalBox — how can I help?"
               />
             </div>
           </section>

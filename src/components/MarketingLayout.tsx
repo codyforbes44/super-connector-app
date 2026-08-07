@@ -32,7 +32,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <span className="key-signal flex h-9 w-9 items-center justify-center rounded-full">
               <Radio className="h-4 w-4 text-primary" />
             </span>
-            <span className="font-display text-base font-semibold tracking-tight">Signalbox</span>
+            <span className="font-display text-base font-semibold tracking-tight">SignalBox</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -100,7 +100,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               <span className="key-signal flex h-8 w-8 items-center justify-center rounded-full">
                 <Radio className="h-3.5 w-3.5 text-primary" />
               </span>
-              <span className="font-display text-sm font-semibold">Signalbox</span>
+              <span className="font-display text-sm font-semibold">SignalBox</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
               The full Twilio command center — messaging, voice, numbers and AI assistants — in one
@@ -131,7 +131,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           />
         </div>
         <div className="mx-auto max-w-6xl px-5 pb-10 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Signalbox. Built on Twilio. Emails sent from bookme.bet.
+          © {new Date().getFullYear()} SignalBox. Built on Twilio. Emails sent from bookme.bet.
         </div>
       </footer>
     </div>
