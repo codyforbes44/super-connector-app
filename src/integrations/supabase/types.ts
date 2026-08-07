@@ -14,16 +14,417 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_log: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string
+          detail: Json
+          id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+        }
+        Relationships: []
+      }
+      calls: {
+        Row: {
+          answered_by: string | null
+          app_number: string
+          created_at: string
+          direction: string
+          duration: number | null
+          from_number: string
+          id: string
+          price: string | null
+          recording_url: string | null
+          sid: string
+          started_at: string
+          status: string | null
+          to_number: string
+          transcription: string | null
+        }
+        Insert: {
+          answered_by?: string | null
+          app_number: string
+          created_at?: string
+          direction: string
+          duration?: number | null
+          from_number: string
+          id?: string
+          price?: string | null
+          recording_url?: string | null
+          sid: string
+          started_at?: string
+          status?: string | null
+          to_number: string
+          transcription?: string | null
+        }
+        Update: {
+          answered_by?: string | null
+          app_number?: string
+          created_at?: string
+          direction?: string
+          duration?: number | null
+          from_number?: string
+          id?: string
+          price?: string | null
+          recording_url?: string | null
+          sid?: string
+          started_at?: string
+          status?: string | null
+          to_number?: string
+          transcription?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calls_answered_by_fkey"
+            columns: ["answered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          created_at: string
+          id: string
+          name: string | null
+          notes: string | null
+          phone_number: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          notes?: string | null
+          phone_number: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          notes?: string | null
+          phone_number?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          app_number: string
+          archived: boolean
+          assigned_to: string | null
+          channel: string
+          contact_name: string | null
+          contact_number: string
+          created_at: string
+          id: string
+          last_message_at: string
+          last_message_preview: string | null
+          unread_count: number
+        }
+        Insert: {
+          app_number: string
+          archived?: boolean
+          assigned_to?: string | null
+          channel?: string
+          contact_name?: string | null
+          contact_number: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          unread_count?: number
+        }
+        Update: {
+          app_number?: string
+          archived?: boolean
+          assigned_to?: string | null
+          channel?: string
+          contact_name?: string | null
+          contact_number?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          unread_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lookups: {
+        Row: {
+          created_at: string
+          id: string
+          looked_up_by: string | null
+          phone_number: string
+          result: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          looked_up_by?: string | null
+          phone_number: string
+          result?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          looked_up_by?: string | null
+          phone_number?: string
+          result?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lookups_looked_up_by_fkey"
+            columns: ["looked_up_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string | null
+          channel: string
+          conversation_id: string
+          created_at: string
+          direction: string
+          error_code: string | null
+          from_number: string
+          id: string
+          is_internal_note: boolean
+          media: Json
+          price: string | null
+          scheduled_for: string | null
+          sent_by: string | null
+          sid: string | null
+          status: string | null
+          to_number: string
+        }
+        Insert: {
+          body?: string | null
+          channel?: string
+          conversation_id: string
+          created_at?: string
+          direction: string
+          error_code?: string | null
+          from_number: string
+          id?: string
+          is_internal_note?: boolean
+          media?: Json
+          price?: string | null
+          scheduled_for?: string | null
+          sent_by?: string | null
+          sid?: string | null
+          status?: string | null
+          to_number: string
+        }
+        Update: {
+          body?: string | null
+          channel?: string
+          conversation_id?: string
+          created_at?: string
+          direction?: string
+          error_code?: string | null
+          from_number?: string
+          id?: string
+          is_internal_note?: boolean
+          media?: Json
+          price?: string | null
+          scheduled_for?: string | null
+          sent_by?: string | null
+          sid?: string | null
+          status?: string | null
+          to_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phone_numbers: {
+        Row: {
+          assigned_to: string | null
+          capabilities: Json
+          channel_whatsapp: boolean
+          created_at: string
+          forward_to: string | null
+          friendly_name: string | null
+          id: string
+          phone_number: string
+          sid: string
+          voicemail_greeting: string | null
+          webhook_wired: boolean
+        }
+        Insert: {
+          assigned_to?: string | null
+          capabilities?: Json
+          channel_whatsapp?: boolean
+          created_at?: string
+          forward_to?: string | null
+          friendly_name?: string | null
+          id?: string
+          phone_number: string
+          sid: string
+          voicemail_greeting?: string | null
+          webhook_wired?: boolean
+        }
+        Update: {
+          assigned_to?: string | null
+          capabilities?: Json
+          channel_whatsapp?: boolean
+          created_at?: string
+          forward_to?: string | null
+          friendly_name?: string | null
+          id?: string
+          phone_number?: string
+          sid?: string
+          voicemail_greeting?: string | null
+          webhook_wired?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_numbers_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          agent_phone: string | null
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+        }
+        Insert: {
+          agent_phone?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+        }
+        Update: {
+          agent_phone?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      templates: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_see_number: {
+        Args: { _number: string; _user_id: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "admin" | "agent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +551,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "admin", "agent"],
+    },
   },
 } as const
