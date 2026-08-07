@@ -40,7 +40,12 @@ export async function recordLead(lead: LeadInput): Promise<{ ok: true }> {
       replyTo: lead.email,
       rendered: {
         subject: `New Signalbox enquiry — ${lead.name}`,
-        html: layout({ title: "New enquiry", preheader: `${lead.name} · ${lead.email}`, body }),
+        html: layout({
+          eyebrow: "Website",
+          title: "New enquiry",
+          preheader: `${lead.name} · ${lead.email}`,
+          body,
+        }),
       },
       context: { kind: "lead", email: lead.email, brand: BRAND.name },
     });
