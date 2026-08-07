@@ -57,7 +57,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link
               to="/auth"
-              className="key-call inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold"
+              search={{ mode: "signup" }}
+              className="key-call inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold"
             >
               Start free
             </Link>
@@ -87,6 +88,13 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
                 </li>
               ))}
             </ul>
+            <Link
+              to="/auth"
+              onClick={() => setOpen(false)}
+              className="mt-2 block rounded-2xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent/40 hover:text-foreground"
+            >
+              Sign in
+            </Link>
           </nav>
         ) : null}
       </header>
@@ -120,6 +128,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             links={[
               { to: "/faq", label: "FAQ" },
               { to: "/contact", label: "Contact" },
+              { to: "/legal/privacy", label: "Privacy" },
+              { to: "/legal/terms", label: "Terms" },
             ]}
           />
           <FooterCol
