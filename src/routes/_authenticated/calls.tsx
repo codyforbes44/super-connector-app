@@ -11,12 +11,13 @@ import {
   Play,
   RefreshCw,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
 import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
+import { CallReadiness } from "@/components/CallReadiness";
 import { Dialpad } from "@/components/Dialpad";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,16 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type CallRow = Tables<"calls">;
 
+type CallSearch = CallFilterState & { incoming?: string };
+
+/** The other party on a call row, or "" when the number is unusable. */
+function otherParty(call: CallRow): string {
+  const raw = call.direction === "inbound" ? call.from_number : call.to_number;
+  const value = (raw ?? "").trim();
+  if (!value || /anonymous|unknown|restricted|private/i.test(value)) return "";
+  return value.replace(/^client:/, "");
+}
+
 const sel = (s: string): string => s;
 
 function rangeStart(range: CallFilterState["range"]): string | null {
@@ -57,7 +68,7 @@ function rangeStart(range: CallFilterState["range"]): string | null {
 }
 
 export const Route = createFileRoute("/_authenticated/calls")({
-  validateSearch: (search: Record<string, unknown>): CallFilterState => {
+  validateSearch: (search: Record<string, unknown>): CallSearch => {
     const pick = <T extends string>(raw: unknown, allowed: readonly T[], fallback: T): T =>
       allowed.includes(raw as T) ? (raw as T) : fallback;
     return {
@@ -65,6 +76,9 @@ export const Route = createFileRoute("/_authenticated/calls")({
       direction: pick(search['direction'], ["all", "inbound", "outbound"] as const, "all"),
       range: pick(search['range'], ["all", "today", "7d", "30d"] as const, "all"),
       device: pick(search['device'], ["all", "app", "phone"] as const, "all"),
+      ...(typeof search['incoming'] === "string" && search['incoming']
+        ? { incoming: search['incoming'] }
+        : {}),
     };
   },
   head: () => ({
@@ -84,7 +98,8 @@ function CallsScreen() {
   const boot = useBootstrap();
   const queryClient = useQueryClient();
   const voice = useVoice();
-  const filters = Route.useSearch();
+  const search = Route.useSearch();
+  const filters = search;
   const navigate = useNavigate({ from: Route.fullPath });
   const [dialing, setDialing] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -100,8 +115,32 @@ function CallsScreen() {
   const [detail, setDetail] = useState<CallRow | null>(null);
 
   function setFilters(patch: Partial<CallFilterState>) {
-    void navigate({ search: (prev: CallFilterState) => ({ ...prev, ...patch }), replace: true });
+    void navigate({ search: (prev: CallSearch) => ({ ...prev, ...patch }), replace: true });
   }
+
+  // Opened from an "Incoming call" notification: make sure the mic is ready so
+  // the in-call screen can answer as soon as the device receives the call.
+  const incoming = search.incoming;
+  const [ringHint, setRingHint] = useState(false);
+  useEffect(() => {
+    if (!incoming) return;
+    setRingHint(true);
+    void voice.requestMic();
+    void navigate({
+      search: (prev: CallSearch) => {
+        const { incoming: _drop, ...rest } = prev;
+        return rest;
+      },
+      replace: true,
+    });
+    const id = setTimeout(() => setRingHint(false), 25_000);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incoming]);
+
+  useEffect(() => {
+    if (voice.callState !== "idle") setRingHint(false);
+  }, [voice.callState]);
 
   const calls = useQuery({
     queryKey: ["calls", filters],
@@ -189,6 +228,36 @@ function CallsScreen() {
     }
   }
 
+  /** Redial a party from the number the original call used. */
+  async function callBack(call: CallRow) {
+    const target = otherParty(call);
+    if (!target) return;
+    const line =
+      boot.numbers.find((n) => n.phone_number === call.app_number)?.phone_number ||
+      from ||
+      boot.numbers[0]?.phone_number ||
+      "";
+    if (!line) {
+      toast.error("No number available to call from yet.");
+      return;
+    }
+    try {
+      if (voice.ready) {
+        await voice.call(target, line);
+      } else {
+        const result = await startCall({ data: { appNumber: line, to: target } });
+        toast.success(
+          result.mode === "bridge"
+            ? "Calling your phone now — answer to be connected."
+            : `Dialing ${formatPhone(target)} from ${formatPhone(result.callerId)}…`,
+        );
+      }
+      setDetail(null);
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  }
+
   return (
     <div>
       <ScreenHeader
@@ -214,6 +283,14 @@ function CallsScreen() {
       </div>
 
       <CallFilters value={filters} onChange={setFilters} />
+
+      <CallReadiness />
+
+      {ringHint && voice.callState === "idle" ? (
+        <p className="glass-panel mx-4 mb-3 rounded-2xl px-3.5 py-2.5 text-xs text-muted-foreground">
+          Connecting the incoming call to this device…
+        </p>
+      ) : null}
 
       {audio ? (
         <div className="glass-panel mx-4 mb-3 rounded-3xl p-3">
@@ -242,6 +319,7 @@ function CallsScreen() {
           {(calls.data ?? []).map((call) => {
             const inbound = call.direction === "inbound";
             const other = inbound ? call.from_number : call.to_number;
+            const redialTo = otherParty(call);
             return (
               <li key={call.id} className="glass-panel flex items-center gap-3 rounded-3xl px-3.5 py-3">
                 <button
@@ -288,6 +366,15 @@ function CallsScreen() {
                   <Play className="h-4 w-4" />
                   <span className="sr-only">Play recording</span>
                 </button>
+                <button
+                  type="button"
+                  disabled={!redialTo}
+                  onClick={() => void callBack(call)}
+                  className="key-call flex h-9 w-9 shrink-0 items-center justify-center rounded-full disabled:opacity-40"
+                >
+                  <PhoneCall className="h-4 w-4" />
+                  <span className="sr-only">Call back {redialTo || "unavailable"}</span>
+                </button>
               </li>
             );
           })}
@@ -328,6 +415,16 @@ function CallsScreen() {
             </dl>
           ) : null}
           {detail ? <AiCallTranscript callSid={detail.sid} /> : null}
+          {detail ? (
+            <Button
+              className="key-call mt-3 h-12 w-full rounded-full"
+              disabled={!otherParty(detail)}
+              onClick={() => void callBack(detail)}
+            >
+              <PhoneCall className="mr-2 h-4 w-4" />
+              {otherParty(detail) ? `Call back ${formatPhone(otherParty(detail))}` : "Number unavailable"}
+            </Button>
+          ) : null}
         </SheetContent>
       </Sheet>
 
