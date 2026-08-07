@@ -102,9 +102,9 @@ export function PushNotifications() {
       </p>
 
       {!ready ? (
-        <div className="h-11 animate-pulse rounded-xl bg-secondary" />
+        <div className="h-11 animate-pulse rounded-full bg-secondary" />
       ) : !supported ? (
-        <p className="rounded-xl bg-secondary px-3 py-2.5 text-xs text-muted-foreground">
+        <p className="glass-panel rounded-2xl px-3 py-2.5 text-xs text-muted-foreground">
           This browser can't receive push notifications. Install the app to your Home Screen or use
           a modern mobile browser.
         </p>
