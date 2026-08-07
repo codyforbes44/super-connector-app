@@ -381,6 +381,7 @@ export type Database = {
           name: string | null
           notes: string | null
           outbound_caller_id: string | null
+          owner_id: string | null
           phone_number: string
           place_id: string | null
         }
@@ -394,6 +395,7 @@ export type Database = {
           name?: string | null
           notes?: string | null
           outbound_caller_id?: string | null
+          owner_id?: string | null
           phone_number: string
           place_id?: string | null
         }
@@ -407,6 +409,7 @@ export type Database = {
           name?: string | null
           notes?: string | null
           outbound_caller_id?: string | null
+          owner_id?: string | null
           phone_number?: string
           place_id?: string | null
         }
