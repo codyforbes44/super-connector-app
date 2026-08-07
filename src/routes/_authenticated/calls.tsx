@@ -11,7 +11,7 @@ import {
   Play,
   RefreshCw,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
@@ -233,7 +233,7 @@ function CallsScreen() {
     const target = otherParty(call);
     if (!target) return;
     const line =
-      boot.numbers.find((n) => n.phone_number === call.app_number)?.phone_number ??
+      boot.numbers.find((n) => n.phone_number === call.app_number)?.phone_number ||
       from ||
       boot.numbers[0]?.phone_number ||
       "";
