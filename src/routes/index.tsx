@@ -1,24 +1,103 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { ArrowRight, Hash, Inbox, PhoneCall, ShieldCheck, Terminal, Wand2 } from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const TITLE = "Signalbox — the full Twilio console in your pocket";
+const DESCRIPTION =
+  "Unified SMS, MMS and WhatsApp inbox, click-to-call, number provisioning, Verify, Lookup and raw API access. Every Twilio resource, one mobile app.";
+
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const FEATURES = [
+  {
+    icon: Inbox,
+    title: "One live inbox",
+    body: "SMS, MMS and WhatsApp threads across every number, updating in real time with agent assignment and internal notes.",
+  },
+  {
+    icon: PhoneCall,
+    title: "Calls that just connect",
+    body: "Click-to-call bridges your handset to the contact with your Twilio caller ID, plus recordings, transcripts and voicemail.",
+  },
+  {
+    icon: Hash,
+    title: "Numbers on demand",
+    body: "Search, buy, wire webhooks and hand a number to a teammate — without ever opening the Twilio console.",
+  },
+  {
+    icon: Wand2,
+    title: "Verify & Lookup built in",
+    body: "Send OTPs, check codes and profile any phone number for carrier, line type and caller name.",
+  },
+  {
+    icon: Terminal,
+    title: "Unrestricted API console",
+    body: "Any Twilio endpoint, any method, straight from the app. Nothing is walled off behind a curated feature list.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Team-safe by default",
+    body: "Owner, admin and agent roles. Agents only ever see the numbers and conversations assigned to them.",
+  },
+];
+
+function Landing() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="mx-auto w-full max-w-lg px-5 pt-[calc(env(safe-area-inset-top)+3rem)] pb-16">
+      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
+        <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+        Twilio, unrestricted
+      </span>
+
+      <h1 className="font-display mt-5 text-4xl leading-[1.05] font-semibold">
+        Your whole Twilio account.
+        <span className="text-primary"> One mobile app.</span>
+      </h1>
+      <p className="mt-4 text-[0.95rem] leading-relaxed text-muted-foreground">
+        Signalbox is the command center Talkyto, Toktiv and Mango don&apos;t give you: a live
+        omnichannel inbox, real telephony, full number administration — and a raw API console for
+        everything else.
+      </p>
+
+      <Link
+        to="/auth"
+        className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
+      >
+        Open the command center
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+
+      <ul className="mt-10 space-y-3">
+        {FEATURES.map((feature) => (
+          <li
+            key={feature.title}
+            className="rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+          >
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+                <feature.icon className="h-[1.05rem] w-[1.05rem] text-primary" />
+              </span>
+              <div>
+                <h2 className="font-display text-sm font-semibold">{feature.title}</h2>
+                <p className="mt-1 text-[0.82rem] leading-relaxed text-muted-foreground">
+                  {feature.body}
+                </p>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
