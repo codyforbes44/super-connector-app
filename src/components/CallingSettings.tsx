@@ -183,10 +183,22 @@ export function CallingSettings() {
         </p>
       </div>
 
+      <div className="space-y-1.5">
+        <Label htmlFor="test-call-to">Call this number</Label>
+        <Input
+          id="test-call-to"
+          inputMode="tel"
+          placeholder="+15551234567"
+          value={testTo}
+          onChange={(event) => setTestTo(event.target.value)}
+          className="h-11 rounded-xl"
+        />
+      </div>
+
       <Button
         variant="outline"
         className="h-11 w-full rounded-full"
-        disabled={testCall.isPending || !defaultNumber}
+        disabled={testCall.isPending || !defaultNumber || testTo.trim().length < 7}
         onClick={() => testCall.mutate()}
       >
         {testCall.isPending ? (
@@ -197,7 +209,8 @@ export function CallingSettings() {
         Send test outbound call
       </Button>
       <p className="-mt-2 text-[0.7rem] text-muted-foreground">
-        We ring your own number using the caller ID a real call would present, then hang up.
+        We ring this number using the caller ID a real call would present, then hang up. It defaults
+        to your own number from Settings → Profile.
       </p>
 
       {boot.isAdmin ? (
