@@ -315,6 +315,7 @@ function CallsScreen() {
               ))}
             </dl>
           ) : null}
+          {detail ? <AiCallTranscript callSid={detail.sid} /> : null}
         </SheetContent>
       </Sheet>
 
