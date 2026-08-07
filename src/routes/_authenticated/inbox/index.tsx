@@ -98,18 +98,18 @@ function InboxScreen() {
       />
 
       <div className="px-4 py-3">
-        <Input
+          <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search conversations"
-          className="h-11 rounded-xl"
+            className="h-11 rounded-full px-4"
         />
       </div>
 
       {conversations.isLoading ? (
         <div className="space-y-2 px-4">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-secondary" />
+            <div key={i} className="h-16 animate-pulse rounded-3xl bg-secondary" />
           ))}
         </div>
       ) : rows.length === 0 ? (
@@ -124,20 +124,20 @@ function InboxScreen() {
           }
         />
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="space-y-2 px-3 pb-4">
           {rows.map((c) => (
             <li key={c.id}>
               <Link
                 to="/inbox/$id"
                 params={{ id: c.id }}
-                className="flex items-center gap-3 px-4 py-3 transition-colors active:bg-secondary"
+                className="glass-panel flex items-center gap-3 rounded-3xl px-3.5 py-3 transition-transform active:scale-[0.99]"
               >
                 <span
                   className={cn(
                     "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
                     c.channel === "whatsapp"
-                      ? "bg-success/20 text-success"
-                      : "bg-primary/15 text-primary",
+                      ? "ring-glow-success bg-success/20 text-success"
+                      : "ring-glow bg-primary/20 text-primary",
                   )}
                 >
                   {initialsFor(c.contact_name || c.contact_number)}
@@ -156,7 +156,7 @@ function InboxScreen() {
                       {c.last_message_preview || "No messages yet"}
                     </span>
                     {c.unread_count > 0 ? (
-                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[0.65rem] font-bold text-primary-foreground">
+                      <span className="key-signal ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.65rem] font-bold">
                         {c.unread_count}
                       </span>
                     ) : null}
@@ -171,7 +171,7 @@ function InboxScreen() {
       <button
         type="button"
         onClick={() => setComposing(true)}
-        className="fixed right-[max(1rem,calc(50%-14rem))] bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
+        className="key-call fixed right-[max(1rem,calc(50%-14rem))] bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full transition-transform active:scale-95"
       >
         <Plus className="h-6 w-6" />
         <span className="sr-only">New message</span>
