@@ -489,7 +489,14 @@ export async function wireNumber(
     path: `/IncomingPhoneNumbers/${data.sid}.json`,
     params: { ...smsParams, ...voiceParams },
   });
-  await admin.from("phone_numbers").update({ webhook_wired: true }).eq("sid", data.sid);
+  await admin
+    .from("phone_numbers")
+    .update({
+      webhook_wired: true,
+      sms_url: webhookUrl("sms"),
+      voice_url: appSid ? null : webhookUrl("voice"),
+    })
+    .eq("sid", data.sid);
   await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid ?? null });
   return { ok: true, applicationSid: appSid ?? null };
 }
