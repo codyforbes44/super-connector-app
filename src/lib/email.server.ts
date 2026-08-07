@@ -84,9 +84,33 @@ export async function sendEmail(
 }
 
 /** Domain + recent activity, for the Settings screen. */
-export async function emailStatus(admin: SupabaseClient) {
+export type EmailLogRow = {
+  id: string;
+  template: string;
+  to_address: string;
+  subject: string;
+  status: string;
+  created_at: string;
+  error: string | null;
+};
+
+export type EmailStatus = {
+  connected: boolean;
+  domain: string;
+  verified: boolean;
+  domainStatus: string;
+  recent: EmailLogRow[];
+};
+
+export async function emailStatus(admin: SupabaseClient): Promise<EmailStatus> {
   if (!emailConfigured()) {
-    return { connected: false, domain: SENDING_DOMAIN, verified: false, recent: [] as unknown[] };
+    return {
+      connected: false,
+      domain: SENDING_DOMAIN,
+      verified: false,
+      domainStatus: "not configured",
+      recent: [],
+    };
   }
   let verified = false;
   let domainStatus = "unknown";
@@ -108,5 +132,11 @@ export async function emailStatus(admin: SupabaseClient) {
     .order("created_at", { ascending: false })
     .limit(15);
 
-  return { connected: true, domain: SENDING_DOMAIN, verified, domainStatus, recent: recent ?? [] };
+  return {
+    connected: true,
+    domain: SENDING_DOMAIN,
+    verified,
+    domainStatus,
+    recent: (recent ?? []) as EmailLogRow[],
+  };
 }

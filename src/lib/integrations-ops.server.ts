@@ -16,9 +16,7 @@ async function admin() {
 
 export async function integrationStatus(supabase: SupabaseClient) {
   const db = await admin();
-  const email = emailConfigured()
-    ? await emailStatus(db)
-    : { connected: false, domain: "bookme.bet", verified: false, recent: [] as unknown[] };
+  const email = await emailStatus(db);
 
   let mailbox: string | null = null;
   if (gmail.gmailConfigured()) {
