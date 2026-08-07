@@ -6,6 +6,9 @@ type NotifyPayload = {
   body: string;
   url?: string;
   tag?: string;
+  /** "call" renders a ringing, sticky notification with an Answer action. */
+  type?: "message" | "call" | "call-ended";
+  requireInteraction?: boolean;
 };
 
 function vapid() {
@@ -66,7 +69,10 @@ export async function sendPushToUsers(
       };
       try {
         const request = await buildPushPayload(
-          { data: payload, options: { ttl: 3600, urgency: "high" } },
+          {
+            data: payload,
+            options: { ttl: payload.type === "call" ? 45 : 3600, urgency: "high" },
+          },
           subscription,
           keys,
         );
