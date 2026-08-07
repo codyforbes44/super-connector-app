@@ -29,10 +29,14 @@ export const Route = createFileRoute("/_authenticated/receptionist")({
   component: ReceptionistPage,
 });
 
-const MODE_META: Record<string, { label: string; icon: typeof Bot }> = {
+type ModeMeta = { label: string; icon: typeof Bot };
+
+const CLASSIC_META: ModeMeta = { label: "Classic voicemail", icon: Voicemail };
+
+const MODE_META: Record<string, ModeMeta> = {
   ai_agent: { label: "AI receptionist", icon: Bot },
   ai_greeting: { label: "AI-voiced greeting", icon: Sparkles },
-  classic: { label: "Classic voicemail", icon: Voicemail },
+  classic: CLASSIC_META,
 };
 
 function ReceptionistPage() {
@@ -86,7 +90,7 @@ function ReceptionistPage() {
               </p>
             ) : (
               numbers.map((number) => {
-                const meta = MODE_META[number.answer_mode ?? "classic"] ?? MODE_META.classic;
+                const meta = MODE_META[number.answer_mode ?? "classic"] ?? CLASSIC_META;
                 const Icon = meta.icon;
                 return (
                   <button
