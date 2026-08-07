@@ -5,7 +5,9 @@ import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
 import { CalendarPanel } from "@/components/tools/CalendarPanel";
+import { CalendarSettingsPanel } from "@/components/tools/CalendarSettingsPanel";
 import { EmailLogPanel } from "@/components/tools/EmailLogPanel";
+import { EmailTemplatesPanel } from "@/components/tools/EmailTemplatesPanel";
 import { MailPanel } from "@/components/tools/MailPanel";
 import { PlacesPanel } from "@/components/tools/PlacesPanel";
 import { Button } from "@/components/ui/button";
@@ -52,7 +54,7 @@ function ToolsScreen() {
       <ScreenHeader title="Tools" subtitle="Verify · Lookup · Mail · Calendar · Maps" />
       <div className="px-4 py-3">
         <Tabs defaultValue="verify">
-          <TabsList className="glass-panel grid w-full grid-cols-3 gap-1 rounded-2xl p-1">
+          <TabsList className="glass-panel flex w-full gap-1 overflow-x-auto rounded-2xl p-1">
             <TabsTrigger value="verify" className="rounded-full">
               Verify
             </TabsTrigger>
@@ -65,11 +67,17 @@ function ToolsScreen() {
             <TabsTrigger value="calendar" className="rounded-full">
               Calendar
             </TabsTrigger>
+            <TabsTrigger value="cal-settings" className="rounded-full">
+              Cal sync
+            </TabsTrigger>
             <TabsTrigger value="maps" className="rounded-full">
               Maps
             </TabsTrigger>
             <TabsTrigger value="email" className="rounded-full">
-              Email log
+              Delivery
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="rounded-full">
+              Templates
             </TabsTrigger>
           </TabsList>
           <TabsContent value="verify" className="pt-4">
@@ -84,11 +92,17 @@ function ToolsScreen() {
           <TabsContent value="calendar" className="pt-4">
             <CalendarPanel />
           </TabsContent>
+          <TabsContent value="cal-settings" className="pt-4">
+            <CalendarSettingsPanel />
+          </TabsContent>
           <TabsContent value="maps" className="pt-4">
             <PlacesPanel />
           </TabsContent>
           <TabsContent value="email" className="pt-4">
             <EmailLogPanel />
+          </TabsContent>
+          <TabsContent value="templates" className="pt-4">
+            <EmailTemplatesPanel />
           </TabsContent>
         </Tabs>
       </div>
