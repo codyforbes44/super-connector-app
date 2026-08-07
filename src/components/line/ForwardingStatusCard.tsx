@@ -113,9 +113,15 @@ export function ForwardingStatusCard({ row, onEdit }: { row: Row; onEdit: () => 
         </p>
       ) : null}
 
-      <p className="text-[0.7rem] text-muted-foreground">
-        Unused codes reference: {fillCode(steps[0]?.on ?? "", row.assigned_number ?? "")}
-      </p>
+      {!off && steps[0] ? (
+        <p className="text-[0.7rem] text-muted-foreground">
+          Re-dial{" "}
+          <span className="tabular font-semibold">
+            {fillCode(steps[0].on, row.assigned_number ?? "")}
+          </span>{" "}
+          if you ever swap SIM or reset your phone.
+        </p>
+      ) : null}
     </div>
   );
 }
