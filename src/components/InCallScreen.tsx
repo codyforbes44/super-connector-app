@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { formatPhone } from "@/lib/format";
 import { useVoice } from "@/lib/voice-device";
+import { startRingtone, stopRingtone } from "@/lib/ringtone";
 import { cn } from "@/lib/utils";
 
 const DIGITS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
@@ -28,6 +29,13 @@ export function InCallScreen() {
   const [typed, setTyped] = useState("");
   const elapsed = useElapsed(voice.startedAt);
 
+  const ringing = voice.callState === "ringing" && voice.direction === "inbound";
+  useEffect(() => {
+    if (ringing) startRingtone();
+    else stopRingtone();
+    return () => stopRingtone();
+  }, [ringing]);
+
   useEffect(() => {
     if (voice.callState === "idle") {
       setKeypad(false);
@@ -42,7 +50,7 @@ export function InCallScreen() {
   if (voice.callState === "idle") return null;
 
   const party = voice.remoteParty.replace(/^client:/, "");
-  const ringingIn = voice.callState === "ringing" && voice.direction === "inbound";
+  const ringingIn = ringing;
   const label = ringingIn
     ? "Incoming call"
     : voice.callState === "active"
