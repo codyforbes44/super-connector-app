@@ -104,7 +104,7 @@ export const importCallHistory = createServerFn({ method: "POST" })
 
 export const startCall = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { appNumber: string; to: string }) => input)
+  .inputValidator((input: { appNumber: string; to: string; callbackNumber?: string | null }) => input)
   .handler(async ({ context, data }) => ops.startCall(context.supabase, context.userId, data));
 
 export const listCallerIds = createServerFn({ method: "GET" })
