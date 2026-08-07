@@ -19,7 +19,6 @@ import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { Dialpad } from "@/components/Dialpad";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -93,9 +92,7 @@ function CallsScreen() {
     (boot.profile?.default_number as string | null) ?? boot.numbers[0]?.phone_number ?? "",
   );
   const [to, setTo] = useState("");
-  const [callbackNumber, setCallbackNumber] = useState(
-    (boot.profile?.agent_phone as string | null) ?? "",
-  );
+  const savedCallback = (boot.profile?.agent_phone as string | null) ?? "";
   const [audio, setAudio] = useState<string | null>(null);
   const [detail, setDetail] = useState<CallRow | null>(null);
 
@@ -159,9 +156,7 @@ function CallsScreen() {
       if (voice.ready) {
         await voice.call(to.trim(), from);
       } else {
-        await startCall({
-          data: { appNumber: from, to, callbackNumber: callbackNumber.trim() || null },
-        });
+        await startCall({ data: { appNumber: from, to } });
         await queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
         toast.success("Calling your phone now — answer to be connected.");
       }
@@ -364,31 +359,6 @@ function CallsScreen() {
               })()}
             </div>
 
-            {!voice.ready ? (
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="callback-number"
-                  className="text-[0.7rem] tracking-wide text-muted-foreground uppercase"
-                >
-                  Call me on
-                </Label>
-                <Input
-                  id="callback-number"
-                  inputMode="tel"
-                  maxLength={20}
-                  placeholder="+1 555 010 2030"
-                  value={callbackNumber}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                    setCallbackNumber(event.target.value)
-                  }
-                  className="h-11 rounded-full px-4"
-                />
-                <p className="text-[0.7rem] text-muted-foreground">
-                  We ring this phone first, then bridge the contact. Saved for next time.
-                </p>
-              </div>
-            ) : null}
-
             <div className="flex items-center justify-center gap-8">
               <button
                 type="button"
@@ -400,7 +370,7 @@ function CallsScreen() {
               </button>
               <button
                 type="submit"
-                disabled={!to.trim() || (!voice.ready && callbackNumber.trim().length < 7)}
+                disabled={!to.trim()}
                 className="key-call flex h-16 w-16 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-40"
               >
                 <PhoneCall className="h-6 w-6" />
@@ -411,7 +381,7 @@ function CallsScreen() {
             <p className="text-center text-xs text-muted-foreground">
               {voice.ready
                 ? "In-app call — connects right here using your caller ID."
-                : `We'll ring ${callbackNumber.trim() ? formatPhone(callbackNumber.trim()) : "your phone"} first, then connect the contact.`}
+                : `We'll ring ${savedCallback.trim() ? formatPhone(savedCallback.trim()) : "your phone"} first, then connect the contact.`}
             </p>
           </form>
         </SheetContent>
