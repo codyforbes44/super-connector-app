@@ -103,7 +103,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               <span className="font-display text-sm font-semibold">SignalBox</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              The full Twilio command center — messaging, voice, numbers and AI assistants — in one
+              Business calls, texts, WhatsApp, voicemail and an AI receptionist — in one
               mobile app.
             </p>
           </div>
@@ -131,7 +131,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           />
         </div>
         <div className="mx-auto max-w-6xl px-5 pb-10 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} SignalBox. Built on Twilio. Emails sent from bookme.bet.
+          © {new Date().getFullYear()} SignalBox. All rights reserved.
         </div>
       </footer>
     </div>

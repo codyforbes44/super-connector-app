@@ -2,14 +2,14 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 
-const TITLE = "FAQ — SignalBox Twilio app questions answered";
+const TITLE = "FAQ — SignalBox questions answered";
 const DESCRIPTION =
-  "Answers on Twilio accounts, pricing, numbers, WhatsApp, AI voicemail assistants, data ownership and how SignalBox compares to Talkyto, Toktiv and Mango.";
+  "Answers on trials, pricing, numbers, WhatsApp, the AI receptionist, data ownership and how SignalBox compares to other business phone apps.";
 
 const FAQS = [
   {
-    q: "Do I need my own Twilio account?",
-    a: "Yes. SignalBox is the product layer on top of your Twilio account, so your numbers, usage and rates stay yours. We never mark up Twilio usage.",
+    q: "Do I need anything before I start?",
+    a: "No. Sign up with an email address and your 14-day trial starts immediately — no card, no setup call. Your numbers, data and usage always stay yours.",
   },
   {
     q: "Can I keep my existing numbers?",
@@ -17,7 +17,7 @@ const FAQS = [
   },
   {
     q: "Does it work on mobile?",
-    a: "SignalBox is mobile-first and installable to your home screen. Calls ring your device through the Twilio Voice SDK, and push notifications alert you even when the app is in the background.",
+    a: "SignalBox is mobile-first and installable to your home screen. Calls ring inside the app, and push notifications alert you even when the app is in the background.",
   },
   {
     q: "How do the AI voicemail assistants work?",
@@ -29,11 +29,11 @@ const FAQS = [
   },
   {
     q: "What is the unrestricted API console?",
-    a: "An admin-only screen that can call any Twilio REST endpoint — core, Verify, Lookup and Messaging — with any method. Nothing about your account is walled off behind our feature list.",
+    a: "An admin-only screen with direct access to every messaging, voice, verification and number endpoint on your account. Nothing is walled off behind our feature list.",
   },
   {
     q: "How is this different from Talkyto, Toktiv or Mango?",
-    a: "Those apps expose a slice of Twilio. SignalBox covers messaging, telephony, provisioning, AI answering, connected Gmail/Calendar/Maps tools and raw API access in one place, with database-enforced roles for teams.",
+    a: "Those apps expose a slice of what a business line can do. SignalBox covers messaging, calling, numbers, AI answering, and connected mail, calendar and maps tools in one place, with real roles for teams.",
   },
   {
     q: "Can I cancel any time?",
