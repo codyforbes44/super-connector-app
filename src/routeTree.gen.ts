@@ -19,6 +19,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
+import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/public/elevenlabs/post-call'
 import { Route as ApiPublicTwilioAppVoiceRouteImport } from './routes/api/public/twilio/app-voice'
 import { Route as ApiPublicTwilioSmsRouteImport } from './routes/api/public/twilio/sms'
 import { Route as ApiPublicTwilioStatusRouteImport } from './routes/api/public/twilio/status'
@@ -73,6 +74,12 @@ const AuthenticatedInboxIdRoute = AuthenticatedInboxIdRouteImport.update({
   path: '/inbox/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicElevenlabsPostCallRoute =
+  ApiPublicElevenlabsPostCallRouteImport.update({
+    id: '/api/public/elevenlabs/post-call',
+    path: '/api/public/elevenlabs/post-call',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTwilioAppVoiceRoute = ApiPublicTwilioAppVoiceRouteImport.update({
   id: '/api/public/twilio/app-voice',
   path: '/api/public/twilio/app-voice',
@@ -104,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/tools': typeof AuthenticatedToolsRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
@@ -119,6 +127,7 @@ export interface FileRoutesByTo {
   '/tools': typeof AuthenticatedToolsRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/inbox': typeof AuthenticatedInboxIndexRoute
+  '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
@@ -136,6 +145,7 @@ export interface FileRoutesById {
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/inbox/$id'
     | '/inbox/'
+    | '/api/public/elevenlabs/post-call'
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/inbox/$id'
     | '/inbox'
+    | '/api/public/elevenlabs/post-call'
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
@@ -184,6 +196,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tools'
     | '/_authenticated/inbox/$id'
     | '/_authenticated/inbox/'
+    | '/api/public/elevenlabs/post-call'
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
@@ -194,6 +207,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
   ApiPublicTwilioAppVoiceRoute: typeof ApiPublicTwilioAppVoiceRoute
   ApiPublicTwilioSmsRoute: typeof ApiPublicTwilioSmsRoute
   ApiPublicTwilioStatusRoute: typeof ApiPublicTwilioStatusRoute
@@ -272,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInboxIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/elevenlabs/post-call': {
+      id: '/api/public/elevenlabs/post-call'
+      path: '/api/public/elevenlabs/post-call'
+      fullPath: '/api/public/elevenlabs/post-call'
+      preLoaderRoute: typeof ApiPublicElevenlabsPostCallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/twilio/app-voice': {
       id: '/api/public/twilio/app-voice'
       path: '/api/public/twilio/app-voice'
@@ -330,6 +351,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
   ApiPublicTwilioAppVoiceRoute: ApiPublicTwilioAppVoiceRoute,
   ApiPublicTwilioSmsRoute: ApiPublicTwilioSmsRoute,
   ApiPublicTwilioStatusRoute: ApiPublicTwilioStatusRoute,
