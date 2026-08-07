@@ -19,7 +19,6 @@ import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { Dialpad } from "@/components/Dialpad";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
