@@ -88,7 +88,9 @@ function CallsScreen() {
   const navigate = useNavigate({ from: Route.fullPath });
   const [dialing, setDialing] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [from, setFrom] = useState(boot.numbers[0]?.phone_number ?? "");
+  const [from, setFrom] = useState(
+    (boot.profile?.default_number as string | null) ?? boot.numbers[0]?.phone_number ?? "",
+  );
   const [to, setTo] = useState("");
   const [audio, setAudio] = useState<string | null>(null);
   const [detail, setDetail] = useState<CallRow | null>(null);
