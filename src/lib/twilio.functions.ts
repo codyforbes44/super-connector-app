@@ -192,6 +192,46 @@ export const removeNumberFromMessagingService = createServerFn({ method: "POST" 
     ops.removeNumberFromMessagingService(context.supabase, context.userId, data),
   );
 
+/* ------------------------------------------------------ twiml app + voice */
+
+export const voiceSetupStatus = createServerFn({ method: "GET" })
+  .middleware([auth])
+  .handler(async ({ context }) => ops.voiceSetupStatus(context.supabase, context.userId));
+
+export const listTwimlApps = createServerFn({ method: "GET" })
+  .middleware([auth])
+  .handler(async ({ context }) => ops.listTwimlApps(context.supabase, context.userId));
+
+export const createTwimlApp = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { name: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.createTwimlApp(context.supabase, context.userId, data),
+  );
+
+export const syncTwimlApp = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { sid: string }) => input)
+  .handler(async ({ context, data }) => ops.syncTwimlApp(context.supabase, context.userId, data));
+
+export const setDefaultTwimlApp = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { sid: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.setDefaultTwimlApp(context.supabase, context.userId, data),
+  );
+
+export const deleteTwimlApp = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { sid: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.deleteTwimlApp(context.supabase, context.userId, data),
+  );
+
+export const getVoiceToken = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .handler(async ({ context }) => ops.voiceToken(context.supabase, context.userId));
+
 export const rawTwilioCall = createServerFn({ method: "POST" })
   .middleware([auth])
   .inputValidator((input: { method: string; path: string; host: string; params: string }) => input)
