@@ -136,9 +136,29 @@ export async function updateNumberSettings(
   return { ok: true };
 }
 
-export async function wireNumber(supabase: SB, userId: string, data: { sid: string }) {
+export async function wireNumber(
+  supabase: SB,
+  userId: string,
+  data: { sid: string; applicationSid?: string | null },
+) {
   await requireAdmin(supabase, userId);
   const admin = await adminClient();
+  const appSid = data.applicationSid ?? (await defaultTwimlAppSid(admin));
+  if (appSid) {
+    await twilioRequest({
+      method: "POST",
+      path: `/IncomingPhoneNumbers/${data.sid}.json`,
+      params: {
+        VoiceApplicationSid: appSid,
+        SmsApplicationSid: appSid,
+        StatusCallback: webhookUrl("status"),
+        StatusCallbackMethod: "POST",
+      },
+    });
+    await admin.from("phone_numbers").update({ webhook_wired: true }).eq("sid", data.sid);
+    await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid });
+    return { ok: true, applicationSid: appSid };
+  }
   await twilioRequest({
     method: "POST",
     path: `/IncomingPhoneNumbers/${data.sid}.json`,
@@ -155,7 +175,7 @@ export async function wireNumber(supabase: SB, userId: string, data: { sid: stri
   });
   await admin.from("phone_numbers").update({ webhook_wired: true }).eq("sid", data.sid);
   await audit(admin, userId, "numbers.wire", { sid: data.sid });
-  return { ok: true };
+  return { ok: true, applicationSid: null };
 }
 
 export async function searchAvailableNumbers(
