@@ -347,7 +347,10 @@ function NumberSheet({
 
   return (
     <Sheet open onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side="bottom" className="max-h-[88dvh] overflow-y-auto rounded-t-3xl">
+      <SheetContent
+        side="bottom"
+        className="app-gradient max-h-[88dvh] overflow-y-auto rounded-t-[2rem] border-border"
+      >
         <SheetHeader className="px-0">
           <SheetTitle className="font-display tabular">
             {formatPhone(number.phone_number)}
@@ -360,13 +363,13 @@ function NumberSheet({
               value={friendlyName}
               onChange={(e) => setFriendlyName(e.target.value)}
               maxLength={64}
-              className="h-11"
+              className="h-11 rounded-full px-4"
             />
           </div>
           <div className="space-y-1.5">
             <Label>Assigned agent</Label>
             <Select value={assigned} onValueChange={setAssigned}>
-              <SelectTrigger className="h-11 w-full">
+              <SelectTrigger className="h-11 w-full rounded-full px-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -387,7 +390,7 @@ function NumberSheet({
               placeholder="Leave empty to send to voicemail"
               inputMode="tel"
               maxLength={20}
-              className="h-11"
+              className="h-11 rounded-full px-4"
             />
           </div>
           <div className="space-y-1.5">
@@ -396,18 +399,22 @@ function NumberSheet({
               value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
               maxLength={300}
-              className="h-11"
+              className="h-11 rounded-full px-4"
             />
           </div>
 
-          <Button className="h-12 w-full font-semibold" onClick={save} disabled={busy}>
+          <Button
+            className="key-signal h-12 w-full rounded-full font-semibold"
+            onClick={save}
+            disabled={busy}
+          >
             Save changes
           </Button>
 
           <div className="flex gap-2">
             <Button
               variant="secondary"
-              className="flex-1"
+              className="flex-1 rounded-full"
               onClick={async () => {
                 try {
                   await wireNumber({ data: { sid: number.sid } });
@@ -423,7 +430,7 @@ function NumberSheet({
             </Button>
             <Button
               variant="ghost"
-              className="text-destructive"
+              className="key-end rounded-full"
               onClick={async () => {
                 if (!confirm("Release this number back to Twilio? This cannot be undone.")) return;
                 try {
