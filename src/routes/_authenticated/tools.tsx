@@ -48,9 +48,13 @@ function ToolsScreen() {
       <ScreenHeader title="Tools" subtitle="Verify OTP · Lookup intelligence" />
       <div className="px-4 py-3">
         <Tabs defaultValue="verify">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="verify">Verify</TabsTrigger>
-            <TabsTrigger value="lookup">Lookup</TabsTrigger>
+          <TabsList className="glass-panel grid w-full grid-cols-2 rounded-full p-1">
+            <TabsTrigger value="verify" className="rounded-full">
+              Verify
+            </TabsTrigger>
+            <TabsTrigger value="lookup" className="rounded-full">
+              Lookup
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="verify" className="pt-4">
             <VerifyPanel />
