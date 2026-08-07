@@ -12,4 +12,15 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    resolve: {
+      alias: {
+        // The Twilio Voice SDK does `class X extends require('events').EventEmitter`.
+        // Without this alias the production build resolves "events" to an empty
+        // node-builtin stub, so EventEmitter is undefined and the SDK throws
+        // "superclass is not a constructor" the moment in-app calling boots.
+        events: "events/events.js",
+      },
+    },
+  },
 });
