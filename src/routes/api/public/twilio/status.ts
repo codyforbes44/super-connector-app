@@ -27,7 +27,12 @@ export const Route = createFileRoute("/api/public/twilio/status")({
 
         const callSid = get("CallSid");
         if (callSid) {
-          const patch: Record<string, unknown> = {};
+          const patch: {
+            status?: string;
+            duration?: number;
+            recording_url?: string;
+            transcription?: string;
+          } = {};
           if (get("CallStatus")) patch["status"] = get("CallStatus");
           if (get("CallDuration")) patch["duration"] = Number(get("CallDuration"));
           if (get("RecordingUrl")) patch["recording_url"] = get("RecordingUrl");
