@@ -21,6 +21,7 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { useSubscription } from "@/hooks/useSubscription";
 import { errorMessage } from "@/lib/format";
 import { PushNotifications } from "@/components/PushNotifications";
+import { CallingSettings } from "@/components/CallingSettings";
 import { EmailNotifications } from "@/components/EmailNotifications";
 import { VoiceSetup } from "@/components/VoiceSetup";
 import { ElevenLabsStatus } from "@/components/ElevenLabsStatus";
@@ -119,6 +120,8 @@ function SettingsScreen() {
         <PushNotifications />
         <EmailNotifications />
       </div>
+
+      <CallingSettings />
 
       {boot.isAdmin ? (
         <>
