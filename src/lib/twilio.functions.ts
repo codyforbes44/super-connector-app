@@ -300,6 +300,13 @@ export const rawTwilioCall = createServerFn({ method: "POST" })
   .inputValidator((input: { method: string; path: string; host: string; params: string }) => input)
   .handler(async ({ context, data }) => ops.rawTwilioCall(context.supabase, context.userId, data));
 
+export const setVoicePresence = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { online: boolean }) => input)
+  .handler(async ({ context, data }) =>
+    ops.setVoicePresence(context.supabase, context.userId, data.online),
+  );
+
 export const listTeam = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => ops.listTeam(context.supabase, context.userId));

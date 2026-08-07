@@ -32,7 +32,7 @@ export function VoiceSetup() {
   const apps = useQuery({ queryKey: ["twiml-apps"], queryFn: () => listTwimlApps() });
 
   const info = status.data as unknown as
-    | { hasApiKey: boolean; voiceUrl: string; statusUrl: string; smsUrl: string }
+    | { hasApiKey: boolean; hasDefault?: boolean; voiceUrl: string; statusUrl: string; smsUrl: string }
     | undefined;
   const rows = (apps.data ?? []) as unknown as AppRow[];
 
@@ -66,6 +66,13 @@ export function VoiceSetup() {
       {info && !info.hasApiKey ? (
         <p className="glass-panel rounded-3xl px-4 py-3 text-xs text-destructive">
           A voice API key is missing, so in-app calling tokens can't be minted.
+        </p>
+      ) : null}
+
+      {info && info.hasApiKey && info.hasDefault === false && rows.length > 0 ? (
+        <p className="glass-panel rounded-3xl px-4 py-3 text-xs text-destructive">
+          No default app is selected, so this device can't register for calls. Tap “Use this” on the
+          app you want SixVox to call through.
         </p>
       ) : null}
 
