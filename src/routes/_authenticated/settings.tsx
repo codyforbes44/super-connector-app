@@ -118,6 +118,7 @@ function SettingsScreen() {
       {boot.isAdmin ? (
         <>
           <VoiceSetup />
+          <ElevenLabsStatus />
           <section className="space-y-3 border-t border-border px-4 py-4">
             <h2 className="font-display text-sm font-semibold">Twilio account</h2>
             {overview.isError ? (
