@@ -38,7 +38,7 @@ export function missedCall(d: MissedCallData): RenderedEmail {
       `<span style="color:${BRAND.muted};font-size:13px;">Tap to open the dialer with this number ready.</span>`,
     );
   return {
-    subject: `Missed call from ${d.from}`,
+    subject: `SixVox · Missed call from ${d.from}`,
     html: layout({
       preheader: `${d.from} called ${d.to}`,
       eyebrow: "Missed call",
@@ -63,7 +63,7 @@ export function voicemail(d: VoicemailData): RenderedEmail {
     ]) +
     button("Listen in SixVox", appLink(d.baseUrl, "/calls"));
   return {
-    subject: `Voicemail from ${d.from}`,
+    subject: `SixVox · Voicemail from ${d.from}`,
     html: layout({
       preheader: d.transcript ? d.transcript.slice(0, 120) : `${d.from} left a voicemail`,
       eyebrow: "New voicemail",
@@ -97,7 +97,7 @@ export function inboundMessage(d: InboundMessageData): RenderedEmail {
     ]) +
     button("Open thread", appLink(d.baseUrl, `/inbox/${d.conversationId}`));
   return {
-    subject: `${label} from ${d.from}: ${(d.preview || "new message").slice(0, 60)}`,
+    subject: `SixVox · ${label} from ${d.from}: ${(d.preview || "new message").slice(0, 60)}`,
     html: layout({
       preheader: d.preview.slice(0, 120),
       eyebrow: `New ${label.toLowerCase()}`,
@@ -151,7 +151,7 @@ export function aiSummary(d: AiSummaryData): RenderedEmail {
     button("Open call", appLink(d.baseUrl, "/calls"));
 
   return {
-    subject: `AI assistant handled a call from ${d.from}`,
+    subject: `SixVox · AI receptionist handled a call from ${d.from}`,
     html: layout({
       preheader: d.summary.slice(0, 120) || "AI assistant call summary",
       eyebrow: "AI assistant",
@@ -202,7 +202,7 @@ export function account(d: AccountData): RenderedEmail {
     (d.rows?.length ? metaTable(d.rows) : "") +
     button(d.ctaLabel ?? "Open SixVox", appLink(d.baseUrl, d.ctaPath ?? "/inbox"));
   return {
-    subject: c.title,
+    subject: `SixVox · ${c.title}`,
     html: layout({ preheader: c.intro, eyebrow: c.eyebrow, title: c.title, body }),
   };
 }

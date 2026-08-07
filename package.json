@@ -1,5 +1,7 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "sixvox",
+  "version": "1.0.0",
+  "description": "SixVox — business calls, texts and AI receptionist in one mobile app.",
   "private": true,
   "sideEffects": false,
   "type": "module",

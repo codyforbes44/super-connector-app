@@ -145,19 +145,82 @@ type OutgoingCallerId = {
   date_created?: string;
 };
 
-/** Verified outbound caller IDs on the account. */
-export async function listCallerIds(supabase: SB, userId: string) {
+export type CallerIdStatus = "verified" | "pending" | "failed";
+
+export type CallerIdEntry = {
+  sid: string;
+  phoneNumber: string;
+  friendlyName: string | null;
+  dateCreated: string | null;
+  status: CallerIdStatus;
+  validationCode: string | null;
+  error: string | null;
+};
+
+/** Pending verification attempts time out after this window. */
+const VERIFY_WINDOW_MS = 12 * 60 * 1000;
+
+/**
+ * Caller IDs with live status. Twilio only lists numbers that finished
+ * verification, so pending/failed attempts are tracked locally and reconciled
+ * against the Twilio list on every read.
+ */
+export async function listCallerIds(supabase: SB, userId: string): Promise<CallerIdEntry[]> {
   await allowedNumbers(supabase, userId);
   const res = await twilioRequest<{ outgoing_caller_ids: OutgoingCallerId[] }>({
     path: "/OutgoingCallerIds.json",
     params: { PageSize: 100 },
   });
-  return (res.outgoing_caller_ids ?? []).map((item) => ({
+  const verified = (res.outgoing_caller_ids ?? []).map((item) => ({
     sid: item.sid,
-    phoneNumber: item.phone_number,
+    phoneNumber: normalizePhone(item.phone_number),
     friendlyName: item.friendly_name,
     dateCreated: item.date_created ?? null,
+    status: "verified" as CallerIdStatus,
+    validationCode: null,
+    error: null,
   }));
+
+  const admin = await adminClient();
+  const { data: attempts } = await admin
+    .from("caller_id_verifications")
+    .select("id, phone_number, friendly_name, status, validation_code, error, created_at")
+    .order("created_at", { ascending: false });
+
+  const verifiedSet = new Set(verified.map((v) => v.phoneNumber));
+  const extras: CallerIdEntry[] = [];
+
+  for (const row of attempts ?? []) {
+    const phoneNumber = normalizePhone(row.phone_number as string);
+    if (verifiedSet.has(phoneNumber)) {
+      if (row.status !== "verified") {
+        await admin
+          .from("caller_id_verifications")
+          .update({ status: "verified", validation_code: null, error: null })
+          .eq("id", row.id);
+      }
+      continue;
+    }
+    let status = row.status as CallerIdStatus;
+    let error = (row.error as string | null) ?? null;
+    const age = Date.now() - new Date(row.created_at as string).getTime();
+    if (status === "pending" && age > VERIFY_WINDOW_MS) {
+      status = "failed";
+      error = "Verification timed out — the code was never entered.";
+      await admin.from("caller_id_verifications").update({ status, error }).eq("id", row.id);
+    }
+    extras.push({
+      sid: `local:${row.id}`,
+      phoneNumber,
+      friendlyName: (row.friendly_name as string | null) ?? null,
+      dateCreated: row.created_at as string,
+      status,
+      validationCode: status === "pending" ? ((row.validation_code as string | null) ?? null) : null,
+      error,
+    });
+  }
+
+  return [...extras, ...verified];
 }
 
 /**
@@ -180,6 +243,18 @@ export async function requestCallerIdVerification(
     },
   });
   const admin = await adminClient();
+  await admin.from("caller_id_verifications").upsert(
+    {
+      phone_number: phoneNumber,
+      friendly_name: data.friendlyName || null,
+      status: "pending",
+      validation_code: res.validation_code,
+      error: null,
+      requested_by: userId,
+      created_at: new Date().toISOString(),
+    },
+    { onConflict: "phone_number" },
+  );
   await audit(admin, userId, "callerid.verify_request", { phoneNumber });
   return { validationCode: res.validation_code, phoneNumber: res.phone_number ?? phoneNumber };
 }
@@ -190,15 +265,108 @@ export async function deleteCallerId(
   data: { sid: string; phoneNumber?: string },
 ) {
   await requireAdmin(supabase, userId);
-  await twilioRequest({ method: "DELETE", path: `/OutgoingCallerIds/${data.sid}.json` });
   const admin = await adminClient();
+  if (data.sid.startsWith("local:")) {
+    await admin.from("caller_id_verifications").delete().eq("id", data.sid.slice(6));
+  } else {
+    await twilioRequest({ method: "DELETE", path: `/OutgoingCallerIds/${data.sid}.json` });
+  }
   if (data.phoneNumber) {
+    const value = normalizePhone(data.phoneNumber);
+    await admin.from("caller_id_verifications").delete().eq("phone_number", value);
+    await admin.from("caller_id_routes").delete().eq("caller_id", value);
+    await admin.from("contacts").update({ outbound_caller_id: null }).eq("outbound_caller_id", value);
     await admin
       .from("phone_numbers")
       .update({ outbound_caller_id: null })
-      .eq("outbound_caller_id", normalizePhone(data.phoneNumber));
+      .eq("outbound_caller_id", value);
   }
   await audit(admin, userId, "callerid.delete", { sid: data.sid });
+  return { ok: true };
+}
+
+/** Numbers that are safe to present as a caller ID (verified on the account). */
+async function verifiedCallerIdSet(supabase: SB, userId: string): Promise<Set<string>> {
+  const list = await listCallerIds(supabase, userId);
+  return new Set(
+    list.filter((item) => item.status === "verified").map((item) => normalizePhone(item.phoneNumber)),
+  );
+}
+
+/* ------------------------------------------------- caller ID routing rules */
+
+/** Rules that pick a caller ID by destination: an exact number or a prefix. */
+export async function listCallerIdRoutes(supabase: SB, userId: string) {
+  await allowedNumbers(supabase, userId);
+  const { data, error } = await supabase
+    .from("caller_id_routes")
+    .select("id, pattern, caller_id, label, created_at")
+    .order("pattern", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    pattern: row.pattern as string,
+    callerId: row.caller_id as string,
+    label: (row.label as string | null) ?? null,
+  }));
+}
+
+export async function upsertCallerIdRoute(
+  supabase: SB,
+  userId: string,
+  data: { id?: string; pattern: string; callerId: string; label?: string | null },
+) {
+  await requireAdmin(supabase, userId);
+  const pattern = data.pattern.trim().replace(/[^\d+*]/g, "").replace(/\*+$/, "");
+  if (pattern.length < 2) throw new Error("Enter a full number or at least a country/area prefix.");
+  const callerId = normalizePhone(data.callerId);
+  const verified = await verifiedCallerIdSet(supabase, userId);
+  if (!verified.has(callerId)) throw new Error("Pick a verified caller ID.");
+  const admin = await adminClient();
+  const { error } = await admin.from("caller_id_routes").upsert(
+    {
+      ...(data.id ? { id: data.id } : {}),
+      pattern,
+      caller_id: callerId,
+      label: data.label?.trim() || null,
+      created_by: userId,
+    },
+    { onConflict: "pattern" },
+  );
+  if (error) throw new Error(error.message);
+  await audit(admin, userId, "callerid.route_save", { pattern, callerId });
+  return { ok: true };
+}
+
+export async function deleteCallerIdRoute(supabase: SB, userId: string, data: { id: string }) {
+  await requireAdmin(supabase, userId);
+  const admin = await adminClient();
+  await admin.from("caller_id_routes").delete().eq("id", data.id);
+  await audit(admin, userId, "callerid.route_delete", { id: data.id });
+  return { ok: true };
+}
+
+/** Per-contact caller ID override. Pass null to fall back to routes. */
+export async function setContactCallerId(
+  supabase: SB,
+  userId: string,
+  data: { phoneNumber: string; callerId: string | null },
+) {
+  await allowedNumbers(supabase, userId);
+  const phoneNumber = normalizePhone(data.phoneNumber);
+  let value: string | null = null;
+  if (data.callerId) {
+    value = normalizePhone(data.callerId);
+    const verified = await verifiedCallerIdSet(supabase, userId);
+    if (!verified.has(value)) throw new Error("Pick a verified caller ID.");
+  }
+  const admin = await adminClient();
+  const { error } = await admin
+    .from("contacts")
+    .update({ outbound_caller_id: value })
+    .eq("phone_number", phoneNumber);
+  if (error) throw new Error(error.message);
+  await audit(admin, userId, "callerid.contact_override", { phoneNumber, callerId: value });
   return { ok: true };
 }
 
@@ -212,8 +380,8 @@ export async function setOutboundCallerId(
   let value: string | null = null;
   if (data.callerId) {
     value = normalizePhone(data.callerId);
-    const verified = await listCallerIds(supabase, userId);
-    if (!verified.some((item) => normalizePhone(item.phoneNumber) === value)) {
+    const verified = await verifiedCallerIdSet(supabase, userId);
+    if (!verified.has(value)) {
       throw new Error("That number isn't a verified caller ID yet. Verify it first.");
     }
   }
@@ -245,9 +413,32 @@ export async function setDefaultNumber(
 
 /**
  * Which number the recipient sees for calls placed from `appNumber`.
- * Falls back to the SixVox number when no verified caller ID is attached.
+ * Precedence: per-contact override → exact route → longest matching prefix
+ * route → per-number caller ID → the SixVox number itself.
  */
-export async function resolveOutboundCallerId(client: SB, appNumber: string): Promise<string> {
+export async function resolveOutboundCallerId(
+  client: SB,
+  appNumber: string,
+  to?: string | null,
+): Promise<string> {
+  const target = to ? normalizePhone(to) : null;
+
+  if (target) {
+    const { data: contact } = await client
+      .from("contacts")
+      .select("outbound_caller_id")
+      .eq("phone_number", target)
+      .maybeSingle();
+    const override = (contact?.outbound_caller_id as string | null) ?? null;
+    if (override) return normalizePhone(override);
+
+    const { data: routes } = await client.from("caller_id_routes").select("pattern, caller_id");
+    const match = (routes ?? [])
+      .filter((row) => target.startsWith(row.pattern as string))
+      .sort((a, b) => (b.pattern as string).length - (a.pattern as string).length)[0];
+    if (match) return normalizePhone(match.caller_id as string);
+  }
+
   const { data } = await client
     .from("phone_numbers")
     .select("outbound_caller_id")
@@ -604,7 +795,7 @@ export async function startCall(
   }
 
   const target = normalizePhone(data.to);
-  const callerId = await resolveOutboundCallerId(supabase, appNumber);
+  const callerId = await resolveOutboundCallerId(supabase, appNumber, target);
   const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${callerId}"><Number>${target}</Number></Dial></Response>`;
 
   const call = await twilioRequest<{ sid: string; status: string }>({
@@ -633,6 +824,55 @@ export async function startCall(
     { onConflict: "sid" },
   );
   return { sid: call.sid };
+}
+
+/**
+ * Places a short confirmation call to the signed-in user's own phone using the
+ * caller ID that real outbound calls would present. Verifies setup end to end.
+ */
+export async function sendTestCall(
+  supabase: SB,
+  userId: string,
+  data: { appNumber?: string | null; to?: string | null },
+) {
+  const { numbers } = await allowedNumbers(supabase, userId);
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("agent_phone, default_number")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const appNumber = normalizePhone(
+    data.appNumber || (profile?.default_number as string | null) || numbers[0] || "",
+  );
+  if (!appNumber) throw new Error("No number is assigned to you yet.");
+  if (!numbers.includes(appNumber)) throw new Error("You are not assigned to that number.");
+
+  const destination = data.to || (profile?.agent_phone as string | null) || "";
+  if (!destination) {
+    throw new Error("Add your own phone number in Settings first so we know where to call.");
+  }
+  const target = normalizePhone(destination);
+  const callerId = await resolveOutboundCallerId(supabase, appNumber, target);
+
+  const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Pause length="1"/><Say voice="alice">This is a SixVox test call. Your outbound calling is working. Goodbye.</Say><Hangup/></Response>`;
+
+  const call = await twilioRequest<{ sid: string; status: string }>({
+    method: "POST",
+    path: "/Calls.json",
+    params: {
+      From: callerId,
+      To: target,
+      Twiml: twiml,
+      Timeout: 25,
+      StatusCallback: webhookUrl("status"),
+      StatusCallbackEvent: ["completed"],
+    },
+  });
+
+  const admin = await adminClient();
+  await audit(admin, userId, "calls.test", { appNumber, callerId, to: target });
+  return { sid: call.sid, callerId, to: target, appNumber };
 }
 
 export async function getCallRecordings(supabase: SB, userId: string, data: { sid: string }) {

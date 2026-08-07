@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PhoneOutgoing, Trash2 } from "lucide-react";
+import { CheckCircle2, Loader2, PhoneCall, PhoneOutgoing, Plus, Trash2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -17,13 +17,36 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage, formatPhone } from "@/lib/format";
 import {
   deleteCallerId,
+  deleteCallerIdRoute,
   listCallerIds,
+  listCallerIdRoutes,
   requestCallerIdVerification,
+  sendTestCall,
   setDefaultNumber,
   setOutboundCallerId,
+  upsertCallerIdRoute,
 } from "@/lib/twilio.functions";
 
 const NONE = "__none__";
+
+const STATUS_STYLES: Record<string, { label: string; className: string }> = {
+  verified: { label: "Verified", className: "text-emerald-300 border-emerald-400/30 bg-emerald-400/10" },
+  pending: { label: "Pending", className: "text-amber-300 border-amber-400/30 bg-amber-400/10" },
+  failed: { label: "Failed", className: "text-rose-300 border-rose-400/30 bg-rose-400/10" },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const style = STATUS_STYLES[status] ?? STATUS_STYLES["pending"]!;
+  const Icon = status === "verified" ? CheckCircle2 : status === "failed" ? XCircle : Loader2;
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[0.65rem] font-medium ${style.className}`}
+    >
+      <Icon className={`h-3 w-3 ${status === "pending" ? "animate-spin" : ""}`} />
+      {style.label}
+    </span>
+  );
+}
 
 export function CallingSettings() {
   const boot = useBootstrap();
@@ -33,15 +56,58 @@ export function CallingSettings() {
   );
   const [newCallerId, setNewCallerId] = useState("");
   const [code, setCode] = useState<string | null>(null);
+  const [routePattern, setRoutePattern] = useState("");
+  const [routeCallerId, setRouteCallerId] = useState("");
+  const [routeLabel, setRouteLabel] = useState("");
 
   const callerIds = useQuery({
     queryKey: ["caller-ids"],
     queryFn: () => listCallerIds(),
     enabled: boot.isAdmin,
     retry: false,
+    refetchInterval: (query) =>
+      (query.state.data ?? []).some((item) => item.status === "pending") ? 5000 : false,
+  });
+
+  const verified = (callerIds.data ?? []).filter((item) => item.status === "verified");
+
+  const routes = useQuery({
+    queryKey: ["caller-id-routes"],
+    queryFn: () => listCallerIdRoutes(),
+    retry: false,
   });
 
   const refreshBoot = () => queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
+
+  const testCall = useMutation({
+    mutationFn: () => sendTestCall({ data: { appNumber: defaultNumber || null } }),
+    onSuccess: (result) =>
+      toast.success(`Calling ${formatPhone(result.to)} from ${formatPhone(result.callerId)}…`),
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+
+  const saveRoute = useMutation({
+    mutationFn: () =>
+      upsertCallerIdRoute({
+        data: { pattern: routePattern, callerId: routeCallerId, label: routeLabel || null },
+      }),
+    onSuccess: async () => {
+      setRoutePattern("");
+      setRouteLabel("");
+      await routes.refetch();
+      toast.success("Caller ID rule saved.");
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+
+  const removeRoute = useMutation({
+    mutationFn: (id: string) => deleteCallerIdRoute({ data: { id } }),
+    onSuccess: async () => {
+      await routes.refetch();
+      toast.success("Rule removed.");
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
 
   const saveDefault = useMutation({
     mutationFn: (phoneNumber: string) => setDefaultNumber({ data: { phoneNumber } }),
@@ -54,8 +120,10 @@ export function CallingSettings() {
 
   const startVerification = useMutation({
     mutationFn: () => requestCallerIdVerification({ data: { phoneNumber: newCallerId } }),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       setCode(result.validationCode);
+      setNewCallerId("");
+      await callerIds.refetch();
       toast.success("We're calling that number now — enter the code shown below.");
     },
     onError: (error) => toast.error(errorMessage(error)),
@@ -113,6 +181,23 @@ export function CallingSettings() {
         </p>
       </div>
 
+      <Button
+        variant="outline"
+        className="h-11 w-full rounded-full"
+        disabled={testCall.isPending || !defaultNumber}
+        onClick={() => testCall.mutate()}
+      >
+        {testCall.isPending ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <PhoneCall className="mr-2 h-4 w-4" />
+        )}
+        Send test outbound call
+      </Button>
+      <p className="-mt-2 text-[0.7rem] text-muted-foreground">
+        We ring your own number using the caller ID a real call would present, then hang up.
+      </p>
+
       {boot.isAdmin ? (
         <>
           <div className="space-y-1.5">
@@ -165,13 +250,30 @@ export function CallingSettings() {
                     className="glass-panel flex items-center gap-3 rounded-2xl px-3.5 py-2.5"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="tabular truncate text-sm font-medium">
-                        {formatPhone(item.phoneNumber)}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="tabular truncate text-sm font-medium">
+                          {formatPhone(item.phoneNumber)}
+                        </p>
+                        <StatusBadge status={item.status} />
+                      </div>
                       <p className="truncate text-[0.7rem] text-muted-foreground">
-                        {item.friendlyName ?? "Verified"}
+                        {item.status === "pending"
+                          ? `Awaiting code${item.validationCode ? ` ${item.validationCode}` : ""}`
+                          : (item.error ?? item.friendlyName ?? "Verified")}
                       </p>
                     </div>
+                    {item.status === "failed" ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewCallerId(item.phoneNumber);
+                          startVerification.mutate();
+                        }}
+                        className="key-raised shrink-0 rounded-full px-3 py-1.5 text-[0.7rem] font-medium"
+                      >
+                        Retry
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       aria-label={`Remove ${item.phoneNumber}`}
@@ -211,7 +313,7 @@ export function CallingSettings() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NONE}>Show this number</SelectItem>
-                    {(callerIds.data ?? []).map((item) => (
+                    {verified.map((item) => (
                       <SelectItem key={item.sid} value={item.phoneNumber}>
                         {formatPhone(item.phoneNumber)}
                       </SelectItem>
@@ -220,6 +322,74 @@ export function CallingSettings() {
                 </Select>
               </div>
             ))}
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">
+              Caller ID rules by destination
+            </p>
+            <p className="text-[0.7rem] text-muted-foreground">
+              Match a full contact number (+15550102030) or a prefix (+1512). The longest match
+              wins, and a contact-specific rule always beats a prefix.
+            </p>
+            {(routes.data ?? []).map((route) => (
+              <div
+                key={route.id}
+                className="glass-panel flex items-center gap-3 rounded-2xl px-3.5 py-2.5"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="tabular truncate text-sm font-medium">
+                    {route.pattern} → {formatPhone(route.callerId)}
+                  </p>
+                  <p className="truncate text-[0.7rem] text-muted-foreground">
+                    {route.label ?? "Routing rule"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  aria-label={`Remove rule ${route.pattern}`}
+                  onClick={() => removeRoute.mutate(route.id)}
+                  className="key-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-foreground"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            <div className="glass-panel space-y-2 rounded-2xl px-3.5 py-3">
+              <Input
+                value={routePattern}
+                onChange={(e) => setRoutePattern(e.target.value)}
+                inputMode="tel"
+                placeholder="+1512 or +15550102030"
+                className="h-10 rounded-full px-4"
+              />
+              <Input
+                value={routeLabel}
+                onChange={(e) => setRouteLabel(e.target.value)}
+                placeholder="Label (optional)"
+                className="h-10 rounded-full px-4"
+              />
+              <Select value={routeCallerId} onValueChange={setRouteCallerId}>
+                <SelectTrigger className="h-10 w-full rounded-full px-4">
+                  <SelectValue placeholder="Present this caller ID" />
+                </SelectTrigger>
+                <SelectContent>
+                  {verified.map((item) => (
+                    <SelectItem key={item.sid} value={item.phoneNumber}>
+                      {formatPhone(item.phoneNumber)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                className="key-signal h-10 w-full rounded-full"
+                disabled={!routePattern.trim() || !routeCallerId || saveRoute.isPending}
+                onClick={() => saveRoute.mutate()}
+              >
+                <Plus className="mr-1.5 h-4 w-4" />
+                Add rule
+              </Button>
+            </div>
           </div>
         </>
       ) : null}
