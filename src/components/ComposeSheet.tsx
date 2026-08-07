@@ -1,0 +1,133 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
+import { errorMessage, formatPhone } from "@/lib/format";
+import { sendMessage } from "@/lib/twilio.functions";
+
+export type AppNumber = { sid: string; phone_number: string; friendly_name: string | null };
+
+export function ComposeSheet({
+  open,
+  onOpenChange,
+  numbers,
+}: {
+  open: boolean;
+  onOpenChange: (value: boolean) => void;
+  numbers: AppNumber[];
+}) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [from, setFrom] = useState(numbers[0]?.phone_number ?? "");
+  const [to, setTo] = useState("");
+  const [body, setBody] = useState("");
+  const [channel, setChannel] = useState<"sms" | "whatsapp">("sms");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!from) {
+      toast.error("No Twilio number is assigned to you yet.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await sendMessage({
+        data: { appNumber: from, to, body, channel },
+      });
+      await queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      onOpenChange(false);
+      setTo("");
+      setBody("");
+      await navigate({ to: "/inbox/$id", params: { id: result.conversationId } });
+    } catch (error) {
+      toast.error(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="rounded-t-3xl">
+        <SheetHeader className="px-0">
+          <SheetTitle className="font-display">New message</SheetTitle>
+        </SheetHeader>
+        <form onSubmit={submit} className="space-y-4 pb-[env(safe-area-inset-bottom)]">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>From</Label>
+              <Select value={from} onValueChange={setFrom}>
+                <SelectTrigger className="h-11 w-full">
+                  <SelectValue placeholder="Number" />
+                </SelectTrigger>
+                <SelectContent>
+                  {numbers.map((n) => (
+                    <SelectItem key={n.sid} value={n.phone_number}>
+                      {n.friendly_name || formatPhone(n.phone_number)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Channel</Label>
+              <Select value={channel} onValueChange={(v) => setChannel(v as "sms" | "whatsapp")}>
+                <SelectTrigger className="h-11 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sms">SMS / MMS</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="to">To</Label>
+            <Input
+              id="to"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              placeholder="+1 555 010 2030"
+              inputMode="tel"
+              required
+              maxLength={20}
+              className="h-11"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="body">Message</Label>
+            <Textarea
+              id="body"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={4}
+              required
+              maxLength={1500}
+            />
+          </div>
+
+          <Button type="submit" className="h-12 w-full font-semibold" disabled={busy}>
+            {busy ? "Sending…" : "Send message"}
+          </Button>
+        </form>
+      </SheetContent>
+    </Sheet>
+  );
+}
