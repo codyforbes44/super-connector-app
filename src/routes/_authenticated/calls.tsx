@@ -93,7 +93,7 @@ function CallsScreen() {
   const [detail, setDetail] = useState<CallRow | null>(null);
 
   function setFilters(patch: Partial<CallFilterState>) {
-    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
+    void navigate({ search: (prev: CallFilterState) => ({ ...prev, ...patch }), replace: true });
   }
 
   const calls = useQuery({
