@@ -45,3 +45,17 @@ export const getCallConversation = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) =>
     ops.conversationForCall(context.supabase, context.userId, data),
   );
+
+export const getAssistantProfile = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { sid: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.getAssistantProfile(context.supabase, context.userId, data),
+  );
+
+export const saveAssistantProfile = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: ops.AssistantProfile) => input)
+  .handler(async ({ context, data }) =>
+    ops.saveAssistantProfile(context.supabase, context.userId, data),
+  );
