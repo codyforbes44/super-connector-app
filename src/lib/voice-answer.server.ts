@@ -45,6 +45,8 @@ function fallbackTwiml(config: NumberVoiceConfig, classic: string): string {
   if (config.ai_fallback === "forward" && config.ai_fallback_number) {
     return `<Dial timeout="25"><Number>${escapeXml(config.ai_fallback_number)}</Number></Dial>${classic}`;
   }
+  if (config.answer_mode === "ai_agent") return fallbackTwiml(config, classic);
+
   return classic;
 }
 
