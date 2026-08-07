@@ -12,7 +12,7 @@ type PortalSessionResult = { url: string } | { error: string };
 
 async function resolveOrCreateCustomer(
   stripe: ReturnType<typeof createStripeClient>,
-  options: { email?: string; userId?: string },
+  options: { email?: string | undefined; userId?: string | undefined },
 ): Promise<string> {
   if (options.userId && !/^[a-zA-Z0-9_-]+$/.test(options.userId)) {
     throw new Error("Invalid userId");
@@ -163,13 +163,18 @@ export const updateSubscriber = createServerFn({ method: "POST" })
         .limit(1)
         .maybeSingle();
 
-      const patch: Record<string, unknown> = {};
+      const patch: {
+        comped?: boolean;
+        suspended?: boolean;
+        plan_code?: string;
+        status?: string;
+      } = {};
       if (data.comped !== undefined) {
-        patch["comped"] = data.comped;
-        if (data.comped) patch["status"] = "active";
+        patch.comped = data.comped;
+        if (data.comped) patch.status = "active";
       }
-      if (data.suspended !== undefined) patch["suspended"] = data.suspended;
-      if (data.planCode) patch["plan_code"] = data.planCode;
+      if (data.suspended !== undefined) patch.suspended = data.suspended;
+      if (data.planCode) patch.plan_code = data.planCode;
 
       if (existing?.id) {
         await supabaseAdmin.from("subscriptions").update(patch).eq("id", existing.id);
