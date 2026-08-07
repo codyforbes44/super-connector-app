@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { GmailConnect } from "@/components/tools/GmailConnect";
 import { errorMessage, relativeTime } from "@/lib/format";
 import { readMailThread, searchMail, sendMailMessage } from "@/lib/integrations.functions";
 
@@ -37,15 +38,12 @@ export function MailPanel({ presetEmail }: { presetEmail?: string }) {
   });
 
   if (mail.data && !mail.data.connected) {
-    return (
-      <p className="glass-panel rounded-2xl p-4 text-sm text-muted-foreground">
-        Gmail isn’t connected for this project yet.
-      </p>
-    );
+    return <GmailConnect />;
   }
 
   return (
     <div className="space-y-4">
+      <GmailConnect compact />
       <div className="flex gap-2">
         <Input
           value={query}

@@ -4,7 +4,7 @@ import { requireAdmin } from "./app.server";
 import { appBaseUrl, emailConfigured, emailStatus, FROM_ACCOUNT, sendEmail } from "./email.server";
 import { account as accountEmail, testEmail } from "./email-templates/index";
 import * as gcal from "./gcal.server";
-import * as gmail from "./gmail.server";
+import * as gmailUser from "./gmail-user.server";
 import * as maps from "./maps.server";
 
 async function admin() {
@@ -14,18 +14,13 @@ async function admin() {
 
 /* ---------------------------------------------------------------- status */
 
-export async function integrationStatus(supabase: SupabaseClient) {
+export async function integrationStatus(supabase: SupabaseClient, userId: string) {
   const db = await admin();
   const email = await emailStatus(db);
 
-  let mailbox: string | null = null;
-  if (gmail.gmailConfigured()) {
-    try {
-      mailbox = (await gmail.mailboxProfile()).emailAddress;
-    } catch {
-      mailbox = null;
-    }
-  }
+  const { getConnectionMeta } = await import("./app-user-connections.server");
+  const gmailMeta = await getConnectionMeta(userId, "google_mail");
+  const mailbox = (gmailMeta?.account_email as string | null) ?? null;
 
   let calendars: gcal.CalendarSummary[] = [];
   if (gcal.calendarConfigured()) {
@@ -36,10 +31,9 @@ export async function integrationStatus(supabase: SupabaseClient) {
     }
   }
 
-  void supabase;
   return {
     email,
-    gmail: { connected: gmail.gmailConfigured(), mailbox },
+    gmail: { connected: Boolean(gmailMeta), mailbox },
     calendar: { connected: gcal.calendarConfigured(), calendars },
     maps: { connected: maps.mapsConfigured() },
   };
@@ -129,29 +123,35 @@ export async function sendAccountEmail(
 
 /* ----------------------------------------------------------------- gmail */
 
-export async function mailSearch(input: { query?: string; email?: string; max?: number }) {
-  if (!gmail.gmailConfigured()) return { connected: false, messages: [] as gmail.MailSummary[] };
+export async function mailSearch(
+  userId: string,
+  input: { query?: string; email?: string; max?: number },
+) {
   const q = input.email ? `from:${input.email} OR to:${input.email}` : (input.query ?? "");
   try {
-    const messages = await gmail.listMessages({ q, ...(input.max ? { max: input.max } : {}) });
+    const messages = await gmailUser.listMessages(userId, {
+      q,
+      ...(input.max ? { max: input.max } : {}),
+    });
     return { connected: true, messages };
   } catch (error) {
+    if (error instanceof gmailUser.GmailNotConnected) {
+      return { connected: false, messages: [] as gmailUser.MailSummary[] };
+    }
     console.error("gmail search failed", error);
     return { connected: true, messages: [], error: "Gmail request failed." };
   }
 }
 
-export async function mailThread(threadId: string) {
-  return gmail.getThread(threadId);
+export async function mailThread(userId: string, threadId: string) {
+  return gmailUser.getThread(userId, threadId);
 }
 
-export async function mailSend(input: {
-  to: string;
-  subject: string;
-  body: string;
-  threadId?: string;
-}) {
-  const sent = await gmail.sendMail(input);
+export async function mailSend(
+  userId: string,
+  input: { to: string; subject: string; body: string; threadId?: string },
+) {
+  const sent = await gmailUser.sendMail(userId, input);
   return { ok: true, id: sent.id, threadId: sent.threadId };
 }
 
