@@ -615,7 +615,7 @@ export async function listLookups(supabase: SB, userId: string) {
 
 export async function accountOverview(supabase: SB, userId: string) {
   await requireAdmin(supabase, userId);
-  const [balance, usage, subaccounts, services] = await Promise.all([
+  const [balance, usage, subaccounts, services, account] = await Promise.all([
     twilioRequest<Record<string, unknown>>({ path: "/Balance.json" }).catch(() => null),
     twilioRequest<{ usage_records: unknown[] }>({
       path: "/Usage/Records/ThisMonth.json",
@@ -631,13 +631,145 @@ export async function accountOverview(supabase: SB, userId: string) {
       path: "/v1/Services",
       params: { PageSize: 30 },
     }).catch(() => ({ services: [] })),
+    accountStatus().catch(() => null),
   ]);
   return asJson({
     balance,
     usage: usage.usage_records ?? [],
     subaccounts: (subaccounts as { accounts?: unknown[] }).accounts ?? [],
     messagingServices: (services as { services?: unknown[] }).services ?? [],
-  }) as { balance: Json; usage: Json[]; subaccounts: Json[]; messagingServices: Json[] };
+    account,
+  }) as {
+    balance: Json;
+    usage: Json[];
+    subaccounts: Json[];
+    messagingServices: Json[];
+    account: Json;
+  };
+}
+
+/** Identity + transport status for the Twilio connection powering this app. */
+export async function accountStatus() {
+  const sid = process.env["TWILIO_ACCOUNT_SID"];
+  const direct = hasDirectCredentials();
+  const account = sid
+    ? await twilioRequest<{
+        friendly_name: string;
+        status: string;
+        type: string;
+        sid: string;
+      }>({ host: "api-direct", path: `/2010-04-01/Accounts/${sid}.json` })
+    : null;
+  return asJson({
+    directApi: direct,
+    friendlyName: account?.friendly_name ?? null,
+    status: account?.status ?? null,
+    type: account?.type ?? null,
+    sidSuffix: account?.sid ? account.sid.slice(-4) : null,
+  });
+}
+
+/* ------------------------------------------------------- messaging services */
+
+type MessagingService = {
+  sid: string;
+  friendly_name: string;
+  use_inbound_webhook_on_number?: boolean;
+  inbound_request_url?: string | null;
+  status_callback?: string | null;
+};
+
+export async function listMessagingServices(supabase: SB, userId: string) {
+  await requireAdmin(supabase, userId);
+  const res = await twilioRequest<{ services: MessagingService[] }>({
+    host: "messaging",
+    path: "/v1/Services",
+    params: { PageSize: 50 },
+  });
+  return asJson(res.services ?? []) as Json[];
+}
+
+/** Pool numbers plus A2P brand/campaign registration state for one service. */
+export async function messagingServiceDetail(
+  supabase: SB,
+  userId: string,
+  data: { serviceSid: string },
+) {
+  await requireAdmin(supabase, userId);
+  const [numbers, compliance] = await Promise.all([
+    twilioRequest<{ phone_numbers: Array<{ sid: string; phone_number: string }> }>({
+      host: "messaging",
+      path: `/v1/Services/${data.serviceSid}/PhoneNumbers`,
+      params: { PageSize: 50 },
+    }).catch(() => ({ phone_numbers: [] })),
+    twilioRequest<Record<string, unknown>>({
+      host: "messaging",
+      path: `/v1/Services/${data.serviceSid}/Compliance/Usa2p`,
+      params: { PageSize: 5 },
+    }).catch(() => null),
+  ]);
+  const campaigns =
+    (compliance as { compliance?: unknown[] } | null)?.compliance ??
+    (compliance ? [compliance] : []);
+  return asJson({
+    numbers: numbers.phone_numbers ?? [],
+    campaigns,
+  }) as { numbers: Json[]; campaigns: Json[] };
+}
+
+export async function addNumberToMessagingService(
+  supabase: SB,
+  userId: string,
+  data: { serviceSid: string; numberSid: string },
+) {
+  await requireAdmin(supabase, userId);
+  const result = await twilioRequest({
+    host: "messaging",
+    method: "POST",
+    path: `/v1/Services/${data.serviceSid}/PhoneNumbers`,
+    params: { PhoneNumberSid: data.numberSid },
+  });
+  const admin = await adminClient();
+  await audit(admin, userId, "messaging.pool.add", data as unknown as Record<string, unknown>);
+  return asJson(result);
+}
+
+export async function removeNumberFromMessagingService(
+  supabase: SB,
+  userId: string,
+  data: { serviceSid: string; numberSid: string },
+) {
+  await requireAdmin(supabase, userId);
+  await twilioRequest({
+    host: "messaging",
+    method: "DELETE",
+    path: `/v1/Services/${data.serviceSid}/PhoneNumbers/${data.numberSid}`,
+  });
+  const admin = await adminClient();
+  await audit(admin, userId, "messaging.pool.remove", data as unknown as Record<string, unknown>);
+  return { ok: true };
+}
+
+export async function createMessagingService(
+  supabase: SB,
+  userId: string,
+  data: { name: string },
+) {
+  await requireAdmin(supabase, userId);
+  const result = await twilioRequest<MessagingService>({
+    host: "messaging",
+    method: "POST",
+    path: "/v1/Services",
+    params: {
+      FriendlyName: data.name,
+      InboundRequestUrl: webhookUrl("sms"),
+      StatusCallback: webhookUrl("status"),
+      UseInboundWebhookOnNumber: false,
+    },
+  });
+  const admin = await adminClient();
+  await audit(admin, userId, "messaging.service.create", { sid: result.sid, name: data.name });
+  return asJson(result);
 }
 
 /* -------------------------------------------------------------- API console */
