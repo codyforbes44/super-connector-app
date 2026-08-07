@@ -86,7 +86,10 @@ export function AnswerModeCard({
   }
 
   async function doPreview() {
-    if (!voiceId) return toast.error("Pick a voice first.");
+    if (!voiceId) {
+      toast.error("Pick a voice first.");
+      return;
+    }
     setBusy("preview");
     try {
       const result = await previewVoice({ data: { voiceId, text: greeting } });
@@ -99,7 +102,10 @@ export function AnswerModeCard({
   }
 
   async function doRender() {
-    if (!voiceId) return toast.error("Pick a voice first.");
+    if (!voiceId) {
+      toast.error("Pick a voice first.");
+      return;
+    }
     setBusy("render");
     try {
       const result = await renderGreeting({ data: { sid: number.sid, text: greeting, voiceId } });
