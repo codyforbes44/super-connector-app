@@ -75,11 +75,12 @@ export function InCallScreen() {
               <button
                 key={digit}
                 type="button"
+                onPointerDown={() => haptic("light")}
                 onClick={() => {
                   voice.sendDigit(digit);
                   setTyped((prev) => (prev + digit).slice(0, 24));
                 }}
-                className="key-raised mx-auto flex h-14 w-14 items-center justify-center rounded-full font-display text-lg font-semibold"
+                className="key-raised mx-auto flex h-14 w-14 items-center justify-center rounded-full font-display text-lg font-semibold transition-transform duration-75 active:scale-95"
               >
                 {digit}
               </button>
