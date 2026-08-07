@@ -107,6 +107,48 @@ export type Database = {
         }
         Relationships: []
       }
+      byo_numbers: {
+        Row: {
+          assigned_number: string | null
+          carrier: string | null
+          created_at: string
+          forward_mode: string
+          id: string
+          last_forwarded_call_at: string | null
+          personal_number: string
+          status: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          assigned_number?: string | null
+          carrier?: string | null
+          created_at?: string
+          forward_mode?: string
+          id?: string
+          last_forwarded_call_at?: string | null
+          personal_number: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          assigned_number?: string | null
+          carrier?: string | null
+          created_at?: string
+          forward_mode?: string
+          id?: string
+          last_forwarded_call_at?: string | null
+          personal_number?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       calendar_bookings: {
         Row: {
           app_number: string
@@ -972,6 +1014,8 @@ export type Database = {
           onboarding_skipped: boolean
           onboarding_state: Json
           onboarding_step: number
+          setup_state: Json
+          support_requested_at: string | null
           workspace_name: string | null
         }
         Insert: {
@@ -986,6 +1030,8 @@ export type Database = {
           onboarding_skipped?: boolean
           onboarding_state?: Json
           onboarding_step?: number
+          setup_state?: Json
+          support_requested_at?: string | null
           workspace_name?: string | null
         }
         Update: {
@@ -1000,6 +1046,8 @@ export type Database = {
           onboarding_skipped?: boolean
           onboarding_state?: Json
           onboarding_step?: number
+          setup_state?: Json
+          support_requested_at?: string | null
           workspace_name?: string | null
         }
         Relationships: []

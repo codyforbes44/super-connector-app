@@ -17,6 +17,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as AuthenticatedAdvancedRouteImport } from './routes/_authenticated/advanced'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedCallsRouteImport } from './routes/_authenticated/calls'
 import { Route as AuthenticatedConnectorsRouteImport } from './routes/_authenticated/connectors'
@@ -29,6 +30,7 @@ import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
+import { Route as AuthenticatedAdminUserIdRouteImport } from './routes/_authenticated/admin.$userId'
 import { Route as AuthenticatedAssistantSidRouteImport } from './routes/_authenticated/assistant.$sid'
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
@@ -79,6 +81,11 @@ const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdvancedRoute = AuthenticatedAdvancedRouteImport.update({
+  id: '/advanced',
+  path: '/advanced',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
   id: '/billing',
@@ -142,6 +149,12 @@ const LegalTermsRoute = LegalTermsRouteImport.update({
   path: '/legal/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminUserIdRoute =
+  AuthenticatedAdminUserIdRouteImport.update({
+    id: '/admin/$userId',
+    path: '/admin/$userId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAssistantSidRoute =
   AuthenticatedAssistantSidRouteImport.update({
     id: '/assistant/$sid',
@@ -209,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/advanced': typeof AuthenticatedAdvancedRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/calls': typeof AuthenticatedCallsRoute
   '/connectors': typeof AuthenticatedConnectorsRoute
@@ -221,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/welcome': typeof AuthenticatedWelcomeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
@@ -241,6 +256,7 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/advanced': typeof AuthenticatedAdvancedRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/calls': typeof AuthenticatedCallsRoute
   '/connectors': typeof AuthenticatedConnectorsRoute
@@ -253,6 +269,7 @@ export interface FileRoutesByTo {
   '/welcome': typeof AuthenticatedWelcomeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
@@ -275,6 +292,7 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/_authenticated/advanced': typeof AuthenticatedAdvancedRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/calls': typeof AuthenticatedCallsRoute
   '/_authenticated/connectors': typeof AuthenticatedConnectorsRoute
@@ -287,6 +305,7 @@ export interface FileRoutesById {
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/_authenticated/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/_authenticated/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
@@ -309,6 +328,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/how-it-works'
     | '/pricing'
+    | '/advanced'
     | '/billing'
     | '/calls'
     | '/connectors'
@@ -321,6 +341,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/admin/$userId'
     | '/assistant/$sid'
     | '/inbox/$id'
     | '/oauth/google/return'
@@ -341,6 +362,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/how-it-works'
     | '/pricing'
+    | '/advanced'
     | '/billing'
     | '/calls'
     | '/connectors'
@@ -353,6 +375,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/admin/$userId'
     | '/assistant/$sid'
     | '/inbox/$id'
     | '/oauth/google/return'
@@ -374,6 +397,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/how-it-works'
     | '/pricing'
+    | '/_authenticated/advanced'
     | '/_authenticated/billing'
     | '/_authenticated/calls'
     | '/_authenticated/connectors'
@@ -386,6 +410,7 @@ export interface FileRouteTypes {
     | '/_authenticated/welcome'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/_authenticated/admin/$userId'
     | '/_authenticated/assistant/$sid'
     | '/_authenticated/inbox/$id'
     | '/oauth/google/return'
@@ -478,6 +503,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/advanced': {
+      id: '/_authenticated/advanced'
+      path: '/advanced'
+      fullPath: '/advanced'
+      preLoaderRoute: typeof AuthenticatedAdvancedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/billing': {
       id: '/_authenticated/billing'
       path: '/billing'
@@ -562,6 +594,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/$userId': {
+      id: '/_authenticated/admin/$userId'
+      path: '/admin/$userId'
+      fullPath: '/admin/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminUserIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/assistant/$sid': {
       id: '/_authenticated/assistant/$sid'
       path: '/assistant/$sid'
@@ -643,6 +682,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdvancedRoute: typeof AuthenticatedAdvancedRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedCallsRoute: typeof AuthenticatedCallsRoute
   AuthenticatedConnectorsRoute: typeof AuthenticatedConnectorsRoute
@@ -653,12 +693,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSubscribersRoute: typeof AuthenticatedSubscribersRoute
   AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
   AuthenticatedWelcomeRoute: typeof AuthenticatedWelcomeRoute
+  AuthenticatedAdminUserIdRoute: typeof AuthenticatedAdminUserIdRoute
   AuthenticatedAssistantSidRoute: typeof AuthenticatedAssistantSidRoute
   AuthenticatedInboxIdRoute: typeof AuthenticatedInboxIdRoute
   AuthenticatedInboxIndexRoute: typeof AuthenticatedInboxIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdvancedRoute: AuthenticatedAdvancedRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedCallsRoute: AuthenticatedCallsRoute,
   AuthenticatedConnectorsRoute: AuthenticatedConnectorsRoute,
@@ -669,6 +711,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSubscribersRoute: AuthenticatedSubscribersRoute,
   AuthenticatedToolsRoute: AuthenticatedToolsRoute,
   AuthenticatedWelcomeRoute: AuthenticatedWelcomeRoute,
+  AuthenticatedAdminUserIdRoute: AuthenticatedAdminUserIdRoute,
   AuthenticatedAssistantSidRoute: AuthenticatedAssistantSidRoute,
   AuthenticatedInboxIdRoute: AuthenticatedInboxIdRoute,
   AuthenticatedInboxIndexRoute: AuthenticatedInboxIndexRoute,

@@ -1,11 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Bot, Copy, CreditCard, LogOut, Plug, Terminal, Users } from "lucide-react";
+import { Bot, CreditCard, LogOut, Plug, SlidersHorizontal, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,19 +23,21 @@ import { PushNotifications } from "@/components/PushNotifications";
 import { DeviceAccess } from "@/components/DeviceAccess";
 import { CallingSettings } from "@/components/CallingSettings";
 import { EmailNotifications } from "@/components/EmailNotifications";
-import { VoiceSetup } from "@/components/VoiceSetup";
-import { ElevenLabsStatus } from "@/components/ElevenLabsStatus";
-import { accountOverview, listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
+import { Badge } from "@/components/ui/badge";
+import { listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — SixVox" },
-      { name: "description", content: "Profile, team roles, account usage and delivery endpoints." },
+      {
+        name: "description",
+        content: "Your profile, alerts, calling preferences and plan in one place.",
+      },
       { property: "og:title", content: "Settings — SixVox" },
       {
         property: "og:description",
-        content: "Profile, team roles, account usage and delivery endpoints.",
+        content: "Your profile, alerts, calling preferences and plan in one place.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -52,21 +53,6 @@ function SettingsScreen() {
   const queryClient = useQueryClient();
   const [displayName, setDisplayName] = useState(boot.profile?.display_name ?? "");
   const team = useQuery({ queryKey: ["team"], queryFn: () => listTeam(), enabled: boot.isAdmin });
-  const overview = useQuery({
-    queryKey: ["account-overview"],
-    queryFn: () => accountOverview(),
-    enabled: boot.isAdmin,
-    retry: false,
-  });
-
-  const balance = overview.data?.balance as { balance?: string; currency?: string } | null;
-  const account = overview.data?.account as {
-    directApi?: boolean;
-    friendlyName?: string | null;
-    status?: string | null;
-    type?: string | null;
-    sidSuffix?: string | null;
-  } | null;
 
   return (
     <div className="pb-6">
@@ -110,79 +96,21 @@ function SettingsScreen() {
 
       {boot.isAdmin ? (
         <>
-          <VoiceSetup />
-          <ElevenLabsStatus />
-          <section className="space-y-3 border-t border-border px-4 py-4">
-            <h2 className="font-display text-sm font-semibold">Number account</h2>
-            {overview.isError ? (
-              <p className="text-xs text-muted-foreground">{errorMessage(overview.error)}</p>
-            ) : (
-              <>
-                <div className="glass-panel flex items-center gap-3 rounded-3xl px-4 py-3">
-                  <span
-                    className={
-                      account?.status === "active"
-                        ? "h-2.5 w-2.5 shrink-0 rounded-full bg-success"
-                        : "h-2.5 w-2.5 shrink-0 rounded-full bg-destructive"
-                    }
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">
-                      {account?.friendlyName ?? "Number account"}
-                    </p>
-                    <p className="truncate text-[0.7rem] text-muted-foreground">
-                      {[
-                        account?.type,
-                        account?.status,
-                        account?.sidSuffix ? `···${account.sidSuffix}` : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                  </div>
-                  <Badge variant={account?.directApi ? "secondary" : "outline"} className="text-[0.6rem]">
-                    {account?.directApi ? "full API" : "gateway only"}
-                  </Badge>
-                </div>
-                <div className="glass-panel rounded-3xl p-4">
-                  <p className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">
-                    Balance
-                  </p>
-                  <p className="tabular font-display mt-1 text-2xl font-semibold">
-                    {balance ? `${balance.balance} ${balance.currency}` : "—"}
-                  </p>
-                </div>
-                <ul className="space-y-1.5">
-                  {(overview.data?.usage ?? [])
-                    .slice(0, 8)
-                    .map((raw) => raw as { category: string; usage: string; price: string })
-                    .map((u) => (
-                      <li
-                        key={u.category}
-                        className="flex items-center justify-between gap-2 text-xs"
-                      >
-                        <span className="truncate text-muted-foreground">{u.category}</span>
-                        <span className="tabular">
-                          {u.usage} · ${u.price}
-                        </span>
-                      </li>
-                    ))}
-                </ul>
-              </>
-            )}
-          </section>
-
           <section className="space-y-3 border-t border-border px-4 py-4">
             <h2 className="font-display text-sm font-semibold">Team</h2>
             <ul className="space-y-2">
               {(team.data ?? []).map((member) => (
                 <li key={member.id} className="flex items-center gap-2">
-                  <div className="min-w-0 flex-1">
+                  <Link
+                    to="/admin/$userId"
+                    params={{ userId: member.id }}
+                    className="min-w-0 flex-1"
+                  >
                     <p className="truncate text-sm font-medium">
                       {member.display_name || member.email}
                     </p>
                     <p className="truncate text-[0.7rem] text-muted-foreground">{member.email}</p>
-                  </div>
+                  </Link>
                   {boot.role === "owner" ? (
                     <Select
                       value={member.roles[0] ?? "agent"}
@@ -218,44 +146,16 @@ function SettingsScreen() {
             </ul>
           </section>
 
-          <section className="space-y-3 border-t border-border px-4 py-4">
-            <h2 className="font-display text-sm font-semibold">Webhooks</h2>
-            <p className="text-xs text-muted-foreground">
-              Wiring a number from the Numbers tab points it at these endpoints automatically.
-            </p>
-            {[
-              ["Messaging", boot.smsWebhook],
-              ["Voice", boot.voiceWebhook],
-              ["Status", boot.statusWebhook],
-            ].map(([label, url]) => (
-              <button
-                key={label}
-                type="button"
-                className="glass-panel flex w-full items-center gap-2 rounded-2xl px-3.5 py-2.5 text-left"
-                onClick={() => {
-                  void navigator.clipboard.writeText(url!);
-                  toast.success(`${label} URL copied.`);
-                }}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold">{label}</p>
-                  <p className="truncate text-[0.65rem] text-muted-foreground">{url}</p>
-                </div>
-                <Copy className="h-4 w-4 shrink-0 text-muted-foreground" />
-              </button>
-            ))}
-          </section>
-
           <section className="border-t border-border px-4 py-4">
             <Link
-              to="/console"
+              to="/advanced"
               className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
             >
-              <Terminal className="h-4 w-4 text-primary" />
+              <SlidersHorizontal className="h-4 w-4 text-primary" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">API console</p>
+                <p className="text-sm font-semibold">Advanced</p>
                 <p className="text-[0.7rem] text-muted-foreground">
-                  Open the advanced API console
+                  Account health, routing endpoints and the API console
                 </p>
               </div>
             </Link>
