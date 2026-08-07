@@ -1,8 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowDownLeft,
   ArrowUpRight,
+  Filter,
+  Smartphone,
   PhoneCall,
   PhoneOff,
   PhoneOutgoing,
@@ -13,6 +15,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { Dialpad } from "@/components/Dialpad";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -37,6 +40,16 @@ import { cn } from "@/lib/utils";
 import { useVoice } from "@/lib/voice-device";
 
 export const Route = createFileRoute("/_authenticated/calls")({
+  validateSearch: (search: Record<string, unknown>): CallFilterState => {
+    const pick = <T extends string>(raw: unknown, allowed: readonly T[], fallback: T): T =>
+      allowed.includes(raw as T) ? (raw as T) : fallback;
+    return {
+      q: typeof search['q'] === "string" ? search['q'] : "",
+      direction: pick(search['direction'], ["all", "inbound", "outbound"] as const, "all"),
+      range: pick(search['range'], ["all", "today", "7d", "30d"] as const, "all"),
+      device: pick(search['device'], ["all", "app", "phone"] as const, "all"),
+    };
+  },
   head: () => ({
     meta: [
       { title: "Calls — Signalbox" },
@@ -54,20 +67,51 @@ function CallsScreen() {
   const boot = useBootstrap();
   const queryClient = useQueryClient();
   const voice = useVoice();
+  const filters = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const [dialing, setDialing] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [from, setFrom] = useState(boot.numbers[0]?.phone_number ?? "");
   const [to, setTo] = useState("");
   const [audio, setAudio] = useState<string | null>(null);
+  const [detail, setDetail] = useState<CallRow | null>(null);
+
+  function setFilters(patch: Partial<CallFilterState>) {
+    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
+  }
 
   const calls = useQuery({
-    queryKey: ["calls"],
+    queryKey: ["calls", filters],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("calls")
-        .select("*")
+        .select(sel("*"))
         .order("started_at", { ascending: false })
-        .limit(100);
+        .limit(200);
+
+      if (filters.direction !== "all") query = query.eq("direction", filters.direction);
+      if (filters.device !== "all") query = query.eq("answered_in_app", filters.device === "app");
+
+      const since = rangeStart(filters.range);
+      if (since) query = query.gte("started_at", since);
+
+      const term = filters.q.trim();
+      if (term) {
+        const like = `%${term}%`;
+        query = query.or(
+          [
+            `from_number.ilike.${like}`,
+            `to_number.ilike.${like}`,
+            `app_number.ilike.${like}`,
+            `status.ilike.${like}`,
+            `sid.ilike.${like}`,
+            `client_identity.ilike.${like}`,
+            `transcription.ilike.${like}`,
+          ].join(","),
+        );
+      }
+
+      const { data, error } = await query.returns<CallRow[]>();
       if (error) throw error;
       return data;
     },
