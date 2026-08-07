@@ -230,6 +230,75 @@ export type Database = {
         }
         Relationships: []
       }
+      caller_id_routes: {
+        Row: {
+          caller_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          pattern: string
+          updated_at: string
+        }
+        Insert: {
+          caller_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          pattern: string
+          updated_at?: string
+        }
+        Update: {
+          caller_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          pattern?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      caller_id_verifications: {
+        Row: {
+          call_sid: string | null
+          created_at: string
+          error: string | null
+          friendly_name: string | null
+          id: string
+          phone_number: string
+          requested_by: string | null
+          status: string
+          updated_at: string
+          validation_code: string | null
+        }
+        Insert: {
+          call_sid?: string | null
+          created_at?: string
+          error?: string | null
+          friendly_name?: string | null
+          id?: string
+          phone_number: string
+          requested_by?: string | null
+          status?: string
+          updated_at?: string
+          validation_code?: string | null
+        }
+        Update: {
+          call_sid?: string | null
+          created_at?: string
+          error?: string | null
+          friendly_name?: string | null
+          id?: string
+          phone_number?: string
+          requested_by?: string | null
+          status?: string
+          updated_at?: string
+          validation_code?: string | null
+        }
+        Relationships: []
+      }
       calls: {
         Row: {
           answered_by: string | null
@@ -305,6 +374,7 @@ export type Database = {
           lng: number | null
           name: string | null
           notes: string | null
+          outbound_caller_id: string | null
           phone_number: string
           place_id: string | null
         }
@@ -317,6 +387,7 @@ export type Database = {
           lng?: number | null
           name?: string | null
           notes?: string | null
+          outbound_caller_id?: string | null
           phone_number: string
           place_id?: string | null
         }
@@ -329,6 +400,7 @@ export type Database = {
           lng?: number | null
           name?: string | null
           notes?: string | null
+          outbound_caller_id?: string | null
           phone_number?: string
           place_id?: string | null
         }
