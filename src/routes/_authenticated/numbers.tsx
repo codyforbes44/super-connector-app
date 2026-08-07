@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { MessagingServicesSection } from "@/components/MessagingServices";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -159,6 +160,10 @@ function NumbersScreen() {
           })}
         </ul>
       )}
+
+      {boot.isAdmin ? (
+        <MessagingServicesSection numbers={boot.numbers} />
+      ) : null}
 
       {boot.isAdmin ? (
         <BuySheet
