@@ -778,7 +778,7 @@ export async function importCallHistory(supabase: SB, userId: string) {
 export async function startCall(
   supabase: SB,
   userId: string,
-  data: { appNumber: string; to: string },
+  data: { appNumber: string; to: string; callbackNumber?: string | null },
 ) {
   const { numbers } = await allowedNumbers(supabase, userId);
   const appNumber = normalizePhone(data.appNumber);
@@ -789,9 +789,13 @@ export async function startCall(
     .select("agent_phone")
     .eq("id", userId)
     .maybeSingle();
-  const agentPhone = profile?.agent_phone as string | undefined;
+  const entered = data.callbackNumber?.trim() ? normalizePhone(data.callbackNumber) : null;
+  const agentPhone = entered ?? ((profile?.agent_phone as string | null) || null);
   if (!agentPhone) {
     throw new Error("Add your own phone number in Settings first — we call you, then the contact.");
+  }
+  if (entered && entered !== profile?.agent_phone) {
+    await supabase.from("profiles").update({ agent_phone: entered }).eq("id", userId);
   }
 
   const target = normalizePhone(data.to);
