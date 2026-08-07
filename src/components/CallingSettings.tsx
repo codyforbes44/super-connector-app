@@ -59,6 +59,7 @@ export function CallingSettings() {
   const [routePattern, setRoutePattern] = useState("");
   const [routeCallerId, setRouteCallerId] = useState("");
   const [routeLabel, setRouteLabel] = useState("");
+  const [testTo, setTestTo] = useState((boot.profile?.agent_phone as string | null) ?? "");
 
   const callerIds = useQuery({
     queryKey: ["caller-ids"],
@@ -80,7 +81,8 @@ export function CallingSettings() {
   const refreshBoot = () => queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
 
   const testCall = useMutation({
-    mutationFn: () => sendTestCall({ data: { appNumber: defaultNumber || null } }),
+    mutationFn: () =>
+      sendTestCall({ data: { appNumber: defaultNumber || null, to: testTo.trim() || null } }),
     onSuccess: (result) =>
       toast.success(`Calling ${formatPhone(result.to)} from ${formatPhone(result.callerId)}…`),
     onError: (error) => toast.error(errorMessage(error)),
@@ -181,10 +183,22 @@ export function CallingSettings() {
         </p>
       </div>
 
+      <div className="space-y-1.5">
+        <Label htmlFor="test-call-to">Call this number</Label>
+        <Input
+          id="test-call-to"
+          inputMode="tel"
+          placeholder="+15551234567"
+          value={testTo}
+          onChange={(event) => setTestTo(event.target.value)}
+          className="h-11 rounded-xl"
+        />
+      </div>
+
       <Button
         variant="outline"
         className="h-11 w-full rounded-full"
-        disabled={testCall.isPending || !defaultNumber}
+        disabled={testCall.isPending || !defaultNumber || testTo.trim().length < 7}
         onClick={() => testCall.mutate()}
       >
         {testCall.isPending ? (
@@ -195,7 +209,8 @@ export function CallingSettings() {
         Send test outbound call
       </Button>
       <p className="-mt-2 text-[0.7rem] text-muted-foreground">
-        We ring your own number using the caller ID a real call would present, then hang up.
+        We ring this number using the caller ID a real call would present, then hang up. It defaults
+        to your own number from Settings → Profile.
       </p>
 
       {boot.isAdmin ? (
