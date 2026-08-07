@@ -128,7 +128,7 @@ function CallsScreen() {
         <button
           type="button"
           onClick={() => setDialing(true)}
-          className="key-call flex h-13 w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold transition-transform active:scale-[0.98]"
+          className="key-call flex w-full items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold transition-transform active:scale-[0.98]"
         >
           <PhoneOutgoing className="h-4 w-4" />
           Open dialer
