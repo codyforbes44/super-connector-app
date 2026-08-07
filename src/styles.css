@@ -42,6 +42,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -112,5 +114,32 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family:
+      "DM Sans",
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: "Space Grotesk", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
