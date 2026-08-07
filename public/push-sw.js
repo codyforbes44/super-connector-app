@@ -1,4 +1,4 @@
-/* Signalbox web push worker. Messaging only — this worker never caches app assets. */
+/* SixVox web push worker. Messaging only — this worker never caches app assets. */
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
 
@@ -7,7 +7,7 @@ self.addEventListener("push", (event) => {
   try {
     payload = event.data ? event.data.json() : {};
   } catch {
-    payload = { title: "Signalbox", body: event.data ? event.data.text() : "" };
+    payload = { title: "SixVox", body: event.data ? event.data.text() : "" };
   }
 
   // A finished call clears its ringing notification instead of showing one.
@@ -22,7 +22,7 @@ self.addEventListener("push", (event) => {
   }
 
   const isCall = payload.type === "call";
-  const title = payload.title || "Signalbox";
+  const title = payload.title || "SixVox";
   const options = {
     body: payload.body || "",
     icon: "/icon-512.png",

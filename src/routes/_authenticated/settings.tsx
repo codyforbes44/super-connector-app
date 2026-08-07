@@ -30,9 +30,9 @@ import { accountOverview, listTeam, setTeamRole, updateMyProfile } from "@/lib/t
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — SignalBox" },
+      { title: "Settings — SixVox" },
       { name: "description", content: "Profile, team roles, account usage and delivery endpoints." },
-      { property: "og:title", content: "Settings — SignalBox" },
+      { property: "og:title", content: "Settings — SixVox" },
       {
         property: "og:description",
         content: "Profile, team roles, account usage and delivery endpoints.",
@@ -97,7 +97,7 @@ function SettingsScreen() {
             className="h-11 rounded-full px-4"
           />
           <p className="text-[0.7rem] text-muted-foreground">
-            SignalBox rings this phone first, then bridges the contact.
+            SixVox rings this phone first, then bridges the contact.
           </p>
         </div>
         <Button

@@ -21,12 +21,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/console")({
   head: () => ({
     meta: [
-      { title: "API console — SignalBox" },
-      { name: "description", content: "Advanced REST console for your SignalBox platform account." },
-      { property: "og:title", content: "API console — SignalBox" },
+      { title: "API console — SixVox" },
+      { name: "description", content: "Advanced REST console for your SixVox platform account." },
+      { property: "og:title", content: "API console — SixVox" },
       {
         property: "og:description",
-        content: "Advanced REST console for your SignalBox platform account.",
+        content: "Advanced REST console for your SixVox platform account.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

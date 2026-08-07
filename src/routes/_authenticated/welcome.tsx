@@ -12,9 +12,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { errorMessage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Set up your workspace — SignalBox";
+const TITLE = "Set up your workspace — SixVox";
 const DESCRIPTION =
-  "Name your workspace, pick your business number and turn on alerts to finish setting up SignalBox.";
+  "Name your workspace, pick your business number and turn on alerts to finish setting up SixVox.";
 
 export const Route = createFileRoute("/_authenticated/welcome")({
   head: () => ({
@@ -129,7 +129,7 @@ function Welcome() {
             <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-full">
               <Sparkles className="h-6 w-6" />
             </span>
-            <h1 className="font-display text-2xl font-semibold">Welcome to SignalBox</h1>
+            <h1 className="font-display text-2xl font-semibold">Welcome to SixVox</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Your 14-day trial is live. Let&apos;s name your workspace — you can change it later.
             </p>

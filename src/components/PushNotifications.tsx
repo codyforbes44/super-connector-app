@@ -98,7 +98,7 @@ export function PushNotifications() {
       <h2 className="font-display text-sm font-semibold">Push alerts</h2>
       <p className="text-xs text-muted-foreground">
         Get an instant notification on this device for every inbound message, missed call and
-        voicemail on numbers you can see. On iPhone, add SignalBox to your Home Screen first.
+        voicemail on numbers you can see. On iPhone, add SixVox to your Home Screen first.
       </p>
 
       {!ready ? (

@@ -2,9 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { LegalPage, LEGAL_UPDATED } from "@/components/LegalPage";
 
-const TITLE = "Terms of Service — SignalBox";
+const TITLE = "Terms of Service — SixVox";
 const DESCRIPTION =
-  "The terms that govern your SignalBox account, trial, subscription, acceptable use and cancellation.";
+  "The terms that govern your SixVox account, trial, subscription, acceptable use and cancellation.";
 
 export const Route = createFileRoute("/legal/terms")({
   head: () => ({
@@ -41,7 +41,7 @@ function Terms() {
 
       <h2>Acceptable use</h2>
       <p>
-        You may not use SignalBox to send unsolicited bulk messages, impersonate others, harass
+        You may not use SixVox to send unsolicited bulk messages, impersonate others, harass
         anyone, distribute malware, or break telecommunications, privacy or consumer-protection
         law. You are responsible for obtaining consent before contacting people and for complying
         with messaging registration requirements in your country. We may suspend a workspace that
@@ -57,7 +57,7 @@ function Terms() {
 
       <h2>Availability</h2>
       <p>
-        We work hard to keep SignalBox available but the service is provided &quot;as is&quot;
+        We work hard to keep SixVox available but the service is provided &quot;as is&quot;
         without warranties. Delivery of calls and messages depends on carrier networks outside our
         control.
       </p>

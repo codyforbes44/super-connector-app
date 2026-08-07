@@ -34,9 +34,9 @@ import {
 export const Route = createFileRoute("/_authenticated/tools")({
   head: () => ({
     meta: [
-      { title: "Tools — SignalBox" },
+      { title: "Tools — SixVox" },
       { name: "description", content: "Twilio Verify OTPs and phone number Lookup intelligence." },
-      { property: "og:title", content: "Tools — SignalBox" },
+      { property: "og:title", content: "Tools — SixVox" },
       {
         property: "og:description",
         content: "Twilio Verify OTPs and phone number Lookup intelligence.",
@@ -147,7 +147,7 @@ function VerifyPanel() {
             className="w-full rounded-full"
             onClick={async () => {
               try {
-                await createVerifyService({ data: { name: "SignalBox" } });
+                await createVerifyService({ data: { name: "SixVox" } });
                 await services.refetch();
                 toast.success("Verify service created.");
               } catch (error) {

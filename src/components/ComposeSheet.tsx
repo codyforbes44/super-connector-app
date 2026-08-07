@@ -51,7 +51,7 @@ export function ComposeSheet({
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!from) {
-      toast.error("No SignalBox number is assigned to you yet.");
+      toast.error("No SixVox number is assigned to you yet.");
       return;
     }
     setBusy(true);

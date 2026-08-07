@@ -10,15 +10,15 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/connectors")({
   head: () => ({
     meta: [
-      { title: "Connectors — SignalBox" },
+      { title: "Connectors — SixVox" },
       {
         name: "description",
-        content: "See what's connected to your SignalBox workspace and finish setup step by step.",
+        content: "See what's connected to your SixVox workspace and finish setup step by step.",
       },
-      { property: "og:title", content: "Connectors — SignalBox" },
+      { property: "og:title", content: "Connectors — SixVox" },
       {
         property: "og:description",
-        content: "See what's connected to your SignalBox workspace and finish setup step by step.",
+        content: "See what's connected to your SixVox workspace and finish setup step by step.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

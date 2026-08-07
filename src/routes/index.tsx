@@ -15,9 +15,9 @@ import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout"
 import { PLANS } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
-const TITLE = "SignalBox — your business phone, inbox and AI receptionist";
+const TITLE = "SixVox — your business phone, inbox and AI receptionist";
 const DESCRIPTION =
-  "SignalBox puts calls, texts, WhatsApp, voicemail and an AI receptionist for your business number in one mobile app. Start a 14-day free trial in under a minute.";
+  "SixVox puts calls, texts, WhatsApp, voicemail and an AI receptionist for your business number in one mobile app. Start a 14-day free trial in under a minute.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          name: "SignalBox",
+          name: "SixVox",
           applicationCategory: "BusinessApplication",
           operatingSystem: "Web, iOS, Android",
           description: DESCRIPTION,
@@ -103,7 +103,7 @@ function Landing() {
               <span className="text-primary"> answered beautifully.</span>
             </h1>
             <p className="mt-5 max-w-xl text-[0.95rem] leading-relaxed text-muted-foreground md:text-[0.98rem]">
-              SignalBox brings calls, texts, WhatsApp, voicemail and an AI receptionist into one
+              SixVox brings calls, texts, WhatsApp, voicemail and an AI receptionist into one
               app that fits in your pocket. Set it up in about a minute.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

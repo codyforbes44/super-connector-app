@@ -25,7 +25,7 @@ type AppRow = {
 /** Admin controls for the TwiML App that powers in-app calling. */
 export function VoiceSetup() {
   const queryClient = useQueryClient();
-  const [name, setName] = useState("SignalBox-TwiML-App");
+  const [name, setName] = useState("SixVox-TwiML-App");
   const [busy, setBusy] = useState(false);
 
   const status = useQuery({ queryKey: ["voice-setup"], queryFn: () => voiceSetupStatus() });
@@ -59,7 +59,7 @@ export function VoiceSetup() {
         <h2 className="font-display text-sm font-semibold">In-app calling (TwiML App)</h2>
       </div>
       <p className="text-xs text-muted-foreground">
-        The default app routes calls to and from this device. Numbers wired to it ring in SignalBox
+        The default app routes calls to and from this device. Numbers wired to it ring in SixVox
         instead of forwarding to a phone.
       </p>
 
@@ -119,10 +119,10 @@ export function VoiceSetup() {
                 className="rounded-full"
                 disabled={busy}
                 onClick={() =>
-                  run(() => syncTwimlApp({ data: { sid: app.sid } }), "URLs pointed at SignalBox.")
+                  run(() => syncTwimlApp({ data: { sid: app.sid } }), "URLs pointed at SixVox.")
                 }
               >
-                <RefreshCw className="mr-1 h-3.5 w-3.5" /> Point at SignalBox
+                <RefreshCw className="mr-1 h-3.5 w-3.5" /> Point at SixVox
               </Button>
               <Button
                 size="sm"

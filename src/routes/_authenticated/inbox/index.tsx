@@ -17,9 +17,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/inbox/")({
   head: () => ({
     meta: [
-      { title: "Inbox — SignalBox" },
+      { title: "Inbox — SixVox" },
       { name: "description", content: "Every SMS, MMS and WhatsApp conversation in one thread list." },
-      { property: "og:title", content: "Inbox — SignalBox" },
+      { property: "og:title", content: "Inbox — SixVox" },
       { property: "og:description", content: "Every SMS, MMS and WhatsApp conversation in one thread list." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

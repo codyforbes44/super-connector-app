@@ -129,7 +129,7 @@ export function CalendarPanel() {
           <CalendarPlus className="size-4" /> Book a slot
         </p>
         <div className="space-y-1">
-          <Label>SignalBox number</Label>
+          <Label>SixVox number</Label>
           <Select value={appNumber} onValueChange={setAppNumber}>
             <SelectTrigger>
               <SelectValue placeholder="Choose a number" />

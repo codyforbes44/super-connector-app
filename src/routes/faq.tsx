@@ -2,9 +2,9 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 
-const TITLE = "FAQ — SignalBox questions answered";
+const TITLE = "FAQ — SixVox questions answered";
 const DESCRIPTION =
-  "Answers on trials, pricing, numbers, WhatsApp, the AI receptionist, data ownership and how SignalBox compares to other business phone apps.";
+  "Answers on trials, pricing, numbers, WhatsApp, the AI receptionist, data ownership and how SixVox compares to other business phone apps.";
 
 const FAQS = [
   {
@@ -13,11 +13,11 @@ const FAQS = [
   },
   {
     q: "Can I keep my existing numbers?",
-    a: "Absolutely. Numbers already on your account appear as soon as you connect, and one tap wires their voice and messaging webhooks to SignalBox.",
+    a: "Absolutely. Numbers already on your account appear as soon as you connect, and one tap wires their voice and messaging webhooks to SixVox.",
   },
   {
     q: "Does it work on mobile?",
-    a: "SignalBox is mobile-first and installable to your home screen. Calls ring inside the app, and push notifications alert you even when the app is in the background.",
+    a: "SixVox is mobile-first and installable to your home screen. Calls ring inside the app, and push notifications alert you even when the app is in the background.",
   },
   {
     q: "How do the AI voicemail assistants work?",
@@ -33,7 +33,7 @@ const FAQS = [
   },
   {
     q: "How is this different from Talkyto, Toktiv or Mango?",
-    a: "Those apps expose a slice of what a business line can do. SignalBox covers messaging, calling, numbers, AI answering, and connected mail, calendar and maps tools in one place, with real roles for teams.",
+    a: "Those apps expose a slice of what a business line can do. SixVox covers messaging, calling, numbers, AI answering, and connected mail, calendar and maps tools in one place, with real roles for teams.",
   },
   {
     q: "Can I cancel any time?",

@@ -32,7 +32,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <span className="key-signal flex h-9 w-9 items-center justify-center rounded-full">
               <Radio className="h-4 w-4" />
             </span>
-            <span className="font-display text-base font-semibold tracking-tight">SignalBox</span>
+            <span className="font-display text-base font-semibold tracking-tight">SixVox</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -108,7 +108,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               <span className="key-signal flex h-8 w-8 items-center justify-center rounded-full">
                 <Radio className="h-3.5 w-3.5" />
               </span>
-              <span className="font-display text-sm font-semibold">SignalBox</span>
+              <span className="font-display text-sm font-semibold">SixVox</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
               Business calls, texts, WhatsApp, voicemail and an AI receptionist — in one
@@ -141,7 +141,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           />
         </div>
         <div className="mx-auto max-w-6xl px-5 pb-10 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} SignalBox. All rights reserved.
+          © {new Date().getFullYear()} SixVox. All rights reserved.
         </div>
       </footer>
     </div>

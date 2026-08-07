@@ -9,7 +9,7 @@ export const Route = createFileRoute("/oauth/google/return")({
   component: OAuthReturn,
   head: () => ({
     meta: [
-      { title: "Finishing Google connection · SignalBox" },
+      { title: "Finishing Google connection · SixVox" },
       { name: "robots", content: "noindex" },
     ],
   }),

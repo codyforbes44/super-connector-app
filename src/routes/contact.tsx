@@ -11,9 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { errorMessage } from "@/lib/format";
 import { submitLead } from "@/lib/payments.functions";
 
-const TITLE = "Contact SignalBox — talk to the team";
+const TITLE = "Contact SixVox — talk to the team";
 const DESCRIPTION =
-  "Questions about plans, moving your existing numbers, the AI receptionist or team rollout? Send the SignalBox team a message.";
+  "Questions about plans, moving your existing numbers, the AI receptionist or team rollout? Send the SixVox team a message.";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -60,7 +60,7 @@ function ContactPage() {
           Talk to the team
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          Moving a busy business line, rolling SignalBox out to a team, or curious what the AI
+          Moving a busy business line, rolling SixVox out to a team, or curious what the AI
           assistants can handle? Tell us what you need.
         </p>
       </Section>

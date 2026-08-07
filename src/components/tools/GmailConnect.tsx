@@ -54,7 +54,7 @@ export function GmailConnect({ compact = false }: { compact?: boolean }) {
 
   const connect = useMutation({
     mutationFn: async () => {
-      const popup = window.open("", "signalbox-google-oauth", "width=520,height=720");
+      const popup = window.open("", "sixvox-google-oauth", "width=520,height=720");
       if (!popup) throw new Error("Popup blocked. Allow popups and try again.");
       try {
         const { authorizationUrl } = await startGmailConnect();
@@ -122,7 +122,7 @@ export function GmailConnect({ compact = false }: { compact?: boolean }) {
               ? `${data.accountEmail ?? "Google account"}${
                   data.connectedAt ? ` · linked ${relativeTime(data.connectedAt)}` : ""
                 }`
-              : "SignalBox reads notification threads and sends replies as you — nothing else."}
+              : "SixVox reads notification threads and sends replies as you — nothing else."}
           </p>
         </div>
       </div>

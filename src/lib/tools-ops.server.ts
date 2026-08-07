@@ -311,7 +311,7 @@ export async function previewTemplate(
         at: vars["at"] as string,
         summary: vars["summary"] as string,
         turns: [
-          { role: "agent", message: "Thanks for calling Signalbox, how can I help?" },
+          { role: "agent", message: "Thanks for calling SixVox, how can I help?" },
           { role: "caller", message: "I'd like to book a demo." },
         ],
       });
