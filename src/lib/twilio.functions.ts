@@ -140,6 +140,38 @@ export const setDefaultNumber = createServerFn({ method: "POST" })
     ops.setDefaultNumber(context.supabase, context.userId, data),
   );
 
+export const sendTestCall = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { appNumber?: string | null; to?: string | null }) => input)
+  .handler(async ({ context, data }) => ops.sendTestCall(context.supabase, context.userId, data));
+
+export const listCallerIdRoutes = createServerFn({ method: "GET" })
+  .middleware([auth])
+  .handler(async ({ context }) => ops.listCallerIdRoutes(context.supabase, context.userId));
+
+export const upsertCallerIdRoute = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator(
+    (input: { id?: string; pattern: string; callerId: string; label?: string | null }) => input,
+  )
+  .handler(async ({ context, data }) =>
+    ops.upsertCallerIdRoute(context.supabase, context.userId, data),
+  );
+
+export const deleteCallerIdRoute = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { id: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.deleteCallerIdRoute(context.supabase, context.userId, data),
+  );
+
+export const setContactCallerId = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { phoneNumber: string; callerId: string | null }) => input)
+  .handler(async ({ context, data }) =>
+    ops.setContactCallerId(context.supabase, context.userId, data),
+  );
+
 export const getCallRecordings = createServerFn({ method: "POST" })
   .middleware([auth])
   .inputValidator((input: { sid: string }) => input)
