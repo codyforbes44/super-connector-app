@@ -69,6 +69,14 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           })
           .eq("id", conversationId);
 
+        const { notifyNumberWatchers } = await import("@/lib/push.server");
+        await notifyNumberWatchers(supabaseAdmin as never, appNumber, {
+          title: `${channel === "whatsapp" ? "WhatsApp" : "SMS"} from ${contactNumber}`,
+          body: body ? body.slice(0, 180) : "Sent an attachment",
+          url: `/inbox/${conversationId}`,
+          tag: `conversation-${conversationId}`,
+        });
+
         return new Response('<?xml version="1.0" encoding="UTF-8"?><Response></Response>', {
           headers: { "Content-Type": "text/xml" },
         });

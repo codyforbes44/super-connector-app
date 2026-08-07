@@ -70,9 +70,12 @@ export async function sendPushToUsers(
           subscription,
           keys,
         );
+        const headers = Object.fromEntries(
+          Object.entries(request.headers).filter(([, v]) => typeof v === "string"),
+        ) as Record<string, string>;
         const res = await fetch(subscription.endpoint, {
           method: request.method,
-          headers: request.headers,
+          headers,
           body: request.body as BodyInit,
         });
         if (res.status === 404 || res.status === 410) stale.push(row.id as string);
