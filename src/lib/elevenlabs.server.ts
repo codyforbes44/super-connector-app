@@ -56,6 +56,98 @@ export async function listAgents(): Promise<Agent[]> {
   return (data.agents ?? []).map((a) => ({ agent_id: a.agent_id, name: a.name ?? a.agent_id }));
 }
 
+export type AgentDetail = {
+  agent_id: string;
+  name: string;
+  prompt: string;
+  firstMessage: string;
+  language: string;
+  voiceId: string | null;
+};
+
+type RawAgent = {
+  agent_id?: string;
+  name?: string;
+  conversation_config?: {
+    agent?: {
+      prompt?: { prompt?: string };
+      first_message?: string;
+      language?: string;
+    };
+    tts?: { voice_id?: string };
+  };
+};
+
+function toAgentDetail(raw: RawAgent, fallbackId: string): AgentDetail {
+  const agent = raw.conversation_config?.agent ?? {};
+  return {
+    agent_id: raw.agent_id ?? fallbackId,
+    name: raw.name ?? fallbackId,
+    prompt: agent.prompt?.prompt ?? "",
+    firstMessage: agent.first_message ?? "",
+    language: agent.language ?? "en",
+    voiceId: raw.conversation_config?.tts?.voice_id ?? null,
+  };
+}
+
+export type AgentInput = {
+  name: string;
+  prompt: string;
+  firstMessage: string;
+  language: string;
+  voiceId: string | null;
+};
+
+function agentBody(input: AgentInput) {
+  return {
+    name: input.name,
+    conversation_config: {
+      agent: {
+        prompt: { prompt: input.prompt },
+        first_message: input.firstMessage,
+        language: input.language,
+      },
+      ...(input.voiceId ? { tts: { voice_id: input.voiceId } } : {}),
+    },
+  };
+}
+
+export async function getAgent(agentId: string): Promise<AgentDetail> {
+  const raw = await el<RawAgent>(`/v1/convai/agents/${encodeURIComponent(agentId)}`);
+  return toAgentDetail(raw, agentId);
+}
+
+export async function createAgent(input: AgentInput): Promise<{ agent_id: string }> {
+  const data = await el<{ agent_id?: string }>("/v1/convai/agents/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(agentBody(input)),
+  });
+  if (!data.agent_id) throw new Error("ElevenLabs did not return an agent id.");
+  return { agent_id: data.agent_id };
+}
+
+export async function updateAgent(agentId: string, input: AgentInput): Promise<{ ok: true }> {
+  await el(`/v1/convai/agents/${encodeURIComponent(agentId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(agentBody(input)),
+  });
+  return { ok: true };
+}
+
+export async function deleteAgent(agentId: string): Promise<{ ok: true }> {
+  const response = await fetch(`${BASE}/v1/convai/agents/${encodeURIComponent(agentId)}`, {
+    method: "DELETE",
+    headers: { "xi-api-key": elevenLabsKey() },
+  });
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`ElevenLabs delete failed [${response.status}]: ${body.slice(0, 400)}`);
+  }
+  return { ok: true };
+}
+
 /** Raw MP3 bytes for a piece of text. */
 export async function synthesize(args: {
   text: string;

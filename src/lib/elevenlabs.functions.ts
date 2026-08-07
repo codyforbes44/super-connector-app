@@ -27,12 +27,32 @@ export const saveVoiceAssistant = createServerFn({ method: "POST" })
   .inputValidator(
     (input: {
       sid: string;
-      answerMode: "classic" | "ai_agent";
+      answerMode: "classic" | "ai_greeting" | "ai_agent";
       voiceId: string | null;
       agentId: string | null;
     }) => input,
   )
   .handler(async ({ context, data }) => ops.saveAssistant(context.supabase, context.userId, data));
+
+export const getElevenLabsAgent = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { agentId: string }) => input)
+  .handler(async ({ context, data }) => ops.getAgent(context.supabase, context.userId, data));
+
+export const createElevenLabsAgent = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: ops.AgentDraft) => input)
+  .handler(async ({ context, data }) => ops.createAgent(context.supabase, context.userId, data));
+
+export const updateElevenLabsAgent = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: ops.AgentDraft & { agentId: string }) => input)
+  .handler(async ({ context, data }) => ops.updateAgent(context.supabase, context.userId, data));
+
+export const deleteElevenLabsAgent = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { agentId: string }) => input)
+  .handler(async ({ context, data }) => ops.deleteAgent(context.supabase, context.userId, data));
 
 export const renderGreeting = createServerFn({ method: "POST" })
   .middleware([auth])

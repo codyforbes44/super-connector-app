@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Copy, CreditCard, LogOut, Plug, Terminal, Users } from "lucide-react";
+import { Bot, Copy, CreditCard, LogOut, Plug, Terminal, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -276,6 +276,19 @@ function SettingsScreen() {
       ) : null}
 
       <section className="space-y-2 border-t border-border px-4 py-4">
+        <Link
+          to="/receptionist"
+          className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
+        >
+          <Bot className="h-4 w-4 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">AI receptionist</p>
+            <p className="text-[0.7rem] text-muted-foreground">
+              Voices, agents and per-number answering
+            </p>
+          </div>
+        </Link>
+
         <Link to="/connectors" className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3">
           <Plug className="h-4 w-4 text-primary" />
           <div className="min-w-0 flex-1">

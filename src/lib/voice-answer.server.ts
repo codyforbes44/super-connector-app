@@ -78,6 +78,9 @@ export async function voicemailTwiml(
 
   const classic = `${intro}<Record maxLength="120" playBeep="true" transcribe="true" /><Say voice="alice">We did not receive a recording. Goodbye.</Say>`;
 
+  // AI-voiced greeting: the rendered ElevenLabs audio (or a spoken fallback) then a recording.
+  if (config.answer_mode === "ai_greeting") return classic;
+
   if (config.answer_mode === "ai_agent" && config.elevenlabs_agent_id && hasElevenLabs()) {
     try {
       const streamUrl = await agentStreamUrl(config.elevenlabs_agent_id);

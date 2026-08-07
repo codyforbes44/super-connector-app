@@ -22,6 +22,7 @@ import { Route as AuthenticatedCallsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedConnectorsRouteImport } from './routes/_authenticated/connectors'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedNumbersRouteImport } from './routes/_authenticated/numbers'
+import { Route as AuthenticatedReceptionistRouteImport } from './routes/_authenticated/receptionist'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSubscribersRouteImport } from './routes/_authenticated/subscribers'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
@@ -104,6 +105,12 @@ const AuthenticatedNumbersRoute = AuthenticatedNumbersRouteImport.update({
   path: '/numbers',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReceptionistRoute =
+  AuthenticatedReceptionistRouteImport.update({
+    id: '/receptionist',
+    path: '/receptionist',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -207,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/numbers': typeof AuthenticatedNumbersRoute
+  '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
@@ -238,6 +246,7 @@ export interface FileRoutesByTo {
   '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/numbers': typeof AuthenticatedNumbersRoute
+  '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
@@ -271,6 +280,7 @@ export interface FileRoutesById {
   '/_authenticated/connectors': typeof AuthenticatedConnectorsRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/numbers': typeof AuthenticatedNumbersRoute
+  '/_authenticated/receptionist': typeof AuthenticatedReceptionistRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/subscribers': typeof AuthenticatedSubscribersRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
@@ -304,6 +314,7 @@ export interface FileRouteTypes {
     | '/connectors'
     | '/console'
     | '/numbers'
+    | '/receptionist'
     | '/settings'
     | '/subscribers'
     | '/tools'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '/connectors'
     | '/console'
     | '/numbers'
+    | '/receptionist'
     | '/settings'
     | '/subscribers'
     | '/tools'
@@ -367,6 +379,7 @@ export interface FileRouteTypes {
     | '/_authenticated/connectors'
     | '/_authenticated/console'
     | '/_authenticated/numbers'
+    | '/_authenticated/receptionist'
     | '/_authenticated/settings'
     | '/_authenticated/subscribers'
     | '/_authenticated/tools'
@@ -500,6 +513,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNumbersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/receptionist': {
+      id: '/_authenticated/receptionist'
+      path: '/receptionist'
+      fullPath: '/receptionist'
+      preLoaderRoute: typeof AuthenticatedReceptionistRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -628,6 +648,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConnectorsRoute: typeof AuthenticatedConnectorsRoute
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
   AuthenticatedNumbersRoute: typeof AuthenticatedNumbersRoute
+  AuthenticatedReceptionistRoute: typeof AuthenticatedReceptionistRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubscribersRoute: typeof AuthenticatedSubscribersRoute
   AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
@@ -643,6 +664,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConnectorsRoute: AuthenticatedConnectorsRoute,
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
   AuthenticatedNumbersRoute: AuthenticatedNumbersRoute,
+  AuthenticatedReceptionistRoute: AuthenticatedReceptionistRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubscribersRoute: AuthenticatedSubscribersRoute,
   AuthenticatedToolsRoute: AuthenticatedToolsRoute,
