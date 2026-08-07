@@ -177,16 +177,65 @@ export async function synthesize(args: {
  * Signed WebSocket URL for a private conversational agent. Public agents can be
  * streamed with the plain agent_id, so a failure here is not fatal.
  */
-export async function agentStreamUrl(agentId: string): Promise<string> {
-  try {
-    const data = await el<{ signed_url?: string }>(
-      `/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`,
-    );
-    if (data.signed_url) return data.signed_url;
-  } catch {
-    // Public agent, or the key lacks the endpoint — fall back to the open URL.
+/**
+ * ElevenLabs' native Twilio handler. Twilio POSTs the call parameters here and
+ * ElevenLabs answers with its own TwiML, so the media stays in Twilio's format.
+ * The raw ConvAI websocket must never be used from `<Stream>` — it speaks a
+ * different protocol and Twilio drops it with error 31921 (silent call).
+ */
+export const ELEVENLABS_TWILIO_INBOUND_URL = "https://api.us.elevenlabs.io/twilio/inbound_call";
+
+export type ElevenLabsPhoneNumber = {
+  phone_number: string;
+  phone_number_id: string;
+  provider: string;
+  assigned_agent: { agent_id: string } | null;
+};
+
+export async function listPhoneNumbers(): Promise<ElevenLabsPhoneNumber[]> {
+  const data = await el<ElevenLabsPhoneNumber[]>("/v1/convai/phone-numbers");
+  return Array.isArray(data) ? data : [];
+}
+
+/**
+ * Make sure a Twilio number is registered with ElevenLabs and bound to the
+ * agent the caller expects. Returns the ElevenLabs phone-number id, or null
+ * when the number cannot be prepared (caller then degrades to voicemail).
+ */
+export async function ensureAgentPhoneNumber(
+  phoneNumber: string,
+  agentId: string,
+): Promise<string | null> {
+  const existing = (await listPhoneNumbers()).find((row) => row.phone_number === phoneNumber);
+
+  if (existing) {
+    if (existing.assigned_agent?.agent_id !== agentId) {
+      await el(`/v1/convai/phone-numbers/${encodeURIComponent(existing.phone_number_id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agent_id: agentId }),
+      });
+    }
+    return existing.phone_number_id;
   }
-  return `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${encodeURIComponent(agentId)}`;
+
+  const sid = process.env["TWILIO_ACCOUNT_SID"];
+  const token = process.env["TWILIO_AUTH_TOKEN"];
+  if (!sid || !token) return null;
+
+  const created = await el<{ phone_number_id?: string }>("/v1/convai/phone-numbers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      provider: "twilio",
+      phone_number: phoneNumber,
+      label: phoneNumber,
+      sid,
+      token,
+      agent_id: agentId,
+    }),
+  });
+  return created.phone_number_id ?? null;
 }
 
 export async function accountStatus(): Promise<{

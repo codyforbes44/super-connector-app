@@ -1400,8 +1400,31 @@ export async function voiceSetupStatus(supabase: SB, userId: string) {
     hasApiKey: Boolean(
       process.env["TWILIO_API_KEY_SID"] && process.env["TWILIO_API_KEY_SECRET"],
     ),
+    hasDefault: (data ?? []).some((row) => row.is_default === true),
     voiceUrl: webhookUrl("app-voice"),
     smsUrl: webhookUrl("sms"),
     statusUrl: webhookUrl("status"),
   });
+}
+
+/**
+ * Heartbeat from a registered Voice SDK device. Inbound calls only ring
+ * clients seen recently — otherwise the caller hears 20 seconds of silence
+ * before falling through to voicemail.
+ */
+export async function setVoicePresence(supabase: SB, userId: string, online: boolean) {
+  const admin = await adminClient();
+  const { voiceIdentityFor } = await import("./voice-token.server");
+  const identity = voiceIdentityFor(userId);
+  if (!online) {
+    await admin.from("voice_presence").delete().eq("user_id", userId);
+    return asJson({ ok: true, online: false });
+  }
+  await admin
+    .from("voice_presence")
+    .upsert(
+      { user_id: userId, identity, last_seen_at: new Date().toISOString() },
+      { onConflict: "user_id" },
+    );
+  return asJson({ ok: true, online: true, identity });
 }

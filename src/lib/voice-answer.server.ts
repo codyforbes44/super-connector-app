@@ -1,6 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { agentStreamUrl, hasElevenLabs } from "./elevenlabs.server";
+import {
+  ELEVENLABS_TWILIO_INBOUND_URL,
+  ensureAgentPhoneNumber,
+  hasElevenLabs,
+} from "./elevenlabs.server";
 import { GREETING_BUCKET } from "./elevenlabs-ops.server";
 
 export function escapeXml(value: string): string {
@@ -14,6 +18,7 @@ export function escapeXml(value: string): string {
 export type NumberVoiceConfig = {
   answer_mode?: string | null;
   elevenlabs_agent_id?: string | null;
+  elevenlabs_phone_number_id?: string | null;
   greeting_audio_path?: string | null;
   voicemail_greeting?: string | null;
   ai_prompt?: string | null;
@@ -27,7 +32,7 @@ export type NumberVoiceConfig = {
 
 /** Columns every caller must select for voicemail/AI answering to behave. */
 export const VOICE_CONFIG_COLUMNS =
-  "voicemail_greeting, answer_mode, elevenlabs_agent_id, greeting_audio_path, ai_prompt, ai_first_message, ai_tone, ai_language, ai_fallback, ai_fallback_number, ai_max_duration";
+  "voicemail_greeting, answer_mode, elevenlabs_agent_id, elevenlabs_phone_number_id, greeting_audio_path, ai_prompt, ai_first_message, ai_tone, ai_language, ai_fallback, ai_fallback_number, ai_max_duration";
 
 export const AI_TONES: Record<string, string> = {
   professional: "Speak in a polished, professional and efficient tone.",
@@ -45,8 +50,6 @@ function fallbackTwiml(config: NumberVoiceConfig, classic: string): string {
   if (config.ai_fallback === "forward" && config.ai_fallback_number) {
     return `<Dial timeout="25"><Number>${escapeXml(config.ai_fallback_number)}</Number></Dial>${classic}`;
   }
-  if (config.answer_mode === "ai_agent") return fallbackTwiml(config, classic);
-
   return classic;
 }
 
@@ -83,27 +86,20 @@ export async function voicemailTwiml(
 
   if (config.answer_mode === "ai_agent" && config.elevenlabs_agent_id && hasElevenLabs()) {
     try {
-      const streamUrl = await agentStreamUrl(config.elevenlabs_agent_id);
-      const tone = AI_TONES[config.ai_tone ?? "professional"] ?? "";
-      const prompt = [config.ai_prompt?.trim(), tone].filter(Boolean).join("\n\n");
-      const entries: Array<[string, string]> = [
-        ["caller_number", ctx.from],
-        ["called_number", ctx.appNumber],
-        ["call_sid", ctx.callSid],
-        ["language", config.ai_language || "en"],
-        ["tone", config.ai_tone || "professional"],
-      ];
-      if (prompt) entries.push(["prompt", prompt]);
-      if (config.ai_first_message?.trim())
-        entries.push(["first_message", config.ai_first_message.trim()]);
-      const params = entries
-        .map(
-          ([name, value]) =>
-            `<Parameter name="${escapeXml(name)}" value="${escapeXml(value ?? "")}" />`,
-        )
-        .join("");
-      const limit = Math.min(Math.max(config.ai_max_duration ?? 300, 30), 3600);
-      return `<Connect><Stream url="${escapeXml(streamUrl)}">${params}</Stream></Connect><Pause length="${limit}" />`;
+      // ElevenLabs answers the call itself, so the number must be registered
+      // with them and bound to this agent. Cache the id to skip the round trip.
+      let numberId = config.elevenlabs_phone_number_id ?? null;
+      if (!numberId) {
+        numberId = await ensureAgentPhoneNumber(ctx.appNumber, config.elevenlabs_agent_id);
+        if (numberId) {
+          await admin
+            .from("phone_numbers")
+            .update({ elevenlabs_phone_number_id: numberId })
+            .eq("phone_number", ctx.appNumber);
+        }
+      }
+      if (!numberId) return fallbackTwiml(config, classic);
+      return `<Redirect method="POST">${escapeXml(ELEVENLABS_TWILIO_INBOUND_URL)}</Redirect>`;
     } catch {
       return fallbackTwiml(config, classic);
     }

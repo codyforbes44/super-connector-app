@@ -101,7 +101,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           .maybeSingle();
 
         const { voiceIdentityFor } = await import("@/lib/voice-token.server");
-        const identities: string[] = [];
+        let identities: string[] = [];
         const ringUserIds: string[] = [];
         if (number?.assigned_to) {
           identities.push(voiceIdentityFor(number.assigned_to as string));
@@ -118,6 +118,19 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
               ringUserIds.push(row.user_id as string);
             }
           }
+        }
+
+        // Only ring devices that checked in recently. Dialing a client that is
+        // not registered burns the full timeout in silence before voicemail.
+        if (identities.length) {
+          const since = new Date(Date.now() - 90_000).toISOString();
+          const { data: present } = await supabaseAdmin
+            .from("voice_presence")
+            .select("identity")
+            .in("identity", identities)
+            .gt("last_seen_at", since);
+          const online = new Set((present ?? []).map((row) => row.identity as string));
+          identities = identities.filter((identity) => online.has(identity));
         }
 
         // Wake backgrounded devices so the incoming call can be answered in-app.
