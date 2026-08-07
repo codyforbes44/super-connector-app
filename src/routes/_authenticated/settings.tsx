@@ -21,6 +21,7 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage } from "@/lib/format";
 import { PushNotifications } from "@/components/PushNotifications";
 import { VoiceSetup } from "@/components/VoiceSetup";
+import { ElevenLabsStatus } from "@/components/ElevenLabsStatus";
 import { accountOverview, listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
 
 export const Route = createFileRoute("/_authenticated/settings")({
