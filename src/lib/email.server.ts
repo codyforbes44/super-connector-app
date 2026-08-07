@@ -4,6 +4,7 @@ import { PUBLIC_BASE_URL } from "./app.server";
 import { ConnectorError, connectorConfigured, gatewayRequest } from "./connectors.server";
 import { toPlainText } from "./email-templates/layout";
 import type { RenderedEmail, TemplateName } from "./email-templates/index";
+import { applyOverride, type TemplateOverride } from "./email-templates/overrides";
 
 /** Verified Resend sending domain for this workspace. */
 export const SENDING_DOMAIN = "bookme.bet";
@@ -25,7 +26,29 @@ type SendArgs = {
   from?: string;
   replyTo?: string;
   context?: Record<string, unknown>;
+  /** Values available to {{variables}} in the user's copy overrides. */
+  vars?: Record<string, unknown>;
+  /** Set when re-sending a previously logged email. */
+  retryOf?: string;
 };
+
+async function loadOverride(
+  admin: SupabaseClient | null,
+  template: TemplateName,
+): Promise<TemplateOverride | null> {
+  if (!admin) return null;
+  try {
+    const { data } = await admin
+      .from("email_template_overrides")
+      .select("template, subject, eyebrow, headline, intro, outro, enabled")
+      .eq("template", template)
+      .maybeSingle();
+    return (data as TemplateOverride | null) ?? null;
+  } catch (error) {
+    console.error("template override load failed", error);
+    return null;
+  }
+}
 
 /** Send one email through the Resend connector and log the outcome. */
 export async function sendEmail(
@@ -35,13 +58,18 @@ export async function sendEmail(
   const recipients = (Array.isArray(args.to) ? args.to : [args.to]).filter(Boolean);
   if (!recipients.length) return { sent: false, error: "no recipient" };
 
+  const override = await loadOverride(admin, args.template);
+  const rendered = applyOverride(args.rendered, override, args.vars ?? {});
+
   const log = async (status: string, providerId?: string, error?: string) => {
     if (!admin) return;
     try {
       await admin.from("email_log").insert({
         template: args.template,
         to_address: recipients.join(", "),
-        subject: args.rendered.subject,
+        subject: rendered.subject,
+        body_html: rendered.html,
+        retry_of: args.retryOf ?? null,
         provider_id: providerId ?? null,
         status,
         error: error ?? null,
@@ -61,9 +89,9 @@ export async function sendEmail(
     const payload: Record<string, unknown> = {
       from: args.from ?? FROM_ALERTS,
       to: recipients,
-      subject: args.rendered.subject,
-      html: args.rendered.html,
-      text: toPlainText(args.rendered.html).slice(0, 4000),
+      subject: rendered.subject,
+      html: rendered.html,
+      text: toPlainText(rendered.html).slice(0, 4000),
     };
     if (args.replyTo) payload["reply_to"] = args.replyTo;
 
