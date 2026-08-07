@@ -26,6 +26,7 @@ import {
   setOutboundCallerId,
   upsertCallerIdRoute,
 } from "@/lib/twilio.functions";
+import { updateMyProfile } from "@/lib/twilio.functions";
 
 const NONE = "__none__";
 
@@ -60,6 +61,7 @@ export function CallingSettings() {
   const [routeCallerId, setRouteCallerId] = useState("");
   const [routeLabel, setRouteLabel] = useState("");
   const [testTo, setTestTo] = useState((boot.profile?.agent_phone as string | null) ?? "");
+  const [agentPhone, setAgentPhone] = useState((boot.profile?.agent_phone as string | null) ?? "");
 
   const callerIds = useQuery({
     queryKey: ["caller-ids"],
@@ -79,6 +81,15 @@ export function CallingSettings() {
   });
 
   const refreshBoot = () => queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
+
+  const saveAgentPhone = useMutation({
+    mutationFn: () => updateMyProfile({ data: { agentPhone: agentPhone.trim() || null } }),
+    onSuccess: async () => {
+      await refreshBoot();
+      toast.success("Callback number saved.");
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
 
   const testCall = useMutation({
     mutationFn: () =>
@@ -180,6 +191,32 @@ export function CallingSettings() {
         </Select>
         <p className="text-[0.7rem] text-muted-foreground">
           Your dialer and composer start from this number.
+        </p>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="callback-phone">Your phone (we ring this for bridged calls)</Label>
+        <div className="flex gap-2">
+          <Input
+            id="callback-phone"
+            inputMode="tel"
+            maxLength={20}
+            placeholder="+1 555 010 2030"
+            value={agentPhone}
+            onChange={(event) => setAgentPhone(event.target.value)}
+            className="h-11 flex-1 rounded-full px-4"
+          />
+          <Button
+            variant="outline"
+            className="h-11 rounded-full px-5"
+            disabled={saveAgentPhone.isPending}
+            onClick={() => saveAgentPhone.mutate()}
+          >
+            Save
+          </Button>
+        </div>
+        <p className="text-[0.7rem] text-muted-foreground">
+          When in-app calling is unavailable, we call you here first, then connect the contact.
         </p>
       </div>
 
