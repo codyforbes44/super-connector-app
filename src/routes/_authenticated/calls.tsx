@@ -346,6 +346,15 @@ function CallsScreen() {
                   ))}
                 </SelectContent>
               </Select>
+              {(() => {
+                const selected = boot.numbers.find((n) => n.phone_number === from);
+                const presented = selected?.outbound_caller_id as string | null | undefined;
+                return presented ? (
+                  <p className="text-[0.7rem] text-muted-foreground">
+                    Recipients see your verified caller ID {formatPhone(presented)}.
+                  </p>
+                ) : null;
+              })()}
             </div>
 
             <div className="flex items-center justify-center gap-8">
