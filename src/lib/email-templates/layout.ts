@@ -72,10 +72,10 @@ export function layout(opts: {
   <tr><td align="center">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 12px 32px rgba(11,27,52,.10);">
       <tr><td style="background:${BRAND.ink};background-image:${BRAND.gradient};padding:26px 28px;">
-        <div style="font:600 11px/1 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${BRAND.accent};">${escapeHtml(opts.eyebrow)}</div>
-        <div style="margin-top:10px;font:700 22px/1.3 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#ffffff;">${escapeHtml(opts.title)}</div>
+        <div data-sb="eyebrow" style="font:600 11px/1 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${BRAND.accent};">${escapeHtml(opts.eyebrow)}</div>
+        <div data-sb="title" style="margin-top:10px;font:700 22px/1.3 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#ffffff;">${escapeHtml(opts.title)}</div>
       </td></tr>
-      <tr><td style="padding:26px 28px 30px;">${opts.body}</td></tr>
+      <tr><td style="padding:26px 28px 30px;"><div data-sb="intro"></div>${opts.body}<div data-sb="outro"></div></td></tr>
       <tr><td style="padding:18px 28px 26px;border-top:1px solid ${BRAND.line};">
         <div style="font:400 12px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${BRAND.muted};">
           ${escapeHtml(opts.footerNote ?? `Sent by ${BRAND.name} · ${BRAND.domain}`)}<br/>
