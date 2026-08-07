@@ -1,15 +1,23 @@
 {
   "name": "SixVox — Business Calls, Texts & AI Receptionist",
   "short_name": "SixVox",
-  "description": "Run your business number, inbox, calls and AI receptionist from one app.",
+  "description": "SixVox runs your business number, inbox, calls and AI receptionist from one app.",
+  "lang": "en-US",
+  "dir": "ltr",
   "start_url": "/inbox",
   "orientation": "portrait",
   "categories": ["business", "productivity", "communication"],
-  "id": "/",
+  "id": "/?app=sixvox",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "prefer_related_applications": false,
   "background_color": "#101216",
   "theme_color": "#1a1c22",
+  "shortcuts": [
+    { "name": "Inbox", "short_name": "Inbox", "url": "/inbox" },
+    { "name": "Dialer", "short_name": "Dialer", "url": "/calls" }
+  ],
   "icons": [
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
