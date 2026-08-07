@@ -1,9 +1,8 @@
 {
   "name": "sixvox",
   "version": "1.0.0",
-  "description": "SixVox — business calls, texts and AI receptionist in one mobile app.",
+  "description": "SixVox \u2014 business calls, texts and AI receptionist in one mobile app.",
   "private": true,
-  "sideEffects": false,
   "type": "module",
   "scripts": {
     "dev": "vite dev",
