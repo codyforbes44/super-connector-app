@@ -19,6 +19,7 @@ import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { Dialpad } from "@/components/Dialpad";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -377,7 +378,9 @@ function CallsScreen() {
                   maxLength={20}
                   placeholder="+1 555 010 2030"
                   value={callbackNumber}
-                  onChange={(event) => setCallbackNumber(event.target.value)}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setCallbackNumber(event.target.value)
+                  }
                   className="h-11 rounded-full px-4"
                 />
                 <p className="text-[0.7rem] text-muted-foreground">
