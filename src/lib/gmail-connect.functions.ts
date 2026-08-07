@@ -19,10 +19,8 @@ export const startGmailConnect = createServerFn({ method: "POST" })
     const clientKey = process.env["GOOGLE_MAIL_APP_USER_CONNECTOR_CLIENT_API_KEY"];
     if (!clientKey) throw new Error("Gmail connector client is not configured for this project.");
 
-    const { getRequest } = await import("@tanstack/react-start/server");
-    const request = getRequest();
-    if (!request) throw new Error("OAuth must start from an app request.");
-    const returnUrl = new URL("/oauth/google/return", request.url).toString();
+    const { absoluteUrl } = await import("./request-url.server");
+    const returnUrl = absoluteUrl("/oauth/google/return");
 
     const { authorizeAppUserOAuth } = await import("@/integrations/lovable/appUserConnector");
     const { getConnectionKeyForUser } = await import("./app-user-connections.server");
