@@ -19,13 +19,11 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
     handlers: {
       POST: async ({ request }) => {
         const url = new URL(request.url);
-        const expected = process.env["TWILIO_WEBHOOK_TOKEN"];
-        if (!expected || url.searchParams.get("t") !== expected) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const auth = await verifyTwilioWebhook(request);
+        if (!auth.ok) return rejectWebhook(request, auth.reason);
 
-        const form = await request.formData();
-        const get = (key: string) => (form.get(key) as string | null) ?? "";
+        const get = (key: string) => auth.params[key] ?? "";
         const appNumber = get("To").replace(/^whatsapp:/, "");
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

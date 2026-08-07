@@ -55,6 +55,13 @@ function SettingsScreen() {
   });
 
   const balance = overview.data?.balance as { balance?: string; currency?: string } | null;
+  const account = overview.data?.account as {
+    directApi?: boolean;
+    friendlyName?: string | null;
+    status?: string | null;
+    type?: string | null;
+    sidSuffix?: string | null;
+  } | null;
 
   return (
     <div className="pb-6">
@@ -115,6 +122,32 @@ function SettingsScreen() {
               <p className="text-xs text-muted-foreground">{errorMessage(overview.error)}</p>
             ) : (
               <>
+                <div className="glass-panel flex items-center gap-3 rounded-3xl px-4 py-3">
+                  <span
+                    className={
+                      account?.status === "active"
+                        ? "h-2.5 w-2.5 shrink-0 rounded-full bg-success"
+                        : "h-2.5 w-2.5 shrink-0 rounded-full bg-destructive"
+                    }
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">
+                      {account?.friendlyName ?? "Twilio account"}
+                    </p>
+                    <p className="truncate text-[0.7rem] text-muted-foreground">
+                      {[
+                        account?.type,
+                        account?.status,
+                        account?.sidSuffix ? `···${account.sidSuffix}` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                  <Badge variant={account?.directApi ? "secondary" : "outline"} className="text-[0.6rem]">
+                    {account?.directApi ? "full API" : "gateway only"}
+                  </Badge>
+                </div>
                 <div className="glass-panel rounded-3xl p-4">
                   <p className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">
                     Balance

@@ -67,6 +67,7 @@ export const sendMessage = createServerFn({ method: "POST" })
       channel: "sms" | "whatsapp";
       mediaUrls?: string[];
       sendAt?: string | null;
+      messagingServiceSid?: string | null;
     }) => input,
   )
   .handler(async ({ context, data }) => ops.sendMessage(context.supabase, context.userId, data));
@@ -158,6 +159,38 @@ export const listLookups = createServerFn({ method: "GET" })
 export const accountOverview = createServerFn({ method: "GET" })
   .middleware([auth])
   .handler(async ({ context }) => ops.accountOverview(context.supabase, context.userId));
+
+export const listMessagingServices = createServerFn({ method: "GET" })
+  .middleware([auth])
+  .handler(async ({ context }) => ops.listMessagingServices(context.supabase, context.userId));
+
+export const messagingServiceDetail = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { serviceSid: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.messagingServiceDetail(context.supabase, context.userId, data),
+  );
+
+export const createMessagingService = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { name: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.createMessagingService(context.supabase, context.userId, data),
+  );
+
+export const addNumberToMessagingService = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { serviceSid: string; numberSid: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.addNumberToMessagingService(context.supabase, context.userId, data),
+  );
+
+export const removeNumberFromMessagingService = createServerFn({ method: "POST" })
+  .middleware([auth])
+  .inputValidator((input: { serviceSid: string; numberSid: string }) => input)
+  .handler(async ({ context, data }) =>
+    ops.removeNumberFromMessagingService(context.supabase, context.userId, data),
+  );
 
 export const rawTwilioCall = createServerFn({ method: "POST" })
   .middleware([auth])
