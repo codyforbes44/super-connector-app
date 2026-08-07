@@ -4,6 +4,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { CalendarPanel } from "@/components/tools/CalendarPanel";
+import { EmailLogPanel } from "@/components/tools/EmailLogPanel";
+import { MailPanel } from "@/components/tools/MailPanel";
+import { PlacesPanel } from "@/components/tools/PlacesPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,15 +49,27 @@ export const Route = createFileRoute("/_authenticated/tools")({
 function ToolsScreen() {
   return (
     <div>
-      <ScreenHeader title="Tools" subtitle="Verify OTP · Lookup intelligence" />
+      <ScreenHeader title="Tools" subtitle="Verify · Lookup · Mail · Calendar · Maps" />
       <div className="px-4 py-3">
         <Tabs defaultValue="verify">
-          <TabsList className="glass-panel grid w-full grid-cols-2 rounded-full p-1">
+          <TabsList className="glass-panel grid w-full grid-cols-3 gap-1 rounded-2xl p-1">
             <TabsTrigger value="verify" className="rounded-full">
               Verify
             </TabsTrigger>
             <TabsTrigger value="lookup" className="rounded-full">
               Lookup
+            </TabsTrigger>
+            <TabsTrigger value="mail" className="rounded-full">
+              Mail
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="rounded-full">
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="maps" className="rounded-full">
+              Maps
+            </TabsTrigger>
+            <TabsTrigger value="email" className="rounded-full">
+              Email log
             </TabsTrigger>
           </TabsList>
           <TabsContent value="verify" className="pt-4">
@@ -61,6 +77,18 @@ function ToolsScreen() {
           </TabsContent>
           <TabsContent value="lookup" className="pt-4">
             <LookupPanel />
+          </TabsContent>
+          <TabsContent value="mail" className="pt-4">
+            <MailPanel />
+          </TabsContent>
+          <TabsContent value="calendar" className="pt-4">
+            <CalendarPanel />
+          </TabsContent>
+          <TabsContent value="maps" className="pt-4">
+            <PlacesPanel />
+          </TabsContent>
+          <TabsContent value="email" className="pt-4">
+            <EmailLogPanel />
           </TabsContent>
         </Tabs>
       </div>
