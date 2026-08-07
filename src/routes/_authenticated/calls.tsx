@@ -4,6 +4,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   PhoneCall,
+  PhoneOff,
   PhoneOutgoing,
   Play,
   RefreshCw,
