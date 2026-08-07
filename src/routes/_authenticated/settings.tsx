@@ -96,68 +96,6 @@ function SettingsScreen() {
 
       {boot.isAdmin ? (
         <>
-          <VoiceSetup />
-          <ElevenLabsStatus />
-          <section className="space-y-3 border-t border-border px-4 py-4">
-            <h2 className="font-display text-sm font-semibold">Number account</h2>
-            {overview.isError ? (
-              <p className="text-xs text-muted-foreground">{errorMessage(overview.error)}</p>
-            ) : (
-              <>
-                <div className="glass-panel flex items-center gap-3 rounded-3xl px-4 py-3">
-                  <span
-                    className={
-                      account?.status === "active"
-                        ? "h-2.5 w-2.5 shrink-0 rounded-full bg-success"
-                        : "h-2.5 w-2.5 shrink-0 rounded-full bg-destructive"
-                    }
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">
-                      {account?.friendlyName ?? "Number account"}
-                    </p>
-                    <p className="truncate text-[0.7rem] text-muted-foreground">
-                      {[
-                        account?.type,
-                        account?.status,
-                        account?.sidSuffix ? `···${account.sidSuffix}` : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                  </div>
-                  <Badge variant={account?.directApi ? "secondary" : "outline"} className="text-[0.6rem]">
-                    {account?.directApi ? "full API" : "gateway only"}
-                  </Badge>
-                </div>
-                <div className="glass-panel rounded-3xl p-4">
-                  <p className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">
-                    Balance
-                  </p>
-                  <p className="tabular font-display mt-1 text-2xl font-semibold">
-                    {balance ? `${balance.balance} ${balance.currency}` : "—"}
-                  </p>
-                </div>
-                <ul className="space-y-1.5">
-                  {(overview.data?.usage ?? [])
-                    .slice(0, 8)
-                    .map((raw) => raw as { category: string; usage: string; price: string })
-                    .map((u) => (
-                      <li
-                        key={u.category}
-                        className="flex items-center justify-between gap-2 text-xs"
-                      >
-                        <span className="truncate text-muted-foreground">{u.category}</span>
-                        <span className="tabular">
-                          {u.usage} · ${u.price}
-                        </span>
-                      </li>
-                    ))}
-                </ul>
-              </>
-            )}
-          </section>
-
           <section className="space-y-3 border-t border-border px-4 py-4">
             <h2 className="font-display text-sm font-semibold">Team</h2>
             <ul className="space-y-2">
@@ -204,48 +142,6 @@ function SettingsScreen() {
             </ul>
           </section>
 
-          <section className="space-y-3 border-t border-border px-4 py-4">
-            <h2 className="font-display text-sm font-semibold">Webhooks</h2>
-            <p className="text-xs text-muted-foreground">
-              Wiring a number from the Numbers tab points it at these endpoints automatically.
-            </p>
-            {[
-              ["Messaging", boot.smsWebhook],
-              ["Voice", boot.voiceWebhook],
-              ["Status", boot.statusWebhook],
-            ].map(([label, url]) => (
-              <button
-                key={label}
-                type="button"
-                className="glass-panel flex w-full items-center gap-2 rounded-2xl px-3.5 py-2.5 text-left"
-                onClick={() => {
-                  void navigator.clipboard.writeText(url!);
-                  toast.success(`${label} URL copied.`);
-                }}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold">{label}</p>
-                  <p className="truncate text-[0.65rem] text-muted-foreground">{url}</p>
-                </div>
-                <Copy className="h-4 w-4 shrink-0 text-muted-foreground" />
-              </button>
-            ))}
-          </section>
-
-          <section className="border-t border-border px-4 py-4">
-            <Link
-              to="/console"
-              className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
-            >
-              <Terminal className="h-4 w-4 text-primary" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">API console</p>
-                <p className="text-[0.7rem] text-muted-foreground">
-                  Open the advanced API console
-                </p>
-              </div>
-            </Link>
-          </section>
         </>
       ) : null}
 
