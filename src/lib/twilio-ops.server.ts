@@ -527,9 +527,12 @@ export async function purchaseNumber(
       PhoneNumber: data.phoneNumber,
       SmsUrl: webhookUrl("sms"),
       SmsMethod: "POST",
+      SmsFallbackUrl: webhookUrl("sms"),
+      SmsFallbackMethod: "POST",
       VoiceUrl: webhookUrl("voice"),
       VoiceMethod: "POST",
       StatusCallback: webhookUrl("status"),
+      StatusCallbackMethod: "POST",
     },
   });
   await admin.from("phone_numbers").upsert(
@@ -538,6 +541,8 @@ export async function purchaseNumber(
       phone_number: bought.phone_number,
       friendly_name: bought.friendly_name,
       capabilities: bought.capabilities ?? {},
+      sms_url: webhookUrl("sms"),
+      voice_url: webhookUrl("voice"),
       webhook_wired: true,
     },
     { onConflict: "sid" },
