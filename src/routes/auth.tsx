@@ -15,8 +15,10 @@ const DESCRIPTION =
   "Sign in to SixVox or create an account to run your business calls, texts, WhatsApp and AI receptionist from your phone.";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    mode: search["mode"] === "signup" ? ("signup" as const) : ("signin" as const),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { mode?: "signin" | "signup" } => ({
+    mode: search["mode"] === "signup" ? "signup" : "signin",
   }),
   head: () => ({
     meta: [
@@ -34,7 +36,7 @@ export const Route = createFileRoute("/auth")({
 function AuthScreen() {
   const navigate = useNavigate();
   const { mode: initialMode } = Route.useSearch();
-  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode ?? "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
