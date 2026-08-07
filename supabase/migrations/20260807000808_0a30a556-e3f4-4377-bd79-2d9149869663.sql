@@ -1,0 +1,3 @@
+CREATE POLICY "authenticated can read mms media" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'mms-media');
+CREATE POLICY "authenticated can upload mms media" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'mms-media' AND owner = auth.uid());
+CREATE POLICY "owners can delete mms media" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'mms-media' AND owner = auth.uid());
