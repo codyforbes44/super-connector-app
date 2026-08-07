@@ -69,7 +69,7 @@ function SettingsScreen() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             maxLength={80}
-            className="h-11"
+            className="h-11 rounded-full px-4"
           />
         </div>
         <div className="space-y-1.5">
@@ -81,14 +81,14 @@ function SettingsScreen() {
             inputMode="tel"
             maxLength={20}
             placeholder="+1 555 010 2030"
-            className="h-11"
+            className="h-11 rounded-full px-4"
           />
           <p className="text-[0.7rem] text-muted-foreground">
             Twilio rings this phone first, then bridges the contact.
           </p>
         </div>
         <Button
-          className="h-11 w-full"
+          className="key-signal h-11 w-full rounded-full"
           onClick={async () => {
             try {
               await updateMyProfile({ data: { displayName, agentPhone: agentPhone || null } });
@@ -115,7 +115,7 @@ function SettingsScreen() {
               <p className="text-xs text-muted-foreground">{errorMessage(overview.error)}</p>
             ) : (
               <>
-                <div className="rounded-xl border border-border bg-card p-4">
+                <div className="glass-panel rounded-3xl p-4">
                   <p className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">
                     Balance
                   </p>
@@ -172,7 +172,7 @@ function SettingsScreen() {
                         }
                       }}
                     >
-                      <SelectTrigger className="h-9 w-28">
+                      <SelectTrigger className="h-9 w-28 rounded-full px-3">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -202,7 +202,7 @@ function SettingsScreen() {
               <button
                 key={label}
                 type="button"
-                className="flex w-full items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left"
+                className="glass-panel flex w-full items-center gap-2 rounded-2xl px-3.5 py-2.5 text-left"
                 onClick={() => {
                   void navigator.clipboard.writeText(url!);
                   toast.success(`${label} URL copied.`);
@@ -220,7 +220,7 @@ function SettingsScreen() {
           <section className="border-t border-border px-4 py-4">
             <Link
               to="/console"
-              className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3"
+              className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
             >
               <Terminal className="h-4 w-4 text-primary" />
               <div className="min-w-0 flex-1">
@@ -237,7 +237,7 @@ function SettingsScreen() {
       <section className="border-t border-border px-4 py-4">
         <Button
           variant="ghost"
-          className="w-full text-destructive"
+          className="key-end w-full rounded-full"
           onClick={async () => {
             await supabase.auth.signOut();
             queryClient.clear();
