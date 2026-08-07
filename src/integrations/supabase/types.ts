@@ -740,8 +740,12 @@ export type Database = {
           comped: boolean
           created_at: string
           current_period_end: string | null
+          current_period_start: string | null
+          environment: string
           id: string
           plan_code: string | null
+          price_id: string | null
+          product_id: string | null
           seats: number
           status: string
           stripe_customer_id: string | null
@@ -756,8 +760,12 @@ export type Database = {
           comped?: boolean
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
           id?: string
           plan_code?: string | null
+          price_id?: string | null
+          product_id?: string | null
           seats?: number
           status?: string
           stripe_customer_id?: string | null
@@ -772,8 +780,12 @@ export type Database = {
           comped?: boolean
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
           id?: string
           plan_code?: string | null
+          price_id?: string | null
+          product_id?: string | null
           seats?: number
           status?: string
           stripe_customer_id?: string | null
