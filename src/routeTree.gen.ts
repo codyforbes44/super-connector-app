@@ -25,6 +25,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSubscribersRouteImport } from './routes/_authenticated/subscribers'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
+import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as AuthenticatedAssistantSidRouteImport } from './routes/_authenticated/assistant.$sid'
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
@@ -117,6 +118,11 @@ const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAssistantSidRoute =
   AuthenticatedAssistantSidRouteImport.update({
     id: '/assistant/$sid',
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/_authenticated/subscribers': typeof AuthenticatedSubscribersRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
   '/_authenticated/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
     | '/subscribers'
     | '/tools'
     | '/welcome'
+    | '/legal/privacy'
     | '/assistant/$sid'
     | '/inbox/$id'
     | '/oauth/google/return'
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/subscribers'
     | '/tools'
     | '/welcome'
+    | '/legal/privacy'
     | '/assistant/$sid'
     | '/inbox/$id'
     | '/oauth/google/return'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/subscribers'
     | '/_authenticated/tools'
     | '/_authenticated/welcome'
+    | '/legal/privacy'
     | '/_authenticated/assistant/$sid'
     | '/_authenticated/inbox/$id'
     | '/oauth/google/return'
@@ -359,6 +371,7 @@ export interface RootRouteChildren {
   FeaturesRoute: typeof FeaturesRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PricingRoute: typeof PricingRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
   ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -483,6 +496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/assistant/$sid': {
       id: '/_authenticated/assistant/$sid'
       path: '/assistant/$sid'
@@ -603,6 +623,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesRoute: FeaturesRoute,
   HowItWorksRoute: HowItWorksRoute,
   PricingRoute: PricingRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
   ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
