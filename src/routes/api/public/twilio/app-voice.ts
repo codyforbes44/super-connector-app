@@ -94,6 +94,14 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         );
 
         const { VOICE_CONFIG_COLUMNS } = await import("@/lib/voice-answer.server");
+        // A line someone forwards their personal number to counts as verified
+        // as soon as the first forwarded call lands here.
+        try {
+          const { noteForwardedCall } = await import("@/lib/byo.server");
+          await noteForwardedCall(supabaseAdmin as never, appNumber);
+        } catch {
+          // forwarding bookkeeping must never break an inbound call
+        }
         const { data: number } = await supabaseAdmin
           .from("phone_numbers")
           .select(`assigned_to, forward_to, ${VOICE_CONFIG_COLUMNS}`)
