@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage } from "@/lib/format";
 import { PushNotifications } from "@/components/PushNotifications";
+import { EmailNotifications } from "@/components/EmailNotifications";
 import { VoiceSetup } from "@/components/VoiceSetup";
 import { ElevenLabsStatus } from "@/components/ElevenLabsStatus";
 import { accountOverview, listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
@@ -114,6 +115,7 @@ function SettingsScreen() {
 
       <div className="border-t border-border">
         <PushNotifications />
+        <EmailNotifications />
       </div>
 
       {boot.isAdmin ? (
