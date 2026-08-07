@@ -31,9 +31,9 @@ async function el<T>(path: string, init: RequestInit = {}): Promise<T> {
 export type Voice = {
   voice_id: string;
   name: string;
-  category?: string;
-  labels?: Record<string, string>;
-  preview_url?: string;
+  category: string | null;
+  labels: Record<string, string>;
+  preview_url: string | null;
 };
 
 export async function listVoices(): Promise<Voice[]> {
@@ -41,9 +41,9 @@ export async function listVoices(): Promise<Voice[]> {
   return (data.voices ?? []).map((v) => ({
     voice_id: v.voice_id,
     name: v.name,
-    category: v.category,
+    category: v.category ?? null,
     labels: v.labels ?? {},
-    preview_url: v.preview_url,
+    preview_url: v.preview_url ?? null,
   }));
 }
 
@@ -99,12 +99,13 @@ export async function agentStreamUrl(agentId: string): Promise<string> {
 
 export async function accountStatus(): Promise<{
   connected: boolean;
-  tier?: string;
-  characterCount?: number;
-  characterLimit?: number;
-  error?: string;
+  tier: string | null;
+  characterCount: number | null;
+  characterLimit: number | null;
+  error: string | null;
 }> {
-  if (!hasElevenLabs()) return { connected: false, error: "No API key configured." };
+  const empty = { tier: null, characterCount: null, characterLimit: null };
+  if (!hasElevenLabs()) return { connected: false, ...empty, error: "No API key configured." };
   try {
     const data = await el<{
       tier?: string;
@@ -113,11 +114,16 @@ export async function accountStatus(): Promise<{
     }>("/v1/user/subscription");
     return {
       connected: true,
-      tier: data.tier,
-      characterCount: data.character_count,
-      characterLimit: data.character_limit,
+      tier: data.tier ?? null,
+      characterCount: data.character_count ?? null,
+      characterLimit: data.character_limit ?? null,
+      error: null,
     };
   } catch (error) {
-    return { connected: false, error: error instanceof Error ? error.message : String(error) };
+    return {
+      connected: false,
+      ...empty,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }
