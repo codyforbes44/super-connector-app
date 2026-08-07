@@ -13,9 +13,29 @@ export const Route = createFileRoute("/_authenticated")({
     if (error || !data.user) throw redirect({ to: "/auth" });
 
     if (!location.pathname.startsWith("/billing")) {
-      const { data: active } = await supabase.rpc("has_active_subscription", {
-        _user_id: data.user.id,
-      });
+      const [{ data: roles }, { data: subs }] = await Promise.all([
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id)
+          .eq("role", "super_admin"),
+        supabase
+          .from("subscriptions")
+          .select("status, comped, suspended, current_period_end")
+          .eq("user_id", data.user.id)
+          .order("created_at", { ascending: false })
+          .limit(1),
+      ]);
+
+      const sub = subs?.[0];
+      const future =
+        !sub?.current_period_end || new Date(sub.current_period_end) > new Date();
+      const active =
+        (roles?.length ?? 0) > 0 ||
+        (!!sub &&
+          !sub.suspended &&
+          (sub.comped ||
+            (["active", "trialing", "past_due", "canceled"].includes(sub.status) && future)));
       if (!active) throw redirect({ to: "/billing" });
     }
 
