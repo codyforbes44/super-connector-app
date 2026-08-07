@@ -19,6 +19,7 @@ import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedCallsRouteImport } from './routes/_authenticated/calls'
+import { Route as AuthenticatedConnectorsRouteImport } from './routes/_authenticated/connectors'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedNumbersRouteImport } from './routes/_authenticated/numbers'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -86,6 +87,11 @@ const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
 const AuthenticatedCallsRoute = AuthenticatedCallsRouteImport.update({
   id: '/calls',
   path: '/calls',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConnectorsRoute = AuthenticatedConnectorsRouteImport.update({
+  id: '/connectors',
+  path: '/connectors',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
@@ -198,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/calls': typeof AuthenticatedCallsRoute
+  '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/numbers': typeof AuthenticatedNumbersRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/calls': typeof AuthenticatedCallsRoute
+  '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/numbers': typeof AuthenticatedNumbersRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/calls': typeof AuthenticatedCallsRoute
+  '/_authenticated/connectors': typeof AuthenticatedConnectorsRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/numbers': typeof AuthenticatedNumbersRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -292,6 +301,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/billing'
     | '/calls'
+    | '/connectors'
     | '/console'
     | '/numbers'
     | '/settings'
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/billing'
     | '/calls'
+    | '/connectors'
     | '/console'
     | '/numbers'
     | '/settings'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/_authenticated/billing'
     | '/_authenticated/calls'
+    | '/_authenticated/connectors'
     | '/_authenticated/console'
     | '/_authenticated/numbers'
     | '/_authenticated/settings'
@@ -465,6 +477,13 @@ declare module '@tanstack/react-router' {
       path: '/calls'
       fullPath: '/calls'
       preLoaderRoute: typeof AuthenticatedCallsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/connectors': {
+      id: '/_authenticated/connectors'
+      path: '/connectors'
+      fullPath: '/connectors'
+      preLoaderRoute: typeof AuthenticatedConnectorsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/console': {
@@ -606,6 +625,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedCallsRoute: typeof AuthenticatedCallsRoute
+  AuthenticatedConnectorsRoute: typeof AuthenticatedConnectorsRoute
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
   AuthenticatedNumbersRoute: typeof AuthenticatedNumbersRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -620,6 +640,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedCallsRoute: AuthenticatedCallsRoute,
+  AuthenticatedConnectorsRoute: AuthenticatedConnectorsRoute,
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
   AuthenticatedNumbersRoute: AuthenticatedNumbersRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
