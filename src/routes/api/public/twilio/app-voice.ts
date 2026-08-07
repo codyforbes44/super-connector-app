@@ -90,11 +90,10 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           { onConflict: "sid" },
         );
 
+        const { VOICE_CONFIG_COLUMNS } = await import("@/lib/voice-answer.server");
         const { data: number } = await supabaseAdmin
           .from("phone_numbers")
-          .select(
-            "assigned_to, forward_to, voicemail_greeting, answer_mode, elevenlabs_agent_id, greeting_audio_path",
-          )
+          .select(`assigned_to, forward_to, ${VOICE_CONFIG_COLUMNS}`)
           .eq("phone_number", appNumber)
           .maybeSingle();
 

@@ -319,6 +319,13 @@ export type Database = {
       }
       phone_numbers: {
         Row: {
+          ai_fallback: string
+          ai_fallback_number: string | null
+          ai_first_message: string | null
+          ai_language: string
+          ai_max_duration: number
+          ai_prompt: string | null
+          ai_tone: string
           answer_mode: string
           assigned_to: string | null
           capabilities: Json
@@ -336,6 +343,13 @@ export type Database = {
           webhook_wired: boolean
         }
         Insert: {
+          ai_fallback?: string
+          ai_fallback_number?: string | null
+          ai_first_message?: string | null
+          ai_language?: string
+          ai_max_duration?: number
+          ai_prompt?: string | null
+          ai_tone?: string
           answer_mode?: string
           assigned_to?: string | null
           capabilities?: Json
@@ -353,6 +367,13 @@ export type Database = {
           webhook_wired?: boolean
         }
         Update: {
+          ai_fallback?: string
+          ai_fallback_number?: string | null
+          ai_first_message?: string | null
+          ai_language?: string
+          ai_max_duration?: number
+          ai_prompt?: string | null
+          ai_tone?: string
           answer_mode?: string
           assigned_to?: string | null
           capabilities?: Json
