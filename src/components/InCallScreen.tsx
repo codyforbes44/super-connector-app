@@ -2,6 +2,7 @@ import { Mic, MicOff, Phone, PhoneOff, Volume2, Grid3x3 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { formatPhone } from "@/lib/format";
+import { haptic } from "@/lib/haptics";
 import { useVoice } from "@/lib/voice-device";
 import { startRingtone, stopRingtone } from "@/lib/ringtone";
 import { cn } from "@/lib/utils";
