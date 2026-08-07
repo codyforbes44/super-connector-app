@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Copy, CreditCard, LogOut, Plug, Terminal, Users } from "lucide-react";
+import { Bot, Copy, CreditCard, LogOut, Plug, Terminal, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
