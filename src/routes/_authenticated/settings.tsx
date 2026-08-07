@@ -29,12 +29,12 @@ import { accountOverview, listTeam, setTeamRole, updateMyProfile } from "@/lib/t
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — Signalbox" },
-      { name: "description", content: "Profile, team roles, Twilio account usage and webhooks." },
-      { property: "og:title", content: "Settings — Signalbox" },
+      { title: "Settings — SignalBox" },
+      { name: "description", content: "Profile, team roles, account usage and delivery endpoints." },
+      { property: "og:title", content: "Settings — SignalBox" },
       {
         property: "og:description",
-        content: "Profile, team roles, Twilio account usage and webhooks.",
+        content: "Profile, team roles, account usage and delivery endpoints.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -96,7 +96,7 @@ function SettingsScreen() {
             className="h-11 rounded-full px-4"
           />
           <p className="text-[0.7rem] text-muted-foreground">
-            Twilio rings this phone first, then bridges the contact.
+            SignalBox rings this phone first, then bridges the contact.
           </p>
         </div>
         <Button
@@ -125,7 +125,7 @@ function SettingsScreen() {
           <VoiceSetup />
           <ElevenLabsStatus />
           <section className="space-y-3 border-t border-border px-4 py-4">
-            <h2 className="font-display text-sm font-semibold">Twilio account</h2>
+            <h2 className="font-display text-sm font-semibold">Number account</h2>
             {overview.isError ? (
               <p className="text-xs text-muted-foreground">{errorMessage(overview.error)}</p>
             ) : (
@@ -140,7 +140,7 @@ function SettingsScreen() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">
-                      {account?.friendlyName ?? "Twilio account"}
+                      {account?.friendlyName ?? "Number account"}
                     </p>
                     <p className="truncate text-[0.7rem] text-muted-foreground">
                       {[
@@ -233,7 +233,7 @@ function SettingsScreen() {
           <section className="space-y-3 border-t border-border px-4 py-4">
             <h2 className="font-display text-sm font-semibold">Webhooks</h2>
             <p className="text-xs text-muted-foreground">
-              Wiring a number from the Numbers tab points Twilio at these endpoints automatically.
+              Wiring a number from the Numbers tab points it at these endpoints automatically.
             </p>
             {[
               ["Messaging", boot.smsWebhook],
@@ -267,7 +267,7 @@ function SettingsScreen() {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">API console</p>
                 <p className="text-[0.7rem] text-muted-foreground">
-                  Call any Twilio endpoint directly
+                  Open the advanced API console
                 </p>
               </div>
             </Link>

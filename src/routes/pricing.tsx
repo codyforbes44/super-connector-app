@@ -6,9 +6,9 @@ import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout"
 import { FEATURE_MATRIX, PLANS, type BillingInterval } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Pricing — Signalbox plans from $29/mo";
+const TITLE = "Pricing — SignalBox plans from $29/mo";
 const DESCRIPTION =
-  "Solo, Team and Scale plans for the Signalbox Twilio command center. Numbers, seats, AI assistants and unrestricted API access compared side by side.";
+  "Solo, Team and Scale plans for SignalBox. Numbers, seats, AI receptionist and advanced access compared side by side. Every plan starts with a 14-day free trial.";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/pricing")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Product",
-          name: "Signalbox",
+          name: "SignalBox",
           description: DESCRIPTION,
           offers: PLANS.map((plan) => ({
             "@type": "Offer",
@@ -49,10 +49,10 @@ function PricingPage() {
       <Section className="pb-10">
         <Eyebrow>Simple, per-workspace pricing</Eyebrow>
         <h1 className="font-display mt-5 text-4xl leading-[1.05] font-semibold md:text-5xl">
-          Pick a plan. Bring your own Twilio.
+          Start free. Pick a plan when you're ready.
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          Signalbox is the software layer. Twilio usage is billed by Twilio at cost — no markup, no
+          Every plan starts with 14 days free and no card. Usage is billed at cost — no markup, no
           per-message surcharge, no locked features.
         </p>
 

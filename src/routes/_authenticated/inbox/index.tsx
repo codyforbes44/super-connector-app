@@ -17,9 +17,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/inbox/")({
   head: () => ({
     meta: [
-      { title: "Inbox — Signalbox" },
+      { title: "Inbox — SignalBox" },
       { name: "description", content: "Every SMS, MMS and WhatsApp conversation in one thread list." },
-      { property: "og:title", content: "Inbox — Signalbox" },
+      { property: "og:title", content: "Inbox — SignalBox" },
       { property: "og:description", content: "Every SMS, MMS and WhatsApp conversation in one thread list." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -92,7 +92,7 @@ function InboxScreen() {
         action={
           <Button size="icon" variant="ghost" onClick={runImport} disabled={importing}>
             <RefreshCw className={cn("h-4 w-4", importing && "animate-spin")} />
-            <span className="sr-only">Import Twilio history</span>
+            <span className="sr-only">Import call and text history</span>
           </Button>
         }
       />
@@ -116,10 +116,10 @@ function InboxScreen() {
         <EmptyState
           icon={Inbox}
           title="No conversations yet"
-          description="Send your first message, or import recent history straight from your Twilio account."
+          description="Send your first message, or import recent history straight from your carrier."
           action={
             <Button onClick={runImport} variant="secondary" disabled={importing}>
-              Import from Twilio
+              Import history
             </Button>
           }
         />

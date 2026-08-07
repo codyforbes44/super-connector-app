@@ -19,6 +19,20 @@ export const Route = createFileRoute("/_authenticated")({
       if (!active) throw redirect({ to: "/billing" });
     }
 
+    if (
+      !location.pathname.startsWith("/billing") &&
+      !location.pathname.startsWith("/welcome")
+    ) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed, onboarding_skipped")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      if (profile && !profile.onboarding_completed && !profile.onboarding_skipped) {
+        throw redirect({ to: "/welcome" });
+      }
+    }
+
     return { user: data.user };
   },
   component: AuthenticatedLayout,

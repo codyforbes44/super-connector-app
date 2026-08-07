@@ -2,9 +2,9 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 
-const TITLE = "How it works — Signalbox onboarding in minutes";
+const TITLE = "How it works — SignalBox onboarding in minutes";
 const DESCRIPTION =
-  "Connect Twilio, claim your numbers, invite your team and start answering calls and texts from Signalbox in under ten minutes.";
+  "Create your account, claim a number, invite your team and start answering calls and texts in under ten minutes.";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -26,8 +26,8 @@ const STEPS = [
     body: "Sign up with email or Google and pick a plan. Your workspace is live immediately — no sales call, no onboarding queue.",
   },
   {
-    title: "Connect Twilio",
-    body: "Signalbox talks to your Twilio account through a secure connection. Numbers, messages, calls and usage sync straight in.",
+    title: "Create your workspace",
+    body: "Sign up with email or Google and your 14-day trial starts instantly. Numbers, messages, calls and usage sync straight in.",
   },
   {
     title: "Wire your numbers",
@@ -56,7 +56,7 @@ function HowItWorksPage() {
           From signup to your first answered call.
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          No migration project. Keep your Twilio account, keep your numbers, and put a proper
+          No migration project. Keep the numbers you already use, and put a proper
           product on top of them.
         </p>
       </Section>

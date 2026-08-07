@@ -10,11 +10,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { errorMessage } from "@/lib/format";
 
-const TITLE = "Sign in — Signalbox Twilio Command Center";
+const TITLE = "Sign in or start your free trial — SignalBox";
 const DESCRIPTION =
-  "Sign in to Signalbox to manage your Twilio messaging, voice, numbers and API from your phone.";
+  "Sign in to SignalBox or create an account to run your business calls, texts, WhatsApp and AI receptionist from your phone.";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    mode: search["mode"] === "signup" ? ("signup" as const) : ("signin" as const),
+  }),
   head: () => ({
     meta: [
       { title: TITLE },
@@ -30,7 +33,8 @@ export const Route = createFileRoute("/auth")({
 
 function AuthScreen() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const { mode: initialMode } = Route.useSearch();
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -65,7 +69,7 @@ function AuthScreen() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
-      await navigate({ to: "/inbox" });
+      await navigate({ to: "/welcome" });
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -84,7 +88,7 @@ function AuthScreen() {
       return;
     }
     if (result.redirected) return;
-    await navigate({ to: "/inbox" });
+    await navigate({ to: "/welcome" });
   }
 
   if (checkEmail) {
@@ -97,7 +101,7 @@ function AuthScreen() {
           <h1 className="font-display text-2xl font-semibold">Check your inbox</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             We sent a confirmation link to <span className="text-foreground">{email}</span>. Open it
-            to finish creating your Signalbox account.
+            to finish creating your SignalBox account.
           </p>
           <Button variant="ghost" className="mt-6" onClick={() => setCheckEmail(false)}>
             Back to sign in
@@ -118,12 +122,12 @@ function AuthScreen() {
         <PhoneCall className="h-6 w-6" />
       </span>
       <h1 className="font-display text-3xl font-semibold">
-        {mode === "signin" ? "Welcome back" : "Create your account"}
+        {mode === "signin" ? "Welcome back" : "Start your free trial"}
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {mode === "signin"
-          ? "Sign in to your Twilio command center."
-          : "The first account to sign up becomes the workspace owner."}
+          ? "Sign in to your SignalBox workspace."
+          : "14 days free. No card required. Set up in about a minute."}
       </p>
 
       <Button
@@ -187,7 +191,7 @@ function AuthScreen() {
           className="key-call h-12 w-full rounded-full text-sm font-semibold"
           disabled={busy}
         >
-          {mode === "signin" ? "Sign in" : "Create account"}
+          {mode === "signin" ? "Sign in" : "Start free trial"}
         </Button>
       </form>
 
@@ -197,7 +201,7 @@ function AuthScreen() {
         onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
       >
         {mode === "signin"
-          ? "No account yet? Create one"
+          ? "No account yet? Start a free trial"
           : "Already have an account? Sign in"}
       </button>
       </div>

@@ -11,7 +11,7 @@ export function ElevenLabsStatus() {
 
   return (
     <section className="space-y-3 border-t border-border px-4 py-4">
-      <h2 className="font-display text-sm font-semibold">AI voice (ElevenLabs)</h2>
+      <h2 className="font-display text-sm font-semibold">AI voice</h2>
       <div className="glass-panel flex items-center gap-3 rounded-3xl px-4 py-3">
         <span
           className={
@@ -35,7 +35,7 @@ export function ElevenLabsStatus() {
         <Sparkles className="size-4 text-primary" />
       </div>
       <p className="text-[0.7rem] text-muted-foreground">
-        Set answering mode per number under Numbers. For live AI assistants, point your ElevenLabs
+        Set answering mode per number under Numbers. For live AI assistants, point your AI receptionist
         agent's post-call webhook at{" "}
         <span className="break-all">/api/public/elevenlabs/post-call</span> on this app to store
         transcripts and summaries.

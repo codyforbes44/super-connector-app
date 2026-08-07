@@ -1,7 +1,10 @@
 {
-  "name": "Signalbox — Twilio Command Center",
-  "short_name": "Signalbox",
+  "name": "SignalBox — Business Calls, Texts & AI Receptionist",
+  "short_name": "SignalBox",
+  "description": "Run your business number, inbox, calls and AI receptionist from one app.",
   "start_url": "/inbox",
+  "orientation": "portrait",
+  "categories": ["business", "productivity", "communication"],
   "id": "/",
   "scope": "/",
   "display": "standalone",

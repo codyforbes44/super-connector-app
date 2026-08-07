@@ -25,7 +25,7 @@ type AppRow = {
 /** Admin controls for the TwiML App that powers in-app calling. */
 export function VoiceSetup() {
   const queryClient = useQueryClient();
-  const [name, setName] = useState("Signalbox-TwiML-App");
+  const [name, setName] = useState("SignalBox-TwiML-App");
   const [busy, setBusy] = useState(false);
 
   const status = useQuery({ queryKey: ["voice-setup"], queryFn: () => voiceSetupStatus() });
@@ -59,13 +59,13 @@ export function VoiceSetup() {
         <h2 className="font-display text-sm font-semibold">In-app calling (TwiML App)</h2>
       </div>
       <p className="text-xs text-muted-foreground">
-        The default app routes calls to and from this device. Numbers wired to it ring in Signalbox
+        The default app routes calls to and from this device. Numbers wired to it ring in SignalBox
         instead of forwarding to a phone.
       </p>
 
       {info && !info.hasApiKey ? (
         <p className="glass-panel rounded-3xl px-4 py-3 text-xs text-destructive">
-          A Twilio API Key is missing, so voice tokens can't be minted.
+          A voice API key is missing, so in-app calling tokens can't be minted.
         </p>
       ) : null}
 
@@ -119,10 +119,10 @@ export function VoiceSetup() {
                 className="rounded-full"
                 disabled={busy}
                 onClick={() =>
-                  run(() => syncTwimlApp({ data: { sid: app.sid } }), "URLs pointed at Signalbox.")
+                  run(() => syncTwimlApp({ data: { sid: app.sid } }), "URLs pointed at SignalBox.")
                 }
               >
-                <RefreshCw className="mr-1 h-3.5 w-3.5" /> Point at Signalbox
+                <RefreshCw className="mr-1 h-3.5 w-3.5" /> Point at SignalBox
               </Button>
               <Button
                 size="sm"

@@ -30,9 +30,9 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
           <Link to="/" className="flex items-center gap-2">
             <span className="key-signal flex h-9 w-9 items-center justify-center rounded-full">
-              <Radio className="h-4 w-4 text-primary" />
+              <Radio className="h-4 w-4" />
             </span>
-            <span className="font-display text-base font-semibold tracking-tight">Signalbox</span>
+            <span className="font-display text-base font-semibold tracking-tight">SignalBox</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -57,7 +57,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link
               to="/auth"
-              className="key-call inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold"
+              search={{ mode: "signup" }}
+              className="key-call inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold"
             >
               Start free
             </Link>
@@ -87,6 +88,13 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
                 </li>
               ))}
             </ul>
+            <Link
+              to="/auth"
+              onClick={() => setOpen(false)}
+              className="mt-2 block rounded-2xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent/40 hover:text-foreground"
+            >
+              Sign in
+            </Link>
           </nav>
         ) : null}
       </header>
@@ -98,12 +106,12 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           <div>
             <div className="flex items-center gap-2">
               <span className="key-signal flex h-8 w-8 items-center justify-center rounded-full">
-                <Radio className="h-3.5 w-3.5 text-primary" />
+                <Radio className="h-3.5 w-3.5" />
               </span>
-              <span className="font-display text-sm font-semibold">Signalbox</span>
+              <span className="font-display text-sm font-semibold">SignalBox</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              The full Twilio command center — messaging, voice, numbers and AI assistants — in one
+              Business calls, texts, WhatsApp, voicemail and an AI receptionist — in one
               mobile app.
             </p>
           </div>
@@ -120,6 +128,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             links={[
               { to: "/faq", label: "FAQ" },
               { to: "/contact", label: "Contact" },
+              { to: "/legal/privacy", label: "Privacy" },
+              { to: "/legal/terms", label: "Terms" },
             ]}
           />
           <FooterCol
@@ -131,7 +141,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           />
         </div>
         <div className="mx-auto max-w-6xl px-5 pb-10 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Signalbox. Built on Twilio. Emails sent from bookme.bet.
+          © {new Date().getFullYear()} SignalBox. All rights reserved.
         </div>
       </footer>
     </div>

@@ -3,6 +3,7 @@ import { Inbox, PhoneCall, Hash, Wand2, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { TrialBanner } from "@/components/TrialBanner";
 
 const TABS = [
   { to: "/inbox", label: "Inbox", icon: Inbox },
@@ -17,7 +18,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-gradient mx-auto flex min-h-dvh w-full max-w-lg flex-col">
-      <main className="flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))]">{children}</main>
+      <TrialBanner />
+      <main className="flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom))]">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-lg border-t border-border bg-sidebar pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
         <ul className="grid grid-cols-5 px-1.5 py-1">
           {TABS.map((tab) => {

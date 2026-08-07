@@ -78,19 +78,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Signalbox — Twilio Command Center" },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover",
+      },
+      { title: "SignalBox — business calls, texts and AI receptionist" },
       {
         name: "description",
         content:
-          "Run every Twilio number, message, call and API from one mobile command center built for teams.",
+          "Run your business number, inbox, calls and AI receptionist from one mobile app built for teams.",
       },
       { name: "theme-color", content: "#1a1c22" },
-      { property: "og:title", content: "Signalbox — Twilio Command Center" },
+      { property: "og:title", content: "SignalBox — business calls, texts and AI receptionist" },
       {
         property: "og:description",
         content:
-          "Run every Twilio number, message, call and API from one mobile command center built for teams.",
+          "Run your business number, inbox, calls and AI receptionist from one mobile app built for teams.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

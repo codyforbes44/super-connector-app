@@ -46,10 +46,10 @@ export function MessagingServicesSection({
   });
 
   const create = useMutation({
-    mutationFn: () => createMessagingService({ data: { name: "Signalbox" } }),
+    mutationFn: () => createMessagingService({ data: { name: "SignalBox" } }),
     onSuccess: async () => {
       await services.refetch();
-      toast.success("Messaging Service created and pointed at Signalbox.");
+      toast.success("Messaging Service created and pointed at SignalBox.");
     },
     onError: (error) => toast.error(errorMessage(error)),
   });

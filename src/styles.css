@@ -225,3 +225,19 @@
     0 0 0 2px oklch(0.72 0.2 149 / 70%),
     0 0 18px -2px oklch(0.72 0.2 149 / 55%);
 }
+
+@utility legal-prose {
+  & h2 {
+    color: var(--color-foreground);
+    font-family: var(--font-display, inherit);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 1.75rem;
+  }
+
+  & a {
+    color: var(--color-primary);
+    text-underline-offset: 4px;
+    text-decoration: underline;
+  }
+}

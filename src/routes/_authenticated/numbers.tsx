@@ -36,9 +36,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/numbers")({
   head: () => ({
     meta: [
-      { title: "Numbers — Signalbox" },
+      { title: "Numbers — SignalBox" },
       { name: "description", content: "Buy, wire and assign Twilio phone numbers to your team." },
-      { property: "og:title", content: "Numbers — Signalbox" },
+      { property: "og:title", content: "Numbers — SignalBox" },
       {
         property: "og:description",
         content: "Buy, wire and assign Twilio phone numbers to your team.",
@@ -72,7 +72,7 @@ function NumbersScreen() {
     try {
       await syncNumbers();
       await refresh();
-      toast.success("Numbers synced from Twilio.");
+      toast.success("Numbers synced.");
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -115,13 +115,13 @@ function NumbersScreen() {
           title="No numbers yet"
           description={
             boot.isAdmin
-              ? "Sync your existing Twilio numbers, or search and buy a new one."
+              ? "Sync the numbers you already own, or search and claim a new one."
               : "An admin hasn't assigned you a number yet."
           }
           action={
             boot.isAdmin ? (
               <Button variant="secondary" onClick={runSync}>
-                Sync from Twilio
+                Sync my numbers
               </Button>
             ) : undefined
           }
@@ -268,7 +268,7 @@ function BuySheet({
             onClick={() => search.mutate()}
             disabled={search.isPending}
           >
-            {search.isPending ? "Searching…" : "Search Twilio inventory"}
+            {search.isPending ? "Searching…" : "Search available numbers"}
           </Button>
 
           <ul className="space-y-2">
@@ -430,7 +430,7 @@ function NumberSheet({
                 try {
                   await wireNumber({ data: { sid: number.sid } });
                   await onChanged();
-                  toast.success("Webhooks pointed at Signalbox.");
+                  toast.success("Webhooks pointed at SignalBox.");
                 } catch (error) {
                   toast.error(errorMessage(error));
                 }
@@ -443,7 +443,7 @@ function NumberSheet({
               variant="ghost"
               className="key-end rounded-full"
               onClick={async () => {
-                if (!confirm("Release this number back to Twilio? This cannot be undone.")) return;
+                if (!confirm("Release this number? This cannot be undone.")) return;
                 try {
                   await releaseNumber({ data: { sid: number.sid } });
                   await onChanged();

@@ -16,9 +16,9 @@ import {
 
 import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 
-const TITLE = "Features — Signalbox Twilio command center";
+const TITLE = "Features — everything SignalBox does for your business line";
 const DESCRIPTION =
-  "Omnichannel inbox, in-app calling, AI voicemail assistants, number provisioning, Verify, Lookup and an unrestricted Twilio API console.";
+  "Unified inbox, in-app calling, an AI receptionist, instant numbers, verification, caller insight and connected mail, calendar and maps tools.";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -66,7 +66,7 @@ const GROUPS = [
       {
         icon: Bot,
         title: "AI voicemail assistants",
-        body: "ElevenLabs voices greet callers, and conversational agents can qualify, answer and book — with transcripts and summaries per call.",
+        body: "Lifelike AI voices greet callers, qualify them, answer questions and book appointments — with transcripts and summaries per call.",
       },
     ],
   },
@@ -76,7 +76,7 @@ const GROUPS = [
       {
         icon: Hash,
         title: "Numbers on demand",
-        body: "Search, buy, wire webhooks and assign numbers to teammates without opening the Twilio console.",
+        body: "Search, claim and assign numbers to teammates in a couple of taps. Setup happens automatically.",
       },
       {
         icon: ShieldCheck,
@@ -86,7 +86,7 @@ const GROUPS = [
       {
         icon: Terminal,
         title: "Unrestricted API console",
-        body: "Any Twilio endpoint, any method, any subdomain — Verify, Lookup, Messaging and the core API, straight from your phone.",
+        body: "For power users: an advanced console with direct access to every messaging, voice, verification and number endpoint on your account.",
       },
     ],
   },
@@ -123,10 +123,10 @@ function FeaturesPage() {
       <Section className="pb-8">
         <Eyebrow>Everything, not a curated subset</Eyebrow>
         <h1 className="font-display mt-5 max-w-3xl text-4xl leading-[1.05] font-semibold md:text-5xl">
-          Built for people who actually run their business on Twilio.
+          Built for people who actually run their business on their phone.
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          Talkyto, Toktiv and Mango each give you a slice. Signalbox gives you the whole account —
+          Talkyto, Toktiv and Mango each give you a slice. SignalBox gives you the whole account —
           messaging, telephony, provisioning, AI and raw API access, on a phone.
         </p>
       </Section>
