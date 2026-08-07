@@ -795,7 +795,7 @@ export async function startCall(
   }
 
   const target = normalizePhone(data.to);
-  const callerId = await resolveOutboundCallerId(supabase, appNumber);
+  const callerId = await resolveOutboundCallerId(supabase, appNumber, target);
   const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${callerId}"><Number>${target}</Number></Dial></Response>`;
 
   const call = await twilioRequest<{ sid: string; status: string }>({
@@ -824,6 +824,55 @@ export async function startCall(
     { onConflict: "sid" },
   );
   return { sid: call.sid };
+}
+
+/**
+ * Places a short confirmation call to the signed-in user's own phone using the
+ * caller ID that real outbound calls would present. Verifies setup end to end.
+ */
+export async function sendTestCall(
+  supabase: SB,
+  userId: string,
+  data: { appNumber?: string | null; to?: string | null },
+) {
+  const { numbers } = await allowedNumbers(supabase, userId);
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("agent_phone, default_number")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const appNumber = normalizePhone(
+    data.appNumber || (profile?.default_number as string | null) || numbers[0] || "",
+  );
+  if (!appNumber) throw new Error("No number is assigned to you yet.");
+  if (!numbers.includes(appNumber)) throw new Error("You are not assigned to that number.");
+
+  const destination = data.to || (profile?.agent_phone as string | null) || "";
+  if (!destination) {
+    throw new Error("Add your own phone number in Settings first so we know where to call.");
+  }
+  const target = normalizePhone(destination);
+  const callerId = await resolveOutboundCallerId(supabase, appNumber, target);
+
+  const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Pause length="1"/><Say voice="alice">This is a SixVox test call. Your outbound calling is working. Goodbye.</Say><Hangup/></Response>`;
+
+  const call = await twilioRequest<{ sid: string; status: string }>({
+    method: "POST",
+    path: "/Calls.json",
+    params: {
+      From: callerId,
+      To: target,
+      Twiml: twiml,
+      Timeout: 25,
+      StatusCallback: webhookUrl("status"),
+      StatusCallbackEvent: ["completed"],
+    },
+  });
+
+  const admin = await adminClient();
+  await audit(admin, userId, "calls.test", { appNumber, callerId, to: target });
+  return { sid: call.sid, callerId, to: target, appNumber };
 }
 
 export async function getCallRecordings(supabase: SB, userId: string, data: { sid: string }) {
