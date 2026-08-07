@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -16,7 +16,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage, formatPhone } from "@/lib/format";
-import { sendMessage } from "@/lib/twilio.functions";
+import { listMessagingServices, sendMessage } from "@/lib/twilio.functions";
 
 export type AppNumber = { sid: string; phone_number: string; friendly_name: string | null };
 
@@ -35,7 +35,18 @@ export function ComposeSheet({
   const [to, setTo] = useState("");
   const [body, setBody] = useState("");
   const [channel, setChannel] = useState<"sms" | "whatsapp">("sms");
+  const [sender, setSender] = useState("number");
   const [busy, setBusy] = useState(false);
+
+  const services = useQuery({
+    queryKey: ["messaging-services"],
+    queryFn: () => listMessagingServices(),
+    retry: false,
+  });
+  const serviceList = (services.data ?? []) as unknown as Array<{
+    sid: string;
+    friendly_name: string;
+  }>;
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -46,7 +57,13 @@ export function ComposeSheet({
     setBusy(true);
     try {
       const result = await sendMessage({
-        data: { appNumber: from, to, body, channel },
+        data: {
+          appNumber: from,
+          to,
+          body,
+          channel,
+          messagingServiceSid: sender === "number" ? null : sender,
+        },
       });
       await queryClient.invalidateQueries({ queryKey: ["conversations"] });
       onOpenChange(false);
@@ -110,6 +127,25 @@ export function ComposeSheet({
               className="h-11"
             />
           </div>
+
+          {channel === "sms" && serviceList.length > 0 ? (
+            <div className="space-y-1.5">
+              <Label>Send via</Label>
+              <Select value={sender} onValueChange={setSender}>
+                <SelectTrigger className="h-11 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="number">This number directly</SelectItem>
+                  {serviceList.map((s) => (
+                    <SelectItem key={s.sid} value={s.sid}>
+                      {s.friendly_name} (Messaging Service)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
 
           <div className="space-y-1.5">
             <Label htmlFor="body">Message</Label>
