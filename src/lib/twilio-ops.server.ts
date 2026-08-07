@@ -1012,13 +1012,14 @@ export async function voiceToken(supabase: SB, userId: string) {
   const admin = await adminClient();
   const appSid = await defaultTwimlAppSid(admin);
   if (!appSid) {
-    throw new Error(
-      "In-app calling isn't set up yet. An admin can create the TwiML App in Settings.",
-    );
+    return {
+      ok: false as const,
+      reason: "In-app calling isn't set up yet. An admin can create the TwiML App in Settings.",
+    };
   }
   await allowedNumbers(supabase, userId);
   const { mintVoiceToken } = await import("./voice-token.server");
-  return asJson(await mintVoiceToken({ userId, applicationSid: appSid }));
+  return { ok: true as const, grant: asJson(await mintVoiceToken({ userId, applicationSid: appSid })) };
 }
 
 export async function voiceSetupStatus(supabase: SB, userId: string) {
