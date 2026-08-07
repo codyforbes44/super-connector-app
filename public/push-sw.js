@@ -10,6 +10,18 @@ self.addEventListener("push", (event) => {
     payload = { title: "Signalbox", body: event.data ? event.data.text() : "" };
   }
 
+  // A finished call clears its ringing notification instead of showing one.
+  if (payload.type === "call-ended") {
+    event.waitUntil(
+      (async () => {
+        const open = await self.registration.getNotifications({ tag: payload.tag });
+        for (const notification of open) notification.close();
+      })(),
+    );
+    return;
+  }
+
+  const isCall = payload.type === "call";
   const title = payload.title || "Signalbox";
   const options = {
     body: payload.body || "",
@@ -17,8 +29,15 @@ self.addEventListener("push", (event) => {
     badge: "/icon-512.png",
     tag: payload.tag || undefined,
     renotify: Boolean(payload.tag),
-    data: { url: payload.url || "/inbox" },
-    vibrate: [80, 40, 80],
+    data: { url: payload.url || "/inbox", type: payload.type || "message" },
+    requireInteraction: Boolean(payload.requireInteraction),
+    vibrate: isCall ? [400, 200, 400, 200, 400] : [80, 40, 80],
+    actions: isCall
+      ? [
+          { action: "answer", title: "Answer" },
+          { action: "dismiss", title: "Dismiss" },
+        ]
+      : undefined,
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
@@ -26,6 +45,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  if (event.action === "dismiss") return;
   const target = (event.notification.data && event.notification.data.url) || "/inbox";
   event.waitUntil(
     (async () => {
@@ -38,6 +58,21 @@ self.addEventListener("notificationclick", (event) => {
         }
       }
       await self.clients.openWindow(target);
+    })(),
+  );
+});
+
+/* The app tells the worker to clear ring notifications once a call is handled in-app. */
+self.addEventListener("message", (event) => {
+  const data = event.data || {};
+  if (data.type !== "clear-call-notifications") return;
+  event.waitUntil(
+    (async () => {
+      const open = await self.registration.getNotifications();
+      for (const notification of open) {
+        const kind = notification.data && notification.data.type;
+        if (kind === "call") notification.close();
+      }
     })(),
   );
 });

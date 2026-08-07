@@ -41,6 +41,25 @@ export const Route = createFileRoute("/api/public/twilio/status")({
           const status = (patch.status ?? "").toLowerCase();
           const missed = ["no-answer", "busy", "failed", "canceled"].includes(status);
           const voicemail = Boolean(patch.recording_url);
+
+          // Clear the ringing notification once the call is no longer ringing.
+          if (["in-progress", "answered", "completed", ...["no-answer", "busy", "failed", "canceled"]].includes(status)) {
+            const { data: ringing } = await supabaseAdmin
+              .from("calls")
+              .select("app_number, direction")
+              .eq("sid", callSid)
+              .maybeSingle();
+            if (ringing?.direction === "inbound") {
+              const { notifyNumberWatchers } = await import("@/lib/push.server");
+              await notifyNumberWatchers(supabaseAdmin as never, ringing.app_number as string, {
+                title: "",
+                body: "",
+                tag: `ring-${callSid}`,
+                type: "call-ended",
+              });
+            }
+          }
+
           if (missed || voicemail) {
             const { data: call } = await supabaseAdmin
               .from("calls")

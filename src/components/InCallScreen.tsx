@@ -33,6 +33,10 @@ export function InCallScreen() {
       setKeypad(false);
       setTyped("");
     }
+    // Drop any "Incoming call" push notification once the call is in the app.
+    if (typeof navigator !== "undefined" && navigator.serviceWorker?.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: "clear-call-notifications" });
+    }
   }, [voice.callState]);
 
   if (voice.callState === "idle") return null;

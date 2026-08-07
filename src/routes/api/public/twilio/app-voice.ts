@@ -98,8 +98,10 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
 
         const { voiceIdentityFor } = await import("@/lib/voice-token.server");
         const identities: string[] = [];
+        const ringUserIds: string[] = [];
         if (number?.assigned_to) {
           identities.push(voiceIdentityFor(number.assigned_to as string));
+          ringUserIds.push(number.assigned_to as string);
         } else {
           const { data: admins } = await supabaseAdmin
             .from("user_roles")
@@ -107,8 +109,24 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
             .in("role", ["owner", "admin"]);
           for (const row of admins ?? []) {
             const identity = voiceIdentityFor(row.user_id as string);
-            if (!identities.includes(identity)) identities.push(identity);
+            if (!identities.includes(identity)) {
+              identities.push(identity);
+              ringUserIds.push(row.user_id as string);
+            }
           }
+        }
+
+        // Wake backgrounded devices so the incoming call can be answered in-app.
+        if (ringUserIds.length) {
+          const { sendPushToUsers } = await import("@/lib/push.server");
+          await sendPushToUsers(supabaseAdmin as never, ringUserIds, {
+            title: "Incoming call",
+            body: `${from} → ${appNumber}`,
+            url: `/calls?incoming=${encodeURIComponent(callSid)}`,
+            tag: `ring-${callSid}`,
+            type: "call",
+            requireInteraction: true,
+          });
         }
 
         const fallback = number?.forward_to
