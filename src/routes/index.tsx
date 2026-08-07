@@ -7,7 +7,7 @@ import {
   Inbox,
   PhoneCall,
   ShieldCheck,
-  Terminal,
+  Sparkles,
   Wand2,
 } from "lucide-react";
 
@@ -15,9 +15,9 @@ import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout"
 import { PLANS } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Signalbox — the full Twilio console in your pocket";
+const TITLE = "SignalBox — your business phone, inbox and AI receptionist";
 const DESCRIPTION =
-  "Unified SMS, MMS and WhatsApp inbox, in-app calling, AI voicemail assistants, number provisioning and unrestricted Twilio API access in one mobile app.";
+  "SignalBox puts calls, texts, WhatsApp, voicemail and an AI receptionist for your business number in one mobile app. Start a 14-day free trial in under a minute.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          name: "Signalbox",
+          name: "SignalBox",
           applicationCategory: "BusinessApplication",
           operatingSystem: "Web, iOS, Android",
           description: DESCRIPTION,
@@ -51,32 +51,32 @@ const FEATURES = [
   {
     icon: Inbox,
     title: "One live inbox",
-    body: "SMS, MMS and WhatsApp threads across every number, updating in real time with agent assignment and internal notes.",
+    body: "Texts, picture messages and WhatsApp across every number, updating in real time with teammate assignment and internal notes.",
   },
   {
     icon: PhoneCall,
     title: "Calls that just connect",
-    body: "Click-to-call bridges your handset to the contact with your Twilio caller ID, plus recordings, transcripts and voicemail.",
+    body: "Calls ring inside the app with your business caller ID, plus recordings, transcripts and voicemail you can read.",
   },
   {
     icon: Hash,
     title: "Numbers on demand",
-    body: "Search, buy, wire webhooks and hand a number to a teammate — without ever opening the Twilio console.",
+    body: "Search, claim and hand a number to a teammate in a couple of taps. Setup is automatic.",
   },
   {
     icon: Wand2,
-    title: "Verify & Lookup built in",
-    body: "Send OTPs, check codes and profile any phone number for carrier, line type and caller name.",
+    title: "Verification & caller insight",
+    body: "Send one-time passcodes, check them, and profile any number for carrier, line type and caller name.",
   },
   {
     icon: Bot,
-    title: "AI that answers for you",
-    body: "Lifelike greetings and conversational assistants per number, with your prompt, tone, language and fallback — plus transcripts and summaries.",
+    title: "An AI receptionist",
+    body: "A lifelike voice answers, qualifies and books for you — with your script, tone and language, plus transcripts and summaries.",
   },
   {
-    icon: Terminal,
-    title: "Unrestricted API console",
-    body: "Any Twilio endpoint, any method, straight from the app. Nothing is walled off behind a curated feature list.",
+    icon: Sparkles,
+    title: "Connected tools",
+    body: "Mail, calendar and maps live alongside the inbox so you can reply, book and route without app-switching.",
   },
   {
     icon: ShieldCheck,
@@ -85,39 +85,45 @@ const FEATURES = [
   },
 ];
 
+const STEPS = [
+  { n: "1", title: "Create your account", body: "Email or Google. No card, no sales call." },
+  { n: "2", title: "Pick your number", body: "Claim a new number or bring the one you already use." },
+  { n: "3", title: "Start talking", body: "Send your first text, take your first call — right away." },
+];
+
 function Landing() {
   return (
     <MarketingLayout>
-      <Section className="pb-10">
+      <Section className="pt-10 pb-10 md:pt-16">
         <div className="grid items-center gap-10 md:grid-cols-[1.15fr_1fr]">
           <div>
-            <Eyebrow>Twilio, unrestricted</Eyebrow>
-            <h1 className="font-display mt-5 text-4xl leading-[1.05] font-semibold md:text-6xl">
-              Your whole Twilio account.
-              <span className="text-primary"> One mobile app.</span>
+            <Eyebrow>14-day free trial · no card required</Eyebrow>
+            <h1 className="font-display mt-5 text-[2.1rem] leading-[1.06] font-semibold sm:text-4xl md:text-6xl">
+              Your business line,
+              <span className="text-primary"> answered beautifully.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-[0.98rem] leading-relaxed text-muted-foreground">
-              Signalbox is the command center Talkyto, Toktiv and Mango don&apos;t give you: a live
-              omnichannel inbox, real telephony, AI answering, full number administration — and a
-              raw API console for everything else.
+            <p className="mt-5 max-w-xl text-[0.95rem] leading-relaxed text-muted-foreground md:text-[0.98rem]">
+              SignalBox brings calls, texts, WhatsApp, voicemail and an AI receptionist into one
+              app that fits in your pocket. Set it up in about a minute.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
                 to="/auth"
-                className="key-call inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold transition-transform active:scale-[0.98]"
+                search={{ mode: "signup" }}
+                className="key-call inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition-transform active:scale-[0.98]"
               >
-                Start free
+                Start free trial
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                to="/pricing"
-                className="key-raised inline-flex items-center rounded-full px-6 py-3.5 text-sm font-semibold"
+                to="/how-it-works"
+                className="key-raised inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-semibold"
               >
-                See pricing
+                See how it works
               </Link>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              Bring your own Twilio account · No usage markup · Cancel any time
+              Free for 14 days · Cancel any time · Keep your number
             </p>
           </div>
 
@@ -127,11 +133,11 @@ function Landing() {
             </p>
             <ul className="mt-4 space-y-2.5">
               {[
-                "Shared SMS, MMS and WhatsApp inbox",
+                "A shared text, picture and WhatsApp inbox",
                 "Calls ringing your device in-app",
                 "Voicemail, recordings and transcripts",
-                "AI assistants answering per number",
-                "Number search, purchase and webhook wiring",
+                "An AI receptionist per number",
+                "Instant number search and setup",
                 "Push and branded email alerts",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2 text-[0.85rem]">
@@ -145,10 +151,27 @@ function Landing() {
       </Section>
 
       <Section className="py-8">
+        <h2 className="font-display text-2xl font-semibold md:text-3xl">Live in three steps</h2>
+        <ol className="mt-6 grid gap-3 sm:grid-cols-3">
+          {STEPS.map((step) => (
+            <li key={step.n} className="glass-panel rounded-3xl p-5">
+              <span className="key-signal flex h-10 w-10 items-center justify-center rounded-full font-display text-sm font-semibold text-primary">
+                {step.n}
+              </span>
+              <h3 className="font-display mt-4 text-sm font-semibold">{step.title}</h3>
+              <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
+                {step.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      <Section className="py-8">
         <h2 className="font-display text-2xl font-semibold md:text-3xl">
-          Everything your Twilio account can do — finally usable.
+          Everything a business line should do.
         </h2>
-        <ul className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature) => (
             <li
               key={feature.title}
@@ -168,12 +191,14 @@ function Landing() {
 
       <Section className="py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-display text-2xl font-semibold md:text-3xl">Plans that scale</h2>
+          <h2 className="font-display text-2xl font-semibold md:text-3xl">
+            Free for 14 days, then plans that scale
+          </h2>
           <Link to="/pricing" className="text-sm text-primary underline">
             Full comparison
           </Link>
         </div>
-        <div className="mt-6 grid gap-3 md:grid-cols-3">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           {PLANS.map((plan) => (
             <article
               key={plan.code}
@@ -187,12 +212,13 @@ function Landing() {
               </p>
               <Link
                 to="/auth"
+                search={{ mode: "signup" }}
                 className={cn(
                   "mt-4 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold",
                   plan.highlighted ? "key-call" : "key-raised",
                 )}
               >
-                Get started
+                Start free
               </Link>
             </article>
           ))}
@@ -200,18 +226,19 @@ function Landing() {
       </Section>
 
       <Section className="pt-8">
-        <div className="glass-panel flex flex-col items-start gap-4 rounded-[2rem] p-8 md:flex-row md:items-center md:justify-between">
+        <div className="glass-panel flex flex-col items-start gap-4 rounded-[2rem] p-6 sm:p-8 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="font-display text-2xl font-semibold">Put your Twilio account to work.</h2>
+            <h2 className="font-display text-2xl font-semibold">Ready when you are.</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Set up in minutes. Keep your numbers, keep your rates.
+              Create your workspace and send your first message in about a minute.
             </p>
           </div>
           <Link
             to="/auth"
-            className="key-call inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold"
+            search={{ mode: "signup" }}
+            className="key-call inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold md:w-auto"
           >
-            Create your workspace
+            Start free trial
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
