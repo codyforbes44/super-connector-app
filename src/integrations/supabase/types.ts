@@ -50,6 +50,39 @@ export type Database = {
         }
         Relationships: []
       }
+      app_user_connections: {
+        Row: {
+          account_email: string | null
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at: string
+          id: string
+          scopes: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_email?: string | null
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at?: string
+          id?: string
+          scopes?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_email?: string | null
+          connection_key_ciphertext?: string
+          connector_id?: string
+          created_at?: string
+          id?: string
+          scopes?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -145,6 +178,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      calendar_settings: {
+        Row: {
+          active_calendars: Json
+          add_meet_link: boolean
+          ai_event_status: string
+          buffer_minutes: number
+          created_at: string
+          default_calendar_id: string | null
+          default_duration_minutes: number
+          event_title_template: string
+          invite_contact: boolean
+          lookahead_days: number
+          lookback_days: number
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_calendars?: Json
+          add_meet_link?: boolean
+          ai_event_status?: string
+          buffer_minutes?: number
+          created_at?: string
+          default_calendar_id?: string | null
+          default_duration_minutes?: number
+          event_title_template?: string
+          invite_contact?: boolean
+          lookahead_days?: number
+          lookback_days?: number
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_calendars?: Json
+          add_meet_link?: boolean
+          ai_event_status?: string
+          buffer_minutes?: number
+          created_at?: string
+          default_calendar_id?: string | null
+          default_duration_minutes?: number
+          event_title_template?: string
+          invite_contact?: boolean
+          lookahead_days?: number
+          lookback_days?: number
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       calls: {
         Row: {
@@ -302,39 +386,130 @@ export type Database = {
       }
       email_log: {
         Row: {
+          body_html: string | null
+          bounced_at: string | null
+          click_count: number
+          clicked_at: string | null
+          complained_at: string | null
           context: Json
           created_at: string
+          delivered_at: string | null
           error: string | null
+          from_address: string | null
           id: string
+          last_click_url: string | null
+          last_event_at: string | null
+          open_count: number
+          opened_at: string | null
           provider_id: string | null
+          retry_of: string | null
           status: string
           subject: string
           template: string
           to_address: string
         }
         Insert: {
+          body_html?: string | null
+          bounced_at?: string | null
+          click_count?: number
+          clicked_at?: string | null
+          complained_at?: string | null
           context?: Json
           created_at?: string
+          delivered_at?: string | null
           error?: string | null
+          from_address?: string | null
           id?: string
+          last_click_url?: string | null
+          last_event_at?: string | null
+          open_count?: number
+          opened_at?: string | null
           provider_id?: string | null
+          retry_of?: string | null
           status?: string
           subject: string
           template: string
           to_address: string
         }
         Update: {
+          body_html?: string | null
+          bounced_at?: string | null
+          click_count?: number
+          clicked_at?: string | null
+          complained_at?: string | null
           context?: Json
           created_at?: string
+          delivered_at?: string | null
           error?: string | null
+          from_address?: string | null
           id?: string
+          last_click_url?: string | null
+          last_event_at?: string | null
+          open_count?: number
+          opened_at?: string | null
           provider_id?: string | null
+          retry_of?: string | null
           status?: string
           subject?: string
           template?: string
           to_address?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "email_log_retry_of_fkey"
+            columns: ["retry_of"]
+            isOneToOne: false
+            referencedRelation: "email_log"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_template_overrides: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          eyebrow: string | null
+          headline: string | null
+          intro: string | null
+          outro: string | null
+          subject: string | null
+          template: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          eyebrow?: string | null
+          headline?: string | null
+          intro?: string | null
+          outro?: string | null
+          subject?: string | null
+          template: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          eyebrow?: string | null
+          headline?: string | null
+          intro?: string | null
+          outro?: string | null
+          subject?: string | null
+          template?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_template_overrides_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
@@ -628,6 +803,27 @@ export type Database = {
           },
         ]
       }
+      place_searches: {
+        Row: {
+          created_at: string
+          id: string
+          query: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          query: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          query?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           active: boolean
@@ -729,6 +925,54 @@ export type Database = {
           id?: string
           p256dh?: string
           user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_places: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          label: string
+          lat: number | null
+          lng: number | null
+          name: string | null
+          nickname: string
+          notes: string | null
+          phone: string | null
+          place_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          label?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          nickname: string
+          notes?: string | null
+          phone?: string | null
+          place_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          label?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          nickname?: string
+          notes?: string | null
+          phone?: string | null
+          place_id?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
