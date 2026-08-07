@@ -52,12 +52,16 @@ async function api<T>(
     if (qs) full += `?${qs}`;
   }
 
+  const requestInit: RequestInit = { method: init?.method ?? "GET" };
+  if (init?.body !== undefined && init.body !== null) requestInit.body = init.body;
+  if (init?.headers) requestInit.headers = init.headers;
+
   const res = await callAsAppUser({
     gatewayBaseUrl: GATEWAY_BASE_URL,
     connectionAPIKey,
     connectorId: GMAIL_CONNECTOR_ID,
     path: full,
-    ...(init ? { init: { method: init.method ?? "GET", body: init.body, headers: init.headers } } : {}),
+    init: requestInit,
   });
   const text = await res.text();
   if (!res.ok) {
