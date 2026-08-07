@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bot, Loader2, Play, Sparkles, Voicemail } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Bot, ChevronRight, Loader2, Play, SlidersHorizontal, Sparkles, Voicemail } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -230,6 +231,19 @@ export function VoiceAssistant({
         {busy === "save" ? <Loader2 className="size-4 animate-spin" /> : null}
         Save answering mode
       </Button>
+
+      <Link
+        to="/assistant/$sid"
+        params={{ sid: number.sid }}
+        className="flex items-center gap-3 rounded-2xl bg-muted/30 px-4 py-3 text-xs text-muted-foreground transition hover:text-foreground"
+      >
+        <SlidersHorizontal className="size-4 text-primary" />
+        <span className="flex-1 text-left">
+          <span className="block font-semibold text-foreground">Assistant behaviour</span>
+          Prompt, tone, language and fallback
+        </span>
+        <ChevronRight className="size-4" />
+      </Link>
     </div>
   );
 }
