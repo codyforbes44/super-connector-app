@@ -494,7 +494,7 @@ export async function wireNumber(
     .update({
       webhook_wired: true,
       sms_url: webhookUrl("sms"),
-      voice_url: appSid ? null : webhookUrl("voice"),
+      voice_url: appSid ? webhookUrl("app-voice") : webhookUrl("voice"),
     })
     .eq("sid", data.sid);
   await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid ?? null });
