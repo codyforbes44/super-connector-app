@@ -67,7 +67,7 @@ export function VoiceAssistant({
     }
     setBusy("preview");
     try {
-      const result = await previewVoice({ data: { voiceId, text: greeting || undefined } });
+      const result = await previewVoice({ data: { voiceId, text: greeting } });
       play(result.dataUrl);
     } catch (error) {
       toast.error(errorMessage(error));
