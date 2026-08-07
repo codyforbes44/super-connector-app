@@ -380,8 +380,8 @@ export async function setOutboundCallerId(
   let value: string | null = null;
   if (data.callerId) {
     value = normalizePhone(data.callerId);
-    const verified = await listCallerIds(supabase, userId);
-    if (!verified.some((item) => normalizePhone(item.phoneNumber) === value)) {
+    const verified = await verifiedCallerIdSet(supabase, userId);
+    if (!verified.has(value)) {
       throw new Error("That number isn't a verified caller ID yet. Verify it first.");
     }
   }
@@ -413,9 +413,32 @@ export async function setDefaultNumber(
 
 /**
  * Which number the recipient sees for calls placed from `appNumber`.
- * Falls back to the SixVox number when no verified caller ID is attached.
+ * Precedence: per-contact override → exact route → longest matching prefix
+ * route → per-number caller ID → the SixVox number itself.
  */
-export async function resolveOutboundCallerId(client: SB, appNumber: string): Promise<string> {
+export async function resolveOutboundCallerId(
+  client: SB,
+  appNumber: string,
+  to?: string | null,
+): Promise<string> {
+  const target = to ? normalizePhone(to) : null;
+
+  if (target) {
+    const { data: contact } = await client
+      .from("contacts")
+      .select("outbound_caller_id")
+      .eq("phone_number", target)
+      .maybeSingle();
+    const override = (contact?.outbound_caller_id as string | null) ?? null;
+    if (override) return normalizePhone(override);
+
+    const { data: routes } = await client.from("caller_id_routes").select("pattern, caller_id");
+    const match = (routes ?? [])
+      .filter((row) => target.startsWith(row.pattern as string))
+      .sort((a, b) => (b.pattern as string).length - (a.pattern as string).length)[0];
+    if (match) return normalizePhone(match.caller_id as string);
+  }
+
   const { data } = await client
     .from("phone_numbers")
     .select("outbound_caller_id")
