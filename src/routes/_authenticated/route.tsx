@@ -8,9 +8,17 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
+
+    if (!location.pathname.startsWith("/billing")) {
+      const { data: active } = await supabase.rpc("has_active_subscription", {
+        _user_id: data.user.id,
+      });
+      if (!active) throw redirect({ to: "/billing" });
+    }
+
     return { user: data.user };
   },
   component: AuthenticatedLayout,

@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Copy, LogOut, Terminal } from "lucide-react";
+import { Copy, CreditCard, LogOut, Terminal, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useBootstrap } from "@/hooks/useBootstrap";
+import { useSubscription } from "@/hooks/useSubscription";
 import { errorMessage } from "@/lib/format";
 import { PushNotifications } from "@/components/PushNotifications";
 import { EmailNotifications } from "@/components/EmailNotifications";
@@ -44,6 +45,7 @@ export const Route = createFileRoute("/_authenticated/settings")({
 
 function SettingsScreen() {
   const boot = useBootstrap();
+  const billing = useSubscription();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [displayName, setDisplayName] = useState(boot.profile?.display_name ?? "");
@@ -272,6 +274,37 @@ function SettingsScreen() {
           </section>
         </>
       ) : null}
+
+      <section className="space-y-2 border-t border-border px-4 py-4">
+        <Link to="/billing" className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3">
+          <CreditCard className="h-4 w-4 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">Billing & plan</p>
+            <p className="text-[0.7rem] text-muted-foreground">
+              {billing.isSuperAdmin
+                ? "Super admin — unlimited access"
+                : billing.plan
+                  ? `${billing.plan.name} · ${billing.subscription?.status ?? "active"}`
+                  : "Choose a plan"}
+            </p>
+          </div>
+        </Link>
+
+        {billing.isSuperAdmin ? (
+          <Link
+            to="/subscribers"
+            className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
+          >
+            <Users className="h-4 w-4 text-primary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Subscribers</p>
+              <p className="text-[0.7rem] text-muted-foreground">
+                Manage accounts, plans and access
+              </p>
+            </div>
+          </Link>
+        ) : null}
+      </section>
 
       <section className="border-t border-border px-4 py-4">
         <Button
