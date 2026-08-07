@@ -47,7 +47,14 @@ function Welcome() {
     },
   });
 
-  async function saveProfile(patch: Record<string, unknown>) {
+  type ProfilePatch = {
+    workspace_name?: string | null;
+    onboarding_step?: number;
+    onboarding_completed?: boolean;
+    onboarding_skipped?: boolean;
+  };
+
+  async function saveProfile(patch: ProfilePatch) {
     const { data: userData } = await supabase.auth.getUser();
     const id = userData.user?.id;
     if (!id) throw new Error("Not signed in");
