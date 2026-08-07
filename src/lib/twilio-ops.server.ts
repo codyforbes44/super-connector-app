@@ -778,7 +778,7 @@ export async function importCallHistory(supabase: SB, userId: string) {
 export async function startCall(
   supabase: SB,
   userId: string,
-  data: { appNumber: string; to: string; callbackNumber?: string | null },
+  data: { appNumber: string; to: string },
 ) {
   const { numbers } = await allowedNumbers(supabase, userId);
   const appNumber = normalizePhone(data.appNumber);

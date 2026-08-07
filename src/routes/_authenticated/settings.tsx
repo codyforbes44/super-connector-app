@@ -50,8 +50,6 @@ function SettingsScreen() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [displayName, setDisplayName] = useState(boot.profile?.display_name ?? "");
-  const [agentPhone, setAgentPhone] = useState(boot.profile?.agent_phone ?? "");
-
   const team = useQuery({ queryKey: ["team"], queryFn: () => listTeam(), enabled: boot.isAdmin });
   const overview = useQuery({
     queryKey: ["account-overview"],
@@ -85,26 +83,11 @@ function SettingsScreen() {
             className="h-11 rounded-full px-4"
           />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="agent-phone">Your phone (for click-to-call)</Label>
-          <Input
-            id="agent-phone"
-            value={agentPhone}
-            onChange={(e) => setAgentPhone(e.target.value)}
-            inputMode="tel"
-            maxLength={20}
-            placeholder="+1 555 010 2030"
-            className="h-11 rounded-full px-4"
-          />
-          <p className="text-[0.7rem] text-muted-foreground">
-            SixVox rings this phone first, then bridges the contact.
-          </p>
-        </div>
         <Button
           className="key-signal h-11 w-full rounded-full"
           onClick={async () => {
             try {
-              await updateMyProfile({ data: { displayName, agentPhone: agentPhone || null } });
+              await updateMyProfile({ data: { displayName } });
               await queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
               toast.success("Profile saved.");
             } catch (error) {
