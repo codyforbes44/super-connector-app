@@ -19,6 +19,9 @@ import {
 
 type SB = SupabaseClient;
 
+export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+const asJson = (value: unknown) => value as Json;
+
 async function adminClient() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin as unknown as SB;
@@ -171,7 +174,7 @@ export async function searchAvailableNumbers(
       PageSize: 20,
     },
   });
-  return res.available_phone_numbers ?? [];
+  return asJson(res.available_phone_numbers ?? []) as Json[];
 }
 
 export async function purchaseNumber(
@@ -490,7 +493,11 @@ export async function getCallRecordings(supabase: SB, userId: string, data: { si
   const res = await twilioRequest<{
     recordings: Array<{ sid: string; duration: string; date_created: string }>;
   }>({ path: `/Calls/${data.sid}/Recordings.json` });
-  return res.recordings ?? [];
+  return (res.recordings ?? []).map((r) => ({
+    sid: r.sid,
+    duration: r.duration,
+    date_created: r.date_created,
+  }));
 }
 
 export async function getRecordingAudio(supabase: SB, userId: string, data: { sid: string }) {
@@ -521,17 +528,19 @@ export async function listVerifyServices(supabase: SB, userId: string) {
     path: "/v2/Services",
     params: { PageSize: 50 },
   });
-  return res.services ?? [];
+  return asJson(res.services ?? []) as Json[];
 }
 
 export async function createVerifyService(supabase: SB, userId: string, data: { name: string }) {
   await requireAdmin(supabase, userId);
-  return twilioRequest({
-    host: "verify",
-    method: "POST",
-    path: "/v2/Services",
-    params: { FriendlyName: data.name },
-  });
+  return asJson(
+    await twilioRequest({
+      host: "verify",
+      method: "POST",
+      path: "/v2/Services",
+      params: { FriendlyName: data.name },
+    }),
+  );
 }
 
 export async function startVerification(
@@ -540,12 +549,14 @@ export async function startVerification(
   data: { serviceSid: string; to: string; channel: string },
 ) {
   await allowedNumbers(supabase, userId);
-  return twilioRequest({
-    host: "verify",
-    method: "POST",
-    path: `/v2/Services/${data.serviceSid}/Verifications`,
-    params: { To: normalizePhone(data.to), Channel: data.channel },
-  });
+  return asJson(
+    await twilioRequest({
+      host: "verify",
+      method: "POST",
+      path: `/v2/Services/${data.serviceSid}/Verifications`,
+      params: { To: normalizePhone(data.to), Channel: data.channel },
+    }),
+  );
 }
 
 export async function checkVerification(
@@ -554,12 +565,14 @@ export async function checkVerification(
   data: { serviceSid: string; to: string; code: string },
 ) {
   await allowedNumbers(supabase, userId);
-  return twilioRequest({
-    host: "verify",
-    method: "POST",
-    path: `/v2/Services/${data.serviceSid}/VerificationCheck`,
-    params: { To: normalizePhone(data.to), Code: data.code },
-  });
+  return asJson(
+    await twilioRequest({
+      host: "verify",
+      method: "POST",
+      path: `/v2/Services/${data.serviceSid}/VerificationCheck`,
+      params: { To: normalizePhone(data.to), Code: data.code },
+    }),
+  );
 }
 
 export async function lookupNumber(supabase: SB, userId: string, data: { phone: string }) {
@@ -570,8 +583,10 @@ export async function lookupNumber(supabase: SB, userId: string, data: { phone: 
     params: { Fields: "line_type_intelligence,caller_name" },
   });
   const admin = await adminClient();
-  await admin.from("lookups").insert({ phone_number: phone, result, looked_up_by: userId });
-  return result;
+  await admin
+    .from("lookups")
+    .insert({ phone_number: phone, result: result as never, looked_up_by: userId });
+  return asJson(result);
 }
 
 export async function listLookups(supabase: SB, userId: string) {
@@ -605,12 +620,12 @@ export async function accountOverview(supabase: SB, userId: string) {
       params: { PageSize: 30 },
     }).catch(() => ({ services: [] })),
   ]);
-  return {
+  return asJson({
     balance,
     usage: usage.usage_records ?? [],
     subaccounts: (subaccounts as { accounts?: unknown[] }).accounts ?? [],
     messagingServices: (services as { services?: unknown[] }).services ?? [],
-  };
+  }) as { balance: Json; usage: Json[]; subaccounts: Json[]; messagingServices: Json[] };
 }
 
 /* -------------------------------------------------------------- API console */
@@ -638,10 +653,10 @@ export async function rawTwilioCall(
       host: data.host as TwilioHost,
       params,
     });
-    return { ok: true, result };
+    return { ok: true, status: 200, result: asJson(result) };
   } catch (error) {
     const err = error as { status?: number; body?: string; message: string };
-    return { ok: false, status: err.status ?? 500, result: err.body ?? err.message };
+    return { ok: false, status: err.status ?? 500, result: asJson(err.body ?? err.message) };
   }
 }
 
@@ -655,7 +670,7 @@ export async function listTeam(supabase: SB, userId: string) {
   ]);
   return (profiles ?? []).map((p) => ({
     ...p,
-    roles: (roles ?? []).filter((r) => r.user_id === p.id).map((r) => r.role),
+    roles: (roles ?? []).filter((r) => r.user_id === p.id).map((r) => r.role as string),
   }));
 }
 
