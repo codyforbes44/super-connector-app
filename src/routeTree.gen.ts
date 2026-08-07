@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedCallsRouteImport } from './routes/_authenticated/calls'
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
 import { Route as ApiPublicTwilioSmsRouteImport } from './routes/api/public/twilio/sms'
@@ -31,6 +32,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCallsRoute = AuthenticatedCallsRouteImport.update({
+  id: '/calls',
+  path: '/calls',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedInboxIndexRoute = AuthenticatedInboxIndexRouteImport.update({
   id: '/inbox/',
@@ -61,6 +67,7 @@ const ApiPublicTwilioVoiceRoute = ApiPublicTwilioVoiceRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/calls': typeof AuthenticatedCallsRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/inbox/': typeof AuthenticatedInboxIndexRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/calls': typeof AuthenticatedCallsRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/inbox': typeof AuthenticatedInboxIndexRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
@@ -81,6 +89,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/calls': typeof AuthenticatedCallsRoute
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
@@ -92,6 +101,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/calls'
     | '/inbox/$id'
     | '/inbox/'
     | '/api/public/twilio/sms'
@@ -101,6 +111,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/calls'
     | '/inbox/$id'
     | '/inbox'
     | '/api/public/twilio/sms'
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/calls'
     | '/_authenticated/inbox/$id'
     | '/_authenticated/inbox/'
     | '/api/public/twilio/sms'
@@ -149,6 +161,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/calls': {
+      id: '/_authenticated/calls'
+      path: '/calls'
+      fullPath: '/calls'
+      preLoaderRoute: typeof AuthenticatedCallsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/inbox/': {
       id: '/_authenticated/inbox/'
@@ -189,11 +208,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCallsRoute: typeof AuthenticatedCallsRoute
   AuthenticatedInboxIdRoute: typeof AuthenticatedInboxIdRoute
   AuthenticatedInboxIndexRoute: typeof AuthenticatedInboxIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCallsRoute: AuthenticatedCallsRoute,
   AuthenticatedInboxIdRoute: AuthenticatedInboxIdRoute,
   AuthenticatedInboxIndexRoute: AuthenticatedInboxIndexRoute,
 }
