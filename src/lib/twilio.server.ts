@@ -12,6 +12,7 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/twilio";
 
 export type TwilioHost =
   | "api"
+  | "api-direct"
   | "verify"
   | "lookups"
   | "messaging"
@@ -82,10 +83,11 @@ export async function twilioRequest<T = unknown>(opts: {
     if (!sid || !token) {
       throw new TwilioError(
         428,
-        `This feature uses the ${host}.twilio.com API, which needs your Twilio Account SID and Auth Token to be saved in the app. Add them in Settings to unlock it.`,
+        `This feature calls the ${host === "api-direct" ? "api" : host}.twilio.com API directly, which needs your Twilio Account SID and Auth Token saved in the app. Add them in Settings to unlock it.`,
       );
     }
-    url = `https://${host}.twilio.com${opts.path}`;
+    const subdomain = host === "api-direct" ? "api" : host;
+    url = `https://${subdomain}.twilio.com${opts.path}`;
     headers["Authorization"] = `Basic ${btoa(`${sid}:${token}`)}`;
   }
 
