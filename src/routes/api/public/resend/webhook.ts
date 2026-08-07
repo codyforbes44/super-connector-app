@@ -89,7 +89,10 @@ export const Route = createFileRoute("/api/public/resend/webhook")({
             break;
         }
 
-        await supabaseAdmin.from("email_log").update(patch).eq("id", row.id);
+        await supabaseAdmin
+          .from("email_log")
+          .update(patch as never)
+          .eq("id", row.id);
         return new Response("ok");
       },
     },
