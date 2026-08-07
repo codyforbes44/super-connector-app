@@ -54,8 +54,9 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
             console.warn(`Blocked client call from ${from} using caller ID ${callerId}`);
             return xml(`<Say voice="alice">You are not allowed to call from that number.</Say>`);
           }
-          // Present the number's verified caller ID when one is attached.
-          const presentedId = (owned?.outbound_caller_id as string | null) || callerId;
+          // Contact override → routing rule → per-number caller ID → the number itself.
+          const { resolveOutboundCallerId } = await import("@/lib/twilio-ops.server");
+          const presentedId = await resolveOutboundCallerId(supabaseAdmin, callerId, to);
 
           await supabaseAdmin.from("calls").upsert(
             {
