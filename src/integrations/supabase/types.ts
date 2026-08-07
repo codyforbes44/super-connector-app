@@ -301,6 +301,7 @@ export type Database = {
       }
       calls: {
         Row: {
+          answer_path: string | null
           answered_by: string | null
           answered_in_app: boolean
           app_number: string
@@ -308,6 +309,7 @@ export type Database = {
           created_at: string
           direction: string
           duration: number | null
+          error_code: string | null
           from_number: string
           id: string
           price: string | null
@@ -319,6 +321,7 @@ export type Database = {
           transcription: string | null
         }
         Insert: {
+          answer_path?: string | null
           answered_by?: string | null
           answered_in_app?: boolean
           app_number: string
@@ -326,6 +329,7 @@ export type Database = {
           created_at?: string
           direction: string
           duration?: number | null
+          error_code?: string | null
           from_number: string
           id?: string
           price?: string | null
@@ -337,6 +341,7 @@ export type Database = {
           transcription?: string | null
         }
         Update: {
+          answer_path?: string | null
           answered_by?: string | null
           answered_in_app?: boolean
           app_number?: string
@@ -344,6 +349,7 @@ export type Database = {
           created_at?: string
           direction?: string
           duration?: number | null
+          error_code?: string | null
           from_number?: string
           id?: string
           price?: string | null
@@ -795,6 +801,7 @@ export type Database = {
           channel_whatsapp: boolean
           created_at: string
           elevenlabs_agent_id: string | null
+          elevenlabs_phone_number_id: string | null
           elevenlabs_voice_id: string | null
           forward_to: string | null
           friendly_name: string | null
@@ -826,6 +833,7 @@ export type Database = {
           channel_whatsapp?: boolean
           created_at?: string
           elevenlabs_agent_id?: string | null
+          elevenlabs_phone_number_id?: string | null
           elevenlabs_voice_id?: string | null
           forward_to?: string | null
           friendly_name?: string | null
@@ -857,6 +865,7 @@ export type Database = {
           channel_whatsapp?: boolean
           created_at?: string
           elevenlabs_agent_id?: string | null
+          elevenlabs_phone_number_id?: string | null
           elevenlabs_voice_id?: string | null
           forward_to?: string | null
           friendly_name?: string | null
@@ -1226,6 +1235,30 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      voice_presence: {
+        Row: {
+          created_at: string
+          identity: string
+          last_seen_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          identity: string
+          last_seen_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          identity?: string
+          last_seen_at?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
