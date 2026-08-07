@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           const { data: isAdmin } = await supabaseAdmin.rpc("is_admin", { _user_id: userId });
           const { data: owned } = await supabaseAdmin
             .from("phone_numbers")
-            .select("phone_number, assigned_to")
+            .select("phone_number, assigned_to, outbound_caller_id")
             .eq("phone_number", callerId)
             .maybeSingle();
           const permitted = Boolean(owned) && (isAdmin === true || owned?.assigned_to === userId);
@@ -54,6 +54,8 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
             console.warn(`Blocked client call from ${from} using caller ID ${callerId}`);
             return xml(`<Say voice="alice">You are not allowed to call from that number.</Say>`);
           }
+          // Present the number's verified caller ID when one is attached.
+          const presentedId = (owned?.outbound_caller_id as string | null) || callerId;
 
           await supabaseAdmin.from("calls").upsert(
             {
@@ -71,7 +73,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           );
 
           return xml(
-            `<Dial callerId="${esc(callerId)}" answerOnBridge="true" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}" action="${esc(statusUrl)}"><Number>${esc(to)}</Number></Dial>`,
+            `<Dial callerId="${esc(presentedId)}" answerOnBridge="true" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}" action="${esc(statusUrl)}"><Number>${esc(to)}</Number></Dial>`,
           );
         }
 
