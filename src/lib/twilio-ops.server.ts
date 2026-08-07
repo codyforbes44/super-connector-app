@@ -789,13 +789,9 @@ export async function startCall(
     .select("agent_phone")
     .eq("id", userId)
     .maybeSingle();
-  const entered = data.callbackNumber?.trim() ? normalizePhone(data.callbackNumber) : null;
-  const agentPhone = entered ?? ((profile?.agent_phone as string | null) || null);
+  const agentPhone = (profile?.agent_phone as string | null) || null;
   if (!agentPhone) {
-    throw new Error("Add your own phone number in Settings first — we call you, then the contact.");
-  }
-  if (entered && entered !== profile?.agent_phone) {
-    await supabase.from("profiles").update({ agent_phone: entered }).eq("id", userId);
+    throw new Error("Add your phone number in Settings to place bridged calls.");
   }
 
   const target = normalizePhone(data.to);
