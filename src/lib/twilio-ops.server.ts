@@ -790,20 +790,46 @@ export async function startCall(
     .eq("id", userId)
     .maybeSingle();
   const agentPhone = (profile?.agent_phone as string | null) || null;
-  if (!agentPhone) {
-    throw new Error("Add your phone number in Settings to place bridged calls.");
-  }
-
   const target = normalizePhone(data.to);
   const callerId = await resolveOutboundCallerId(supabase, appNumber, target);
-  const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${callerId}"><Number>${target}</Number></Dial></Response>`;
+
+  const mode: "bridge" | "direct" = agentPhone ? "bridge" : "direct";
+
+  let twiml: string;
+  let to: string;
+  let from: string;
+
+  if (agentPhone) {
+    // Ring the user's own phone first, then dial the contact from that leg.
+    twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${callerId}"><Number>${target}</Number></Dial></Response>`;
+    to = normalizePhone(agentPhone);
+    from = appNumber;
+  } else {
+    // No bridge leg configured: dial the contact directly and connect them to
+    // the in-app client when a device is online, otherwise play a short prompt.
+    const { voiceIdentityFor } = await import("./voice-token.server");
+    const identity = voiceIdentityFor(userId);
+    const since = new Date(Date.now() - 120_000).toISOString();
+    const { data: presence } = await supabase
+      .from("voice_presence")
+      .select("identity")
+      .eq("identity", identity)
+      .gt("last_seen_at", since)
+      .maybeSingle();
+
+    twiml = presence
+      ? `<?xml version="1.0" encoding="UTF-8"?><Response><Dial timeout="30" callerId="${callerId}"><Client>${identity}</Client></Dial></Response>`
+      : `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Please hold while we connect you.</Say><Pause length="10"/></Response>`;
+    to = target;
+    from = callerId;
+  }
 
   const call = await twilioRequest<{ sid: string; status: string }>({
     method: "POST",
     path: "/Calls.json",
     params: {
-      From: appNumber,
-      To: normalizePhone(agentPhone),
+      From: from,
+      To: to,
       Twiml: twiml,
       StatusCallback: webhookUrl("status"),
       StatusCallbackEvent: ["completed"],
@@ -815,7 +841,7 @@ export async function startCall(
     {
       sid: call.sid,
       direction: "outbound",
-      from_number: appNumber,
+      from_number: mode === "bridge" ? appNumber : callerId,
       to_number: target,
       app_number: appNumber,
       status: call.status,
@@ -823,7 +849,7 @@ export async function startCall(
     },
     { onConflict: "sid" },
   );
-  return { sid: call.sid };
+  return { sid: call.sid, mode, callerId };
 }
 
 /**

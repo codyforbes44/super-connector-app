@@ -93,6 +93,9 @@ function CallsScreen() {
   );
   const [to, setTo] = useState("");
   const savedCallback = (boot.profile?.agent_phone as string | null) ?? "";
+  const selectedNumber = boot.numbers.find((n) => n.phone_number === from);
+  const presentedCallerId =
+    (selectedNumber?.outbound_caller_id as string | null | undefined) || from;
   const [audio, setAudio] = useState<string | null>(null);
   const [detail, setDetail] = useState<CallRow | null>(null);
 
@@ -156,9 +159,13 @@ function CallsScreen() {
       if (voice.ready) {
         await voice.call(to.trim(), from);
       } else {
-        await startCall({ data: { appNumber: from, to } });
+        const result = await startCall({ data: { appNumber: from, to } });
         await queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
-        toast.success("Calling your phone now — answer to be connected.");
+        toast.success(
+          result.mode === "bridge"
+            ? "Calling your phone now — answer to be connected."
+            : `Dialing ${formatPhone(to.trim())} from ${formatPhone(result.callerId)}…`,
+        );
       }
       setDialing(false);
       setTo("");
@@ -348,15 +355,12 @@ function CallsScreen() {
                   ))}
                 </SelectContent>
               </Select>
-              {(() => {
-                const selected = boot.numbers.find((n) => n.phone_number === from);
-                const presented = selected?.outbound_caller_id as string | null | undefined;
-                return presented ? (
-                  <p className="text-[0.7rem] text-muted-foreground">
-                    Recipients see your verified caller ID {formatPhone(presented)}.
-                  </p>
-                ) : null;
-              })()}
+              {selectedNumber?.outbound_caller_id ? (
+                <p className="text-[0.7rem] text-muted-foreground">
+                  Recipients see your verified caller ID{" "}
+                  {formatPhone(selectedNumber.outbound_caller_id as string)}.
+                </p>
+              ) : null}
             </div>
 
             <div className="flex items-center justify-center gap-8">
@@ -381,7 +385,9 @@ function CallsScreen() {
             <p className="text-center text-xs text-muted-foreground">
               {voice.ready
                 ? "In-app call — connects right here using your caller ID."
-                : `We'll ring ${savedCallback.trim() ? formatPhone(savedCallback.trim()) : "your phone"} first, then connect the contact.`}
+                : savedCallback.trim()
+                  ? `We'll ring ${formatPhone(savedCallback.trim())} first, then connect the contact.`
+                  : `Direct call — dialing the contact from ${formatPhone(presentedCallerId)}. Add a callback number in Settings to be bridged instead.`}
             </p>
           </form>
         </SheetContent>
