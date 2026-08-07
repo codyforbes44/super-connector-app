@@ -64,12 +64,31 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           })
           .eq("id", conversationId);
 
-        const { notifyNumberWatchers } = await import("@/lib/push.server");
-        await notifyNumberWatchers(supabaseAdmin as never, appNumber, {
-          title: `${channel === "whatsapp" ? "WhatsApp" : "SMS"} from ${contactNumber}`,
-          body: body ? body.slice(0, 180) : "Sent an attachment",
-          url: `/inbox/${conversationId}`,
-          tag: `conversation-${conversationId}`,
+        const { notifyNumber } = await import("@/lib/notify.server");
+        const { inboundMessage } = await import("@/lib/email-templates/index");
+        await notifyNumber(supabaseAdmin as never, appNumber, {
+          push: {
+            title: `${channel === "whatsapp" ? "WhatsApp" : "SMS"} from ${contactNumber}`,
+            body: body ? body.slice(0, 180) : "Sent an attachment",
+            url: `/inbox/${conversationId}`,
+            tag: `conversation-${conversationId}`,
+          },
+          email: {
+            prefKey: "email_inbound_message",
+            template: "inbound-message",
+            render: (baseUrl) =>
+              inboundMessage({
+                baseUrl,
+                channel,
+                from: contactNumber,
+                to: appNumber,
+                at: new Date().toUTCString(),
+                preview: body ?? "",
+                conversationId,
+                mediaCount: Array.isArray(media) ? media.length : 0,
+              }),
+            context: { conversationId, channel },
+          },
         });
 
         return new Response('<?xml version="1.0" encoding="UTF-8"?><Response></Response>', {
