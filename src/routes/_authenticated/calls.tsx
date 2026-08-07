@@ -201,6 +201,8 @@ function CallsScreen() {
         </button>
       </div>
 
+      <CallFilters value={filters} onChange={setFilters} />
+
       {audio ? (
         <div className="glass-panel mx-4 mb-3 rounded-3xl p-3">
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
@@ -210,9 +212,13 @@ function CallsScreen() {
 
       {(calls.data ?? []).length === 0 ? (
         <EmptyState
-          icon={PhoneCall}
-          title="No calls yet"
-          description="Place a call, or pull your recent Twilio voice history into the app."
+          icon={filters.q || filters.direction !== "all" || filters.range !== "all" || filters.device !== "all" ? Filter : PhoneCall}
+          title={
+            filters.q || filters.direction !== "all" || filters.range !== "all" || filters.device !== "all"
+              ? "No matching calls"
+              : "No calls yet"
+          }
+          description="Place a call, adjust your filters, or pull your recent Twilio voice history into the app."
           action={
             <Button variant="secondary" onClick={sync} disabled={syncing}>
               Sync from Twilio
@@ -226,6 +232,11 @@ function CallsScreen() {
             const other = inbound ? call.from_number : call.to_number;
             return (
               <li key={call.id} className="glass-panel flex items-center gap-3 rounded-3xl px-3.5 py-3">
+                <button
+                  type="button"
+                  onClick={() => setDetail(call)}
+                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                >
                 <span
                   className={cn(
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
@@ -243,7 +254,12 @@ function CallsScreen() {
                   )}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{formatPhone(other)}</p>
+                  <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
+                    {formatPhone(other)}
+                    {call.answered_in_app ? (
+                      <Smartphone className="h-3 w-3 shrink-0 text-primary" aria-label="Answered in app" />
+                    ) : null}
+                  </p>
                   <p className="tabular truncate text-[0.7rem] text-muted-foreground">
                     {call.status} · {duration(call.duration)} · via {formatPhone(call.app_number)}
                   </p>
@@ -251,6 +267,7 @@ function CallsScreen() {
                 <span className="tabular text-[0.7rem] text-muted-foreground">
                   {relativeTime(call.started_at)}
                 </span>
+                </button>
                 <button
                   type="button"
                   onClick={() => playRecording(call.sid)}
@@ -264,6 +281,42 @@ function CallsScreen() {
           })}
         </ul>
       )}
+
+      <Sheet open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
+        <SheetContent side="bottom" className="app-gradient rounded-t-[2rem] border-border">
+          <SheetHeader className="px-0">
+            <SheetTitle className="font-display text-center">Call details</SheetTitle>
+          </SheetHeader>
+          {detail ? (
+            <dl className="space-y-1.5 pb-[calc(env(safe-area-inset-bottom)+1rem)] text-sm">
+              {[
+                ["From", formatPhone(detail.from_number)],
+                ["To", formatPhone(detail.to_number)],
+                ["Twilio number", formatPhone(detail.app_number)],
+                ["Direction", detail.direction],
+                ["Status", detail.status ?? "—"],
+                ["Duration", duration(detail.duration)],
+                ["Device", detail.answered_in_app ? "In-app (TwiML App client)" : "Phone / forwarded"],
+                ["Client identity", detail.client_identity ?? "—"],
+                ["Price", detail.price ?? "—"],
+                ["Started", new Date(detail.started_at).toLocaleString()],
+                ["Call SID", detail.sid],
+                ...(detail.transcription ? [["Transcription", detail.transcription]] : []),
+              ].map(([label, value]) => (
+                <div
+                  key={label as string}
+                  className="glass-panel flex items-start justify-between gap-3 rounded-2xl px-3.5 py-2.5"
+                >
+                  <dt className="shrink-0 text-[0.7rem] tracking-wide text-muted-foreground uppercase">
+                    {label}
+                  </dt>
+                  <dd className="tabular min-w-0 text-right break-words">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </SheetContent>
+      </Sheet>
 
       <Sheet open={dialing} onOpenChange={setDialing}>
         <SheetContent side="bottom" className="app-gradient rounded-t-[2rem] border-border">
