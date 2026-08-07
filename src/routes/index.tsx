@@ -155,7 +155,7 @@ function Landing() {
         <ol className="mt-6 grid gap-3 sm:grid-cols-3">
           {STEPS.map((step) => (
             <li key={step.n} className="glass-panel rounded-3xl p-5">
-              <span className="key-signal flex h-10 w-10 items-center justify-center rounded-full font-display text-sm font-semibold text-primary">
+              <span className="key-signal flex h-10 w-10 items-center justify-center rounded-full font-display text-sm font-semibold">
                 {step.n}
               </span>
               <h3 className="font-display mt-4 text-sm font-semibold">{step.title}</h3>

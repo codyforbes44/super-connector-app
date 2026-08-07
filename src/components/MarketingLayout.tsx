@@ -30,7 +30,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
           <Link to="/" className="flex items-center gap-2">
             <span className="key-signal flex h-9 w-9 items-center justify-center rounded-full">
-              <Radio className="h-4 w-4 text-primary" />
+              <Radio className="h-4 w-4" />
             </span>
             <span className="font-display text-base font-semibold tracking-tight">SignalBox</span>
           </Link>
@@ -106,7 +106,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           <div>
             <div className="flex items-center gap-2">
               <span className="key-signal flex h-8 w-8 items-center justify-center rounded-full">
-                <Radio className="h-3.5 w-3.5 text-primary" />
+                <Radio className="h-3.5 w-3.5" />
               </span>
               <span className="font-display text-sm font-semibold">SignalBox</span>
             </div>
