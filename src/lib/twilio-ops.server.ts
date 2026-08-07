@@ -59,7 +59,14 @@ type TwilioNumber = {
   capabilities: Record<string, boolean>;
   sms_url?: string | null;
   voice_url?: string | null;
+  sms_application_sid?: string | null;
 };
+
+/** True when inbound SMS lands on our own webhook with no app SID shadowing it. */
+function smsRoutedHere(n: TwilioNumber): boolean {
+  if (n.sms_application_sid) return false;
+  return Boolean(n.sms_url && n.sms_url.includes("/api/public/twilio/sms"));
+}
 
 export async function syncNumbers(supabase: SB, userId: string) {
   await requireAdmin(supabase, userId);
@@ -76,7 +83,9 @@ export async function syncNumbers(supabase: SB, userId: string) {
         phone_number: n.phone_number,
         friendly_name: n.friendly_name,
         capabilities: n.capabilities ?? {},
-        webhook_wired: Boolean(n.sms_url && n.sms_url.includes("/api/public/twilio/")),
+        sms_url: n.sms_url ?? null,
+        voice_url: n.voice_url ?? null,
+        webhook_wired: smsRoutedHere(n),
       },
       { onConflict: "sid" },
     );
