@@ -74,6 +74,78 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_bookings: {
+        Row: {
+          app_number: string
+          calendar_id: string
+          call_sid: string | null
+          contact_email: string | null
+          contact_number: string | null
+          conversation_id: string | null
+          created_at: string
+          created_by: string | null
+          ends_at: string
+          event_id: string
+          html_link: string | null
+          id: string
+          source: string
+          starts_at: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          app_number: string
+          calendar_id: string
+          call_sid?: string | null
+          contact_email?: string | null
+          contact_number?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_at: string
+          event_id: string
+          html_link?: string | null
+          id?: string
+          source?: string
+          starts_at: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          app_number?: string
+          calendar_id?: string
+          call_sid?: string | null
+          contact_email?: string | null
+          contact_number?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string
+          event_id?: string
+          html_link?: string | null
+          id?: string
+          source?: string
+          starts_at?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_bookings_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_bookings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calls: {
         Row: {
           answered_by: string | null
@@ -141,25 +213,40 @@ export type Database = {
       }
       contacts: {
         Row: {
+          address: string | null
           created_at: string
+          email: string | null
           id: string
+          lat: number | null
+          lng: number | null
           name: string | null
           notes: string | null
           phone_number: string
+          place_id: string | null
         }
         Insert: {
+          address?: string | null
           created_at?: string
+          email?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           name?: string | null
           notes?: string | null
           phone_number: string
+          place_id?: string | null
         }
         Update: {
+          address?: string | null
           created_at?: string
+          email?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           name?: string | null
           notes?: string | null
           phone_number?: string
+          place_id?: string | null
         }
         Relationships: []
       }
@@ -212,6 +299,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_log: {
+        Row: {
+          context: Json
+          created_at: string
+          error: string | null
+          id: string
+          provider_id: string | null
+          status: string
+          subject: string
+          template: string
+          to_address: string
+        }
+        Insert: {
+          context?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          provider_id?: string | null
+          status?: string
+          subject: string
+          template: string
+          to_address: string
+        }
+        Update: {
+          context?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          provider_id?: string | null
+          status?: string
+          subject?: string
+          template?: string
+          to_address?: string
+        }
+        Relationships: []
       }
       lookups: {
         Row: {
@@ -317,6 +440,60 @@ export type Database = {
           },
         ]
       }
+      notification_prefs: {
+        Row: {
+          created_at: string
+          digest_mode: string
+          email_account: boolean
+          email_address: string | null
+          email_ai_summary: boolean
+          email_daily_digest: boolean
+          email_inbound_message: boolean
+          email_missed_call: boolean
+          email_voicemail: boolean
+          quiet_end: string
+          quiet_hours_enabled: boolean
+          quiet_start: string
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          digest_mode?: string
+          email_account?: boolean
+          email_address?: string | null
+          email_ai_summary?: boolean
+          email_daily_digest?: boolean
+          email_inbound_message?: boolean
+          email_missed_call?: boolean
+          email_voicemail?: boolean
+          quiet_end?: string
+          quiet_hours_enabled?: boolean
+          quiet_start?: string
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          digest_mode?: string
+          email_account?: boolean
+          email_address?: string | null
+          email_ai_summary?: boolean
+          email_daily_digest?: boolean
+          email_inbound_message?: boolean
+          email_missed_call?: boolean
+          email_voicemail?: boolean
+          quiet_end?: string
+          quiet_hours_enabled?: boolean
+          quiet_start?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       phone_numbers: {
         Row: {
           ai_fallback: string
@@ -328,6 +505,12 @@ export type Database = {
           ai_tone: string
           answer_mode: string
           assigned_to: string | null
+          booking_buffer_minutes: number
+          booking_enabled: boolean
+          booking_hours: Json
+          booking_slot_minutes: number
+          booking_timezone: string
+          calendar_id: string | null
           capabilities: Json
           channel_whatsapp: boolean
           created_at: string
@@ -352,6 +535,12 @@ export type Database = {
           ai_tone?: string
           answer_mode?: string
           assigned_to?: string | null
+          booking_buffer_minutes?: number
+          booking_enabled?: boolean
+          booking_hours?: Json
+          booking_slot_minutes?: number
+          booking_timezone?: string
+          calendar_id?: string | null
           capabilities?: Json
           channel_whatsapp?: boolean
           created_at?: string
@@ -376,6 +565,12 @@ export type Database = {
           ai_tone?: string
           answer_mode?: string
           assigned_to?: string | null
+          booking_buffer_minutes?: number
+          booking_enabled?: boolean
+          booking_hours?: Json
+          booking_slot_minutes?: number
+          booking_timezone?: string
+          calendar_id?: string | null
           capabilities?: Json
           channel_whatsapp?: boolean
           created_at?: string
