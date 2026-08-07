@@ -9,7 +9,7 @@ const auth = requireSupabaseAuth;
 
 export const getIntegrationStatus = createServerFn({ method: "GET" })
   .middleware([auth])
-  .handler(async ({ context }) => ops.integrationStatus(context.supabase));
+  .handler(async ({ context }) => ops.integrationStatus(context.supabase, context.userId));
 
 export const getNotificationPrefs = createServerFn({ method: "GET" })
   .middleware([auth])
@@ -43,19 +43,19 @@ export const sendAccountEmail = createServerFn({ method: "POST" })
 export const searchMail = createServerFn({ method: "POST" })
   .middleware([auth])
   .inputValidator((input: { query?: string; email?: string; max?: number }) => input)
-  .handler(async ({ data }) => ops.mailSearch(data));
+  .handler(async ({ context, data }) => ops.mailSearch(context.userId, data));
 
 export const readMailThread = createServerFn({ method: "POST" })
   .middleware([auth])
   .inputValidator((input: { threadId: string }) => input)
-  .handler(async ({ data }) => ops.mailThread(data.threadId));
+  .handler(async ({ context, data }) => ops.mailThread(context.userId, data.threadId));
 
 export const sendMailMessage = createServerFn({ method: "POST" })
   .middleware([auth])
   .inputValidator(
     (input: { to: string; subject: string; body: string; threadId?: string }) => input,
   )
-  .handler(async ({ data }) => ops.mailSend(data));
+  .handler(async ({ context, data }) => ops.mailSend(context.userId, data));
 
 /* calendar */
 
