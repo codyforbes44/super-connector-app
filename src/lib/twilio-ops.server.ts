@@ -184,14 +184,20 @@ export async function requestCallerIdVerification(
   return { validationCode: res.validation_code, phoneNumber: res.phone_number ?? phoneNumber };
 }
 
-export async function deleteCallerId(supabase: SB, userId: string, data: { sid: string }) {
+export async function deleteCallerId(
+  supabase: SB,
+  userId: string,
+  data: { sid: string; phoneNumber?: string },
+) {
   await requireAdmin(supabase, userId);
   await twilioRequest({ method: "DELETE", path: `/OutgoingCallerIds/${data.sid}.json` });
   const admin = await adminClient();
-  await admin
-    .from("phone_numbers")
-    .update({ outbound_caller_id: null })
-    .eq("outbound_caller_id", data.sid);
+  if (data.phoneNumber) {
+    await admin
+      .from("phone_numbers")
+      .update({ outbound_caller_id: null })
+      .eq("outbound_caller_id", normalizePhone(data.phoneNumber));
+  }
   await audit(admin, userId, "callerid.delete", { sid: data.sid });
   return { ok: true };
 }
@@ -598,7 +604,8 @@ export async function startCall(
   }
 
   const target = normalizePhone(data.to);
-  const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${appNumber}"><Number>${target}</Number></Dial></Response>`;
+  const callerId = await resolveOutboundCallerId(supabase, appNumber);
+  const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${callerId}"><Number>${target}</Number></Dial></Response>`;
 
   const call = await twilioRequest<{ sid: string; status: string }>({
     method: "POST",
