@@ -456,38 +456,33 @@ export async function wireNumber(
   await requireAdmin(supabase, userId);
   const admin = await adminClient();
   const appSid = data.applicationSid ?? (await defaultTwimlAppSid(admin));
-  if (appSid) {
-    await twilioRequest({
-      method: "POST",
-      path: `/IncomingPhoneNumbers/${data.sid}.json`,
-      params: {
-        VoiceApplicationSid: appSid,
-        SmsApplicationSid: appSid,
-        StatusCallback: webhookUrl("status"),
-        StatusCallbackMethod: "POST",
-      },
-    });
-    await admin.from("phone_numbers").update({ webhook_wired: true }).eq("sid", data.sid);
-    await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid });
-    return { ok: true, applicationSid: appSid };
-  }
+  // Messaging always points straight at our own SMS webhook. An SmsApplicationSid
+  // silently overrides SmsUrl on the number, so it must stay cleared — otherwise
+  // inbound texts follow whatever URL that TwiML App happens to hold.
+  const smsParams = {
+    SmsApplicationSid: "",
+    SmsUrl: webhookUrl("sms"),
+    SmsMethod: "POST",
+    SmsFallbackUrl: webhookUrl("sms"),
+    SmsFallbackMethod: "POST",
+    StatusCallback: webhookUrl("status"),
+    StatusCallbackMethod: "POST",
+  };
+  const voiceParams = appSid
+    ? { VoiceApplicationSid: appSid }
+    : {
+        VoiceApplicationSid: "",
+        VoiceUrl: webhookUrl("voice"),
+        VoiceMethod: "POST",
+      };
   await twilioRequest({
     method: "POST",
     path: `/IncomingPhoneNumbers/${data.sid}.json`,
-    params: {
-      SmsUrl: webhookUrl("sms"),
-      SmsMethod: "POST",
-      VoiceUrl: webhookUrl("voice"),
-      VoiceMethod: "POST",
-      StatusCallback: webhookUrl("status"),
-      StatusCallbackMethod: "POST",
-      SmsApplicationSid: "",
-      VoiceApplicationSid: "",
-    },
+    params: { ...smsParams, ...voiceParams },
   });
   await admin.from("phone_numbers").update({ webhook_wired: true }).eq("sid", data.sid);
-  await audit(admin, userId, "numbers.wire", { sid: data.sid });
-  return { ok: true, applicationSid: null };
+  await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid ?? null });
+  return { ok: true, applicationSid: appSid ?? null };
 }
 
 export async function searchAvailableNumbers(
