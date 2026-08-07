@@ -46,6 +46,17 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           .eq("phone_number", appNumber)
           .maybeSingle();
 
+        // Alert watchers immediately so a backgrounded device can pick up.
+        const { notifyNumberWatchers } = await import("@/lib/push.server");
+        await notifyNumberWatchers(supabaseAdmin as never, appNumber, {
+          title: "Incoming call",
+          body: `${get("From")} → ${appNumber}`,
+          url: `/calls?incoming=${encodeURIComponent(get("CallSid"))}`,
+          tag: `ring-${get("CallSid")}`,
+          type: "call",
+          requireInteraction: true,
+        });
+
         if (number?.forward_to) {
           return xml(
             `<Dial callerId="${escapeXml(appNumber)}" timeout="20" record="record-from-answer-dual" recordingStatusCallback="${escapeXml(url.origin + url.pathname.replace("/voice", "/status") + url.search)}"><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
