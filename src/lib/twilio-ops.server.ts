@@ -388,11 +388,6 @@ export async function importHistory(supabase: SB, userId: string) {
     );
     if (!error) imported += 1;
   }
-
-  await admin.rpc("noop").then(
-    () => undefined,
-    () => undefined,
-  );
   return { imported };
 }
 
@@ -600,7 +595,8 @@ export async function accountOverview(supabase: SB, userId: string) {
       params: { PageSize: 30 },
     }).catch(() => ({ usage_records: [] })),
     twilioRequest<{ accounts: unknown[] }>({
-      path: "/../Accounts.json",
+      host: "api-direct",
+      path: "/2010-04-01/Accounts.json",
       params: { PageSize: 30 },
     }).catch(() => ({ accounts: [] })),
     twilioRequest<{ services: unknown[] }>({
