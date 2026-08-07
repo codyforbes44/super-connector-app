@@ -2,9 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { LegalPage, LEGAL_UPDATED } from "@/components/LegalPage";
 
-const TITLE = "Privacy Policy — SignalBox";
+const TITLE = "Privacy Policy — SixVox";
 const DESCRIPTION =
-  "How SignalBox collects, uses, stores and protects your account, call, message and contact data.";
+  "How SixVox collects, uses, stores and protects your account, call, message and contact data.";
 
 export const Route = createFileRoute("/legal/privacy")({
   head: () => ({
@@ -26,7 +26,7 @@ function Privacy() {
       <h2>What we collect</h2>
       <p>
         We collect the account details you give us (name, email address and workspace name), the
-        business communications you send and receive through SignalBox (calls, messages, voicemail,
+        business communications you send and receive through SixVox (calls, messages, voicemail,
         recordings, transcripts and their metadata), the contacts you save, and technical data such
         as device type and push notification tokens.
       </p>
@@ -41,11 +41,11 @@ function Privacy() {
 
       <h2>Connected accounts</h2>
       <p>
-        If you connect a Google account, SignalBox requests only the permissions needed for the
+        If you connect a Google account, SixVox requests only the permissions needed for the
         features you enable: your email address and profile, reading notification threads and
         sending mail on your behalf, and reading and creating calendar events. Access tokens are
         stored encrypted, used only for actions you trigger, and revoked immediately when you
-        disconnect. SignalBox&apos;s use of information received from Google APIs adheres to the
+        disconnect. SixVox&apos;s use of information received from Google APIs adheres to the
         Google API Services User Data Policy, including the Limited Use requirements.
       </p>
 
@@ -74,7 +74,7 @@ function Privacy() {
       <p>
         You can request a copy of your data, correct it, or ask us to delete it by emailing{" "}
         <a href="mailto:privacy@bookme.bet">privacy@bookme.bet</a>. Children under 16 may not use
-        SignalBox.
+        SixVox.
       </p>
 
       <h2>Changes</h2>

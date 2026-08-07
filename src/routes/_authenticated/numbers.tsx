@@ -36,9 +36,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/numbers")({
   head: () => ({
     meta: [
-      { title: "Numbers — SignalBox" },
+      { title: "Numbers — SixVox" },
       { name: "description", content: "Buy, wire and assign Twilio phone numbers to your team." },
-      { property: "og:title", content: "Numbers — SignalBox" },
+      { property: "og:title", content: "Numbers — SixVox" },
       {
         property: "og:description",
         content: "Buy, wire and assign Twilio phone numbers to your team.",
@@ -430,7 +430,7 @@ function NumberSheet({
                 try {
                   await wireNumber({ data: { sid: number.sid } });
                   await onChanged();
-                  toast.success("Webhooks pointed at SignalBox.");
+                  toast.success("Webhooks pointed at SixVox.");
                 } catch (error) {
                   toast.error(errorMessage(error));
                 }

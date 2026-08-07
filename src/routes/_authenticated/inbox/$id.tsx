@@ -19,9 +19,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/inbox/$id")({
   head: () => ({
     meta: [
-      { title: "Conversation — SignalBox" },
+      { title: "Conversation — SixVox" },
       { name: "description", content: "Read and reply to a Twilio conversation thread." },
-      { property: "og:title", content: "Conversation — SignalBox" },
+      { property: "og:title", content: "Conversation — SixVox" },
       { property: "og:description", content: "Read and reply to a Twilio conversation thread." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

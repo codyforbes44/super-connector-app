@@ -1,11 +1,11 @@
 /**
- * Shared HTML shell for every Signalbox email.
+ * Shared HTML shell for every SixVox email.
  * Table-based, inline-styled, light body (inbox-safe) with a Midnight Dialer
  * gradient header so it still feels like the app.
  */
 
 export const BRAND = {
-  name: "Signalbox",
+  name: "SixVox",
   domain: "bookme.bet",
   gradient: "linear-gradient(135deg,#0b1b34 0%,#123a5c 55%,#0e5f6b 100%)",
   accent: "#3ddad7",
@@ -79,7 +79,7 @@ export function layout(opts: {
       <tr><td style="padding:18px 28px 26px;border-top:1px solid ${BRAND.line};">
         <div style="font:400 12px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${BRAND.muted};">
           ${escapeHtml(opts.footerNote ?? `Sent by ${BRAND.name} · ${BRAND.domain}`)}<br/>
-          You can change which alerts you receive in Signalbox → Settings → Notifications.
+          You can change which alerts you receive in SixVox → Settings → Notifications.
         </div>
       </td></tr>
     </table>

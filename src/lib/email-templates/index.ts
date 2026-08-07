@@ -61,7 +61,7 @@ export function voicemail(d: VoicemailData): RenderedEmail {
       { label: "Duration", value: d.duration ?? "" },
       { label: "Location", value: d.location ?? "" },
     ]) +
-    button("Listen in Signalbox", appLink(d.baseUrl, "/calls"));
+    button("Listen in SixVox", appLink(d.baseUrl, "/calls"));
   return {
     subject: `Voicemail from ${d.from}`,
     html: layout({
@@ -176,7 +176,7 @@ export function account(d: AccountData): RenderedEmail {
     welcome: {
       eyebrow: "Welcome",
       title: `Welcome to ${BRAND.name}`,
-      intro: `You're all set. Signalbox puts your calls, texts, WhatsApp and AI assistants in one place.`,
+      intro: `You're all set. SixVox puts your calls, texts, WhatsApp and AI assistants in one place.`,
     },
     invite: {
       eyebrow: "Team invite",
@@ -200,7 +200,7 @@ export function account(d: AccountData): RenderedEmail {
     paragraph(escapeHtml(c.intro)) +
     (d.detail ? quote(d.detail) : "") +
     (d.rows?.length ? metaTable(d.rows) : "") +
-    button(d.ctaLabel ?? "Open Signalbox", appLink(d.baseUrl, d.ctaPath ?? "/inbox"));
+    button(d.ctaLabel ?? "Open SixVox", appLink(d.baseUrl, d.ctaPath ?? "/inbox"));
   return {
     subject: c.title,
     html: layout({ preheader: c.intro, eyebrow: c.eyebrow, title: c.title, body }),
@@ -238,14 +238,14 @@ export function dailyDigest(d: DigestData): RenderedEmail {
       ? `<div style="margin-top:20px;font:600 11px/1 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:${BRAND.muted};">Calls needing attention (${d.calls.length})</div><table role="presentation" width="100%">${callRows}</table>`
       : "") +
     (!threadRows && !callRows ? paragraph("Nothing needs your attention. Inbox zero.") : "") +
-    button("Open Signalbox", appLink(d.baseUrl, "/inbox"));
+    button("Open SixVox", appLink(d.baseUrl, "/inbox"));
 
   return {
-    subject: `Signalbox digest — ${d.threads.length} unread, ${d.calls.length} calls`,
+    subject: `SixVox digest — ${d.threads.length} unread, ${d.calls.length} calls`,
     html: layout({
       preheader: `${d.threads.length} unread threads · ${d.calls.length} calls`,
       eyebrow: "Daily digest",
-      title: "Your Signalbox digest",
+      title: "Your SixVox digest",
       body,
     }),
   };
@@ -253,7 +253,7 @@ export function dailyDigest(d: DigestData): RenderedEmail {
 
 export function testEmail(baseUrl: string): RenderedEmail {
   const body =
-    paragraph("This is a test email from Signalbox.") +
+    paragraph("This is a test email from SixVox.") +
     paragraph(
       `If it landed in your inbox, sending from <strong>${BRAND.domain}</strong> is working correctly.`,
     ) +
@@ -261,9 +261,9 @@ export function testEmail(baseUrl: string): RenderedEmail {
       { label: "Sender domain", value: BRAND.domain },
       { label: "Sent", value: new Date().toUTCString() },
     ]) +
-    button("Open Signalbox", appLink(baseUrl, "/settings"));
+    button("Open SixVox", appLink(baseUrl, "/settings"));
   return {
-    subject: "Signalbox test email",
+    subject: "SixVox test email",
     html: layout({
       preheader: "Email delivery is working.",
       eyebrow: "Test",

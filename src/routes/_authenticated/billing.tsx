@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({
     meta: [
-      { title: "Billing — SignalBox" },
-      { name: "description", content: "Choose a SignalBox plan and manage your subscription." },
+      { title: "Billing — SixVox" },
+      { name: "description", content: "Choose a SixVox plan and manage your subscription." },
     ],
   }),
   component: BillingScreen,
@@ -55,7 +55,7 @@ function BillingScreen() {
             ? "Super admin — full access, no plan required"
             : isActive
               ? `${plan?.name ?? "Active"} plan`
-              : "Choose a plan to unlock SignalBox"
+              : "Choose a plan to unlock SixVox"
         }
       />
       <PaymentTestModeBanner />
@@ -75,7 +75,7 @@ function BillingScreen() {
               </span>
               <div className="min-w-0">
                 <p className="font-display text-sm font-semibold">
-                  {plan?.name ?? "SignalBox"} · {subscription.comped ? "Complimentary" : subscription.status}
+                  {plan?.name ?? "SixVox"} · {subscription.comped ? "Complimentary" : subscription.status}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {subscription.current_period_end

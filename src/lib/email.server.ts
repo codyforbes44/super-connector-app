@@ -8,8 +8,8 @@ import { applyOverride, type TemplateOverride } from "./email-templates/override
 
 /** Verified Resend sending domain for this workspace. */
 export const SENDING_DOMAIN = "bookme.bet";
-export const FROM_ALERTS = `Signalbox Alerts <alerts@${SENDING_DOMAIN}>`;
-export const FROM_ACCOUNT = `Signalbox <team@${SENDING_DOMAIN}>`;
+export const FROM_ALERTS = `SixVox Alerts <alerts@${SENDING_DOMAIN}>`;
+export const FROM_ACCOUNT = `SixVox <team@${SENDING_DOMAIN}>`;
 
 export function emailConfigured(): boolean {
   return connectorConfigured("resend");

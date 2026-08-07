@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 
-const TITLE = "How it works — SignalBox onboarding in minutes";
+const TITLE = "How it works — SixVox onboarding in minutes";
 const DESCRIPTION =
   "Create your account, claim a number, invite your team and start answering calls and texts in under ten minutes.";
 

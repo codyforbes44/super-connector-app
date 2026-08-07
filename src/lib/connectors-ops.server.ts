@@ -93,7 +93,7 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
   const cards: ConnectorCard[] = [
     {
       id: "line",
-      name: "SignalBox number",
+      name: "SixVox number",
       category: "Phone",
       description: "Your business line for calls and texts.",
       state: numbers.length ? "connected" : "action",
@@ -119,7 +119,7 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       id: "in-app-calling",
       name: "In-app calling",
       category: "Phone",
-      description: "Place and take calls right inside SignalBox.",
+      description: "Place and take calls right inside SixVox.",
       state: twimlApps.length && hasVoiceKeys ? "connected" : "action",
       detail: !hasVoiceKeys
         ? "Calling keys missing — an admin can finish setup"
@@ -204,7 +204,7 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
   const steps = [
     {
       id: "line",
-      title: "Claim your SignalBox number",
+      title: "Claim your SixVox number",
       body: "Pick a local or toll-free line — this is the number customers call and text.",
       href: "/numbers",
       cta: "Open numbers",

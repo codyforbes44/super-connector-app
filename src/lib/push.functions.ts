@@ -50,10 +50,10 @@ export const sendTestPush = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { sendPushToUsers } = await import("./push.server");
     const sent = await sendPushToUsers(supabaseAdmin as never, [context.userId], {
-      title: "Signalbox test alert",
+      title: "SixVox test alert",
       body: "Push notifications are working on this device.",
       url: "/inbox",
-      tag: "signalbox-test",
+      tag: "sixvox-test",
     });
     return { sent };
   });

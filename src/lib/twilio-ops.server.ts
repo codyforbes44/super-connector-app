@@ -202,7 +202,7 @@ export async function deleteCallerId(
   return { ok: true };
 }
 
-/** Per-number outbound caller ID. Pass null to present the SignalBox number. */
+/** Per-number outbound caller ID. Pass null to present the SixVox number. */
 export async function setOutboundCallerId(
   supabase: SB,
   userId: string,
@@ -245,7 +245,7 @@ export async function setDefaultNumber(
 
 /**
  * Which number the recipient sees for calls placed from `appNumber`.
- * Falls back to the SignalBox number when no verified caller ID is attached.
+ * Falls back to the SixVox number when no verified caller ID is attached.
  */
 export async function resolveOutboundCallerId(client: SB, appNumber: string): Promise<string> {
   const { data } = await client
@@ -1077,7 +1077,7 @@ export async function createTwimlApp(supabase: SB, userId: string, data: { name:
   return asJson(app);
 }
 
-/** Re-point an existing TwiML App (ours or one made in the Twilio console) at Signalbox. */
+/** Re-point an existing TwiML App (ours or one made in the Twilio console) at SixVox. */
 export async function syncTwimlApp(supabase: SB, userId: string, data: { sid: string }) {
   await requireAdmin(supabase, userId);
   const app = await twilioRequest<TwimlApp>({

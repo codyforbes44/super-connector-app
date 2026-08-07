@@ -24,7 +24,7 @@ export async function recordLead(lead: LeadInput): Promise<{ ok: true }> {
   if (emailConfigured()) {
     const body =
       paragraph(
-        `<strong>${escapeHtml(lead.name)}</strong> reached out through the Signalbox website.`,
+        `<strong>${escapeHtml(lead.name)}</strong> reached out through the SixVox website.`,
       ) +
       metaTable([
         { label: "Name", value: lead.name },
@@ -39,7 +39,7 @@ export async function recordLead(lead: LeadInput): Promise<{ ok: true }> {
       from: FROM_ACCOUNT,
       replyTo: lead.email,
       rendered: {
-        subject: `New Signalbox enquiry — ${lead.name}`,
+        subject: `New SixVox enquiry — ${lead.name}`,
         html: layout({
           eyebrow: "Website",
           title: "New enquiry",

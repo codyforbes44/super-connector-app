@@ -16,7 +16,7 @@ import {
 
 import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 
-const TITLE = "Features — everything SignalBox does for your business line";
+const TITLE = "Features — everything SixVox does for your business line";
 const DESCRIPTION =
   "Unified inbox, in-app calling, an AI receptionist, instant numbers, verification, caller insight and connected mail, calendar and maps tools.";
 
@@ -126,7 +126,7 @@ function FeaturesPage() {
           Built for people who actually run their business on their phone.
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          Talkyto, Toktiv and Mango each give you a slice. SignalBox gives you the whole account —
+          Talkyto, Toktiv and Mango each give you a slice. SixVox gives you the whole account —
           messaging, telephony, provisioning, AI and raw API access, on a phone.
         </p>
       </Section>

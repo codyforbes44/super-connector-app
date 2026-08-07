@@ -1,6 +1,6 @@
 {
-  "name": "SignalBox — Business Calls, Texts & AI Receptionist",
-  "short_name": "SignalBox",
+  "name": "SixVox — Business Calls, Texts & AI Receptionist",
+  "short_name": "SixVox",
   "description": "Run your business number, inbox, calls and AI receptionist from one app.",
   "start_url": "/inbox",
   "orientation": "portrait",

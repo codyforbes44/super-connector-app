@@ -14,8 +14,8 @@ import { planByCode } from "@/lib/plans";
 export const Route = createFileRoute("/_authenticated/subscribers")({
   head: () => ({
     meta: [
-      { title: "Subscribers — SignalBox" },
-      { name: "description", content: "Manage SignalBox subscribers, plans and access." },
+      { title: "Subscribers — SixVox" },
+      { name: "description", content: "Manage SixVox subscribers, plans and access." },
     ],
   }),
   component: SubscribersScreen,

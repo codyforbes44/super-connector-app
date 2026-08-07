@@ -6,9 +6,9 @@ import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout"
 import { FEATURE_MATRIX, PLANS, type BillingInterval } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Pricing — SignalBox plans from $29/mo";
+const TITLE = "Pricing — SixVox plans from $29/mo";
 const DESCRIPTION =
-  "Solo, Team and Scale plans for SignalBox. Numbers, seats, AI receptionist and advanced access compared side by side. Every plan starts with a 14-day free trial.";
+  "Solo, Team and Scale plans for SixVox. Numbers, seats, AI receptionist and advanced access compared side by side. Every plan starts with a 14-day free trial.";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/pricing")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Product",
-          name: "SignalBox",
+          name: "SixVox",
           description: DESCRIPTION,
           offers: PLANS.map((plan) => ({
             "@type": "Offer",

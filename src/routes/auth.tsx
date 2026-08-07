@@ -10,13 +10,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { errorMessage } from "@/lib/format";
 
-const TITLE = "Sign in or start your free trial — SignalBox";
+const TITLE = "Sign in or start your free trial — SixVox";
 const DESCRIPTION =
-  "Sign in to SignalBox or create an account to run your business calls, texts, WhatsApp and AI receptionist from your phone.";
+  "Sign in to SixVox or create an account to run your business calls, texts, WhatsApp and AI receptionist from your phone.";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    mode: search["mode"] === "signup" ? ("signup" as const) : ("signin" as const),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { mode?: "signin" | "signup" } => ({
+    mode: search["mode"] === "signup" ? "signup" : "signin",
   }),
   head: () => ({
     meta: [
@@ -34,7 +36,7 @@ export const Route = createFileRoute("/auth")({
 function AuthScreen() {
   const navigate = useNavigate();
   const { mode: initialMode } = Route.useSearch();
-  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode ?? "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -101,7 +103,7 @@ function AuthScreen() {
           <h1 className="font-display text-2xl font-semibold">Check your inbox</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             We sent a confirmation link to <span className="text-foreground">{email}</span>. Open it
-            to finish creating your SignalBox account.
+            to finish creating your SixVox account.
           </p>
           <Button variant="ghost" className="mt-6" onClick={() => setCheckEmail(false)}>
             Back to sign in
@@ -126,7 +128,7 @@ function AuthScreen() {
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {mode === "signin"
-          ? "Sign in to your SignalBox workspace."
+          ? "Sign in to your SixVox workspace."
           : "14 days free. No card required. Set up in about a minute."}
       </p>
 

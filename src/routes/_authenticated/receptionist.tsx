@@ -13,14 +13,14 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { formatPhone } from "@/lib/format";
 
 const DESCRIPTION =
-  "Choose AI voices, build conversational agents and pick how every SignalBox number answers when you can't.";
+  "Choose AI voices, build conversational agents and pick how every SixVox number answers when you can't.";
 
 export const Route = createFileRoute("/_authenticated/receptionist")({
   head: () => ({
     meta: [
-      { title: "AI receptionist — SignalBox" },
+      { title: "AI receptionist — SixVox" },
       { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: "AI receptionist — SignalBox" },
+      { property: "og:title", content: "AI receptionist — SixVox" },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
