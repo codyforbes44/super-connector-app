@@ -67,12 +67,42 @@ export const Route = createFileRoute("/api/public/twilio/status")({
               .eq("sid", callSid)
               .maybeSingle();
             if (call && call.direction === "inbound") {
-              const { notifyNumberWatchers } = await import("@/lib/push.server");
-              await notifyNumberWatchers(supabaseAdmin as never, call.app_number as string, {
-                title: voicemail ? "New voicemail" : "Missed call",
-                body: `${call.from_number} → ${call.app_number}`,
-                url: "/calls",
-                tag: `call-${callSid}`,
+              const { notifyNumber } = await import("@/lib/notify.server");
+              const templates = await import("@/lib/email-templates/index");
+              const from = call.from_number as string;
+              const to = call.app_number as string;
+              const at = new Date().toUTCString();
+              await notifyNumber(supabaseAdmin as never, to, {
+                push: {
+                  title: voicemail ? "New voicemail" : "Missed call",
+                  body: `${from} → ${to}`,
+                  url: "/calls",
+                  tag: `call-${callSid}`,
+                },
+                email: voicemail
+                  ? {
+                      prefKey: "email_voicemail",
+                      template: "voicemail",
+                      render: (baseUrl) =>
+                        templates.voicemail({
+                          baseUrl,
+                          from,
+                          to,
+                          at,
+                          callSid,
+                          ...(patch.duration ? { duration: `${patch.duration}s` } : {}),
+                          ...(patch.transcription ? { transcript: patch.transcription } : {}),
+                          ...(patch.recording_url ? { recordingUrl: patch.recording_url } : {}),
+                        }),
+                      context: { callSid },
+                    }
+                  : {
+                      prefKey: "email_missed_call",
+                      template: "missed-call",
+                      render: (baseUrl) =>
+                        templates.missedCall({ baseUrl, from, to, at, callSid }),
+                      context: { callSid },
+                    },
               });
             }
           }
