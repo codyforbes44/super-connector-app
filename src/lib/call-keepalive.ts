@@ -81,3 +81,54 @@ export function reviveCallAudio(call: unknown, muted: boolean): void {
     /* best effort */
   }
 }
+
+/** Minimal shape of the Twilio Device audio helper we rely on. */
+export type DeviceAudio = {
+  setInputDevice?: (deviceId: string) => Promise<void>;
+  unsetInputDevice?: () => Promise<void>;
+  availableInputDevices?: Map<string, MediaDeviceInfo>;
+  availableOutputDevices?: Map<string, MediaDeviceInfo>;
+  speakerDevices?: { set: (ids: string | string[]) => Promise<void> | void };
+  ringtoneDevices?: { set: (ids: string | string[]) => Promise<void> | void };
+};
+
+/**
+ * Pick the device the OS currently prefers. Browsers move the "default" /
+ * "communications" entry onto whatever was plugged in or paired last, so
+ * following it is how we track a headset or Bluetooth switch.
+ */
+function preferredId(devices: Map<string, MediaDeviceInfo> | undefined): string | null {
+  if (!devices || devices.size === 0) return null;
+  const ids = Array.from(devices.keys());
+  return ids.find((id) => id === "communications") ?? ids.find((id) => id === "default") ?? ids[0] ?? null;
+}
+
+/**
+ * Re-bind the call to the currently preferred mic and speaker. Backgrounding
+ * (or pairing a headset while backgrounded) can leave the SDK holding a track
+ * from a device that is gone, which sounds like a dead mic on return.
+ */
+export async function rebindAudioDevices(audio: DeviceAudio | undefined | null): Promise<void> {
+  if (!audio) return;
+  try {
+    const inputId = preferredId(audio.availableInputDevices);
+    if (inputId && audio.setInputDevice) {
+      // Re-setting the same id forces a fresh getUserMedia on the live device.
+      await audio.setInputDevice(inputId);
+    }
+    const outputId = preferredId(audio.availableOutputDevices);
+    if (outputId) {
+      await audio.speakerDevices?.set(outputId);
+      await audio.ringtoneDevices?.set(outputId);
+    }
+  } catch {
+    /* the browser may refuse device selection; the default route still works */
+  }
+}
+
+/** Fire `cb` whenever the set of audio devices changes (headset, Bluetooth). */
+export function watchAudioDevices(cb: () => void): () => void {
+  if (typeof navigator === "undefined" || !navigator.mediaDevices?.addEventListener) return () => {};
+  navigator.mediaDevices.addEventListener("devicechange", cb);
+  return () => navigator.mediaDevices.removeEventListener("devicechange", cb);
+}

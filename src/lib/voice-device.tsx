@@ -3,7 +3,13 @@ import { toast } from "sonner";
 
 import { getVoiceToken, setVoicePresence } from "@/lib/twilio.functions";
 import { errorMessage } from "@/lib/format";
-import { startCallKeepalive, reviveCallAudio } from "@/lib/call-keepalive";
+import {
+  startCallKeepalive,
+  reviveCallAudio,
+  rebindAudioDevices,
+  watchAudioDevices,
+  type DeviceAudio,
+} from "@/lib/call-keepalive";
 import {
   ensureMicrophone,
   readMicPermission,
@@ -66,6 +72,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     destroy: () => void;
     updateToken: (token: string) => void;
     on: (event: string, handler: (...args: never[]) => void) => void;
+    audio?: DeviceAudio;
   } | null>(null);
   const callRef = useRef<Call | null>(null);
   const refreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -228,7 +235,19 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   // user comes back from another app — switching apps must never mute the mic.
   useEffect(() => {
     if (callState !== "active" && callState !== "connecting") return;
-    return startCallKeepalive(() => reviveCallAudio(callRef.current, muted));
+    // Follow the OS route: a headset paired or unplugged while we were in the
+    // background must be picked up before the mic track is re-asserted.
+    const resync = () => {
+      void rebindAudioDevices(deviceRef.current?.audio).finally(() => {
+        reviveCallAudio(callRef.current, muted);
+      });
+    };
+    const stopKeepalive = startCallKeepalive(resync);
+    const stopDeviceWatch = watchAudioDevices(resync);
+    return () => {
+      stopKeepalive();
+      stopDeviceWatch();
+    };
   }, [callState, muted]);
 
   const value: VoiceContextValue = {
