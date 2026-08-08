@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { getVoiceToken, setVoicePresence } from "@/lib/twilio.functions";
 import { errorMessage } from "@/lib/format";
+import { startCallKeepalive, reviveCallAudio } from "@/lib/call-keepalive";
 import {
   ensureMicrophone,
   readMicPermission,
@@ -222,6 +223,13 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     },
     [bindCall, error],
   );
+
+  // While a call is up, hold a wake lock and re-assert local audio whenever the
+  // user comes back from another app — switching apps must never mute the mic.
+  useEffect(() => {
+    if (callState !== "active" && callState !== "connecting") return;
+    return startCallKeepalive(() => reviveCallAudio(callRef.current, muted));
+  }, [callState, muted]);
 
   const value: VoiceContextValue = {
     status,
