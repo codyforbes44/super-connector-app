@@ -17,8 +17,12 @@ const DESCRIPTION =
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { mode?: "signin" | "signup" } => ({
+  ): { mode?: "signin" | "signup"; next?: string | undefined } => ({
     mode: search["mode"] === "signup" ? "signup" : "signin",
+    next:
+      typeof search["next"] === "string" && search["next"].startsWith("/")
+        ? search["next"]
+        : undefined,
   }),
   head: () => ({
     meta: [
@@ -35,7 +39,11 @@ export const Route = createFileRoute("/auth")({
 
 function AuthScreen() {
   const navigate = useNavigate();
-  const { mode: initialMode } = Route.useSearch();
+  const { mode: initialMode, next } = Route.useSearch();
+  const returnTo = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+  const returnUrl = returnTo
+    ? `${typeof window === "undefined" ? "" : window.location.origin}${returnTo}`
+    : null;
   const [mode, setMode] = useState<"signin" | "signup">(initialMode ?? "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,9 +53,14 @@ function AuthScreen() {
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void navigate({ to: "/inbox" });
+      if (!data.session) return;
+      if (returnTo) {
+        window.location.href = returnTo;
+        return;
+      }
+      void navigate({ to: "/inbox" });
     });
-  }, [navigate]);
+  }, [navigate, returnTo]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -58,7 +71,7 @@ function AuthScreen() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: returnUrl ?? window.location.origin,
             data: { display_name: name },
           },
         });
@@ -71,6 +84,10 @@ function AuthScreen() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
+      if (returnTo) {
+        window.location.href = returnTo;
+        return;
+      }
       await navigate({ to: "/welcome" });
     } catch (error) {
       toast.error(errorMessage(error));
@@ -82,7 +99,7 @@ function AuthScreen() {
   async function handleGoogle() {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: returnUrl ?? window.location.origin,
     });
     if (result.error) {
       setBusy(false);
@@ -90,6 +107,10 @@ function AuthScreen() {
       return;
     }
     if (result.redirected) return;
+    if (returnTo) {
+      window.location.href = returnTo;
+      return;
+    }
     await navigate({ to: "/welcome" });
   }
 
