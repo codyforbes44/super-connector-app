@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { MessageSquareShare, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { errorMessage, formatPhone } from "@/lib/format";
+import { a2pStatus } from "@/lib/a2p.functions";
 import {
   addNumberToMessagingService,
   createMessagingService,
@@ -56,6 +58,9 @@ export function MessagingServicesSection({
 
   const list = (services.data ?? []) as unknown as ServiceRow[];
 
+  const a2p = useQuery({ queryKey: ["a2p-status"], queryFn: () => a2pStatus(), retry: false });
+  const registration = a2p.data;
+
   return (
     <section className="space-y-3 border-t border-border px-4 py-4">
       <div className="flex items-center justify-between gap-2">
@@ -74,6 +79,26 @@ export function MessagingServicesSection({
       <p className="text-xs text-muted-foreground">
         Sender pools for US A2P 10DLC. Numbers in a pool share one registered campaign.
       </p>
+
+      {registration && !registration.ready ? (
+        <Link
+          to="/a2p"
+          className="glass-panel block rounded-2xl px-3.5 py-2.5 text-xs text-muted-foreground"
+        >
+          <span className="font-semibold text-foreground">
+            {registration.campaign.state === "failed"
+              ? "US texting registration was rejected"
+              : registration.campaign.state === "pending"
+                ? "US texting registration is in review"
+                : "US texting isn't registered yet"}
+          </span>
+          <span className="mt-0.5 block">
+            {registration.campaign.state === "pending"
+              ? "Carriers are reviewing your campaign. Messages to US numbers stay blocked until it clears."
+              : "Messages to US recipients are blocked until your brand and campaign are approved. Tap to continue."}
+          </span>
+        </Link>
+      ) : null}
 
       {services.isError ? (
         <p className="glass-panel rounded-2xl p-3 text-xs text-muted-foreground">
