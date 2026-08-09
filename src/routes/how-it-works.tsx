@@ -26,8 +26,8 @@ const STEPS = [
     body: "Sign up with email or Google and pick a plan. Your workspace is live immediately — no sales call, no onboarding queue.",
   },
   {
-    title: "Create your workspace",
-    body: "Sign up with email or Google and your 14-day trial starts instantly. Numbers, messages, calls and usage sync straight in.",
+    title: "Sync your existing numbers",
+    body: "Port your current numbers or set call forwarding from your existing carrier. SixVox answers behind the scenes while your callers keep dialing the same digits.",
   },
   {
     title: "Wire your numbers",
