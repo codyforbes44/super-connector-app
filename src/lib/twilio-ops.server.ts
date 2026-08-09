@@ -1076,20 +1076,24 @@ export async function accountOverview(supabase: SB, userId: string) {
 export async function accountStatus() {
   const sid = process.env["TWILIO_ACCOUNT_SID"];
   const direct = hasDirectCredentials();
-  const account = sid
-    ? await twilioRequest<{
-        friendly_name: string;
-        status: string;
-        type: string;
-        sid: string;
-      }>({ host: "api-direct", path: `/2010-04-01/Accounts/${sid}.json` })
-    : null;
+  const health = await credentialHealth();
+  const account =
+    sid && health.healthy
+      ? await twilioRequest<{
+          friendly_name: string;
+          status: string;
+          type: string;
+          sid: string;
+        }>({ host: "api-direct", path: `/2010-04-01/Accounts/${sid}.json` }).catch(() => null)
+      : null;
   return asJson({
     directApi: direct,
     friendlyName: account?.friendly_name ?? null,
     status: account?.status ?? null,
     type: account?.type ?? null,
-    sidSuffix: account?.sid ? account.sid.slice(-4) : null,
+    sidSuffix: account?.sid ? account.sid.slice(-4) : sid ? sid.slice(-4) : null,
+    credentialsOk: health.healthy,
+    credentialMessage: health.message,
   });
 }
 
