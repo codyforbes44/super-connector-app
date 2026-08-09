@@ -35,6 +35,11 @@ export function duration(seconds: number | null | undefined): string {
 }
 
 export function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message.replace(/^Error:\s*/, "");
-  return "Something went wrong.";
+  const raw = error instanceof Error ? error.message.replace(/^Error:\s*/, "") : "";
+  if (!raw) return "Something went wrong.";
+  // Rejected carrier credentials arrive as a raw Twilio 401/20003 blob.
+  if (/\[401\]/.test(raw) || /"code"\s*:\s*(20003|20005|20008)/.test(raw)) {
+    return "Your phone service credentials were rejected. Reconnect Twilio in Settings.";
+  }
+  return raw;
 }

@@ -5,7 +5,7 @@ import { emailStatus } from "./email.server";
 import { accountStatus as elevenStatus, hasElevenLabs } from "./elevenlabs.server";
 import * as gcal from "./gcal.server";
 import { mapsConfigured } from "./maps.server";
-import { hasDirectCredentials } from "./twilio.server";
+import { credentialHealth, hasDirectCredentials } from "./twilio.server";
 
 export type ConnectorState = "connected" | "action" | "unavailable";
 
@@ -45,7 +45,8 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
   const isAdmin = isAdminRole(role);
   const db = await admin();
 
-  const [numbers, twimlApps, email, gmailMeta, elevenlabs, pushDevices] = await Promise.all([
+  const [numbers, twimlApps, email, gmailMeta, elevenlabs, pushDevices, carrier] =
+    await Promise.all([
     safe(
       async () =>
         ((await supabase.from("phone_numbers").select("sid, phone_number, sms_url, voice_url"))
@@ -82,7 +83,13 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
           []) as Array<{ id: string }>,
       [] as Array<{ id: string }>,
     ),
-  ]);
+      safe(() => credentialHealth(), {
+        gateway: "error" as const,
+        direct: "error" as const,
+        healthy: false,
+        message: "Could not reach the phone service just now.",
+      }),
+    ]);
 
   const wired = numbers.filter((n) => n.sms_url && n.voice_url).length;
   const hasVoiceKeys = Boolean(
@@ -108,10 +115,12 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       name: "Carrier network",
       category: "Phone",
       description: "Delivery for calls, SMS and MMS.",
-      state: hasDirectCredentials() ? "connected" : "unavailable",
-      detail: hasDirectCredentials()
-        ? "Live — messaging, voice and verification enabled"
-        : "Not configured for this workspace",
+      state: carrier.healthy ? "connected" : carrier.gateway === "rejected" ? "action" : "unavailable",
+      detail: carrier.healthy
+        ? hasDirectCredentials()
+          ? "Live — messaging, voice and verification enabled"
+          : "Live — messaging and voice enabled"
+        : (carrier.message ?? "Not configured for this workspace"),
       href: isAdmin ? "/console" : null,
       adminOnly: true,
     },
