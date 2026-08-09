@@ -53,6 +53,8 @@ function AdvancedScreen() {
     status?: string | null;
     type?: string | null;
     sidSuffix?: string | null;
+    credentialsOk?: boolean;
+    credentialMessage?: string | null;
   } | null;
 
   return (
@@ -80,7 +82,7 @@ function AdvancedScreen() {
             <div className="glass-panel flex items-center gap-3 rounded-3xl px-4 py-3">
               <span
                 className={
-                  account?.status === "active"
+                  account?.credentialsOk
                     ? "h-2.5 w-2.5 shrink-0 rounded-full bg-success"
                     : "h-2.5 w-2.5 shrink-0 rounded-full bg-destructive"
                 }
@@ -89,15 +91,21 @@ function AdvancedScreen() {
                 <p className="truncate text-sm font-semibold">
                   {account?.friendlyName ?? "Carrier account"}
                 </p>
-                <p className="truncate text-[0.7rem] text-muted-foreground">
-                  {[
-                    account?.type,
-                    account?.status,
-                    account?.sidSuffix ? `···${account.sidSuffix}` : null,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
+                {account?.credentialsOk === false ? (
+                  <p className="text-[0.7rem] text-destructive">
+                    {account.credentialMessage ?? "Credentials rejected."}
+                  </p>
+                ) : (
+                  <p className="truncate text-[0.7rem] text-muted-foreground">
+                    {[
+                      account?.type,
+                      account?.status,
+                      account?.sidSuffix ? `···${account.sidSuffix}` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                )}
               </div>
               <Badge
                 variant={account?.directApi ? "secondary" : "outline"}
