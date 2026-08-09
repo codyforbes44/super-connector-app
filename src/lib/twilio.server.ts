@@ -30,15 +30,74 @@ export type TwilioHost =
 export class TwilioError extends Error {
   status: number;
   body: string;
+  /** True when the account credentials themselves were rejected. */
+  authFailure: boolean;
   constructor(status: number, body: string) {
-    super(`Twilio request failed [${status}]: ${body}`);
+    const authFailure = isAuthFailure(status, body);
+    super(authFailure ? TWILIO_AUTH_MESSAGE : `Twilio request failed [${status}]: ${body}`);
     this.status = status;
     this.body = body;
+    this.authFailure = authFailure;
   }
+}
+
+/** Shown to users whenever the carrier rejects our credentials (error 20003). */
+export const TWILIO_AUTH_MESSAGE =
+  "Your phone service credentials were rejected. Reconnect Twilio in Settings.";
+
+function isAuthFailure(status: number, body: string): boolean {
+  if (status === 401) return true;
+  return /"code"\s*:\s*(20003|20005|20008)/.test(body);
 }
 
 export function hasDirectCredentials(): boolean {
   return Boolean(process.env["TWILIO_ACCOUNT_SID"] && process.env["TWILIO_AUTH_TOKEN"]);
+}
+
+export type TransportHealth = "ok" | "rejected" | "missing" | "error";
+
+export type CredentialHealth = {
+  gateway: TransportHealth;
+  direct: TransportHealth;
+  healthy: boolean;
+  message: string | null;
+};
+
+async function probe(run: () => Promise<unknown>): Promise<TransportHealth> {
+  try {
+    await run();
+    return "ok";
+  } catch (error) {
+    if (error instanceof TwilioError) {
+      if (error.authFailure) return "rejected";
+      if (error.status === 428 || error.status === 500) return "missing";
+    }
+    return "error";
+  }
+}
+
+/** Live check that the stored carrier credentials still authenticate. */
+export async function credentialHealth(): Promise<CredentialHealth> {
+  const sid = process.env["TWILIO_ACCOUNT_SID"];
+  const [gateway, direct] = await Promise.all([
+    probe(() => twilioRequest({ path: "/Balance.json" })),
+    hasDirectCredentials()
+      ? probe(() => twilioRequest({ host: "api-direct", path: `/2010-04-01/Accounts/${sid}.json` }))
+      : Promise.resolve<TransportHealth>("missing"),
+  ]);
+  const rejected = gateway === "rejected" || direct === "rejected";
+  return {
+    gateway,
+    direct,
+    healthy: gateway === "ok",
+    message: rejected
+      ? TWILIO_AUTH_MESSAGE
+      : gateway === "missing"
+        ? "Phone service is not connected for this workspace yet."
+        : gateway === "error"
+          ? "Could not reach the phone service just now."
+          : null,
+  };
 }
 
 function encodeForm(params: Record<string, unknown>): string {
