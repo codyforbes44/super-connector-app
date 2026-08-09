@@ -10,6 +10,7 @@ import {
   webhookUrl,
 } from "./app.server";
 import {
+  credentialHealth,
   hasDirectCredentials,
   normalizePhone,
   stripChannel,
