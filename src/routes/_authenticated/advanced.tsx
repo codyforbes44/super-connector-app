@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Copy, Terminal } from "lucide-react";
+import { ArrowLeft, Copy, ShieldCheck, Terminal } from "lucide-react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
