@@ -2,8 +2,10 @@
  * Server-only Twilio access layer.
  *
  * Two transports:
- *  - "api"  -> api.twilio.com/2010-04-01/Accounts/{Sid}/...  via the Lovable
- *              connector gateway (auth + Account SID injected for us).
+ *  - "api"  -> api.twilio.com/2010-04-01/Accounts/{Sid}/...  Uses the account's
+ *              own credentials when saved (full access), otherwise falls back
+ *              to the Lovable connector gateway, whose connection key is
+ *              scoped to a subset of resources.
  *  - other  -> verify / lookups / messaging / pricing etc. subdomains, called
  *              directly with the account's own credentials when they exist.
  */
@@ -85,16 +87,17 @@ export async function credentialHealth(): Promise<CredentialHealth> {
       ? probe(() => twilioRequest({ host: "api-direct", path: `/2010-04-01/Accounts/${sid}.json` }))
       : Promise.resolve<TransportHealth>("missing"),
   ]);
-  const rejected = gateway === "rejected" || direct === "rejected";
+  const rejected = direct === "rejected" || (direct === "missing" && gateway === "rejected");
+  const primary = hasDirectCredentials() ? direct : gateway;
   return {
     gateway,
     direct,
-    healthy: gateway === "ok",
+    healthy: primary === "ok",
     message: rejected
       ? TWILIO_AUTH_MESSAGE
-      : gateway === "missing"
+      : primary === "missing"
         ? "Phone service is not connected for this workspace yet."
-        : gateway === "error"
+        : primary === "error"
           ? "Could not reach the phone service just now."
           : null,
   };
@@ -127,7 +130,14 @@ export async function twilioRequest<T = unknown>(opts: {
   let url: string;
   const headers: Record<string, string> = {};
 
-  if (host === "api") {
+  if (host === "api" && hasDirectCredentials()) {
+    // Full account credentials reach every 2010-04-01 resource; the gateway's
+    // connection key is scoped to a subset (messages/recordings/balance).
+    const sid = process.env["TWILIO_ACCOUNT_SID"];
+    const token = process.env["TWILIO_AUTH_TOKEN"];
+    url = `https://api.twilio.com/2010-04-01/Accounts/${sid}${opts.path}`;
+    headers["Authorization"] = `Basic ${btoa(`${sid}:${token}`)}`;
+  } else if (host === "api") {
     const lovableKey = process.env["LOVABLE_API_KEY"];
     const connectionKey = process.env["TWILIO_API_KEY"];
     if (!lovableKey || !connectionKey) {
