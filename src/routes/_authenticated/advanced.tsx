@@ -172,6 +172,18 @@ function AdvancedScreen() {
       </section>
 
       <section className="border-t border-border px-4 py-4">
+        <Link
+          to="/a2p"
+          className="glass-panel mb-3 flex items-center gap-3 rounded-2xl px-4 py-3"
+        >
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">US texting registration</p>
+            <p className="text-[0.7rem] text-muted-foreground">
+              A2P 10DLC brand and campaign — required for US delivery
+            </p>
+          </div>
+        </Link>
         <Link to="/console" className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3">
           <Terminal className="h-4 w-4 text-primary" />
           <div className="min-w-0 flex-1">
