@@ -17,6 +17,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedA2pRouteImport } from './routes/_authenticated/a2p'
 import { Route as AuthenticatedAdvancedRouteImport } from './routes/_authenticated/advanced'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
@@ -81,6 +82,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedA2pRoute = AuthenticatedA2pRouteImport.update({
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/a2p': typeof AuthenticatedA2pRoute
   '/advanced': typeof AuthenticatedAdvancedRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -263,6 +270,7 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/a2p': typeof AuthenticatedA2pRoute
   '/advanced': typeof AuthenticatedAdvancedRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -300,6 +308,7 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/a2p': typeof AuthenticatedA2pRoute
   '/_authenticated/advanced': typeof AuthenticatedAdvancedRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
@@ -337,6 +346,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/how-it-works'
     | '/pricing'
+    | '/sitemap.xml'
     | '/a2p'
     | '/advanced'
     | '/billing'
@@ -372,6 +382,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/how-it-works'
     | '/pricing'
+    | '/sitemap.xml'
     | '/a2p'
     | '/advanced'
     | '/billing'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/how-it-works'
     | '/pricing'
+    | '/sitemap.xml'
     | '/_authenticated/a2p'
     | '/_authenticated/advanced'
     | '/_authenticated/billing'
@@ -445,6 +457,7 @@ export interface RootRouteChildren {
   FeaturesRoute: typeof FeaturesRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PricingRoute: typeof PricingRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
@@ -513,6 +526,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/a2p': {
@@ -750,6 +770,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesRoute: FeaturesRoute,
   HowItWorksRoute: HowItWorksRoute,
   PricingRoute: PricingRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
@@ -764,3 +785,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
