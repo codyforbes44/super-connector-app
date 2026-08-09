@@ -9,6 +9,16 @@ import sendMessageTool from "./tools/send-message";
 
 const projectRef = import.meta.env["VITE_SUPABASE_PROJECT_ID"] ?? "project-ref-unset";
 
+// exactOptionalPropertyTypes: defineTool leaves `outputSchema` as undefined.
+const tools = [
+  listPhoneNumbersTool,
+  listConversationsTool,
+  getConversationTool,
+  sendMessageTool,
+  listCallsTool,
+  listContactsTool,
+] as unknown as Parameters<typeof defineMcp>[0]["tools"];
+
 export default defineMcp({
   name: "twilio-connect-pro",
   title: "Twilio Connect Pro",
@@ -19,12 +29,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [
-    listPhoneNumbersTool,
-    listConversationsTool,
-    getConversationTool,
-    sendMessageTool,
-    listCallsTool,
-    listContactsTool,
-  ],
+  tools,
 });
