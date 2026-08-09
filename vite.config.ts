@@ -5,7 +5,6 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
-import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { fileURLToPath } from "node:url";
 
 const eventsShim = fileURLToPath(new URL("./node_modules/events/events.js", import.meta.url));
@@ -24,7 +23,7 @@ const resolveEventsPolyfill = {
 };
 
 export default defineConfig({
-  plugins: [resolveEventsPolyfill, mcpPlugin()],
+  plugins: [resolveEventsPolyfill],
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
