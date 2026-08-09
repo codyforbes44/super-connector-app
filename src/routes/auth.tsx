@@ -17,7 +17,7 @@ const DESCRIPTION =
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { mode?: "signin" | "signup"; next?: string } => ({
+  ): { mode?: "signin" | "signup"; next?: string | undefined } => ({
     mode: search["mode"] === "signup" ? "signup" : "signin",
     next:
       typeof search["next"] === "string" && search["next"].startsWith("/")
