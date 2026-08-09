@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      a2p_registrations: {
+        Row: {
+          address_sid: string | null
+          brand_sid: string | null
+          brand_status: string | null
+          business: Json
+          campaign_input: Json
+          campaign_sid: string | null
+          campaign_status: string | null
+          created_at: string
+          customer_profile_sid: string | null
+          document_sid: string | null
+          end_user_sid: string | null
+          id: string
+          last_error: string | null
+          messaging_service_sid: string | null
+          trust_product_sid: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_sid?: string | null
+          brand_sid?: string | null
+          brand_status?: string | null
+          business?: Json
+          campaign_input?: Json
+          campaign_sid?: string | null
+          campaign_status?: string | null
+          created_at?: string
+          customer_profile_sid?: string | null
+          document_sid?: string | null
+          end_user_sid?: string | null
+          id?: string
+          last_error?: string | null
+          messaging_service_sid?: string | null
+          trust_product_sid?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_sid?: string | null
+          brand_sid?: string | null
+          brand_status?: string | null
+          business?: Json
+          campaign_input?: Json
+          campaign_sid?: string | null
+          campaign_status?: string | null
+          created_at?: string
+          customer_profile_sid?: string | null
+          document_sid?: string | null
+          end_user_sid?: string | null
+          id?: string
+          last_error?: string | null
+          messaging_service_sid?: string | null
+          trust_product_sid?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_conversations: {
         Row: {
           agent_id: string | null
