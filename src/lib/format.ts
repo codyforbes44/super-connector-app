@@ -41,5 +41,9 @@ export function errorMessage(error: unknown): string {
   if (/\[401\]/.test(raw) || /"code"\s*:\s*(20003|20005|20008)/.test(raw)) {
     return "Your phone service credentials were rejected. Reconnect Twilio in Settings.";
   }
+  // Carriers reject US traffic from a number that isn't in an approved campaign.
+  if (/\b(30034|30032)\b/.test(raw) || /A2P\s*10DLC|unregistered/i.test(raw)) {
+    return "This number isn't registered for US business texting yet. Finish A2P registration under Settings › Advanced › US texting registration.";
+  }
   return raw;
 }
