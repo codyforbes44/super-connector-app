@@ -315,7 +315,7 @@ function CallsScreen() {
           }
         />
       ) : (
-        <ul className="space-y-2 px-3 pb-4">
+        <ul className="grid gap-2 px-3 pb-4 md:grid-cols-2 xl:grid-cols-3">
           {(calls.data ?? []).map((call) => {
             const inbound = call.direction === "inbound";
             const other = inbound ? call.from_number : call.to_number;
@@ -361,7 +361,7 @@ function CallsScreen() {
                 <button
                   type="button"
                   onClick={() => playRecording(call.sid)}
-                  className="key-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-foreground"
+                  className="key-raised flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-foreground sm:h-10 sm:w-10"
                 >
                   <Play className="h-4 w-4" />
                   <span className="sr-only">Play recording</span>
@@ -370,7 +370,7 @@ function CallsScreen() {
                   type="button"
                   disabled={!redialTo}
                   onClick={() => void callBack(call)}
-                  className="key-call flex h-9 w-9 shrink-0 items-center justify-center rounded-full disabled:opacity-40"
+                  className="key-call flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-40 sm:h-10 sm:w-10"
                 >
                   <PhoneCall className="h-4 w-4" />
                   <span className="sr-only">Call back {redialTo || "unavailable"}</span>

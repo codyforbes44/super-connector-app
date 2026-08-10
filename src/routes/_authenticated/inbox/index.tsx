@@ -124,7 +124,7 @@ function InboxScreen() {
           }
         />
       ) : (
-        <ul className="space-y-2 px-3 pb-4">
+        <ul className="grid gap-2 px-3 pb-4 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((c) => (
             <li key={c.id}>
               <Link
@@ -171,7 +171,7 @@ function InboxScreen() {
       <button
         type="button"
         onClick={() => setComposing(true)}
-        className="key-call fixed right-[max(1rem,calc(50%-14rem))] bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full transition-transform active:scale-95"
+        className="key-call fixed right-[max(1rem,calc(50%-15rem))] bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full transition-transform active:scale-95 md:right-[max(1.5rem,calc(50%-21rem))] lg:right-8 lg:bottom-8"
       >
         <Plus className="h-6 w-6" />
         <span className="sr-only">New message</span>
