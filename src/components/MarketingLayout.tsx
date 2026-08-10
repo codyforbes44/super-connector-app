@@ -259,12 +259,12 @@ function FooterCol({
   return (
     <div>
       <p className="font-display text-xs font-semibold tracking-wide uppercase">{title}</p>
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-2">
         {links.map((link) => (
           <li key={`${link.to}-${link.label}`}>
             <Link
               to={link.to}
-              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex min-h-10 items-center text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
             </Link>
@@ -283,7 +283,7 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section className={cn("mx-auto max-w-6xl px-5 py-16 md:py-24", className)}>{children}</section>
+    <section className={cn("mx-auto max-w-6xl px-5 py-12 md:py-20", className)}>{children}</section>
   );
 }
 
@@ -302,12 +302,12 @@ export function StatBand({
   stats: Array<{ value: string; label: string }>;
 }) {
   return (
-    <dl className="glass-panel grid grid-cols-2 gap-6 rounded-3xl p-6 md:grid-cols-4">
+    <dl className="glass-panel grid grid-cols-2 gap-px overflow-hidden rounded-3xl md:grid-cols-4">
       {stats.map((stat) => (
-        <div key={stat.label}>
+        <div key={stat.label} className="surface-subtle p-5 md:p-6">
           <dt className="sr-only">{stat.label}</dt>
           <dd>
-            <span className="font-display block text-2xl font-semibold text-primary">
+            <span className="font-display block text-xl font-semibold text-primary sm:text-2xl">
               {stat.value}
             </span>
             <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
