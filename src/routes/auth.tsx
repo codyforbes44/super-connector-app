@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { errorMessage } from "@/lib/format";
+import { PLANS, type BillingInterval, type PlanCode } from "@/lib/plans";
 
 const TITLE = "Sign in or start your free trial — SixVox";
 const DESCRIPTION =
