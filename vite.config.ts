@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { fileURLToPath } from "node:url";
+import { VitePWA } from "vite-plugin-pwa";
 
 const eventsShim = fileURLToPath(new URL("./node_modules/events/events.js", import.meta.url));
 
@@ -23,7 +24,66 @@ const resolveEventsPolyfill = {
 };
 
 export default defineConfig({
-  plugins: [resolveEventsPolyfill],
+  plugins: [
+    resolveEventsPolyfill,
+    // Offline app shell for installed PWAs. Registration is gated by
+    // src/lib/service-worker.ts — never in dev or Lovable preview.
+    VitePWA({
+      strategies: "generateSW",
+      registerType: "autoUpdate",
+      injectRegister: null,
+      filename: "sw.js",
+      // We ship our own public/manifest.webmanifest.
+      manifest: false,
+      devOptions: { enabled: false },
+      workbox: {
+        // Keep all push/call notification logic in the single root-scope worker.
+        importScripts: ["/push-sw.js"],
+        globPatterns: ["**/*.{js,css,woff,woff2,png,svg,ico}"],
+        globIgnores: ["**/push-sw.js", "**/_server/**", "**/server/**"],
+        navigateFallback: "/offline.html",
+        navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/, /^\/sitemap\.xml$/],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: ({ request, url }: { request: Request; url: URL }) =>
+              request.mode === "navigate" &&
+              !url.pathname.startsWith("/api/") &&
+              !url.pathname.startsWith("/~oauth"),
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "sixvox-pages",
+              networkTimeoutSeconds: 4,
+              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 },
+            },
+          },
+          {
+            urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
+              sameOrigin && /\.(?:js|css|woff2?|png|svg|ico)$/.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "sixvox-assets",
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            urlPattern: ({ url }: { url: URL }) =>
+              url.origin === "https://fonts.googleapis.com" ||
+              url.origin === "https://fonts.gstatic.com",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "sixvox-fonts",
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+        ],
+      },
+    }),
+  ],
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
