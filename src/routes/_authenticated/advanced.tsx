@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Copy, ShieldCheck, Terminal } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Copy, ShieldCheck, Terminal } from "lucide-react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
@@ -10,7 +10,7 @@ import { VoiceSetup } from "@/components/VoiceSetup";
 import { Badge } from "@/components/ui/badge";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage } from "@/lib/format";
-import { accountOverview } from "@/lib/twilio.functions";
+import { accountOverview, webhookDiagnostics } from "@/lib/twilio.functions";
 
 const TITLE = "Advanced — SixVox";
 const DESCRIPTION = "Carrier account health, routing endpoints and the raw API console.";
@@ -36,6 +36,13 @@ function AdvancedScreen() {
     queryFn: () => accountOverview(),
     enabled: boot.isAdmin,
     retry: false,
+  });
+  const diagnostics = useQuery({
+    queryKey: ["webhook-diagnostics"],
+    queryFn: () => webhookDiagnostics(),
+    enabled: boot.isAdmin,
+    retry: false,
+    refetchInterval: 60_000,
   });
 
   if (!boot.isAdmin) {
@@ -138,6 +145,9 @@ function AdvancedScreen() {
       </section>
 
       <VoiceSetup />
+
+      <CallErrors data={diagnostics.data} />
+
       <ElevenLabsStatus />
       <MessagingServicesSection numbers={boot.numbers} />
 
