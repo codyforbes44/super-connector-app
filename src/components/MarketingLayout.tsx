@@ -364,7 +364,7 @@ export function FaqAccordion({ items }: { items: Array<{ q: string; a: string }>
               +
             </span>
           </summary>
-          <p className="mt-2 text-[0.85rem] leading-relaxed text-muted-foreground">{item.a}</p>
+          <p className="mt-1 pb-4 text-[0.85rem] leading-relaxed text-muted-foreground">{item.a}</p>
         </details>
       ))}
     </div>
