@@ -94,7 +94,7 @@ export function EmailTemplatesPanel() {
               {" "}
               Variables:{" "}
               {entry.variables.map((v) => (
-                <code key={v} className="mr-1 rounded bg-white/5 px-1">{`{{${v}}}`}</code>
+                <code key={v} className="mr-1 surface-track rounded px-1">{`{{${v}}}`}</code>
               ))}
             </>
           )}
@@ -172,7 +172,7 @@ export function EmailTemplatesPanel() {
         {preview.data && (
           <iframe
             title="Template preview"
-            className="h-[480px] w-full rounded-2xl border border-white/10 bg-white"
+            className="h-[480px] w-full rounded-2xl border border-border bg-white"
             srcDoc={preview.data.html}
           />
         )}

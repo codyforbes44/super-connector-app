@@ -71,7 +71,7 @@ export function CallReadiness() {
             voice.status === "ready"
               ? "bg-primary/15 text-primary"
               : voice.status === "registering"
-                ? "bg-white/5 text-muted-foreground"
+                ? "surface-track text-muted-foreground"
                 : "bg-destructive/15 text-destructive",
           )}
         >

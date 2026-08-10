@@ -219,7 +219,7 @@ export function PlacesPanel() {
       {selected && browserKey && (
         <iframe
           title="Map"
-          className="h-56 w-full rounded-2xl border border-white/10"
+          className="h-56 w-full rounded-2xl border border-border"
           loading="lazy"
           src={`https://www.google.com/maps/embed/v1/view?key=${browserKey}&center=${selected.lat},${selected.lng}&zoom=15`}
         />

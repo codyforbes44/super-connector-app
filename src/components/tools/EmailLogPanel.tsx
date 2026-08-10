@@ -215,7 +215,7 @@ export function EmailLogPanel() {
               {(detailRow["body_html"] as string) && (
                 <iframe
                   title="Email preview"
-                  className="h-[420px] w-full rounded-2xl border border-white/10 bg-white"
+                  className="h-[420px] w-full rounded-2xl border border-border bg-white"
                   srcDoc={detailRow["body_html"] as string}
                 />
               )}

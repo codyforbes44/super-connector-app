@@ -82,7 +82,7 @@ export function MailPanel({ presetEmail }: { presetEmail?: string }) {
         <div className="glass-panel space-y-3 rounded-2xl p-4">
           {thread.isLoading && <Loader2 className="size-4 animate-spin" />}
           {(thread.data?.messages ?? []).map((m) => (
-            <div key={m.id} className="space-y-1 border-b border-white/5 pb-3 last:border-0">
+            <div key={m.id} className="space-y-1 border-b border-border pb-3 last:border-0">
               <p className="text-xs text-muted-foreground">
                 {m.from} · {m.date ? relativeTime(m.date) : ""}
               </p>

@@ -143,7 +143,7 @@ export function EmailNotifications() {
         ))}
       </div>
 
-      <div className="space-y-2 border-t border-white/5 pt-3">
+      <div className="space-y-2 border-t border-border pt-3">
         <div className="flex items-center justify-between">
           <span className="text-sm">Quiet hours</span>
           <Switch

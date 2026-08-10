@@ -127,7 +127,7 @@ export function GmailConnect({ compact = false }: { compact?: boolean }) {
         </div>
       </div>
 
-      <div className="space-y-2 rounded-2xl border border-white/5 bg-white/[0.02] p-3">
+      <div className="space-y-2 surface-subtle rounded-2xl border border-border p-3">
         <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <ShieldCheck className="size-3.5" /> Permissions requested
         </p>
