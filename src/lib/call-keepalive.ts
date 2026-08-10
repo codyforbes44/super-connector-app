@@ -13,6 +13,25 @@ type WakeLockSentinel = { release: () => Promise<void>; addEventListener: (t: st
 
 let sentinel: WakeLockSentinel | null = null;
 
+/**
+ * Every WebAudio context the app creates (dialpad tones, ringtone). Mobile
+ * Safari suspends these on backgrounding and does not always resume them, so
+ * we resume them all when the user returns mid-call.
+ */
+const contexts = new Set<AudioContext>();
+
+/** Register a WebAudio context so keepalive can resume it after backgrounding. */
+export function registerAudioContext(ctx: AudioContext): void {
+  contexts.add(ctx);
+}
+
+/** Resume every registered WebAudio context. */
+export function resumeAudioContexts(): void {
+  contexts.forEach((ctx) => {
+    if (ctx.state === "suspended") void ctx.resume().catch(() => {});
+  });
+}
+
 async function acquireWakeLock() {
   const nav = navigator as Navigator & {
     wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> };
@@ -44,6 +63,7 @@ export function startCallKeepalive(reassert: () => void): () => void {
   const onVisible = () => {
     if (document.visibilityState === "visible") {
       void acquireWakeLock();
+      resumeAudioContexts();
       reassert();
     }
   };
