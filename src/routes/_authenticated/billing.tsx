@@ -248,6 +248,12 @@ function BillingScreen() {
                 </Button>
               </div>
             ))}
+
+            <p className="px-1 pb-2 text-[0.7rem] leading-relaxed text-muted-foreground">
+              Prices in USD. Sales tax or VAT is calculated at checkout. Subscriptions renew
+              automatically each {interval === "month" ? "month" : "year"} until cancelled — cancel
+              any time from this screen and keep access until the end of the paid period.
+            </p>
           </>
         )}
       </div>
