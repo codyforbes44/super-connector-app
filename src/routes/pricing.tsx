@@ -2,24 +2,47 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Check, Minus } from "lucide-react";
 import { useState } from "react";
 
-import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
+import {
+  CtaBand,
+  Eyebrow,
+  FaqAccordion,
+  MarketingLayout,
+  Section,
+} from "@/components/MarketingLayout";
 import { FEATURE_MATRIX, PLANS, type BillingInterval } from "@/lib/plans";
+import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Pricing — SixVox plans from $29/mo";
+const TITLE = "Pricing — SixVox business phone plans from $29/mo";
 const DESCRIPTION =
-  "Solo, Team and Scale plans for SixVox. Numbers, seats, AI receptionist and advanced access compared side by side. Every plan starts with a 14-day free trial.";
+  "Compare SixVox Solo, Team and Scale: numbers, seats, WhatsApp, AI receptionist and API access. Every plan starts with a 14-day free trial, no card required.";
+
+const BILLING_FAQS = [
+  {
+    q: "Is tax included in these prices?",
+    a: "Prices are shown in USD excluding tax. Any applicable sales tax or VAT is calculated and shown at checkout based on your billing address.",
+  },
+  {
+    q: "When am I charged?",
+    a: "Never during the 14-day trial. Once you pick a plan you're charged immediately, then automatically each month or year until you cancel.",
+  },
+  {
+    q: "How do I cancel?",
+    a: "From Billing inside the app, in one tap. You keep access until the end of the period you've already paid for, and we don't charge again.",
+  },
+  {
+    q: "Can I change plans later?",
+    a: "Yes. Upgrade or downgrade at any time — the difference is pro-rated on your next invoice.",
+  },
+  {
+    q: "What about call and message usage?",
+    a: "Usage is billed at cost with no markup and no per-message surcharge, itemised on your invoice alongside your plan.",
+  },
+];
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
+    ...pageHead({ path: "/pricing", title: TITLE, description: DESCRIPTION, type: "product" }),
     scripts: [
       {
         type: "application/ld+json",
@@ -28,11 +51,35 @@ export const Route = createFileRoute("/pricing")({
           "@type": "Product",
           name: "SixVox",
           description: DESCRIPTION,
+          url: `${SITE_URL}/pricing`,
           offers: PLANS.map((plan) => ({
             "@type": "Offer",
             name: plan.name,
-            price: plan.monthly,
+            price: String(plan.monthly),
             priceCurrency: "USD",
+            url: `${SITE_URL}/pricing`,
+            availability: "https://schema.org/InStock",
+          })),
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          breadcrumbLd([
+            { name: "Home", path: "/" },
+            { name: "Pricing", path: "/pricing" },
+          ]),
+        ),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: BILLING_FAQS.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: { "@type": "Answer", text: item.a },
           })),
         }),
       },
@@ -61,6 +108,7 @@ function PricingPage() {
             <button
               key={option}
               type="button"
+              aria-pressed={interval === option}
               onClick={() => setInterval(option)}
               className={cn(
                 "rounded-full px-5 py-2 text-xs font-semibold transition-all",
