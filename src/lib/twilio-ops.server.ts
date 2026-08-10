@@ -479,11 +479,17 @@ export async function wireNumber(
     StatusCallbackMethod: "POST",
   };
   const voiceParams = appSid
-    ? { VoiceApplicationSid: appSid }
+    ? {
+        VoiceApplicationSid: appSid,
+        VoiceFallbackUrl: webhookUrl("voice-fallback"),
+        VoiceFallbackMethod: "POST",
+      }
     : {
         VoiceApplicationSid: "",
         VoiceUrl: webhookUrl("voice"),
         VoiceMethod: "POST",
+        VoiceFallbackUrl: webhookUrl("voice-fallback"),
+        VoiceFallbackMethod: "POST",
       };
   await twilioRequest({
     method: "POST",
@@ -539,6 +545,8 @@ export async function purchaseNumber(
       SmsFallbackMethod: "POST",
       VoiceUrl: webhookUrl("voice"),
       VoiceMethod: "POST",
+      VoiceFallbackUrl: webhookUrl("voice-fallback"),
+      VoiceFallbackMethod: "POST",
       StatusCallback: webhookUrl("status"),
       StatusCallbackMethod: "POST",
     },
