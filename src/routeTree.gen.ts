@@ -41,9 +41,11 @@ import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/pu
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend/webhook'
 import { Route as ApiPublicTwilioAppVoiceRouteImport } from './routes/api/public/twilio/app-voice'
+import { Route as ApiPublicTwilioErrorRouteImport } from './routes/api/public/twilio/error'
 import { Route as ApiPublicTwilioSmsRouteImport } from './routes/api/public/twilio/sms'
 import { Route as ApiPublicTwilioStatusRouteImport } from './routes/api/public/twilio/status'
 import { Route as ApiPublicTwilioVoiceRouteImport } from './routes/api/public/twilio/voice'
+import { Route as ApiPublicTwilioVoiceFallbackRouteImport } from './routes/api/public/twilio/voice-fallback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -210,6 +212,11 @@ const ApiPublicTwilioAppVoiceRoute = ApiPublicTwilioAppVoiceRouteImport.update({
   path: '/api/public/twilio/app-voice',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTwilioErrorRoute = ApiPublicTwilioErrorRouteImport.update({
+  id: '/api/public/twilio/error',
+  path: '/api/public/twilio/error',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTwilioSmsRoute = ApiPublicTwilioSmsRouteImport.update({
   id: '/api/public/twilio/sms',
   path: '/api/public/twilio/sms',
@@ -225,6 +232,12 @@ const ApiPublicTwilioVoiceRoute = ApiPublicTwilioVoiceRouteImport.update({
   path: '/api/public/twilio/voice',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTwilioVoiceFallbackRoute =
+  ApiPublicTwilioVoiceFallbackRouteImport.update({
+    id: '/api/public/twilio/voice-fallback',
+    path: '/api/public/twilio/voice-fallback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -258,9 +271,11 @@ export interface FileRoutesByFullPath {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
+  '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -294,9 +309,11 @@ export interface FileRoutesByTo {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
+  '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -332,9 +349,11 @@ export interface FileRoutesById {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
+  '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -370,9 +389,11 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/error'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
+    | '/api/public/twilio/voice-fallback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -406,9 +427,11 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/error'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
+    | '/api/public/twilio/voice-fallback'
   id:
     | '__root__'
     | '/'
@@ -443,9 +466,11 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/error'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
+    | '/api/public/twilio/voice-fallback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -465,9 +490,11 @@ export interface RootRouteChildren {
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
   ApiPublicTwilioAppVoiceRoute: typeof ApiPublicTwilioAppVoiceRoute
+  ApiPublicTwilioErrorRoute: typeof ApiPublicTwilioErrorRoute
   ApiPublicTwilioSmsRoute: typeof ApiPublicTwilioSmsRoute
   ApiPublicTwilioStatusRoute: typeof ApiPublicTwilioStatusRoute
   ApiPublicTwilioVoiceRoute: typeof ApiPublicTwilioVoiceRoute
+  ApiPublicTwilioVoiceFallbackRoute: typeof ApiPublicTwilioVoiceFallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -696,6 +723,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTwilioAppVoiceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/twilio/error': {
+      id: '/api/public/twilio/error'
+      path: '/api/public/twilio/error'
+      fullPath: '/api/public/twilio/error'
+      preLoaderRoute: typeof ApiPublicTwilioErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/twilio/sms': {
       id: '/api/public/twilio/sms'
       path: '/api/public/twilio/sms'
@@ -715,6 +749,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/twilio/voice'
       fullPath: '/api/public/twilio/voice'
       preLoaderRoute: typeof ApiPublicTwilioVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/twilio/voice-fallback': {
+      id: '/api/public/twilio/voice-fallback'
+      path: '/api/public/twilio/voice-fallback'
+      fullPath: '/api/public/twilio/voice-fallback'
+      preLoaderRoute: typeof ApiPublicTwilioVoiceFallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -778,20 +819,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,
   ApiPublicTwilioAppVoiceRoute: ApiPublicTwilioAppVoiceRoute,
+  ApiPublicTwilioErrorRoute: ApiPublicTwilioErrorRoute,
   ApiPublicTwilioSmsRoute: ApiPublicTwilioSmsRoute,
   ApiPublicTwilioStatusRoute: ApiPublicTwilioStatusRoute,
   ApiPublicTwilioVoiceRoute: ApiPublicTwilioVoiceRoute,
+  ApiPublicTwilioVoiceFallbackRoute: ApiPublicTwilioVoiceFallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -27,6 +27,7 @@ export type TwilioHost =
   | "numbers"
   | "events"
   | "sync"
+  | "monitor"
   | "taskrouter";
 
 export class TwilioError extends Error {

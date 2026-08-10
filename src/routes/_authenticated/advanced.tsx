@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Copy, ShieldCheck, Terminal } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Copy, ShieldCheck, Terminal } from "lucide-react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
@@ -10,7 +10,7 @@ import { VoiceSetup } from "@/components/VoiceSetup";
 import { Badge } from "@/components/ui/badge";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage } from "@/lib/format";
-import { accountOverview } from "@/lib/twilio.functions";
+import { accountOverview, webhookDiagnostics } from "@/lib/twilio.functions";
 
 const TITLE = "Advanced — SixVox";
 const DESCRIPTION = "Carrier account health, routing endpoints and the raw API console.";
@@ -30,12 +30,93 @@ export const Route = createFileRoute("/_authenticated/advanced")({
 });
 
 function AdvancedScreen() {
+  return <AdvancedBody />;
+}
+
+type Diagnostics = {
+  logged?: {
+    id: string;
+    source: string;
+    error_code: string | null;
+    message: string | null;
+    app_number: string | null;
+    created_at: string;
+  }[];
+  alerts?: {
+    sid: string;
+    errorCode: string | null;
+    message: string | null;
+    requestUrl: string | null;
+    createdAt: string | null;
+  }[];
+};
+
+function CallErrors({ data }: { data: unknown }) {
+  const diag = (data ?? {}) as Diagnostics;
+  const alerts = diag.alerts ?? [];
+  const logged = diag.logged ?? [];
+  const rows = [
+    ...alerts.map((a) => ({
+      key: `alert-${a.sid}`,
+      code: a.errorCode,
+      message: a.message ?? a.requestUrl ?? "Carrier alert",
+      when: a.createdAt,
+      origin: "carrier",
+    })),
+    ...logged.map((l) => ({
+      key: `log-${l.id}`,
+      code: l.error_code,
+      message: l.message ?? l.source,
+      when: l.created_at,
+      origin: l.app_number ?? l.source,
+    })),
+  ]
+    .sort((a, b) => (b.when ?? "").localeCompare(a.when ?? ""))
+    .slice(0, 8);
+
+  return (
+    <section className="space-y-3 border-t border-border px-4 py-4">
+      <h2 className="font-display flex items-center gap-2 text-sm font-semibold">
+        <AlertTriangle className="size-4 text-primary" />
+        Recent call errors
+      </h2>
+      {rows.length === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          No carrier or webhook errors recorded recently.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {rows.map((row) => (
+            <li key={row.key} className="glass-panel rounded-2xl px-3.5 py-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <p className="truncate text-xs font-semibold">{row.code ?? row.origin}</p>
+                <span className="shrink-0 text-[0.65rem] text-muted-foreground">
+                  {row.when ? new Date(row.when).toLocaleString() : ""}
+                </span>
+              </div>
+              <p className="mt-1 line-clamp-2 text-[0.7rem] text-muted-foreground">{row.message}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function AdvancedBody() {
   const boot = useBootstrap();
   const overview = useQuery({
     queryKey: ["account-overview"],
     queryFn: () => accountOverview(),
     enabled: boot.isAdmin,
     retry: false,
+  });
+  const diagnostics = useQuery({
+    queryKey: ["webhook-diagnostics"],
+    queryFn: () => webhookDiagnostics(),
+    enabled: boot.isAdmin,
+    retry: false,
+    refetchInterval: 60_000,
   });
 
   if (!boot.isAdmin) {
@@ -138,6 +219,9 @@ function AdvancedScreen() {
       </section>
 
       <VoiceSetup />
+
+      <CallErrors data={diagnostics.data} />
+
       <ElevenLabsStatus />
       <MessagingServicesSection numbers={boot.numbers} />
 

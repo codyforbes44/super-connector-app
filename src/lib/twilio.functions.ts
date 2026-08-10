@@ -327,3 +327,6 @@ export const signMediaUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { path: string }) => input)
   .handler(async ({ context, data }) => ops.signMediaUrl(context.supabase, context.userId, data));
+export const webhookDiagnostics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => ops.webhookDiagnostics(context.supabase, context.userId));

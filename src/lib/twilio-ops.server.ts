@@ -479,11 +479,17 @@ export async function wireNumber(
     StatusCallbackMethod: "POST",
   };
   const voiceParams = appSid
-    ? { VoiceApplicationSid: appSid }
+    ? {
+        VoiceApplicationSid: appSid,
+        VoiceFallbackUrl: webhookUrl("voice-fallback"),
+        VoiceFallbackMethod: "POST",
+      }
     : {
         VoiceApplicationSid: "",
         VoiceUrl: webhookUrl("voice"),
         VoiceMethod: "POST",
+        VoiceFallbackUrl: webhookUrl("voice-fallback"),
+        VoiceFallbackMethod: "POST",
       };
   await twilioRequest({
     method: "POST",
@@ -539,6 +545,8 @@ export async function purchaseNumber(
       SmsFallbackMethod: "POST",
       VoiceUrl: webhookUrl("voice"),
       VoiceMethod: "POST",
+      VoiceFallbackUrl: webhookUrl("voice-fallback"),
+      VoiceFallbackMethod: "POST",
       StatusCallback: webhookUrl("status"),
       StatusCallbackMethod: "POST",
     },
@@ -1470,4 +1478,21 @@ export async function setVoicePresence(supabase: SB, userId: string, online: boo
       { onConflict: "user_id" },
     );
   return asJson({ ok: true, online: true, identity });
+}
+/* ------------------------------------------------------ webhook diagnostics */
+
+/** Recent app-side webhook failures plus the carrier's own debugger alerts. */
+export async function webhookDiagnostics(supabase: SB, userId: string) {
+  await requireAdmin(supabase, userId);
+  const { recentTwilioAlerts } = await import("./webhook-errors.server");
+  const [{ data: logged }, alerts, health] = await Promise.all([
+    supabase
+      .from("webhook_errors")
+      .select("id, source, error_code, message, url, call_sid, app_number, created_at")
+      .order("created_at", { ascending: false })
+      .limit(20),
+    recentTwilioAlerts(20).catch(() => []),
+    credentialHealth().catch(() => null),
+  ]);
+  return asJson({ logged: logged ?? [], alerts, health });
 }

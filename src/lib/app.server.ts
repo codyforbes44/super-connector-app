@@ -3,7 +3,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const PROJECT_ID = "5b038a02-865b-4cdd-8546-78cf96e0b0aa";
 export const PUBLIC_BASE_URL = `https://project--${PROJECT_ID}.lovable.app`;
 
-export function webhookUrl(kind: "sms" | "voice" | "status" | "app-voice"): string {
+export function webhookUrl(
+  kind: "sms" | "voice" | "status" | "app-voice" | "voice-fallback",
+): string {
   const token = process.env["TWILIO_WEBHOOK_TOKEN"] ?? "";
   return `${PUBLIC_BASE_URL}/api/public/twilio/${kind}?t=${encodeURIComponent(token)}`;
 }
