@@ -141,15 +141,26 @@ function PricingPage() {
                   /{interval === "month" ? "mo" : "yr"}
                 </span>
               </p>
+              <p className="mt-1 text-[0.7rem] text-muted-foreground">
+                USD, excluding tax · {plan.numbers} number{plan.numbers === 1 ? "" : "s"} ·{" "}
+                {plan.seats === null
+                  ? "unlimited seats"
+                  : `${plan.seats} seat${plan.seats === 1 ? "" : "s"}`}
+              </p>
               <Link
                 to="/auth"
+                search={{ mode: "signup", plan: plan.code, interval }}
                 className={cn(
                   "mt-5 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold",
                   plan.highlighted ? "key-call" : "key-raised",
                 )}
               >
-                Start with {plan.name}
+                Start {plan.name} free
               </Link>
+              <p className="mt-2 text-center text-[0.7rem] text-muted-foreground">
+                14 days free, then ${interval === "month" ? plan.monthly : plan.yearly}/
+                {interval === "month" ? "mo" : "yr"}
+              </p>
               <ul className="mt-5 space-y-2">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2 text-[0.82rem]">
@@ -199,6 +210,27 @@ function PricingPage() {
             </tbody>
           </table>
         </div>
+        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+          All prices in USD and exclusive of tax; applicable sales tax or VAT is calculated at
+          checkout. Subscriptions renew automatically each billing period until cancelled. Cancel
+          any time from Billing and keep access until the end of the paid period. Call and message
+          usage is billed at cost.
+        </p>
+      </Section>
+
+      <Section className="py-8">
+        <h2 className="font-display text-xl font-semibold">Billing questions</h2>
+        <div className="mt-5">
+          <FaqAccordion items={BILLING_FAQS} />
+        </div>
+      </Section>
+
+      <Section className="pt-4">
+        <CtaBand
+          title="Try the whole thing free."
+          body="Every plan starts with the full feature set for 14 days. Pick the one that fits once you've seen it working."
+          note="No card required to start"
+        />
       </Section>
     </MarketingLayout>
   );
