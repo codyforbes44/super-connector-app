@@ -354,8 +354,8 @@ export function FaqAccordion({ items }: { items: Array<{ q: string; a: string }>
   return (
     <div className="glass-panel divide-y divide-border overflow-hidden rounded-3xl">
       {items.map((item) => (
-        <details key={item.q} className="group px-5 py-4">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold">
+        <details key={item.q} className="group px-5 py-1.5">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold">
             {item.q}
             <span
               aria-hidden
