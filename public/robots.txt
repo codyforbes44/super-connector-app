@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://super-connector-app.lovable.app/sitemap.xml
+Sitemap: https://sixvox.3bi.io/sitemap.xml
