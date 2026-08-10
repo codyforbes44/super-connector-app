@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, CreditCard, Loader2, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { AlertTriangle, Check, CreditCard, Loader2, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
@@ -10,11 +10,21 @@ import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
 import { errorMessage } from "@/lib/format";
 import { createPortalSession } from "@/lib/payments.functions";
-import { PLANS, priceIdFor, type BillingInterval } from "@/lib/plans";
+import { PLANS, priceIdFor, type BillingInterval, type PlanCode } from "@/lib/plans";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/billing")({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { plan?: PlanCode; interval?: BillingInterval; checkout?: "done" } => {
+    const plan = PLANS.find((item) => item.code === search["plan"])?.code;
+    return {
+      ...(plan ? { plan } : {}),
+      ...(plan ? { interval: search["interval"] === "year" ? "year" : "month" } : {}),
+      ...(search["checkout"] === "done" ? { checkout: "done" as const } : {}),
+    };
+  },
   head: () => ({
     meta: [
       { title: "Billing — SixVox" },
@@ -26,10 +36,40 @@ export const Route = createFileRoute("/_authenticated/billing")({
 
 function BillingScreen() {
   const navigate = useNavigate();
+  const { plan: wantedPlan, interval: wantedInterval, checkout } = Route.useSearch();
   const { subscription, plan, isActive, isSuperAdmin, loading, refetch } = useSubscription();
-  const [interval, setInterval] = useState<BillingInterval>("month");
-  const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
+  const [interval, setInterval] = useState<BillingInterval>(wantedInterval ?? "month");
+  const [checkoutPrice, setCheckoutPrice] = useState<string | null>(
+    wantedPlan && paymentsConfigured() ? priceIdFor(wantedPlan, wantedInterval ?? "month") : null,
+  );
   const [portalBusy, setPortalBusy] = useState(false);
+  const [activating, setActivating] = useState(checkout === "done");
+  const pollRef = useRef<number | null>(null);
+
+  // After returning from Stripe, trust the database (written by the webhook)
+  // rather than the redirect. Poll briefly so a slow webhook never looks like
+  // a failed payment.
+  useEffect(() => {
+    if (checkout !== "done") return;
+    let attempts = 0;
+    setActivating(true);
+    setCheckoutPrice(null);
+    const tick = async () => {
+      attempts += 1;
+      const result = await refetch();
+      const row = result.data?.row ?? null;
+      const live = Boolean(result.data?.isSuperAdmin) || (row?.stripe_subscription_id ?? null);
+      if (live || attempts >= 12) {
+        setActivating(false);
+        if (pollRef.current) window.clearInterval(pollRef.current);
+      }
+    };
+    void tick();
+    pollRef.current = window.setInterval(() => void tick(), 2500);
+    return () => {
+      if (pollRef.current) window.clearInterval(pollRef.current);
+    };
+  }, [checkout, refetch]);
 
   const openPortal = async () => {
     setPortalBusy(true);
@@ -61,6 +101,29 @@ function BillingScreen() {
       <PaymentTestModeBanner />
 
       <div className="space-y-4 px-4 pt-4">
+        {activating ? (
+          <div className="glass-panel flex items-center gap-3 rounded-3xl p-4">
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
+            <p className="text-xs text-muted-foreground">
+              Payment received — we&apos;re activating your workspace. This usually takes a few
+              seconds.
+            </p>
+          </div>
+        ) : null}
+
+        {subscription?.status === "past_due" && !subscription.comped ? (
+          <div className="glass-panel flex items-start gap-3 rounded-3xl border-destructive/40 p-4">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+            <div>
+              <p className="text-sm font-semibold">We couldn&apos;t take your last payment</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Your workspace keeps working while we retry. Update your card to avoid
+                interruption.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
         {loading ? (
           <div className="glass-panel flex items-center justify-center rounded-3xl p-8">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
