@@ -99,20 +99,31 @@ export async function voicemailTwiml(
   if (config.answer_mode === "ai_agent" && config.elevenlabs_agent_id && hasElevenLabs()) {
     try {
       // ElevenLabs answers the call itself, so the number must be registered
-      // with them and bound to this agent. Cache the id to skip the round trip.
-      let numberId = config.elevenlabs_phone_number_id ?? null;
-      if (!numberId) {
-        numberId = await ensureAgentPhoneNumber(ctx.appNumber, config.elevenlabs_agent_id);
-        if (numberId) {
-          await admin
-            .from("phone_numbers")
-            .update({ elevenlabs_phone_number_id: numberId })
-            .eq("phone_number", ctx.appNumber);
-        }
-      }
+      // with them and bound to this agent. Re-verify on every call: a stale
+      // cached id makes the hand-off return something Twilio can't read, which
+      // the caller hears as a generic application error.
+      const numberId = await ensureAgentPhoneNumber(ctx.appNumber, config.elevenlabs_agent_id);
       if (!numberId) return fallbackTwiml(config, classic);
+      if (numberId !== config.elevenlabs_phone_number_id) {
+        await admin
+          .from("phone_numbers")
+          .update({ elevenlabs_phone_number_id: numberId })
+          .eq("phone_number", ctx.appNumber);
+      }
       return `<Redirect method="POST">${escapeXml(ELEVENLABS_TWILIO_INBOUND_URL)}</Redirect>`;
-    } catch {
+    } catch (error) {
+      console.error(`ElevenLabs hand-off failed for ${ctx.appNumber}:`, error);
+      try {
+        const { logWebhookError } = await import("./webhook-errors.server");
+        await logWebhookError(admin, {
+          source: "elevenlabs",
+          message: error instanceof Error ? error.message : String(error),
+          callSid: ctx.callSid,
+          appNumber: ctx.appNumber,
+        });
+      } catch {
+        // logging must never break the call
+      }
       return fallbackTwiml(config, classic);
     }
   }
