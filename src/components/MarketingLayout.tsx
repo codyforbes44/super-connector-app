@@ -86,7 +86,6 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link
               to="/auth"
-              aria-expanded={undefined}
               search={{ mode: "signup" }}
               className="key-call inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold"
             >
