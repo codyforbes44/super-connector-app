@@ -1,5 +1,6 @@
 import { Delete } from "lucide-react";
 
+import { playDtmf } from "@/lib/dtmf";
 import { haptic } from "@/lib/haptics";
 
 const KEYS = [
@@ -55,7 +56,10 @@ export function Dialpad({
           <button
             key={key.digit}
             type="button"
-            onPointerDown={() => haptic("light")}
+            onPointerDown={() => {
+              haptic("light");
+              playDtmf(key.digit);
+            }}
             onClick={() => onChange((value + key.digit).slice(0, 20))}
             className="key-raised mx-auto flex h-16 w-16 flex-col items-center justify-center rounded-full transition-transform duration-75 active:scale-95"
           >
