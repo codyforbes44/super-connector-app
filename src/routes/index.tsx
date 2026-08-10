@@ -189,7 +189,7 @@ function Landing() {
             </p>
           </div>
 
-          <div className="relative order-first md:order-none">
+          <div className="relative">
             <img
               src={heroApp}
               width={1280}
