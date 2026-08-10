@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage } from "@/lib/format";
 import { submitLead } from "@/lib/payments.functions";
+import { breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Contact SixVox — talk to the team";
 const DESCRIPTION =
@@ -17,31 +18,56 @@ const DESCRIPTION =
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+    ...pageHead({ path: "/contact", title: TITLE, description: DESCRIPTION }),
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          breadcrumbLd([
+            { name: "Home", path: "/" },
+            { name: "Contact", path: "/contact" },
+          ]),
+        ),
+      },
     ],
   }),
   component: ContactPage,
 });
 
+const TOPICS = [
+  { value: "sales", label: "Plans & pricing" },
+  { value: "porting", label: "Moving my numbers" },
+  { value: "support", label: "Billing or account help" },
+  { value: "other", label: "Something else" },
+] as const;
+
 function ContactPage() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [topic, setTopic] = useState<(typeof TOPICS)[number]["value"]>("sales");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
 
   const update = (key: keyof typeof form) => (event: { target: { value: string } }) =>
     setForm((prev) => ({ ...prev, [key]: event.target.value }));
 
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (form.name.trim().length < 2) next["name"] = "Please enter your name.";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim()))
+      next["email"] = "Please enter a valid email address.";
+    if (form.message.trim().length < 10) next["message"] = "Please tell us a little more.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!validate()) return;
     setBusy(true);
     try {
-      await submitLead({ data: form });
+      const label = TOPICS.find((item) => item.value === topic)?.label ?? "Enquiry";
+      await submitLead({ data: { ...form, message: `[${label}] ${form.message}` } });
       setSent(true);
       setForm({ name: "", email: "", company: "", message: "" });
       toast.success("Thanks — we'll be in touch shortly.");
@@ -52,10 +78,35 @@ function ContactPage() {
     }
   };
 
+  if (sent) {
+    return (
+      <MarketingLayout>
+        <Section className="py-16">
+          <div className="glass-panel mx-auto max-w-xl rounded-[2rem] p-8 text-center">
+            <span className="key-signal mx-auto flex h-14 w-14 items-center justify-center rounded-full">
+              <Mail className="h-5 w-5 text-primary" />
+            </span>
+            <h1 className="font-display mt-5 text-2xl font-semibold">Message received</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              A real person reads every message. Expect a reply by email within one business day.
+            </p>
+            <Button
+              variant="secondary"
+              className="mt-6 rounded-full"
+              onClick={() => setSent(false)}
+            >
+              Send another message
+            </Button>
+          </div>
+        </Section>
+      </MarketingLayout>
+    );
+  }
+
   return (
     <MarketingLayout>
       <Section className="pb-8">
-        <Eyebrow>We reply from bookme.bet</Eyebrow>
+        <Eyebrow>A person replies, usually same day</Eyebrow>
         <h1 className="font-display mt-5 text-4xl leading-[1.05] font-semibold md:text-5xl">
           Talk to the team
         </h1>
@@ -67,10 +118,43 @@ function ContactPage() {
 
       <Section className="grid gap-4 py-4 md:grid-cols-[1.4fr_1fr]">
         <form onSubmit={submit} className="glass-panel space-y-4 rounded-3xl p-6">
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">What&apos;s this about?</legend>
+            <div className="flex flex-wrap gap-2">
+              {TOPICS.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  aria-pressed={topic === item.value}
+                  onClick={() => setTopic(item.value)}
+                  className={
+                    topic === item.value
+                      ? "key-signal rounded-full px-4 py-2 text-xs font-semibold text-primary"
+                      : "key-raised rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground"
+                  }
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" required value={form.name} onChange={update("name")} />
+              <Input
+                id="name"
+                required
+                autoComplete="name"
+                aria-invalid={Boolean(errors["name"])}
+                aria-describedby={errors["name"] ? "name-error" : undefined}
+                value={form.name}
+                onChange={update("name")}
+              />
+              {errors["name"] ? (
+                <p id="name-error" className="text-xs text-destructive">
+                  {errors["name"]}
+                </p>
+              ) : null}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
@@ -78,26 +162,49 @@ function ContactPage() {
                 id="email"
                 type="email"
                 required
+                autoComplete="email"
+                aria-invalid={Boolean(errors["email"])}
+                aria-describedby={errors["email"] ? "email-error" : undefined}
                 value={form.email}
                 onChange={update("email")}
               />
+              {errors["email"] ? (
+                <p id="email-error" className="text-xs text-destructive">
+                  {errors["email"]}
+                </p>
+              ) : null}
             </div>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="company">Company (optional)</Label>
-            <Input id="company" value={form.company} onChange={update("company")} />
+            <Input
+              id="company"
+              autoComplete="organization"
+              value={form.company}
+              onChange={update("company")}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="message">How can we help?</Label>
-            <Textarea id="message" rows={6} required value={form.message} onChange={update("message")} />
+            <Textarea
+              id="message"
+              rows={6}
+              required
+              aria-invalid={Boolean(errors["message"])}
+              aria-describedby={errors["message"] ? "message-error" : undefined}
+              value={form.message}
+              onChange={update("message")}
+            />
+            {errors["message"] ? (
+              <p id="message-error" className="text-xs text-destructive">
+                {errors["message"]}
+              </p>
+            ) : null}
           </div>
           <Button type="submit" className="key-call w-full rounded-full" disabled={busy}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
             Send message
           </Button>
-          {sent ? (
-            <p className="text-xs text-success">Message received — we&apos;ll reply by email.</p>
-          ) : null}
         </form>
 
         <aside className="glass-panel h-fit rounded-3xl p-6">
@@ -109,6 +216,7 @@ function ContactPage() {
             <li>We read every message ourselves — no ticket queue.</li>
             <li>Expect a reply within one business day.</li>
             <li>Need it faster? Start free and we&apos;ll help you inside the app.</li>
+            <li>Already a subscriber? Billing questions get priority.</li>
           </ul>
         </aside>
       </Section>
