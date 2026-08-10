@@ -156,30 +156,30 @@ const HOME_FAQS = [
 function Landing() {
   return (
     <MarketingLayout>
-      <Section className="pt-10 pb-10 md:pt-16">
+      <Section className="pt-8 pb-10 md:pt-14">
         <div className="grid items-center gap-10 md:grid-cols-[1.05fr_1fr]">
           <div>
             <Eyebrow>14-day free trial · no card required</Eyebrow>
-            <h1 className="font-display mt-5 text-[2.1rem] leading-[1.06] font-semibold sm:text-4xl md:text-6xl">
+            <h1 className="font-display mt-5 text-[2.15rem] leading-[1.05] font-semibold text-balance sm:text-4xl md:text-6xl">
               Your business line,
               <span className="text-primary"> answered beautifully.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-[0.95rem] leading-relaxed text-muted-foreground md:text-[0.98rem]">
+            <p className="mt-5 max-w-xl text-[0.95rem] leading-relaxed text-pretty text-muted-foreground md:text-[1rem]">
               SixVox brings calls, texts, WhatsApp, voicemail and an AI receptionist into one
               app that fits in your pocket. Set it up in about a minute.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
-                className="key-call inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition-transform active:scale-[0.98]"
+                className="key-call inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold transition-transform active:scale-[0.98] sm:min-h-12 sm:text-sm"
               >
                 Start free trial
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/how-it-works"
-                className="key-raised inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-semibold"
+                className="key-raised inline-flex min-h-14 items-center justify-center rounded-full px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
               >
                 See how it works
               </Link>
@@ -189,13 +189,15 @@ function Landing() {
             </p>
           </div>
 
-          <div className="relative">
+          <div className="relative order-first md:order-none">
             <img
               src={heroApp}
               width={1280}
               height={1024}
+              fetchPriority="high"
+              decoding="async"
               alt="SixVox running on a phone, showing the unified inbox of calls, texts and voicemail"
-              className="w-full rounded-[2rem] object-cover shadow-2xl"
+              className="aspect-[5/4] w-full rounded-[2rem] object-cover shadow-2xl"
             />
           </div>
         </div>
@@ -216,14 +218,14 @@ function Landing() {
         <h2 className="font-display text-2xl font-semibold md:text-3xl">
           One app instead of four half-solutions.
         </h2>
-        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {REPLACES.map((item) => (
-            <li key={item} className="glass-panel rounded-3xl p-5 text-[0.85rem]">
+            <li key={item} className="glass-panel rounded-3xl p-4 text-[0.85rem] sm:p-5">
               <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                 <X className="h-3.5 w-3.5 text-destructive" aria-hidden />
                 Replaces
               </span>
-              <p className="mt-2 leading-relaxed">{item}</p>
+              <p className="mt-2 leading-relaxed text-pretty">{item}</p>
             </li>
           ))}
         </ul>
