@@ -33,6 +33,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       injectRegister: null,
       filename: "sw.js",
+      // The client build (what the CDN serves) lands in dist/client.
+      outDir: "dist/client",
       // We ship our own public/manifest.webmanifest.
       manifest: false,
       devOptions: { enabled: false },
