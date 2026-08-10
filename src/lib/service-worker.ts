@@ -25,9 +25,7 @@ export function serviceWorkerAllowed(): boolean {
   if (!import.meta.env.PROD) return false;
   if (window.top !== window.self) return false;
   if (isPreviewHost(window.location.hostname)) return false;
-  if (new URLSearchParams(window.location.search).has("sw=off".split("=")[0]!)) {
-    if (new URLSearchParams(window.location.search).get("sw") === "off") return false;
-  }
+  if (new URLSearchParams(window.location.search).get("sw") === "off") return false;
   return true;
 }
 
