@@ -14,7 +14,8 @@ import {
   Waves,
 } from "lucide-react";
 
-import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
+import { CtaBand, Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
+import { breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Features — everything SixVox does for your business line";
 const DESCRIPTION =
@@ -22,13 +23,17 @@ const DESCRIPTION =
 
 export const Route = createFileRoute("/features")({
   head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+    ...pageHead({ path: "/features", title: TITLE, description: DESCRIPTION }),
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          breadcrumbLd([
+            { name: "Home", path: "/" },
+            { name: "Features", path: "/features" },
+          ]),
+        ),
+      },
     ],
   }),
   component: FeaturesPage,
@@ -132,7 +137,10 @@ function FeaturesPage() {
       </Section>
 
       {GROUPS.map((group) => (
-        <Section key={group.heading} className="py-8">
+        <Section
+          key={group.heading}
+          className="scroll-mt-24 py-8"
+        >
           <h2 className="font-display text-sm font-semibold tracking-wide text-primary uppercase">
             {group.heading}
           </h2>
@@ -151,6 +159,14 @@ function FeaturesPage() {
           </div>
         </Section>
       ))}
+
+      <Section className="pt-4">
+        <CtaBand
+          title="See it on your own number."
+          body="Claim a number or forward the one you already use, and watch the inbox, calling and AI answering work together."
+          note="14 days free · no card · cancel any time"
+        />
+      </Section>
     </MarketingLayout>
   );
 }
