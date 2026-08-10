@@ -124,48 +124,51 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {open ? (
-          <nav
-            id="marketing-mobile-nav"
-            aria-label="Mobile"
-            className="fixed inset-x-0 top-[3.75rem] bottom-0 z-40 overflow-y-auto border-t border-border bg-background/97 px-5 pt-4 backdrop-blur-xl md:hidden"
-          >
-            <ul className="grid gap-1.5">
-              {NAV.map((item) => (
-                <li key={item.to}>
-                  <Link
-                    to={item.to}
-                    onClick={() => setOpen(false)}
-                    className="surface-row flex min-h-14 items-center justify-between rounded-2xl px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
-                    activeProps={{ className: "text-foreground border-primary/40" }}
-                  >
-                    {item.label}
-                    <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" aria-hidden />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="safe-bottom mt-4 grid gap-2 pb-6">
-              <Link
-                to="/auth"
-                search={{ mode: "signup" }}
-                onClick={() => setOpen(false)}
-                className="key-call flex min-h-14 items-center justify-center gap-2 rounded-full text-base font-semibold"
-              >
-                Start free trial
-                <ArrowRight className="h-4 w-4" aria-hidden />
-              </Link>
-              <Link
-                to="/auth"
-                onClick={() => setOpen(false)}
-                className="key-raised flex min-h-14 items-center justify-center rounded-full text-base font-semibold"
-              >
-                Sign in
-              </Link>
-            </div>
-          </nav>
-        ) : null}
       </header>
+
+      {/* Full-height mobile sheet. Kept outside the blurred header so it is not
+          trapped by the header's backdrop-filter containing block. */}
+      {open ? (
+        <nav
+          id="marketing-mobile-nav"
+          aria-label="Mobile"
+          className="fixed inset-0 top-[3.5rem] z-50 overflow-y-auto border-t border-border bg-background px-5 pt-4 md:hidden"
+        >
+          <ul className="grid gap-1.5">
+            {NAV.map((item) => (
+              <li key={item.to}>
+                <Link
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className="surface-row flex min-h-14 items-center justify-between rounded-2xl px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
+                  activeProps={{ className: "text-foreground border-primary/40" }}
+                >
+                  {item.label}
+                  <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" aria-hidden />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="safe-bottom mt-4 grid gap-2 pb-6">
+            <Link
+              to="/auth"
+              search={{ mode: "signup" }}
+              onClick={() => setOpen(false)}
+              className="key-call flex min-h-14 items-center justify-center gap-2 rounded-full text-base font-semibold"
+            >
+              Start free trial
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link
+              to="/auth"
+              onClick={() => setOpen(false)}
+              className="key-raised flex min-h-14 items-center justify-center rounded-full text-base font-semibold"
+            >
+              Sign in
+            </Link>
+          </div>
+        </nav>
+      ) : null}
 
       <main id="main" className="pb-mobile-cta relative">
         {children}
