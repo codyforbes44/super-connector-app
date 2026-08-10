@@ -212,7 +212,7 @@ function Landing() {
         </div>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <h2 className="font-display text-2xl font-semibold md:text-3xl">
           One app instead of four half-solutions.
         </h2>
@@ -229,7 +229,7 @@ function Landing() {
         </ul>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <h2 className="font-display text-2xl font-semibold md:text-3xl">Live in three steps</h2>
         <ol className="mt-6 grid gap-3 sm:grid-cols-3">
           {STEPS.map((step) => (
@@ -246,7 +246,7 @@ function Landing() {
         </ol>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <h2 className="font-display text-2xl font-semibold md:text-3xl">
           Everything a business line should do.
         </h2>
@@ -268,7 +268,7 @@ function Landing() {
         </ul>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <div className="glass-panel grid items-center gap-8 rounded-[2rem] p-6 sm:p-8 md:grid-cols-[1fr_0.85fr]">
           <div>
             <Eyebrow>Answering, handled</Eyebrow>
@@ -305,7 +305,7 @@ function Landing() {
         </div>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <h2 className="font-display text-2xl font-semibold md:text-3xl">
           Why people move off closed boxes.
         </h2>
@@ -329,7 +329,7 @@ function Landing() {
         </ul>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="font-display text-2xl font-semibold md:text-3xl">
             Free for 14 days, then plans that scale
@@ -368,7 +368,7 @@ function Landing() {
         </p>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="font-display text-2xl font-semibold md:text-3xl">Common questions</h2>
           <Link to="/faq" className="text-sm text-primary underline">
@@ -380,7 +380,7 @@ function Landing() {
         </div>
       </Section>
 
-      <Section className="pt-8">
+      <Section className="pt-9 pb-16 md:pt-14 md:pb-20">
         <CtaBand
           title="Ready when you are."
           body="Create your workspace and send your first message in about a minute."

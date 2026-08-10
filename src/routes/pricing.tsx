@@ -174,7 +174,7 @@ function PricingPage() {
         </div>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <h2 className="font-display text-xl font-semibold">Compare every plan</h2>
         <div className="glass-panel mt-5 overflow-x-auto rounded-3xl">
           <table className="w-full min-w-[34rem] text-left text-sm">
@@ -218,7 +218,7 @@ function PricingPage() {
         </p>
       </Section>
 
-      <Section className="py-8">
+      <Section className="py-9 md:py-14">
         <h2 className="font-display text-xl font-semibold">Billing questions</h2>
         <div className="mt-5">
           <FaqAccordion items={BILLING_FAQS} />
