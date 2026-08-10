@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const PROJECT_ID = "5b038a02-865b-4cdd-8546-78cf96e0b0aa";
-export const PUBLIC_BASE_URL = `https://project--${PROJECT_ID}.lovable.app`;
+export const PUBLIC_BASE_URL = `https://sixvox.3bi.io`;
 
 export function webhookUrl(
   kind: "sms" | "voice" | "status" | "app-voice" | "voice-fallback",

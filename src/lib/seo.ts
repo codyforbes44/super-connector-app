@@ -1,4 +1,4 @@
-export const SITE_URL = "https://super-connector-app.lovable.app";
+export const SITE_URL = "https://sixvox.3bi.io";
 
 type MetaEntry = Record<string, string>;
 
