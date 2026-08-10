@@ -90,7 +90,7 @@ function ConnectorsScreen() {
               </div>
               <span className="text-sm font-semibold text-primary">{progress}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-white/5">
+            <div className="surface-track h-2 overflow-hidden rounded-full">
               <div
                 className="h-full rounded-full bg-primary transition-all"
                 style={{ width: `${progress}%` }}
@@ -107,7 +107,7 @@ function ConnectorsScreen() {
                       "rounded-2xl border p-3 transition-colors",
                       active
                         ? "border-primary/40 bg-primary/5"
-                        : "border-white/5 bg-white/[0.02]",
+                        : "surface-subtle border-border",
                     )}
                   >
                     <div className="flex items-start gap-3">
@@ -116,7 +116,7 @@ function ConnectorsScreen() {
                           "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-[0.7rem] font-semibold",
                           step.done
                             ? "bg-primary/20 text-primary"
-                            : "bg-white/5 text-muted-foreground",
+                            : "surface-track text-muted-foreground",
                         )}
                       >
                         {step.done ? <Check className="size-3.5" /> : index + 1}
@@ -155,7 +155,7 @@ function ConnectorsScreen() {
             <h2 className="px-1 text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground">
               All connections
             </h2>
-            <ul className="space-y-2">
+            <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {data.connectors.map((connector) => {
                 const style = STATE_STYLES[connector.state];
                 const StatusIcon = style.Icon;
@@ -164,7 +164,7 @@ function ConnectorsScreen() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <p className="truncate text-sm font-semibold">{connector.name}</p>
-                        <span className="rounded-full bg-white/5 px-2 py-0.5 text-[0.6rem] uppercase tracking-wide text-muted-foreground">
+                        <span className="surface-track rounded-full px-2 py-0.5 text-[0.6rem] tracking-wide text-muted-foreground uppercase">
                           {connector.category}
                         </span>
                       </div>

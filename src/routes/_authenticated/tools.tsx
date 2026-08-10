@@ -205,7 +205,7 @@ function VerifyPanel() {
       </div>
 
       <Button
-        className="key-signal h-11 w-full rounded-full"
+        className="key-signal h-11 w-full rounded-full sm:w-auto sm:px-8"
         disabled={!activeService || !phone}
         onClick={async () => {
           try {

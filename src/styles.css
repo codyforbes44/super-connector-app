@@ -239,6 +239,14 @@
   border-radius: var(--radius);
 }
 
+@utility surface-subtle {
+  background-color: oklch(0.8 0.05 220 / 6%);
+}
+
+@utility surface-track {
+  background-color: oklch(0.8 0.05 220 / 10%);
+}
+
 @utility ring-glow-success {
   box-shadow:
     0 0 0 2px oklch(0.8 0.15 180 / 70%),
