@@ -3,6 +3,8 @@
  * open. No asset download — two alternating tones in a repeating cadence.
  */
 
+import { registerAudioContext } from "@/lib/call-keepalive";
+
 let ctx: AudioContext | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
 let gain: GainNode | null = null;
@@ -13,7 +15,10 @@ function context(): AudioContext | null {
     window.AudioContext ??
     (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!Ctor) return null;
-  ctx ??= new Ctor();
+  if (!ctx) {
+    ctx = new Ctor();
+    registerAudioContext(ctx);
+  }
   return ctx;
 }
 

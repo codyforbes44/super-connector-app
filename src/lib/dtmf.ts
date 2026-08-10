@@ -3,6 +3,8 @@
  * download. Each key plays its standard low+high frequency pair, exactly like
  * a hardware phone, paired with the dialpad's haptic tick.
  */
+import { registerAudioContext } from "@/lib/call-keepalive";
+
 const LOW: Record<string, number> = { "1": 697, "2": 697, "3": 697, "4": 770, "5": 770, "6": 770, "7": 852, "8": 852, "9": 852, "*": 941, "0": 941, "#": 941 };
 const HIGH: Record<string, number> = { "1": 1209, "2": 1336, "3": 1477, "4": 1209, "5": 1336, "6": 1477, "7": 1209, "8": 1336, "9": 1477, "*": 1209, "0": 1336, "#": 1477 };
 
@@ -14,7 +16,10 @@ function context(): AudioContext | null {
     window.AudioContext ??
     (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!Ctor) return null;
-  ctx ??= new Ctor();
+  if (!ctx) {
+    ctx = new Ctor();
+    registerAudioContext(ctx);
+  }
   // Mobile browsers suspend the context until a user gesture — key presses are one.
   if (ctx.state === "suspended") void ctx.resume().catch(() => {});
   return ctx;
