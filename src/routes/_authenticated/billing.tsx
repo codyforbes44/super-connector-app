@@ -201,7 +201,7 @@ function BillingScreen() {
                   className={cn(
                     "flex-1 rounded-full py-2 text-xs font-semibold transition-all",
                     interval === option
-                      ? "key-signal text-primary"
+                      ? "key-signal text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
