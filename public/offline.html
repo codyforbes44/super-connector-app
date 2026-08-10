@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>You're offline — SixVox</title>
+    <meta name="theme-color" content="#08131c" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0; min-height: 100dvh; display: grid; place-items: center;
+        background: radial-gradient(120% 90% at 50% 0%, #0d2333 0%, #06101a 55%, #040b12 100%);
+        color: #e7f4fb; padding: 24px;
+        font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      }
+      main { max-width: 24rem; text-align: center; }
+      .badge {
+        width: 56px; height: 56px; margin: 0 auto 20px; border-radius: 999px;
+        display: grid; place-items: center; font-size: 24px;
+        background: rgba(34, 211, 238, 0.12); border: 1px solid rgba(34, 211, 238, 0.35);
+      }
+      h1 { font-size: 1.35rem; margin: 0 0 8px; letter-spacing: -0.01em; }
+      p { margin: 0 0 24px; font-size: 0.9rem; line-height: 1.55; color: rgba(231, 244, 251, 0.68); }
+      button {
+        min-height: 48px; padding: 0 26px; border: 0; border-radius: 999px; cursor: pointer;
+        font: inherit; font-weight: 600; color: #04141c;
+        background: linear-gradient(180deg, #6ee7f9 0%, #22d3ee 100%);
+        box-shadow: 0 10px 30px rgba(34, 211, 238, 0.28);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="badge" aria-hidden="true">📶</div>
+      <h1>You're offline</h1>
+      <p>
+        SixVox can't reach the network right now. Calls, messages and your inbox will sync as soon
+        as you're back online.
+      </p>
+      <button type="button" onclick="window.location.reload()">Try again</button>
+    </main>
+  </body>
+</html>
