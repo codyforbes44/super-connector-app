@@ -129,7 +129,7 @@ function ContactPage() {
                   onClick={() => setTopic(item.value)}
                   className={
                     topic === item.value
-                      ? "key-signal rounded-full px-4 py-2 text-xs font-semibold text-primary"
+                      ? "key-signal rounded-full px-4 py-2 text-xs font-semibold text-primary-foreground"
                       : "key-raised rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground"
                   }
                 >

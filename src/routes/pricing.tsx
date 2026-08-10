@@ -113,7 +113,7 @@ function PricingPage() {
               className={cn(
                 "rounded-full px-5 py-2 text-xs font-semibold transition-all",
                 interval === option
-                  ? "key-signal text-primary"
+                  ? "key-signal text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -129,7 +129,7 @@ function PricingPage() {
               className={cn("glass-panel rounded-3xl p-6", plan.highlighted && "border-primary/45")}
             >
               {plan.highlighted ? (
-                <span className="key-signal inline-flex rounded-full px-3 py-1 text-[0.65rem] font-semibold text-primary">
+                <span className="key-signal inline-flex rounded-full px-3 py-1 text-[0.65rem] font-semibold text-primary-foreground">
                   Most popular
                 </span>
               ) : null}

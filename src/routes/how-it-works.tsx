@@ -83,7 +83,7 @@ function HowItWorksPage() {
           {STEPS.map((step, index) => (
             <li key={step.title} className="glass-panel rounded-3xl p-5">
               <div className="flex items-center justify-between gap-3">
-                <span className="key-signal font-display flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-primary">
+                <span className="key-signal font-display flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground">
                   {index + 1}
                 </span>
                 <span className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">

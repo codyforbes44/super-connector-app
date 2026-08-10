@@ -88,7 +88,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Run your business number, inbox, calls and AI receptionist from one mobile app built for teams.",
       },
-      { name: "theme-color", content: "#1a1c22" },
+      { name: "theme-color", content: "#08131c" },
       { property: "og:title", content: "SixVox — business calls, texts and AI receptionist" },
       {
         property: "og:description",

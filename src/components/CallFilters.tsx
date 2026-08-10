@@ -79,7 +79,7 @@ export function CallFilters({
                   className={cn(
                     "shrink-0 rounded-full px-3.5 py-1.5 text-[0.72rem] font-medium whitespace-nowrap transition",
                     active && option.value !== "all"
-                      ? "key-signal text-foreground"
+                      ? "key-signal text-primary-foreground"
                       : "glass-panel text-muted-foreground",
                   )}
                 >
