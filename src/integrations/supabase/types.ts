@@ -1374,6 +1374,42 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_errors: {
+        Row: {
+          app_number: string | null
+          call_sid: string | null
+          created_at: string
+          error_code: string | null
+          id: string
+          message: string | null
+          payload: Json
+          source: string
+          url: string | null
+        }
+        Insert: {
+          app_number?: string | null
+          call_sid?: string | null
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          message?: string | null
+          payload?: Json
+          source?: string
+          url?: string | null
+        }
+        Update: {
+          app_number?: string | null
+          call_sid?: string | null
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          message?: string | null
+          payload?: Json
+          source?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
