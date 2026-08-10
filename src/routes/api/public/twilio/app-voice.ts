@@ -169,9 +169,12 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
             ? `<Dial callerId="${esc(appNumber)}" timeout="${RING_SECONDS}" ringTone="us" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}"><Number>${esc(number.forward_to as string)}</Number></Dial>${unanswered}`
             : unanswered;
 
-        // Let the caller hear three rings before voicemail or the AI answers.
+        // Let the caller hear three rings before voicemail answers. The AI
+        // hand-off is a <Redirect>, so nothing may be queued ahead of it.
         if (identities.length === 0) {
-          return xml(number?.forward_to && !aiAnswering ? fallback : ringbackTwiml() + fallback);
+          const handOff = fallback.startsWith("<Redirect");
+          const forwarding = Boolean(number?.forward_to) && !aiAnswering;
+          return xml(handOff || forwarding ? fallback : ringbackTwiml() + fallback);
         }
 
         const clients = identities
