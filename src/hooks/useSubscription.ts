@@ -15,6 +15,7 @@ export type SubscriptionRow = {
   cancel_at_period_end: boolean;
   current_period_end: string | null;
   stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
   trial_ends_at: string | null;
 };
 
@@ -41,7 +42,7 @@ export function useSubscription() {
         supabase
           .from("subscriptions")
           .select(
-            "id, status, plan_code, billing_interval, comped, suspended, cancel_at_period_end, current_period_end, stripe_customer_id, trial_ends_at",
+            "id, status, plan_code, billing_interval, comped, suspended, cancel_at_period_end, current_period_end, stripe_customer_id, stripe_subscription_id, trial_ends_at",
           )
           .eq("user_id", userId)
           .order("created_at", { ascending: false })

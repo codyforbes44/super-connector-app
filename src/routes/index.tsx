@@ -9,26 +9,35 @@ import {
   ShieldCheck,
   Sparkles,
   Wand2,
+  X,
 } from "lucide-react";
 
-import { Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
+import heroApp from "@/assets/hero-app.jpg";
+import receptionistShot from "@/assets/ai-receptionist.jpg";
+import {
+  CtaBand,
+  Eyebrow,
+  FaqAccordion,
+  MarketingLayout,
+  Section,
+  StatBand,
+} from "@/components/MarketingLayout";
 import { PLANS } from "@/lib/plans";
+import { SITE_URL, pageHead } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
-const TITLE = "SixVox — your business phone, inbox and AI receptionist";
+const TITLE = "SixVox — business phone, shared inbox and AI receptionist";
 const DESCRIPTION =
-  "SixVox puts calls, texts, WhatsApp, voicemail and an AI receptionist for your business number in one mobile app. Start a 14-day free trial in under a minute.";
+  "Run your business line from your phone: calls, texts, WhatsApp, voicemail and an AI receptionist in one app. 14-day free trial, no card required.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
+    ...pageHead({
+      path: "/",
+      title: TITLE,
+      description: DESCRIPTION,
+      image: `${SITE_URL}/og-home.jpg`,
+    }),
     scripts: [
       {
         type: "application/ld+json",
@@ -39,7 +48,24 @@ export const Route = createFileRoute("/")({
           applicationCategory: "BusinessApplication",
           operatingSystem: "Web, iOS, Android",
           description: DESCRIPTION,
-          offers: { "@type": "Offer", price: "29", priceCurrency: "USD" },
+          url: SITE_URL,
+          offers: PLANS.map((plan) => ({
+            "@type": "Offer",
+            name: plan.name,
+            price: String(plan.monthly),
+            priceCurrency: "USD",
+            url: `${SITE_URL}/pricing`,
+          })),
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "SixVox",
+          url: SITE_URL,
+          description: DESCRIPTION,
         }),
       },
     ],
@@ -91,11 +117,47 @@ const STEPS = [
   { n: "3", title: "Start talking", body: "Send your first text, take your first call — right away." },
 ];
 
+const REPLACES = [
+  "A second phone in your pocket",
+  "A voicemail app that only records",
+  "An answering service you pay per call",
+  "A desk phone system nobody answers",
+];
+
+const CONTRAST = [
+  {
+    them: "A curated slice of what your line can do",
+    us: "Messaging, calling, numbers, AI answering and raw API access",
+  },
+  { them: "Voicemail you have to listen to", us: "Voicemail read as text, summarised and searchable" },
+  { them: "One login, one user", us: "Real owner, admin and agent roles scoped in the database" },
+  { them: "Per-message surcharges", us: "Flat plan, usage billed at cost" },
+];
+
+const HOME_FAQS = [
+  {
+    q: "Do I need a card to start?",
+    a: "No. The 14-day trial starts the moment you sign up. Add a plan when you're ready — prices are in USD and tax is calculated at checkout.",
+  },
+  {
+    q: "Can I keep the number I already use?",
+    a: "Yes. Port it in, or leave it where it is and forward calls to SixVox so callers keep dialling the same digits.",
+  },
+  {
+    q: "Does it really ring like a phone?",
+    a: "Calls ring inside the app with your business caller ID, with push notifications when the app is in the background.",
+  },
+  {
+    q: "Can I cancel any time?",
+    a: "Yes, from Billing in one tap. Access continues to the end of the period you've paid for.",
+  },
+];
+
 function Landing() {
   return (
     <MarketingLayout>
       <Section className="pt-10 pb-10 md:pt-16">
-        <div className="grid items-center gap-10 md:grid-cols-[1.15fr_1fr]">
+        <div className="grid items-center gap-10 md:grid-cols-[1.05fr_1fr]">
           <div>
             <Eyebrow>14-day free trial · no card required</Eyebrow>
             <h1 className="font-display mt-5 text-[2.1rem] leading-[1.06] font-semibold sm:text-4xl md:text-6xl">
@@ -127,27 +189,44 @@ function Landing() {
             </p>
           </div>
 
-          <div className="glass-panel rounded-[2rem] p-6">
-            <p className="font-display text-xs font-semibold tracking-wide text-primary uppercase">
-              What you get on day one
-            </p>
-            <ul className="mt-4 space-y-2.5">
-              {[
-                "A shared text, picture and WhatsApp inbox",
-                "Calls ringing your device in-app",
-                "Voicemail, recordings and transcripts",
-                "An AI receptionist per number",
-                "Instant number search and setup",
-                "Push and branded email alerts",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-[0.85rem]">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                  <span className="text-muted-foreground">{item}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="relative">
+            <img
+              src={heroApp}
+              width={1280}
+              height={1024}
+              alt="SixVox running on a phone, showing the unified inbox of calls, texts and voicemail"
+              className="w-full rounded-[2rem] object-cover shadow-2xl"
+            />
           </div>
         </div>
+
+        <div className="mt-10">
+          <StatBand
+            stats={[
+              { value: "14 days", label: "Free trial, no card required" },
+              { value: "< 1 min", label: "From signup to your first message" },
+              { value: "3 channels", label: "Calls, SMS/MMS and WhatsApp in one thread list" },
+              { value: "24/7", label: "AI receptionist answering when you can't" },
+            ]}
+          />
+        </div>
+      </Section>
+
+      <Section className="py-8">
+        <h2 className="font-display text-2xl font-semibold md:text-3xl">
+          One app instead of four half-solutions.
+        </h2>
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {REPLACES.map((item) => (
+            <li key={item} className="glass-panel rounded-3xl p-5 text-[0.85rem]">
+              <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                <X className="h-3.5 w-3.5 text-destructive" aria-hidden />
+                Replaces
+              </span>
+              <p className="mt-2 leading-relaxed">{item}</p>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section className="py-8">
@@ -190,6 +269,67 @@ function Landing() {
       </Section>
 
       <Section className="py-8">
+        <div className="glass-panel grid items-center gap-8 rounded-[2rem] p-6 sm:p-8 md:grid-cols-[1fr_0.85fr]">
+          <div>
+            <Eyebrow>Answering, handled</Eyebrow>
+            <h2 className="font-display mt-4 text-2xl font-semibold md:text-3xl">
+              An AI receptionist that sounds like a person.
+            </h2>
+            <p className="mt-3 text-[0.9rem] leading-relaxed text-muted-foreground">
+              Give it your script, tone and language. It greets callers, answers the usual
+              questions, qualifies the ones worth your time and books straight into your calendar —
+              then leaves you a transcript and a one-line summary.
+            </p>
+            <ul className="mt-5 grid gap-2 sm:grid-cols-2">
+              {[
+                "Per-number greeting and prompt",
+                "Live transcripts and summaries",
+                "Calendar-aware booking",
+                "Falls back to voicemail cleanly",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2 text-[0.82rem]">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                  <span className="text-muted-foreground">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <img
+            src={receptionistShot}
+            width={1024}
+            height={1024}
+            loading="lazy"
+            alt="The SixVox AI receptionist answering a call, with a live transcript below the call controls"
+            className="w-full rounded-[1.5rem] object-cover"
+          />
+        </div>
+      </Section>
+
+      <Section className="py-8">
+        <h2 className="font-display text-2xl font-semibold md:text-3xl">
+          Why people move off closed boxes.
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          Talkyto, Toktiv and Mango each hand you a slice of your own phone account. SixVox hands
+          you the whole thing.
+        </p>
+        <ul className="mt-6 grid gap-3 md:grid-cols-2">
+          {CONTRAST.map((row) => (
+            <li key={row.us} className="glass-panel rounded-3xl p-5">
+              <p className="flex items-start gap-2 text-[0.82rem] text-muted-foreground line-through decoration-destructive/60">
+                <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive no-underline" aria-hidden />
+                {row.them}
+              </p>
+              <p className="mt-2 flex items-start gap-2 text-[0.85rem] font-medium">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
+                {row.us}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section className="py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="font-display text-2xl font-semibold md:text-3xl">
             Free for 14 days, then plans that scale
@@ -212,7 +352,7 @@ function Landing() {
               </p>
               <Link
                 to="/auth"
-                search={{ mode: "signup" }}
+                search={{ mode: "signup", plan: plan.code, interval: "month" }}
                 className={cn(
                   "mt-4 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold",
                   plan.highlighted ? "key-call" : "key-raised",
@@ -223,25 +363,29 @@ function Landing() {
             </article>
           ))}
         </div>
+        <p className="mt-4 text-xs text-muted-foreground">
+          USD. Tax calculated at checkout. Renews automatically until cancelled.
+        </p>
+      </Section>
+
+      <Section className="py-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 className="font-display text-2xl font-semibold md:text-3xl">Common questions</h2>
+          <Link to="/faq" className="text-sm text-primary underline">
+            All answers
+          </Link>
+        </div>
+        <div className="mt-6">
+          <FaqAccordion items={HOME_FAQS} />
+        </div>
       </Section>
 
       <Section className="pt-8">
-        <div className="glass-panel flex flex-col items-start gap-4 rounded-[2rem] p-6 sm:p-8 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="font-display text-2xl font-semibold">Ready when you are.</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Create your workspace and send your first message in about a minute.
-            </p>
-          </div>
-          <Link
-            to="/auth"
-            search={{ mode: "signup" }}
-            className="key-call inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold md:w-auto"
-          >
-            Start free trial
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+        <CtaBand
+          title="Ready when you are."
+          body="Create your workspace and send your first message in about a minute."
+          note="14 days free · no card · cancel any time"
+        />
       </Section>
     </MarketingLayout>
   );

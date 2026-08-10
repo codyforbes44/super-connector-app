@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { errorMessage } from "@/lib/format";
+import { PLANS, type BillingInterval, type PlanCode } from "@/lib/plans";
 
 const TITLE = "Sign in or start your free trial — SixVox";
 const DESCRIPTION =
@@ -17,9 +18,14 @@ const DESCRIPTION =
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { mode?: "signin" | "signup" } => ({
-    mode: search["mode"] === "signup" ? "signup" : "signin",
-  }),
+  ): { mode?: "signin" | "signup"; plan?: PlanCode; interval?: BillingInterval } => {
+    const plan = PLANS.find((item) => item.code === search["plan"])?.code;
+    return {
+      mode: search["mode"] === "signup" ? "signup" : "signin",
+      ...(plan ? { plan } : {}),
+      ...(plan ? { interval: search["interval"] === "year" ? "year" : "month" } : {}),
+    };
+  },
   head: () => ({
     meta: [
       { title: TITLE },
@@ -35,13 +41,18 @@ export const Route = createFileRoute("/auth")({
 
 function AuthScreen() {
   const navigate = useNavigate();
-  const { mode: initialMode } = Route.useSearch();
+  const { mode: initialMode, plan, interval } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">(initialMode ?? "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
+
+  const nextDestination = () =>
+    plan
+      ? navigate({ to: "/billing", search: { plan, interval: interval ?? "month" } })
+      : navigate({ to: "/welcome" });
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
@@ -71,7 +82,7 @@ function AuthScreen() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
-      await navigate({ to: "/welcome" });
+      await nextDestination();
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -90,7 +101,7 @@ function AuthScreen() {
       return;
     }
     if (result.redirected) return;
-    await navigate({ to: "/welcome" });
+    await nextDestination();
   }
 
   if (checkEmail) {

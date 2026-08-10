@@ -1,22 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { LegalPage, LEGAL_UPDATED } from "@/components/LegalPage";
+import { pageHead } from "@/lib/seo";
 
 const TITLE = "Terms of Service — SixVox";
 const DESCRIPTION =
   "The terms that govern your SixVox account, trial, subscription, acceptable use and cancellation.";
 
 export const Route = createFileRoute("/legal/terms")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () => pageHead({ path: "/legal/terms", title: TITLE, description: DESCRIPTION }),
   component: Terms,
 });
 
