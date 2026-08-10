@@ -356,7 +356,7 @@ function Landing() {
                 to="/auth"
                 search={{ mode: "signup", plan: plan.code, interval: "month" }}
                 className={cn(
-                  "mt-4 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold",
+                  "mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full px-5 text-sm font-semibold",
                   plan.highlighted ? "key-call" : "key-raised",
                 )}
               >
