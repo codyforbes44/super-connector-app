@@ -71,7 +71,7 @@ function SettingsScreen() {
           />
         </div>
         <Button
-          className="key-signal h-11 w-full rounded-full"
+          className="key-signal h-11 w-full rounded-full sm:w-auto sm:px-8"
           onClick={async () => {
             try {
               await updateMyProfile({ data: { displayName } });
@@ -220,7 +220,7 @@ function SettingsScreen() {
       <section className="border-t border-border px-4 py-4">
         <Button
           variant="ghost"
-          className="key-end w-full rounded-full"
+          className="key-end w-full rounded-full sm:w-auto sm:px-8"
           onClick={async () => {
             await supabase.auth.signOut();
             queryClient.clear();
