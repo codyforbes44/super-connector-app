@@ -129,8 +129,8 @@ function ContactPage() {
                   onClick={() => setTopic(item.value)}
                   className={
                     topic === item.value
-                      ? "key-signal rounded-full px-4 py-2 text-xs font-semibold text-primary-foreground"
-                      : "key-raised rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground"
+                      ? "key-signal min-h-11 rounded-full px-4 text-xs font-semibold text-primary-foreground"
+                      : "key-raised min-h-11 rounded-full px-4 text-xs font-semibold text-muted-foreground"
                   }
                 >
                   {item.label}
@@ -162,7 +162,9 @@ function ContactPage() {
                 id="email"
                 type="email"
                 required
+                inputMode="email"
                 autoComplete="email"
+                spellCheck={false}
                 aria-invalid={Boolean(errors["email"])}
                 aria-describedby={errors["email"] ? "email-error" : undefined}
                 value={form.email}
@@ -201,7 +203,7 @@ function ContactPage() {
               </p>
             ) : null}
           </div>
-          <Button type="submit" className="key-call w-full rounded-full" disabled={busy}>
+          <Button type="submit" className="key-call min-h-12 w-full rounded-full" disabled={busy}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
             Send message
           </Button>

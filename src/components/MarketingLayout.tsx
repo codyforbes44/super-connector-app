@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowRight, Menu, Radio, X } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { ArrowRight, ChevronDown, Menu, Radio, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -15,13 +15,33 @@ const NAV = [
 export function MarketingLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+      setPastHero(window.scrollY > 320);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Close the sheet whenever navigation happens, including back/forward.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Lock background scrolling while the mobile sheet is open.
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -64,12 +84,12 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <span className="font-display text-base font-semibold tracking-tight">SixVox</span>
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
             {NAV.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                className="rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="inline-flex min-h-11 items-center rounded-full px-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 activeProps={{ className: "text-foreground" }}
               >
                 {item.label}
@@ -80,14 +100,14 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2">
             <Link
               to="/auth"
-              className="hidden rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
+              className="hidden min-h-11 items-center rounded-full px-4 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
             >
               Sign in
             </Link>
             <Link
               to="/auth"
               search={{ mode: "signup" }}
-              className="key-call inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold"
+              className="key-call hidden min-h-11 items-center rounded-full px-4 text-sm font-semibold sm:inline-flex"
             >
               Start free
             </Link>
@@ -104,37 +124,82 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {open ? (
-          <nav id="marketing-mobile-nav" className="border-t border-border px-5 py-3 md:hidden">
-            <ul className="grid gap-1">
-              {NAV.map((item) => (
-                <li key={item.to}>
-                  <Link
-                    to={item.to}
-                    onClick={() => setOpen(false)}
-                    className="block rounded-2xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent/40 hover:text-foreground"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+      </header>
+
+      {/* Full-height mobile sheet. Kept outside the blurred header so it is not
+          trapped by the header's backdrop-filter containing block. */}
+      {open ? (
+        <nav
+          id="marketing-mobile-nav"
+          aria-label="Mobile"
+          className="fixed inset-0 top-[3.5rem] z-50 overflow-y-auto border-t border-border bg-background px-5 pt-4 md:hidden"
+        >
+          <ul className="grid gap-1.5">
+            {NAV.map((item) => (
+              <li key={item.to}>
+                <Link
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className="surface-row flex min-h-14 items-center justify-between rounded-2xl px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
+                  activeProps={{ className: "text-foreground border-primary/40" }}
+                >
+                  {item.label}
+                  <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" aria-hidden />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="safe-bottom mt-4 grid gap-2 pb-6">
+            <Link
+              to="/auth"
+              search={{ mode: "signup" }}
+              onClick={() => setOpen(false)}
+              className="key-call flex min-h-14 items-center justify-center gap-2 rounded-full text-base font-semibold"
+            >
+              Start free trial
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
             <Link
               to="/auth"
               onClick={() => setOpen(false)}
-              className="mt-2 block rounded-2xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent/40 hover:text-foreground"
+              className="key-raised flex min-h-14 items-center justify-center rounded-full text-base font-semibold"
             >
               Sign in
             </Link>
-          </nav>
-        ) : null}
-      </header>
+          </div>
+        </nav>
+      ) : null}
 
-      <main id="main" className="relative">
+      <main id="main" className="pb-mobile-cta relative">
         {children}
       </main>
 
-      <footer className="relative mt-24 border-t border-border">
+      {/* Thumb-reach conversion bar: phones only, once the hero has scrolled away. */}
+      <div
+        className={cn(
+          "safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/92 px-4 pt-3 backdrop-blur-xl transition-transform duration-300 md:hidden",
+          pastHero && !open ? "translate-y-0" : "translate-y-full",
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <Link
+            to="/pricing"
+            className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+          >
+            See pricing
+          </Link>
+          <Link
+            to="/auth"
+            search={{ mode: "signup" }}
+            className="key-call flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-full text-sm font-semibold"
+          >
+            Start free
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+      </div>
+
+      <footer className="relative mt-20 border-t border-border md:mt-24">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
@@ -197,12 +262,12 @@ function FooterCol({
   return (
     <div>
       <p className="font-display text-xs font-semibold tracking-wide uppercase">{title}</p>
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-2">
         {links.map((link) => (
           <li key={`${link.to}-${link.label}`}>
             <Link
               to={link.to}
-              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex min-h-10 items-center text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
             </Link>
@@ -221,7 +286,7 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section className={cn("mx-auto max-w-6xl px-5 py-16 md:py-24", className)}>{children}</section>
+    <section className={cn("mx-auto max-w-6xl px-5 py-12 md:py-20", className)}>{children}</section>
   );
 }
 
@@ -240,12 +305,12 @@ export function StatBand({
   stats: Array<{ value: string; label: string }>;
 }) {
   return (
-    <dl className="glass-panel grid grid-cols-2 gap-6 rounded-3xl p-6 md:grid-cols-4">
+    <dl className="glass-panel grid grid-cols-2 gap-px overflow-hidden rounded-3xl md:grid-cols-4">
       {stats.map((stat) => (
-        <div key={stat.label}>
+        <div key={stat.label} className="surface-subtle p-5 md:p-6">
           <dt className="sr-only">{stat.label}</dt>
           <dd>
-            <span className="font-display block text-2xl font-semibold text-primary">
+            <span className="font-display block text-xl font-semibold text-primary sm:text-2xl">
               {stat.value}
             </span>
             <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
@@ -292,8 +357,8 @@ export function FaqAccordion({ items }: { items: Array<{ q: string; a: string }>
   return (
     <div className="glass-panel divide-y divide-border overflow-hidden rounded-3xl">
       {items.map((item) => (
-        <details key={item.q} className="group px-5 py-4">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold">
+        <details key={item.q} className="group px-5 py-1.5">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold">
             {item.q}
             <span
               aria-hidden
@@ -302,7 +367,7 @@ export function FaqAccordion({ items }: { items: Array<{ q: string; a: string }>
               +
             </span>
           </summary>
-          <p className="mt-2 text-[0.85rem] leading-relaxed text-muted-foreground">{item.a}</p>
+          <p className="mt-1 pb-4 text-[0.85rem] leading-relaxed text-muted-foreground">{item.a}</p>
         </details>
       ))}
     </div>

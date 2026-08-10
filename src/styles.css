@@ -268,3 +268,45 @@
     text-decoration: underline;
   }
 }
+
+/* Respect the OS "reduce motion" setting everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Touch devices: 16px form text stops iOS from zooming the page on focus. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* One consistent, visible keyboard focus ring across the marketing site. */
+@layer base {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+}
+
+@utility safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* Reserve room for the sticky mobile action bar on small screens. */
+@utility pb-mobile-cta {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  @media (width >= 48rem) {
+    padding-bottom: 0;
+  }
+}
