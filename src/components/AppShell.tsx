@@ -1,6 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Inbox, PhoneCall, Hash, Wand2, Settings } from "lucide-react";
-import type { ReactNode } from "react";
+import { Inbox, PhoneCall, Hash, Wand2, Settings, Plus } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { cn } from "@/lib/utils";
 import { TrialBanner } from "@/components/TrialBanner";
@@ -13,10 +22,32 @@ const TABS = [
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
+export type ScreenFab = { icon: LucideIcon; label: string; onClick: () => void };
+
+const FabContext = createContext<{ set: (fab: ScreenFab | null) => void }>({ set: () => {} });
+
+/**
+ * Lets a screen own the floating action button that sits beside the tab pod.
+ * The registration is cleared automatically when the screen unmounts.
+ */
+export function useScreenFab(fab: ScreenFab) {
+  const { set } = useContext(FabContext);
+  const { icon, label, onClick } = fab;
+  useEffect(() => {
+    set({ icon, label, onClick });
+    return () => set(null);
+  }, [set, icon, label, onClick]);
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [fab, setFab] = useState<ScreenFab | null>(null);
+  const set = useCallback((next: ScreenFab | null) => setFab(next), []);
+  const fabValue = useMemo(() => ({ set }), [set]);
+  const FabIcon = fab?.icon ?? Plus;
 
   return (
+    <FabContext.Provider value={fabValue}>
     <div className="app-gradient flex min-h-dvh w-full flex-col lg:flex-row">
       {/* Desktop / tablet side rail */}
       <aside className="sticky top-0 hidden h-dvh shrink-0 flex-col gap-2 border-r border-sidebar-border bg-sidebar px-3 py-6 backdrop-blur-xl lg:flex lg:w-[15rem]">
@@ -44,42 +75,67 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TrialBanner />
-        <main className="mx-auto w-full max-w-lg min-w-0 flex-1 overflow-x-clip pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:max-w-2xl lg:max-w-4xl lg:pb-10 xl:max-w-5xl">
+        <main className="mx-auto w-full max-w-lg min-w-0 flex-1 overflow-x-clip pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:max-w-2xl lg:max-w-4xl lg:pb-10 xl:max-w-5xl">
           {children}
         </main>
       </div>
 
-      {/* Mobile bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-lg border-t border-border bg-sidebar pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:max-w-2xl lg:hidden">
-        <ul className="grid grid-cols-5 px-1.5 py-1">
-          {TABS.map((tab) => {
-            const active = pathname.startsWith(tab.to);
-            const Icon = tab.icon;
-            return (
-              <li key={tab.to}>
-                <Link
-                  to={tab.to}
-                  className={cn(
-                    "flex min-h-11 flex-col items-center gap-1 py-2 text-[0.65rem] font-medium transition-colors",
-                    active ? "text-primary" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  <span
+      {/* Mobile: detached tab pod plus a single primary action button */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex items-center justify-center gap-2 px-3 pb-[calc(env(safe-area-inset-bottom)+0.6rem)] lg:hidden">
+        <nav className="glass-panel pointer-events-auto min-w-0 flex-1 rounded-full px-1 py-1 md:max-w-lg">
+          <ul className="grid grid-cols-5">
+            {TABS.map((tab) => {
+              const active = pathname.startsWith(tab.to);
+              const Icon = tab.icon;
+              return (
+                <li key={tab.to}>
+                  <Link
+                    to={tab.to}
                     className={cn(
-                      "flex h-9 w-12 items-center justify-center rounded-full transition-all",
-                      active ? "key-signal" : "key-raised opacity-70",
+                      "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-full py-1.5 text-[0.6rem] font-medium transition-colors",
+                      active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    <Icon className="h-[1.15rem] w-[1.15rem]" strokeWidth={active ? 2.4 : 1.9} />
-                  </span>
-                  {tab.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+                    <span
+                      className={cn(
+                        "flex h-8 w-11 items-center justify-center rounded-full transition-all",
+                        active ? "key-signal" : "opacity-80",
+                      )}
+                    >
+                      <Icon className="h-[1.15rem] w-[1.15rem]" strokeWidth={active ? 2.4 : 1.9} />
+                    </span>
+                    <span className="truncate">{tab.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        {fab ? (
+          <button
+            type="button"
+            onClick={fab.onClick}
+            className="key-call pointer-events-auto flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95"
+          >
+            <FabIcon className="h-6 w-6" />
+            <span className="sr-only">{fab.label}</span>
+          </button>
+        ) : null}
+      </div>
+
+      {/* Desktop: the same primary action floats bottom-right */}
+      {fab ? (
+        <button
+          type="button"
+          onClick={fab.onClick}
+          className="key-call fixed right-8 bottom-8 z-40 hidden h-14 w-14 items-center justify-center rounded-full transition-transform active:scale-95 lg:flex"
+        >
+          <FabIcon className="h-6 w-6" />
+          <span className="sr-only">{fab.label}</span>
+        </button>
+      ) : null}
     </div>
+    </FabContext.Provider>
   );
 }
 
@@ -93,17 +149,19 @@ export function ScreenHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/55 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-3 backdrop-blur-xl sm:px-6 lg:pt-6">
-      <div className="flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="font-display truncate text-2xl font-semibold tracking-tight sm:text-3xl">
+    <header className="sticky top-0 z-30 px-3 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2 sm:px-4 lg:pt-5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="glass-panel min-w-0 rounded-full py-2 pr-5 pl-4">
+          <h1 className="font-display truncate text-xl leading-tight font-semibold tracking-tight sm:text-2xl">
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>
+            <p className="truncate text-[0.7rem] text-muted-foreground">{subtitle}</p>
           ) : null}
         </div>
-        <div className="shrink-0">{action}</div>
+        {action ? (
+          <div className="glass-panel flex shrink-0 items-center gap-1 rounded-full p-1">{action}</div>
+        ) : null}
       </div>
     </header>
   );
