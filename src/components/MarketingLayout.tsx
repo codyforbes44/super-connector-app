@@ -209,15 +209,15 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       {/* Thumb-reach conversion bar: phones only, once the hero has scrolled away. */}
       <div
         className={cn(
-          "safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/92 px-4 pt-3 backdrop-blur-xl transition-transform duration-300 md:hidden",
-          pastHero && !open && pathname !== "/contact" ? "translate-y-0" : "translate-y-full",
+          "safe-bottom fixed inset-x-0 bottom-0 z-30 px-3 pt-3 transition-transform duration-300 md:hidden",
+          pastHero && !open && pathname !== "/contact" ? "translate-y-0" : "translate-y-[130%]",
         )}
       >
-        <div className="flex items-center gap-2">
+        <div className="glass-panel flex items-center gap-2 rounded-full p-1.5 backdrop-blur-xl">
           {signedIn ? (
             <Link
               to="/pricing"
-              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+              className="surface-row flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
             >
               See pricing
             </Link>
@@ -225,14 +225,14 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <Link
               to="/auth"
               search={{ mode: "signin" }}
-              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+              className="surface-row flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
             >
               Sign in
             </Link>
           ) : (
             <Link
               to="/pricing"
-              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+              className="surface-row flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
             >
               See pricing
             </Link>
@@ -258,7 +258,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <footer className="relative mt-20 border-t border-border md:mt-24">
+      <footer className="relative mt-20 border-t border-border/60 md:mt-24">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export function Section({
 
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <span className="glass-panel inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground">
+    <span className="surface-row inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
       <span className="h-1.5 w-1.5 rounded-full bg-success" />
       {children}
     </span>
@@ -369,9 +369,9 @@ export function StatBand({
   stats: Array<{ value: string; label: string }>;
 }) {
   return (
-    <dl className="glass-panel grid grid-cols-2 gap-px overflow-hidden rounded-3xl md:grid-cols-4">
+    <dl className="glass-panel grid grid-cols-2 divide-x divide-y divide-border/60 overflow-hidden rounded-3xl md:grid-cols-4 md:divide-y-0">
       {stats.map((stat) => (
-        <div key={stat.label} className="surface-subtle p-5 md:p-6">
+        <div key={stat.label} className="p-5 md:p-6">
           <dt className="sr-only">{stat.label}</dt>
           <dd>
             <span className="font-display block text-xl font-semibold text-primary sm:text-2xl">
