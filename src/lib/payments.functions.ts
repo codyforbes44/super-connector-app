@@ -11,6 +11,58 @@ import {
 type CheckoutSessionResult = { clientSecret: string } | { error: string };
 type PortalSessionResult = { url: string } | { error: string };
 
+export type BillingInvoice = {
+  id: string;
+  number: string | null;
+  status: string | null;
+  amountPaid: number;
+  amountDue: number;
+  currency: string;
+  created: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  description: string | null;
+  hostedInvoiceUrl: string | null;
+  pdfUrl: string | null;
+};
+
+export type BillingTimelineEvent = {
+  key: string;
+  at: string | null;
+  kind: "created" | "trialing" | "active" | "past_due" | "canceled" | "renewal" | "payment";
+  title: string;
+  detail: string | null;
+  future?: boolean;
+};
+
+export type BillingHistoryResult =
+  | {
+      customerId: string | null;
+      status: string | null;
+      cancelAtPeriodEnd: boolean;
+      currentPeriodEnd: string | null;
+      invoices: BillingInvoice[];
+      timeline: BillingTimelineEvent[];
+    }
+  | { error: string };
+
+const ZERO_DECIMAL = new Set([
+  "bif","clp","djf","gnf","jpy","kmf","krw","mga","pyg","rwf","ugx","vnd","vuv","xaf","xof","xpf",
+]);
+const THREE_DECIMAL = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
+
+function toMajor(amount: number | null | undefined, currency: string): number {
+  const value = amount ?? 0;
+  const c = (currency ?? "").toLowerCase();
+  if (ZERO_DECIMAL.has(c)) return value;
+  if (THREE_DECIMAL.has(c)) return value / 1000;
+  return value / 100;
+}
+
+function iso(seconds: number | null | undefined): string | null {
+  return seconds ? new Date(seconds * 1000).toISOString() : null;
+}
+
 async function resolveOrCreateCustomer(
   stripe: ReturnType<typeof createStripeClient>,
   options: { email?: string | undefined; userId?: string | undefined },
@@ -119,6 +171,156 @@ export const createPortalSession = createServerFn({ method: "POST" })
         ...(data.returnUrl && { return_url: data.returnUrl }),
       });
       return { url: portal.url };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });
+
+/** Invoices + subscription status timeline for the signed-in subscriber. */
+export const getBillingHistory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { environment: StripeEnv }) => data)
+  .handler(async ({ data, context }): Promise<BillingHistoryResult> => {
+    const { supabase, userId } = context;
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("stripe_customer_id, stripe_subscription_id")
+      .eq("user_id", userId)
+      .or(`environment.eq.${data.environment},environment.is.null`)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const customerId = (sub?.stripe_customer_id as string | null) ?? null;
+    if (!customerId) {
+      return {
+        customerId: null,
+        status: null,
+        cancelAtPeriodEnd: false,
+        currentPeriodEnd: null,
+        invoices: [],
+        timeline: [],
+      };
+    }
+
+    try {
+      const stripe = createStripeClient(data.environment);
+      const [invoiceList, subList] = await Promise.all([
+        stripe.invoices.list({ customer: customerId, limit: 24 }),
+        stripe.subscriptions.list({ customer: customerId, status: "all", limit: 5 }),
+      ]);
+
+      const invoices: BillingInvoice[] = invoiceList.data.map((inv) => {
+        const line = inv.lines?.data?.[0];
+        return {
+          id: inv.id ?? "",
+          number: inv.number ?? null,
+          status: inv.status ?? null,
+          amountPaid: toMajor(inv.amount_paid, inv.currency),
+          amountDue: toMajor(inv.amount_due, inv.currency),
+          currency: (inv.currency ?? "usd").toUpperCase(),
+          created: iso(inv.created),
+          periodStart: iso((line as any)?.period?.start),
+          periodEnd: iso((line as any)?.period?.end),
+          description: (line as any)?.description ?? null,
+          hostedInvoiceUrl: inv.hosted_invoice_url ?? null,
+          pdfUrl: inv.invoice_pdf ?? null,
+        };
+      });
+
+      const current =
+        subList.data.find((s) => s.id === sub?.stripe_subscription_id) ?? subList.data[0] ?? null;
+
+      const timeline: BillingTimelineEvent[] = [];
+      if (current) {
+        const item = current.items?.data?.[0];
+        const periodEnd = (item as any)?.current_period_end ?? (current as any).current_period_end;
+
+        timeline.push({
+          key: "created",
+          at: iso(current.created),
+          kind: "created",
+          title: "Subscription started",
+          detail: null,
+        });
+        if (current.trial_start) {
+          timeline.push({
+            key: "trial",
+            at: iso(current.trial_start),
+            kind: "trialing",
+            title: "Free trial began",
+            detail: current.trial_end
+              ? `Ends ${new Date(current.trial_end * 1000).toLocaleDateString()}`
+              : null,
+          });
+        }
+        if (current.trial_end && current.trial_end * 1000 < Date.now()) {
+          timeline.push({
+            key: "trial-end",
+            at: iso(current.trial_end),
+            kind: "active",
+            title: "Trial ended — billing began",
+            detail: null,
+          });
+        }
+        if (current.status === "past_due" || current.status === "unpaid") {
+          timeline.push({
+            key: "past-due",
+            at: iso(current.created),
+            kind: "past_due",
+            title: "Payment failed — retrying",
+            detail: "Update your card to avoid interruption.",
+          });
+        }
+        if (current.canceled_at) {
+          timeline.push({
+            key: "canceled",
+            at: iso(current.canceled_at),
+            kind: "canceled",
+            title: "Cancellation requested",
+            detail: periodEnd
+              ? `Access until ${new Date(periodEnd * 1000).toLocaleDateString()}`
+              : null,
+          });
+        }
+        if (periodEnd) {
+          timeline.push({
+            key: "next",
+            at: iso(periodEnd),
+            kind: current.cancel_at_period_end ? "canceled" : "renewal",
+            title: current.cancel_at_period_end ? "Access ends" : "Next renewal",
+            detail: null,
+            future: true,
+          });
+        }
+      }
+
+      for (const inv of invoices.slice(0, 6)) {
+        if (inv.status !== "paid" || !inv.created) continue;
+        timeline.push({
+          key: `inv-${inv.id}`,
+          at: inv.created,
+          kind: "payment",
+          title: `Payment received — ${inv.currency} ${inv.amountPaid.toFixed(2)}`,
+          detail: inv.number,
+        });
+      }
+
+      timeline.sort((a, b) => (b.at ?? "").localeCompare(a.at ?? ""));
+
+      return {
+        customerId,
+        status: current?.status ?? null,
+        cancelAtPeriodEnd: current?.cancel_at_period_end ?? false,
+        currentPeriodEnd: current
+          ? iso(
+              (current.items?.data?.[0] as any)?.current_period_end ??
+                (current as any).current_period_end,
+            )
+          : null,
+        invoices,
+        timeline,
+      };
     } catch (error) {
       return { error: getStripeErrorMessage(error) };
     }
