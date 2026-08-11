@@ -259,7 +259,7 @@ function CallsScreen() {
   }
 
   return (
-    <div>
+    <div className="min-w-0 overflow-x-clip">
       <ScreenHeader
         title="Calls"
         subtitle="Click-to-call, history, recordings"
@@ -315,21 +315,24 @@ function CallsScreen() {
           }
         />
       ) : (
-        <ul className="grid gap-2 px-3 pb-4 md:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid min-w-0 gap-2 px-3 pb-4 md:grid-cols-2 xl:grid-cols-3">
           {(calls.data ?? []).map((call) => {
             const inbound = call.direction === "inbound";
             const other = inbound ? call.from_number : call.to_number;
             const redialTo = otherParty(call);
             return (
-              <li key={call.id} className="glass-panel flex items-center gap-3 rounded-3xl px-3.5 py-3">
+              <li
+                key={call.id}
+                className="glass-panel flex min-w-0 items-center gap-2 rounded-3xl px-3 py-3 sm:gap-3 sm:px-3.5"
+              >
                 <button
                   type="button"
                   onClick={() => setDetail(call)}
-                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
                 >
                 <span
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10",
                     call.status === "no-answer" || call.status === "failed"
                       ? "key-end"
                       : inbound
@@ -344,24 +347,24 @@ function CallsScreen() {
                   )}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
-                    {formatPhone(other)}
+                  <p className="flex min-w-0 items-center gap-1.5 text-sm font-semibold">
+                    <span className="truncate">{formatPhone(other)}</span>
                     {call.answered_in_app ? (
                       <Smartphone className="h-3 w-3 shrink-0 text-primary" aria-label="Answered in app" />
                     ) : null}
+                    <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
+                      {relativeTime(call.started_at)}
+                    </span>
                   </p>
                   <p className="tabular truncate text-[0.7rem] text-muted-foreground">
                     {call.status} · {duration(call.duration)} · via {formatPhone(call.app_number)}
                   </p>
                 </div>
-                <span className="tabular text-[0.7rem] text-muted-foreground">
-                  {relativeTime(call.started_at)}
-                </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => playRecording(call.sid)}
-                  className="key-raised flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-foreground sm:h-10 sm:w-10"
+                  className="key-raised flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground"
                 >
                   <Play className="h-4 w-4" />
                   <span className="sr-only">Play recording</span>
@@ -370,7 +373,7 @@ function CallsScreen() {
                   type="button"
                   disabled={!redialTo}
                   onClick={() => void callBack(call)}
-                  className="key-call flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-40 sm:h-10 sm:w-10"
+                  className="key-call flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40"
                 >
                   <PhoneCall className="h-4 w-4" />
                   <span className="sr-only">Call back {redialTo || "unavailable"}</span>
