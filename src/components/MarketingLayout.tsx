@@ -179,12 +179,21 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         )}
       >
         <div className="flex items-center gap-2">
-          <Link
-            to="/pricing"
-            className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
-          >
-            See pricing
-          </Link>
+          {pathname === "/pricing" ? (
+            <Link
+              to="/auth"
+              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+            >
+              Sign in
+            </Link>
+          ) : (
+            <Link
+              to="/pricing"
+              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+            >
+              See pricing
+            </Link>
+          )}
           <Link
             to="/auth"
             search={{ mode: "signup" }}
