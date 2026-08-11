@@ -47,8 +47,10 @@ export default defineConfig({
         // offline.html must be precached or navigateFallback has nothing to serve.
         globPatterns: ["**/*.{js,css,woff,woff2,png,svg,ico,webp,jpg}", "offline.html"],
         globIgnores: ["**/push-sw.js", "**/_server/**", "**/server/**"],
-        navigateFallback: "/offline.html",
-        navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/, /^\/sitemap\.xml$/],
+        // NOTE: no navigateFallback. Workbox would then serve offline.html for
+        // EVERY navigation (even online), which blanked the live homepage.
+        // Navigations use the NetworkFirst route below, with offline.html only
+        // as the last-resort fallback when both network and cache miss.
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
@@ -64,6 +66,7 @@ export default defineConfig({
               cacheName: "sixvox-pages",
               networkTimeoutSeconds: 4,
               expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 },
+              precacheFallback: { fallbackURL: "/offline.html" },
             },
           },
           {
