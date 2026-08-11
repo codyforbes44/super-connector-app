@@ -213,11 +213,11 @@ function CallsScreen() {
     }
   }
 
-  async function playRecording(sid: string) {
+  async function playVoicemail(sid: string) {
     try {
       const recordings = await getCallRecordings({ data: { sid } });
       if (!recordings.length) {
-        toast.info("No recording was captured for this call.");
+        toast.info("No voicemail was left on this call.");
         return;
       }
       const first = recordings[0]!;
@@ -363,11 +363,11 @@ function CallsScreen() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => playRecording(call.sid)}
+                  onClick={() => playVoicemail(call.sid)}
                   className="key-raised flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground"
                 >
                   <Play className="h-4 w-4" />
-                  <span className="sr-only">Play recording</span>
+                  <span className="sr-only">Play voicemail</span>
                 </button>
                 <button
                   type="button"

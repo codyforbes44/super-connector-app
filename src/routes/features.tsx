@@ -65,8 +65,8 @@ const GROUPS = [
       },
       {
         icon: Waves,
-        title: "Recordings and transcripts",
-        body: "Every call logged with duration, price, device, recording playback and transcription, searchable by number, agent or SID.",
+        title: "Voicemail and transcripts",
+        body: "Every call logged with duration, price and device, plus voicemail playback and transcription, searchable by number, agent or SID. Live calls are never recorded.",
       },
       {
         icon: Bot,

@@ -80,7 +80,8 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
 
           if (number?.forward_to && !aiAnswering) {
             return xml(
-              `<Dial callerId="${escapeXml(appNumber)}" timeout="${RING_SECONDS}" ringTone="us" record="record-from-answer-dual" recordingStatusCallback="${escapeXml(url.origin + url.pathname.replace("/voice", "/status") + url.search)}"><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
+              // Live two-party calls are never recorded — only voicemail is.
+              `<Dial callerId="${escapeXml(appNumber)}" timeout="${RING_SECONDS}" ringTone="us"><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
             );
           }
 
