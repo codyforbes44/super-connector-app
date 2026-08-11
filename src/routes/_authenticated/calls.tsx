@@ -417,7 +417,19 @@ function CallsScreen() {
               ))}
             </dl>
           ) : null}
-          {detail ? <AiCallTranscript callSid={detail.sid} /> : null}
+          {detail ? (
+            <div className="mt-3 space-y-3">
+              <CallSummaryCard
+                callSid={detail.sid}
+                contactNumber={otherParty(detail)}
+                appNumber={detail.app_number}
+              />
+              {otherParty(detail) ? (
+                <CallerContextCard contactNumber={otherParty(detail)} />
+              ) : null}
+              <AiCallTranscript callSid={detail.sid} />
+            </div>
+          ) : null}
           {detail ? (
             <Button
               className="key-call mt-3 h-12 w-full rounded-full"
