@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Clock, PhoneOff, Pencil } from "lucide-react";
+import { CheckCircle2, Clock, PhoneOff, Pencil, RefreshCw } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ type Row = {
 
 export function ForwardingStatusCard({ row, onEdit }: { row: Row; onEdit: () => void }) {
   const qc = useQueryClient();
+  const [checking, setChecking] = useState(false);
   const mode: ForwardMode = row.forward_mode === "all" ? "all" : "conditional";
   const verified = row.status === "verified";
   const off = row.status === "off";
@@ -107,10 +109,29 @@ export function ForwardingStatusCard({ row, onEdit }: { row: Row; onEdit: () => 
       ) : null}
 
       {!verified && !off ? (
-        <p className="rounded-2xl bg-muted/30 p-3 text-[0.7rem] text-muted-foreground">
-          Tip: call your own number from another phone and let it ring out. As soon as the call
-          reaches SixVox this turns green.
-        </p>
+        <div className="space-y-2 rounded-2xl bg-muted/30 p-3">
+          <p className="text-[0.7rem] text-muted-foreground">
+            Test it: call your own number from another phone and let it ring out. As soon as the
+            call reaches SixVox this turns green.
+          </p>
+          <Button
+            variant="ghost"
+            className="key-raised h-10 w-full rounded-full text-xs font-semibold"
+            disabled={checking}
+            onClick={async () => {
+              setChecking(true);
+              try {
+                await qc.invalidateQueries({ queryKey: ["my-forwarding"] });
+                toast.message("Checked — we'll flip this to verified on the first forwarded call.");
+              } finally {
+                setChecking(false);
+              }
+            }}
+          >
+            <RefreshCw className={`mr-2 size-3.5 ${checking ? "animate-spin" : ""}`} />
+            I made a test call — check now
+          </Button>
+        </div>
       ) : null}
 
       {!off && steps[0] ? (
