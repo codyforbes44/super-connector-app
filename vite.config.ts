@@ -44,7 +44,7 @@ export default defineConfig({
       workbox: {
         // Keep all push/call notification logic in the single root-scope worker.
         importScripts: ["/push-sw.js"],
-        globPatterns: ["**/*.{js,css,woff,woff2,png,svg,ico}"],
+        globPatterns: ["**/*.{js,css,woff,woff2,png,svg,ico,webp,jpg}"],
         globIgnores: ["**/push-sw.js", "**/_server/**", "**/server/**"],
         navigateFallback: "/offline.html",
         navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/, /^\/sitemap\.xml$/],
@@ -67,7 +67,7 @@ export default defineConfig({
           },
           {
             urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
-              sameOrigin && /\.(?:js|css|woff2?|png|svg|ico)$/.test(url.pathname),
+              sameOrigin && /\.(?:js|css|woff2?|png|svg|ico|webp|jpe?g|avif)$/.test(url.pathname),
             handler: "CacheFirst",
             options: {
               cacheName: "sixvox-assets",

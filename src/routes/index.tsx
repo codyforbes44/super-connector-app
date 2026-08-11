@@ -41,6 +41,18 @@ export const Route = createFileRoute("/")({
       description: DESCRIPTION,
       image: `${SITE_URL}/og-home.jpg`,
     }),
+    links: [
+      // The hero is the LCP element; preload the same responsive set the
+      // <img> uses so the browser starts it before hydration.
+      {
+        rel: "preload",
+        as: "image",
+        href: heroApp,
+        imagesrcset: heroSrcSet,
+        imagesizes: "(min-width: 768px) 44rem, 100vw",
+        fetchpriority: "high",
+      },
+    ],
     scripts: [
       {
         type: "application/ld+json",
