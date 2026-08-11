@@ -25,6 +25,7 @@ import { Route as AuthenticatedCallsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedConnectorsRouteImport } from './routes/_authenticated/connectors'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedEsimRouteImport } from './routes/_authenticated/esim'
+import { Route as AuthenticatedInsightsRouteImport } from './routes/_authenticated/insights'
 import { Route as AuthenticatedNumbersRouteImport } from './routes/_authenticated/numbers'
 import { Route as AuthenticatedReceptionistRouteImport } from './routes/_authenticated/receptionist'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -125,6 +126,11 @@ const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
 const AuthenticatedEsimRoute = AuthenticatedEsimRouteImport.update({
   id: '/esim',
   path: '/esim',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInsightsRoute = AuthenticatedInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedNumbersRoute = AuthenticatedNumbersRouteImport.update({
@@ -261,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/esim': typeof AuthenticatedEsimRoute
+  '/insights': typeof AuthenticatedInsightsRoute
   '/numbers': typeof AuthenticatedNumbersRoute
   '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -300,6 +307,7 @@ export interface FileRoutesByTo {
   '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/esim': typeof AuthenticatedEsimRoute
+  '/insights': typeof AuthenticatedInsightsRoute
   '/numbers': typeof AuthenticatedNumbersRoute
   '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -341,6 +349,7 @@ export interface FileRoutesById {
   '/_authenticated/connectors': typeof AuthenticatedConnectorsRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/esim': typeof AuthenticatedEsimRoute
+  '/_authenticated/insights': typeof AuthenticatedInsightsRoute
   '/_authenticated/numbers': typeof AuthenticatedNumbersRoute
   '/_authenticated/receptionist': typeof AuthenticatedReceptionistRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -382,6 +391,7 @@ export interface FileRouteTypes {
     | '/connectors'
     | '/console'
     | '/esim'
+    | '/insights'
     | '/numbers'
     | '/receptionist'
     | '/settings'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/connectors'
     | '/console'
     | '/esim'
+    | '/insights'
     | '/numbers'
     | '/receptionist'
     | '/settings'
@@ -461,6 +472,7 @@ export interface FileRouteTypes {
     | '/_authenticated/connectors'
     | '/_authenticated/console'
     | '/_authenticated/esim'
+    | '/_authenticated/insights'
     | '/_authenticated/numbers'
     | '/_authenticated/receptionist'
     | '/_authenticated/settings'
@@ -621,6 +633,13 @@ declare module '@tanstack/react-router' {
       path: '/esim'
       fullPath: '/esim'
       preLoaderRoute: typeof AuthenticatedEsimRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/insights': {
+      id: '/_authenticated/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof AuthenticatedInsightsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/numbers': {
@@ -788,6 +807,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConnectorsRoute: typeof AuthenticatedConnectorsRoute
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
   AuthenticatedEsimRoute: typeof AuthenticatedEsimRoute
+  AuthenticatedInsightsRoute: typeof AuthenticatedInsightsRoute
   AuthenticatedNumbersRoute: typeof AuthenticatedNumbersRoute
   AuthenticatedReceptionistRoute: typeof AuthenticatedReceptionistRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -808,6 +828,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConnectorsRoute: AuthenticatedConnectorsRoute,
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
   AuthenticatedEsimRoute: AuthenticatedEsimRoute,
+  AuthenticatedInsightsRoute: AuthenticatedInsightsRoute,
   AuthenticatedNumbersRoute: AuthenticatedNumbersRoute,
   AuthenticatedReceptionistRoute: AuthenticatedReceptionistRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
