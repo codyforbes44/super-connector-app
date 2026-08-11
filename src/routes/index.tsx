@@ -48,9 +48,9 @@ export const Route = createFileRoute("/")({
         rel: "preload",
         as: "image",
         href: heroApp,
-        imagesrcset: heroSrcSet,
-        imagesizes: "(min-width: 768px) 44rem, 100vw",
-        fetchpriority: "high",
+        imageSrcSet: heroSrcSet,
+        imageSizes: "(min-width: 768px) 44rem, 100vw",
+        fetchPriority: "high",
       },
     ],
     scripts: [
