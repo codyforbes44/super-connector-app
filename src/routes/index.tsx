@@ -331,7 +331,7 @@ function Landing() {
       </Section>
 
       <Section className="py-9 md:py-14">
-        <div className="glass-panel grid items-center gap-8 rounded-[2rem] p-6 sm:p-8 md:grid-cols-[1fr_0.85fr]">
+        <Reveal className="glass-panel grid items-center gap-8 rounded-[2rem] p-6 sm:p-8 md:grid-cols-[1fr_0.85fr]">
           <div>
             <Eyebrow>Answering, handled</Eyebrow>
             <h2 className="font-display mt-4 text-2xl font-semibold md:text-3xl">
@@ -367,7 +367,7 @@ function Landing() {
             alt="The SixVox AI receptionist answering a call, with a live transcript below the call controls"
             className="aspect-square w-full rounded-[1.5rem] object-cover"
           />
-        </div>
+        </Reveal>
       </Section>
 
       <Section className="py-9 md:py-14">
@@ -446,12 +446,16 @@ function Landing() {
       </Section>
 
       <Section className="pt-9 pb-16 md:pt-14 md:pb-20">
-        <CtaBand
-          title="Ready when you are."
-          body="Create your workspace and send your first message in about a minute."
-          note="14 days free · no card · cancel any time"
-        />
+        <Reveal>
+          <CtaBand
+            title="Your next caller is already dialling."
+            body="Create your workspace, claim a number and take your first call in about a minute."
+            note="14 days free · no card · cancel any time"
+          />
+        </Reveal>
       </Section>
+
+      <StickySignupBar />
     </MarketingLayout>
   );
 }
