@@ -24,7 +24,7 @@ import {
   StatBand,
 } from "@/components/MarketingLayout";
 import { LivePhoneDemo } from "@/components/marketing/LivePhoneDemo";
-import { FeatureGroup, FeatureRow, IconTile, TONES } from "@/components/marketing/FeatureList";
+import { FeatureGroup, IconTile, TONES } from "@/components/marketing/FeatureList";
 import { Reveal } from "@/components/marketing/Reveal";
 import { StickySignupBar } from "@/components/marketing/StickySignupBar";
 import { PLANS } from "@/lib/plans";
