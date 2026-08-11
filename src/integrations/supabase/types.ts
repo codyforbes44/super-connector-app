@@ -694,6 +694,90 @@ export type Database = {
           },
         ]
       }
+      esim_orders: {
+        Row: {
+          activation_code: string | null
+          amount_cents: number
+          apn: string | null
+          created_at: string
+          currency: string
+          data_amount: string | null
+          environment: string
+          iccid: string | null
+          id: string
+          instructions: Json
+          last_error: string | null
+          matching_id: string | null
+          package_id: string
+          package_title: string
+          provider: string
+          provider_order_id: string | null
+          qr_code_url: string | null
+          region: string | null
+          smdp_address: string | null
+          status: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string
+          validity_days: number | null
+        }
+        Insert: {
+          activation_code?: string | null
+          amount_cents: number
+          apn?: string | null
+          created_at?: string
+          currency?: string
+          data_amount?: string | null
+          environment?: string
+          iccid?: string | null
+          id?: string
+          instructions?: Json
+          last_error?: string | null
+          matching_id?: string | null
+          package_id: string
+          package_title: string
+          provider?: string
+          provider_order_id?: string | null
+          qr_code_url?: string | null
+          region?: string | null
+          smdp_address?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id: string
+          validity_days?: number | null
+        }
+        Update: {
+          activation_code?: string | null
+          amount_cents?: number
+          apn?: string | null
+          created_at?: string
+          currency?: string
+          data_amount?: string | null
+          environment?: string
+          iccid?: string | null
+          id?: string
+          instructions?: Json
+          last_error?: string | null
+          matching_id?: string | null
+          package_id?: string
+          package_title?: string
+          provider?: string
+          provider_order_id?: string | null
+          qr_code_url?: string | null
+          region?: string | null
+          smdp_address?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string
+          validity_days?: number | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           company: string | null
