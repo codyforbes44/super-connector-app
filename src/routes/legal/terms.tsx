@@ -24,11 +24,27 @@ function Terms() {
 
       <h2>Trial and billing</h2>
       <p>
-        New workspaces get a 14-day free trial with no card required. After the trial you choose a
-        plan; subscriptions renew automatically each period until cancelled. Communication usage
-        (calls, messages and AI minutes) is billed at cost in addition to your plan. You can cancel
-        at any time and keep access until the end of the current period. Fees already paid are
-        non-refundable except where required by law.
+        New workspaces get a 14-day free trial. You choose a plan and enter payment details to
+        start the trial, but nothing is charged until the trial ends. Prices are quoted in US
+        dollars excluding tax; any applicable sales tax or VAT is calculated at checkout from your
+        billing address. Subscriptions renew automatically at the then-current plan price each
+        month or year until cancelled, and we email a receipt or invoice for every payment.
+        Communication usage (calls, messages and AI minutes) is billed at cost in addition to your
+        plan.
+      </p>
+      <p>
+        Payments are processed by our payment network partner, whose descriptor may appear on your
+        card statement alongside SixVox.
+      </p>
+
+      <h2>Cancellation and refunds</h2>
+      <p>
+        You can cancel at any time from Billing in the app or the customer portal. Cancelling
+        during the trial costs nothing. After the trial, cancellation stops future renewals and you
+        keep access until the end of the period you have already paid for. Fees already paid are
+        non-refundable except where required by law. If a renewal payment fails we retry it and
+        keep your workspace running while we do; if all retries fail the subscription is cancelled.
+        We will give at least 30 days notice before any price change affecting your renewal.
       </p>
 
       <h2>Acceptable use</h2>

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { TRIAL_DAYS } from "@/lib/plans";
 import {
   type StripeEnv,
   createStripeClient,
@@ -66,6 +67,15 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         userId,
       });
 
+      // First-time subscribers get the free trial; anyone who has ever had a
+      // subscription on this customer does not.
+      const priorSubs = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "all",
+        limit: 1,
+      });
+      const trialEligible = priorSubs.data.length === 0;
+
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: stripePrice.id, quantity: 1 }],
         mode: "subscription",
@@ -74,7 +84,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         customer: customerId,
         managed_payments: { enabled: true },
         metadata: { userId, managed_payments: "true" },
-        subscription_data: { metadata: { userId } },
+        subscription_data: {
+          metadata: { userId },
+          ...(trialEligible && { trial_period_days: TRIAL_DAYS }),
+        },
       } as any);
 
       return { clientSecret: session.client_secret ?? "" };

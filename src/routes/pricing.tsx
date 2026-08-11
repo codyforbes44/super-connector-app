@@ -13,7 +13,7 @@ import { FEATURE_MATRIX, PLANS, type BillingInterval } from "@/lib/plans";
 import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Pricing — SixVox business phone plans from $29/mo";
+const TITLE = "Pricing — SixVox business phone plans from $19/mo";
 const DESCRIPTION =
   "Compare SixVox Solo, Team and Scale: numbers, seats, WhatsApp, AI receptionist and API access. Every plan starts with a 14-day free trial, no card required.";
 
@@ -24,11 +24,15 @@ const BILLING_FAQS = [
   },
   {
     q: "When am I charged?",
-    a: "Never during the 14-day trial. Once you pick a plan you're charged immediately, then automatically each month or year until you cancel.",
+    a: "Not for the first 14 days. Your card is stored at checkout but nothing is charged until the trial ends, then automatically each month or year until you cancel.",
   },
   {
     q: "How do I cancel?",
     a: "From Billing inside the app, in one tap. You keep access until the end of the period you've already paid for, and we don't charge again.",
+  },
+  {
+    q: "What appears on my statement?",
+    a: "Charges are processed by our payment network partner, so your bank statement shows their descriptor alongside SixVox. Receipts and invoices are emailed for every payment.",
   },
   {
     q: "Can I change plans later?",

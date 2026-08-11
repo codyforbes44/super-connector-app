@@ -45,6 +45,9 @@ export function useSubscription() {
             "id, status, plan_code, billing_interval, comped, suspended, cancel_at_period_end, current_period_end, stripe_customer_id, stripe_subscription_id, trial_ends_at",
           )
           .eq("user_id", userId)
+          // Sandbox and live rows share one table. Legacy/comped rows may
+          // predate the column, so keep untagged rows visible.
+          .or(`environment.eq.${environment},environment.is.null`)
           .order("created_at", { ascending: false })
           .limit(1),
         supabase.rpc("is_super_admin", { _user_id: userId }),
