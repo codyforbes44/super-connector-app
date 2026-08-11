@@ -11,6 +11,7 @@ import { lovable } from "@/integrations/lovable";
 import { errorMessage } from "@/lib/format";
 import { PLANS, type BillingInterval, type PlanCode } from "@/lib/plans";
 import { safeRedirectPath, useSession } from "@/hooks/useSession";
+import { isRemembered, setRememberMe } from "@/lib/session-keeper";
 
 const TITLE = "Sign in or start your free trial — SixVox";
 
@@ -66,6 +67,12 @@ function AuthScreen() {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
+  const [remember, setRemember] = useState(true);
+
+  // Reflect the last choice made on this device.
+  useEffect(() => {
+    setRemember(isRemembered());
+  }, []);
 
   const nextDestination = () => {
     if (plan) {
@@ -89,6 +96,7 @@ function AuthScreen() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
+    setRememberMe(remember);
     try {
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
@@ -118,6 +126,7 @@ function AuthScreen() {
 
   async function handleGoogle() {
     setBusy(true);
+    setRememberMe(remember);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: returnUrl(next),
     });
@@ -233,6 +242,26 @@ function AuthScreen() {
           {mode === "signin" ? "Sign in" : "Start free trial"}
         </Button>
       </form>
+
+      <label className="mt-4 flex min-h-11 cursor-pointer items-center gap-3 rounded-2xl px-1 text-sm">
+        <input
+          type="checkbox"
+          checked={remember}
+          onChange={(e) => {
+            setRemember(e.target.checked);
+            setRememberMe(e.target.checked);
+          }}
+          className="h-5 w-5 shrink-0 rounded-md border border-border bg-transparent accent-[var(--color-primary)]"
+        />
+        <span className="min-w-0">
+          <span className="font-medium">Keep me signed in</span>
+          <span className="block text-xs text-muted-foreground">
+            {remember
+              ? "Stay signed in on this device until you sign out."
+              : "Sign out automatically when you close this browser or tab."}
+          </span>
+        </span>
+      </label>
 
       <button
         type="button"

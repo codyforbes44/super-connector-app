@@ -14,6 +14,10 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerAppServiceWorker } from "@/lib/service-worker";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { primeSessionPersistence, startSessionKeeper } from "@/lib/session-keeper";
+
+// Must run before the lazy Supabase client first reads persisted storage.
+primeSessionPersistence();
 
 /** iOS standalone launch images, keyed by device logical size + pixel ratio. */
 const appleSplashLinks = (
@@ -168,6 +172,10 @@ function RootComponent() {
   useEffect(() => {
     void registerAppServiceWorker();
   }, []);
+
+  // Keeps the access token fresh (wake-ups, bfcache, reconnects) and honours
+  // the "Remember me" choice for where the session is stored.
+  useEffect(() => startSessionKeeper(), []);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
