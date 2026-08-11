@@ -27,7 +27,12 @@ export type ProvisionedSim = {
   smdpAddress: string | null;
   qrCodeUrl: string | null;
   apn: string | null;
-  instructions: Record<string, unknown>;
+  instructions: EsimInstructions;
+};
+
+export type EsimInstructions = {
+  appleInstallUrl: string | null;
+  confirmationCode: string | null;
 };
 
 export type SimUsage = {

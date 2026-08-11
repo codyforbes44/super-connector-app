@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import type { EsimOrder } from "@/lib/esim.server";
 import { errorMessage } from "@/lib/format";
 import { esimUsage, finalizeEsimOrder, listEsimPackages, listMyEsims } from "@/lib/esim.functions";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
@@ -74,7 +75,8 @@ function EsimScreen() {
   const finalize = useMutation({
     mutationFn: (orderId: string) =>
       finalizeEsimOrder({ data: { orderId, environment: getStripeEnvironment() } }),
-    onSuccess: async (result) => {
+    onSuccess: async (raw) => {
+      const result = raw as { order: Order | null; error: string | null };
       await queryClient.invalidateQueries({ queryKey: ["esim-orders"] });
       if (result.error) toast.error(result.error);
       else {
@@ -107,7 +109,7 @@ function EsimScreen() {
     return list.slice(0, 60);
   }, [packages, query]);
 
-  const mine = orders.data ?? [];
+  const mine = (orders.data ?? []) as unknown as Order[];
   const openOrder = mine.find((o) => o.id === detail) ?? null;
 
   return (
@@ -273,7 +275,7 @@ function EsimScreen() {
   );
 }
 
-type Order = Awaited<ReturnType<typeof listMyEsims>>[number];
+type Order = EsimOrder;
 
 function OrderSheet({
   order,
@@ -293,7 +295,7 @@ function OrderSheet({
     retry: false,
   });
 
-  const appleUrl = (order.instructions as { appleInstallUrl?: string | null })?.appleInstallUrl;
+  const appleUrl = order.instructions?.appleInstallUrl ?? null;
 
   async function copy(value: string, label: string) {
     try {
@@ -363,18 +365,20 @@ function OrderSheet({
               ) : null}
 
               <div className="space-y-2">
-                {[
-                  ["SM-DP+ address", order.smdp_address],
-                  ["Activation code", order.matching_id ?? order.activation_code],
-                  ["APN", order.apn],
-                  ["ICCID", order.iccid],
-                ]
+                {(
+                  [
+                    ["SM-DP+ address", order.smdp_address],
+                    ["Activation code", order.matching_id ?? order.activation_code],
+                    ["APN", order.apn],
+                    ["ICCID", order.iccid],
+                  ] as Array<[string, string | null]>
+                )
                   .filter(([, value]) => Boolean(value))
                   .map(([label, value]) => (
                     <button
-                      key={label as string}
+                      key={label}
                       type="button"
-                      onClick={() => copy(String(value), label as string)}
+                      onClick={() => copy(String(value), label)}
                       className="glass-panel flex w-full items-center gap-3 rounded-2xl px-3.5 py-2.5 text-left"
                     >
                       <span className="min-w-0 flex-1">

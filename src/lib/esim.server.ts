@@ -8,6 +8,7 @@ import {
   fetchPackage,
   fetchUsage,
   placeOrder,
+  type EsimInstructions,
   type EsimPackage,
 } from "./esim-provider.server";
 
@@ -29,7 +30,7 @@ export type EsimOrder = {
   smdp_address: string | null;
   qr_code_url: string | null;
   apn: string | null;
-  instructions: Record<string, unknown>;
+  instructions: EsimInstructions;
   last_error: string | null;
   created_at: string;
 };
@@ -190,7 +191,7 @@ export async function finalizeOrder(
         smdp_address: sim.smdpAddress,
         qr_code_url: sim.qrCodeUrl,
         apn: sim.apn ?? order.apn,
-        instructions: sim.instructions,
+        instructions: sim.instructions as unknown as Record<string, string | null>,
         last_error: null,
       })
       .eq("id", order.id)
