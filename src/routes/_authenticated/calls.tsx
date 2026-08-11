@@ -425,6 +425,15 @@ function CallsScreen() {
               {otherParty(detail) ? `Call back ${formatPhone(otherParty(detail))}` : "Number unavailable"}
             </Button>
           ) : null}
+          {detail && otherParty(detail) ? (
+            <a
+              href={`tel:${otherParty(detail)}`}
+              className="key-raised mt-2 flex h-11 w-full items-center justify-center rounded-full text-sm font-semibold"
+            >
+              <Smartphone className="mr-2 h-4 w-4" />
+              Call on my cellular line
+            </a>
+          ) : null}
         </SheetContent>
       </Sheet>
 
