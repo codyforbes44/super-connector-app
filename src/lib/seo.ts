@@ -1,5 +1,8 @@
 export const SITE_URL = "https://sixvox.3bi.io";
 
+/** Fallback social card used by any page that doesn't supply its own image. */
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.jpg`;
+
 type MetaEntry = Record<string, string>;
 
 /**
@@ -14,6 +17,7 @@ export function pageHead(options: {
   image?: string;
 }): { meta: MetaEntry[]; links: MetaEntry[] } {
   const url = `${SITE_URL}${options.path}`;
+  const image = options.image ?? DEFAULT_OG_IMAGE;
   const meta: MetaEntry[] = [
     { title: options.title },
     { name: "description", content: options.description },
@@ -25,13 +29,9 @@ export function pageHead(options: {
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: options.title },
     { name: "twitter:description", content: options.description },
+    { property: "og:image", content: image },
+    { name: "twitter:image", content: image },
   ];
-  if (options.image) {
-    meta.push(
-      { property: "og:image", content: options.image },
-      { name: "twitter:image", content: options.image },
-    );
-  }
   return { meta, links: [{ rel: "canonical", href: url }] };
 }
 
