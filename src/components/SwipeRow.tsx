@@ -23,9 +23,9 @@ export function SwipeRow({
   className,
 }: {
   children: ReactNode;
-  left?: Action;
-  right?: Action;
-  className?: string;
+  left?: Action | undefined;
+  right?: Action | undefined;
+  className?: string | undefined;
 }) {
   const [dx, setDx] = useState(0);
   const start = useRef<{ x: number; y: number; active: boolean } | null>(null);
