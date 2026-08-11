@@ -926,6 +926,8 @@ export type Database = {
           email_inbound_message: boolean
           email_missed_call: boolean
           email_voicemail: boolean
+          push_esim_failed: boolean
+          push_esim_ready: boolean
           quiet_end: string
           quiet_hours_enabled: boolean
           quiet_start: string
@@ -943,6 +945,8 @@ export type Database = {
           email_inbound_message?: boolean
           email_missed_call?: boolean
           email_voicemail?: boolean
+          push_esim_failed?: boolean
+          push_esim_ready?: boolean
           quiet_end?: string
           quiet_hours_enabled?: boolean
           quiet_start?: string
@@ -960,6 +964,8 @@ export type Database = {
           email_inbound_message?: boolean
           email_missed_call?: boolean
           email_voicemail?: boolean
+          push_esim_failed?: boolean
+          push_esim_ready?: boolean
           quiet_end?: string
           quiet_hours_enabled?: boolean
           quiet_start?: string
