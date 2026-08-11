@@ -1,4 +1,4 @@
-import { Globe, ShieldCheck, SimCard } from "lucide-react";
+import { Globe, Nfc, ShieldCheck } from "lucide-react";
 
 /**
  * Users often ask for an "eSIM". A web app cannot install a carrier profile —
@@ -10,7 +10,7 @@ export function EsimExplainer() {
     <details className="glass-panel group rounded-3xl p-4">
       <summary className="flex cursor-pointer list-none items-center gap-3">
         <span className="key-raised grid size-10 shrink-0 place-items-center rounded-full">
-          <SimCard className="size-4 text-primary" />
+          <Nfc className="size-4 text-primary" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold">Do I need a SIM or eSIM?</span>
