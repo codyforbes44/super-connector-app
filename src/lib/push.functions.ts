@@ -57,3 +57,36 @@ export const sendTestPush = createServerFn({ method: "POST" })
     });
     return { sent };
   });
+
+export type PushAlertPrefs = {
+  push_esim_ready: boolean;
+  push_esim_failed: boolean;
+};
+
+export const getPushAlertPrefs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PushAlertPrefs> => {
+    const { data } = await context.supabase
+      .from("notification_prefs")
+      .select("push_esim_ready, push_esim_failed")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    return {
+      push_esim_ready: data?.push_esim_ready ?? true,
+      push_esim_failed: data?.push_esim_failed ?? true,
+    };
+  });
+
+export const savePushAlertPrefs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: Partial<PushAlertPrefs>) => input)
+  .handler(async ({ context, data }) => {
+    const patch: Partial<PushAlertPrefs> = {};
+    if (typeof data.push_esim_ready === "boolean") patch.push_esim_ready = data.push_esim_ready;
+    if (typeof data.push_esim_failed === "boolean") patch.push_esim_failed = data.push_esim_failed;
+    const { error } = await context.supabase
+      .from("notification_prefs")
+      .upsert({ user_id: context.userId, ...patch }, { onConflict: "user_id" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
