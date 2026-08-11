@@ -336,7 +336,7 @@ function Landing() {
           <h2 className="font-display text-2xl font-semibold md:text-3xl">
             Free for 14 days, then plans that scale
           </h2>
-          <Link to="/pricing" className="text-sm text-primary underline">
+          <Link to="/pricing" className="inline-flex min-h-11 items-center text-sm text-primary underline">
             Full comparison
           </Link>
         </div>
@@ -373,7 +373,7 @@ function Landing() {
       <Section className="py-9 md:py-14">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="font-display text-2xl font-semibold md:text-3xl">Common questions</h2>
-          <Link to="/faq" className="text-sm text-primary underline">
+          <Link to="/faq" className="inline-flex min-h-11 items-center text-sm text-primary underline">
             All answers
           </Link>
         </div>

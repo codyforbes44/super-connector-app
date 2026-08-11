@@ -59,14 +59,11 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       >
         Skip to content
       </a>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 right-[-10%] h-[28rem] w-[28rem] rounded-full bg-primary/20 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-success/15 blur-3xl"
-      />
+      {/* Decorative glows, clipped to the shell so they can never widen the page. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 right-[-10%] h-[28rem] w-[28rem] rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-success/15 blur-3xl" />
+      </div>
 
       <header
         className={cn(
@@ -77,7 +74,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         )}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" aria-label="SixVox home" className="flex min-h-11 items-center gap-2">
             <span className="key-signal flex h-9 w-9 items-center justify-center rounded-full">
               <Radio className="h-4 w-4" />
             </span>
@@ -178,16 +175,25 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       <div
         className={cn(
           "safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/92 px-4 pt-3 backdrop-blur-xl transition-transform duration-300 md:hidden",
-          pastHero && !open ? "translate-y-0" : "translate-y-full",
+          pastHero && !open && pathname !== "/contact" ? "translate-y-0" : "translate-y-full",
         )}
       >
         <div className="flex items-center gap-2">
-          <Link
-            to="/pricing"
-            className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
-          >
-            See pricing
-          </Link>
+          {pathname === "/pricing" ? (
+            <Link
+              to="/auth"
+              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+            >
+              Sign in
+            </Link>
+          ) : (
+            <Link
+              to="/pricing"
+              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+            >
+              See pricing
+            </Link>
+          )}
           <Link
             to="/auth"
             search={{ mode: "signup" }}
@@ -267,7 +273,7 @@ function FooterCol({
           <li key={`${link.to}-${link.label}`}>
             <Link
               to={link.to}
-              className="inline-flex min-h-10 items-center text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex min-h-11 items-center text-[0.82rem] text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
             </Link>

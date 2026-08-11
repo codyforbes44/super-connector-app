@@ -146,7 +146,7 @@ function FaqPage() {
     <MarketingLayout>
       <Section className="pb-8">
         <Eyebrow>Questions, answered</Eyebrow>
-        <h1 className="font-display mt-5 text-4xl leading-[1.05] font-semibold md:text-5xl">
+        <h1 className="font-display mt-5 text-[2rem] leading-[1.06] font-semibold text-balance sm:text-4xl md:text-5xl">
           Frequently asked questions
         </h1>
       </Section>

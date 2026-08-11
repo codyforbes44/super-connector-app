@@ -127,7 +127,7 @@ function FeaturesPage() {
     <MarketingLayout>
       <Section className="pb-8">
         <Eyebrow>Everything, not a curated subset</Eyebrow>
-        <h1 className="font-display mt-5 max-w-3xl text-4xl leading-[1.05] font-semibold md:text-5xl">
+        <h1 className="font-display mt-5 max-w-3xl text-[2rem] leading-[1.06] font-semibold text-balance sm:text-4xl md:text-5xl">
           Built for people who actually run their business on their phone.
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
