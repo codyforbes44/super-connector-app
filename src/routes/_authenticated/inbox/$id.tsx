@@ -1,13 +1,22 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Phone, Send, StickyNote } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowLeft,
+  ArrowUpRight,
+  Phone,
+  PhoneMissed,
+  Send,
+  Sparkles,
+  StickyNote,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { clockTime, errorMessage, formatPhone } from "@/lib/format";
+import { clockTime, duration as formatDuration, errorMessage, formatPhone } from "@/lib/format";
 import {
   addInternalNote,
   markConversationRead,
@@ -93,6 +102,48 @@ function ThreadScreen() {
 
   const convo = conversation.data;
 
+  // Calls with the same contact are folded into the thread so the history of a
+  // relationship reads as one timeline instead of two disconnected screens.
+  const calls = useQuery({
+    queryKey: ["thread-calls", convo?.contact_number],
+    enabled: Boolean(convo?.contact_number),
+    queryFn: async () => {
+      const contact = convo!.contact_number;
+      const { data, error } = await supabase
+        .from("calls")
+        .select("id,sid,direction,status,duration,started_at,answered_by")
+        .or(`from_number.eq.${contact},to_number.eq.${contact}`)
+        .order("started_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const callSids = (calls.data ?? []).map((c) => c.sid);
+  const intel = useQuery({
+    queryKey: ["thread-call-intel", callSids],
+    enabled: callSids.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("call_intelligence")
+        .select("call_sid,summary")
+        .in("call_sid", callSids);
+      if (error) throw error;
+      return data;
+    },
+  });
+  const summaryFor = new Map((intel.data ?? []).map((r) => [r.call_sid, r.summary]));
+
+  type Item =
+    | { kind: "message"; at: string; row: (typeof messagesRows)[number] }
+    | { kind: "call"; at: string; row: NonNullable<typeof calls.data>[number] };
+  const messagesRows = messages.data ?? [];
+  const timeline: Item[] = [
+    ...messagesRows.map((row) => ({ kind: "message" as const, at: row.created_at, row })),
+    ...(calls.data ?? []).map((row) => ({ kind: "call" as const, at: row.started_at, row })),
+  ].sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!convo || !draft.trim()) return;
@@ -167,7 +218,60 @@ function ThreadScreen() {
       </header>
 
       <div className="flex-1 space-y-2 px-3 py-4">
-        {(messages.data ?? []).map((m) => {
+        {timeline.map((item) => {
+          if (item.kind === "call") {
+            const c = item.row;
+            const missed = ["no-answer", "failed", "busy", "canceled"].includes(c.status ?? "");
+            const byAi = /ai|receptionist|assistant|agent/i.test(c.answered_by ?? "");
+            const inbound = c.direction === "inbound";
+            const CallIcon = missed ? PhoneMissed : inbound ? ArrowDownLeft : ArrowUpRight;
+            const summary = summaryFor.get(c.sid);
+            return (
+              <div key={c.id} className="flex justify-center">
+                <div className="glass-panel w-full max-w-[92%] rounded-3xl px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className={cn(
+                        "flex size-8 shrink-0 items-center justify-center rounded-full",
+                        missed
+                          ? "bg-destructive/15 text-destructive"
+                          : inbound
+                            ? "bg-success/15 text-success"
+                            : "bg-primary/15 text-primary",
+                      )}
+                    >
+                      <CallIcon className="size-4" />
+                    </span>
+                    <p className="min-w-0 flex-1 truncate text-sm font-medium">
+                      {missed
+                        ? "Missed call"
+                        : byAi
+                          ? "Answered by receptionist"
+                          : inbound
+                            ? "Incoming call"
+                            : "Outgoing call"}
+                      {c.duration ? (
+                        <span className="tabular text-muted-foreground">
+                          {" "}
+                          · {formatDuration(c.duration)}
+                        </span>
+                      ) : null}
+                    </p>
+                    <span className="tabular shrink-0 text-[0.65rem] text-muted-foreground">
+                      {clockTime(c.started_at)}
+                    </span>
+                  </div>
+                  {summary ? (
+                    <p className="mt-2 flex gap-1.5 text-xs text-muted-foreground">
+                      <Sparkles className="mt-0.5 size-3 shrink-0 text-primary" />
+                      <span>{summary}</span>
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            );
+          }
+          const m = item.row;
           const mine = m.direction !== "inbound";
           const media = Array.isArray(m.media) ? (m.media as Array<{ url: string }>) : [];
           return (
