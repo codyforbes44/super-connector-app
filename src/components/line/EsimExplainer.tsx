@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Globe, Nfc, ShieldCheck } from "lucide-react";
 
 /**
@@ -48,6 +49,12 @@ export function EsimExplainer() {
           network product, not something an app can install. Forwarding gives you the same second
           line today.
         </p>
+        <Link
+          to="/esim"
+          className="key-raised flex h-11 items-center justify-center rounded-full text-sm font-semibold text-foreground"
+        >
+          Browse travel data eSIMs
+        </Link>
       </div>
     </details>
   );

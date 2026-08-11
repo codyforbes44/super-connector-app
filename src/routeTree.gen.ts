@@ -24,6 +24,7 @@ import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCallsRouteImport } from './routes/_authenticated/calls'
 import { Route as AuthenticatedConnectorsRouteImport } from './routes/_authenticated/connectors'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
+import { Route as AuthenticatedEsimRouteImport } from './routes/_authenticated/esim'
 import { Route as AuthenticatedNumbersRouteImport } from './routes/_authenticated/numbers'
 import { Route as AuthenticatedReceptionistRouteImport } from './routes/_authenticated/receptionist'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -119,6 +120,11 @@ const AuthenticatedConnectorsRoute = AuthenticatedConnectorsRouteImport.update({
 const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
   id: '/console',
   path: '/console',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEsimRoute = AuthenticatedEsimRouteImport.update({
+  id: '/esim',
+  path: '/esim',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedNumbersRoute = AuthenticatedNumbersRouteImport.update({
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/calls': typeof AuthenticatedCallsRoute
   '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
+  '/esim': typeof AuthenticatedEsimRoute
   '/numbers': typeof AuthenticatedNumbersRoute
   '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/calls': typeof AuthenticatedCallsRoute
   '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
+  '/esim': typeof AuthenticatedEsimRoute
   '/numbers': typeof AuthenticatedNumbersRoute
   '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/_authenticated/calls': typeof AuthenticatedCallsRoute
   '/_authenticated/connectors': typeof AuthenticatedConnectorsRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
+  '/_authenticated/esim': typeof AuthenticatedEsimRoute
   '/_authenticated/numbers': typeof AuthenticatedNumbersRoute
   '/_authenticated/receptionist': typeof AuthenticatedReceptionistRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -372,6 +381,7 @@ export interface FileRouteTypes {
     | '/calls'
     | '/connectors'
     | '/console'
+    | '/esim'
     | '/numbers'
     | '/receptionist'
     | '/settings'
@@ -410,6 +420,7 @@ export interface FileRouteTypes {
     | '/calls'
     | '/connectors'
     | '/console'
+    | '/esim'
     | '/numbers'
     | '/receptionist'
     | '/settings'
@@ -449,6 +460,7 @@ export interface FileRouteTypes {
     | '/_authenticated/calls'
     | '/_authenticated/connectors'
     | '/_authenticated/console'
+    | '/_authenticated/esim'
     | '/_authenticated/numbers'
     | '/_authenticated/receptionist'
     | '/_authenticated/settings'
@@ -602,6 +614,13 @@ declare module '@tanstack/react-router' {
       path: '/console'
       fullPath: '/console'
       preLoaderRoute: typeof AuthenticatedConsoleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/esim': {
+      id: '/_authenticated/esim'
+      path: '/esim'
+      fullPath: '/esim'
+      preLoaderRoute: typeof AuthenticatedEsimRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/numbers': {
@@ -768,6 +787,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCallsRoute: typeof AuthenticatedCallsRoute
   AuthenticatedConnectorsRoute: typeof AuthenticatedConnectorsRoute
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
+  AuthenticatedEsimRoute: typeof AuthenticatedEsimRoute
   AuthenticatedNumbersRoute: typeof AuthenticatedNumbersRoute
   AuthenticatedReceptionistRoute: typeof AuthenticatedReceptionistRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -787,6 +807,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCallsRoute: AuthenticatedCallsRoute,
   AuthenticatedConnectorsRoute: AuthenticatedConnectorsRoute,
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
+  AuthenticatedEsimRoute: AuthenticatedEsimRoute,
   AuthenticatedNumbersRoute: AuthenticatedNumbersRoute,
   AuthenticatedReceptionistRoute: AuthenticatedReceptionistRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
