@@ -223,8 +223,9 @@ export async function finalizeOrder(
       .select("*")
       .single();
 
+    await alertOrder(supabaseAdmin as unknown as SB, userId, order, "ready");
+
     return { order: (updated as unknown as EsimOrder) ?? order, error: null };
-  } catch (error) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not finish that order.";
     await supabaseAdmin
