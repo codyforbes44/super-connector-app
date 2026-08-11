@@ -8,6 +8,7 @@ import {
   reviveCallAudio,
   rebindAudioDevices,
   watchAudioDevices,
+  resetAudioBinding,
   type DeviceAudio,
 } from "@/lib/call-keepalive";
 import {
@@ -114,6 +115,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     setRemoteParty("");
     setMuted(false);
     setStartedAt(null);
+    resetAudioBinding();
   }, []);
 
   const bindCall = useCallback(
@@ -235,16 +237,55 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   // user comes back from another app — switching apps must never mute the mic.
   useEffect(() => {
     if (callState !== "active" && callState !== "connecting") return;
+    let cancelled = false;
+    let running = false;
+    let queued = false;
+    let debounce: ReturnType<typeof setTimeout> | null = null;
+
     // Follow the OS route: a headset paired or unplugged while we were in the
     // background must be picked up before the mic track is re-asserted.
-    const resync = () => {
-      void rebindAudioDevices(deviceRef.current?.audio).finally(() => {
+    const resync = async (announce: boolean) => {
+      if (running) {
+        // Never overlap two rebinds — the second would fight for the mic.
+        queued = queued || announce;
+        return;
+      }
+      running = true;
+      const toastId = announce ? toast.loading("Audio device changed — reconnecting…") : null;
+      try {
+        const result = await rebindAudioDevices(deviceRef.current?.audio);
+        // Always re-assert the mic track, even if device selection was refused.
         reviveCallAudio(callRef.current, muted);
-      });
+        if (cancelled || toastId === null) return;
+        if (result.ok) {
+          const target = result.inputLabel ?? result.outputLabel;
+          toast.success(target ? `Audio moved to ${target}` : "Audio reconnected", { id: toastId });
+        } else {
+          toast.warning("Kept you on the previous audio device", {
+            id: toastId,
+            description: "We couldn't switch automatically — your call is still connected.",
+          });
+        }
+      } finally {
+        running = false;
+        if (!cancelled && queued) {
+          queued = false;
+          void resync(true);
+        }
+      }
     };
-    const stopKeepalive = startCallKeepalive(resync);
-    const stopDeviceWatch = watchAudioDevices(resync);
+
+    // Returning from another app: silent re-assert, no toast.
+    const stopKeepalive = startCallKeepalive(() => void resync(false));
+    // A real device change (headset, Bluetooth): tell the user what happened.
+    const stopDeviceWatch = watchAudioDevices(() => {
+      if (debounce) clearTimeout(debounce);
+      // Plug/pair events fire in bursts; settle before touching the mic.
+      debounce = setTimeout(() => void resync(true), 350);
+    });
     return () => {
+      cancelled = true;
+      if (debounce) clearTimeout(debounce);
       stopKeepalive();
       stopDeviceWatch();
     };
