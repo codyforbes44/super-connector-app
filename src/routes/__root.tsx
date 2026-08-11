@@ -15,6 +15,24 @@ import { registerAppServiceWorker } from "@/lib/service-worker";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+/** iOS standalone launch images, keyed by device logical size + pixel ratio. */
+const appleSplashLinks = (
+  [
+    [1290, 2796, 430, 932, 3],
+    [1179, 2556, 393, 852, 3],
+    [1284, 2778, 428, 926, 3],
+    [1170, 2532, 390, 844, 3],
+    [1125, 2436, 375, 812, 3],
+    [1668, 2388, 834, 1194, 2],
+    [2048, 2732, 1024, 1366, 2],
+    [1536, 2048, 768, 1024, 2],
+  ] as const
+).map(([w, h, cssW, cssH, dpr]) => ({
+  rel: "apple-touch-startup-image",
+  href: `/apple-splash-${w}x${h}.png`,
+  media: `(device-width: ${cssW}px) and (device-height: ${cssH}px) and (-webkit-device-pixel-ratio: ${dpr}) and (orientation: portrait)`,
+}));
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -90,6 +108,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Run your business number, inbox, calls and AI receptionist from one mobile app built for teams.",
       },
       { name: "theme-color", content: "#08131c" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "SixVox" },
+      { name: "application-name", content: "SixVox" },
       { property: "og:title", content: "SixVox — business calls, texts and AI receptionist" },
       {
         property: "og:description",
@@ -97,7 +120,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Run your business number, inbox, calls and AI receptionist from one mobile app built for teams.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://sixvox.3bi.io/og-default.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://sixvox.3bi.io/og-default.jpg" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -112,7 +137,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/icon-512.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      ...appleSplashLinks,
     ],
   }),
   shellComponent: RootShell,
