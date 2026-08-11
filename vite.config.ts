@@ -44,7 +44,8 @@ export default defineConfig({
       workbox: {
         // Keep all push/call notification logic in the single root-scope worker.
         importScripts: ["/push-sw.js"],
-        globPatterns: ["**/*.{js,css,woff,woff2,png,svg,ico,webp,jpg}"],
+        // offline.html must be precached or navigateFallback has nothing to serve.
+        globPatterns: ["**/*.{js,css,woff,woff2,png,svg,ico,webp,jpg}", "offline.html"],
         globIgnores: ["**/push-sw.js", "**/_server/**", "**/server/**"],
         navigateFallback: "/offline.html",
         navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/, /^\/sitemap\.xml$/],
