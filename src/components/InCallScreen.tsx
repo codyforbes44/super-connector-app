@@ -99,9 +99,59 @@ export function InCallScreen() {
             onClick={voice.toggleMute}
           />
           <ControlButton icon={Grid3x3} label="Keypad" onClick={() => setKeypad(true)} />
-          <ControlButton icon={Volume2} label="Speaker" onClick={() => {}} disabled />
+          <ControlButton
+            icon={voice.speakerOn ? Volume2 : Volume1}
+            label="Speaker"
+            active={voice.speakerOn}
+            onClick={() => {
+              haptic("light");
+              void voice.toggleSpeaker();
+            }}
+            // More than two outputs (headset, Bluetooth): let the user pick.
+            onLongPress={
+              voice.audioOutputSupported && voice.outputDevices.length > 1
+                ? () => {
+                    haptic("medium");
+                    setOutputSheet(true);
+                  }
+                : undefined
+            }
+          />
         </div>
       )}
+
+      {outputSheet ? (
+        <div
+          className="fixed inset-0 z-[70] flex items-end bg-background/70 backdrop-blur-sm"
+          role="dialog"
+          aria-label="Choose audio output"
+          onClick={() => setOutputSheet(false)}
+        >
+          <div
+            className="glass-panel m-3 w-full space-y-1 rounded-3xl p-3"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p className="px-2 pb-1 text-xs text-muted-foreground">Audio output</p>
+            {voice.outputDevices.map((device) => (
+              <button
+                key={device.id}
+                type="button"
+                onClick={() => {
+                  haptic("light");
+                  void voice.selectOutput(device.id);
+                  setOutputSheet(false);
+                }}
+                className="flex min-h-11 w-full items-center justify-between gap-3 rounded-2xl px-3 text-left text-sm"
+              >
+                <span>{device.label}</span>
+                {voice.outputDeviceId === device.id ? (
+                  <Check className="h-4 w-4 shrink-0 text-success" />
+                ) : null}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex items-center gap-10 pb-4">
         {keypad ? (
