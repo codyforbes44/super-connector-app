@@ -103,7 +103,7 @@ export function LivePhoneDemo() {
 
       {/* Scene captions double as progress dots */}
       <div className="mt-4 flex items-center justify-center gap-2" aria-hidden>
-        {SCENES.map((item, itemIndex) => (
+        {SCENES.map((item) => (
           <span
             key={item.id}
             className={cn(
