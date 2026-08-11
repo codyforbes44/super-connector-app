@@ -12,7 +12,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { requireAdmin } from "./app.server";
+import { requireAdmin, requireOwner } from "./app.server";
 import { twilioRequest } from "./twilio.server";
 
 type SB = SupabaseClient;
@@ -151,7 +151,7 @@ async function evaluateAndSubmit(
 /* ------------------------------------------------------------ step 1: profile */
 
 export async function submitBusinessProfile(supabase: SB, userId: string, input: BusinessInput) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   requireFields(input as unknown as Record<string, unknown>, [
     "legalName",
     "businessType",
@@ -269,7 +269,7 @@ export async function submitBusinessProfile(supabase: SB, userId: string, input:
 /* -------------------------------------------------------------- step 2: brand */
 
 export async function submitBrand(supabase: SB, userId: string) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const row = await loadRow(userId);
   if (!row?.customer_profile_sid) throw new Error("Submit your business profile first.");
 
@@ -326,7 +326,7 @@ export async function submitBrand(supabase: SB, userId: string) {
 /* ----------------------------------------------------------- step 3: campaign */
 
 export async function submitCampaign(supabase: SB, userId: string, input: CampaignInput) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const row = await loadRow(userId);
   if (!row?.brand_sid) throw new Error("Register your brand first.");
   requireFields(input as unknown as Record<string, unknown>, [

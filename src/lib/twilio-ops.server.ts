@@ -6,6 +6,7 @@ import {
   getRole,
   isAdminRole,
   requireAdmin,
+  requireOwner,
   upsertConversation,
   webhookUrl,
 } from "./app.server";
@@ -532,7 +533,7 @@ export async function purchaseNumber(
   userId: string,
   data: { phoneNumber: string },
 ) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const admin = await adminClient();
   const bought = await twilioRequest<TwilioNumber>({
     method: "POST",
@@ -568,7 +569,7 @@ export async function purchaseNumber(
 }
 
 export async function releaseNumber(supabase: SB, userId: string, data: { sid: string }) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const admin = await adminClient();
   await twilioRequest({ method: "DELETE", path: `/IncomingPhoneNumbers/${data.sid}.json` });
   await admin.from("phone_numbers").delete().eq("sid", data.sid);
@@ -1192,7 +1193,7 @@ export async function createMessagingService(
   userId: string,
   data: { name: string },
 ) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const result = await twilioRequest<MessagingService>({
     host: "messaging",
     method: "POST",
@@ -1216,7 +1217,7 @@ export async function rawTwilioCall(
   userId: string,
   data: { method: string; path: string; host: string; params: string },
 ) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   let params: Record<string, unknown> = {};
   if (data.params.trim()) {
     try {
@@ -1260,8 +1261,7 @@ export async function setTeamRole(
   userId: string,
   data: { targetUserId: string; role: "owner" | "admin" | "agent" },
 ) {
-  const role = await getRole(supabase, userId);
-  if (role !== "owner") throw new Error("Only the account owner can change roles.");
+  await requireOwner(supabase, userId);
   const admin = await adminClient();
   await admin.from("user_roles").delete().eq("user_id", data.targetUserId);
   await admin.from("user_roles").insert({ user_id: data.targetUserId, role: data.role });
@@ -1350,7 +1350,7 @@ export async function listTwimlApps(supabase: SB, userId: string) {
 }
 
 export async function createTwimlApp(supabase: SB, userId: string, data: { name: string }) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const app = await twilioRequest<TwimlApp>({
     method: "POST",
     path: "/Applications.json",
@@ -1374,7 +1374,7 @@ export async function createTwimlApp(supabase: SB, userId: string, data: { name:
 
 /** Re-point an existing TwiML App (ours or one made in the Twilio console) at SixVox. */
 export async function syncTwimlApp(supabase: SB, userId: string, data: { sid: string }) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const app = await twilioRequest<TwimlApp>({
     method: "POST",
     path: `/Applications/${data.sid}.json`,
@@ -1395,7 +1395,7 @@ export async function syncTwimlApp(supabase: SB, userId: string, data: { sid: st
 }
 
 export async function setDefaultTwimlApp(supabase: SB, userId: string, data: { sid: string }) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const app = await twilioRequest<TwimlApp>({ path: `/Applications/${data.sid}.json` });
   const admin = await adminClient();
   await admin.from("twiml_apps").update({ is_default: false }).eq("is_default", true);
@@ -1414,7 +1414,7 @@ export async function setDefaultTwimlApp(supabase: SB, userId: string, data: { s
 }
 
 export async function deleteTwimlApp(supabase: SB, userId: string, data: { sid: string }) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   await twilioRequest({ method: "DELETE", path: `/Applications/${data.sid}.json` });
   const admin = await adminClient();
   await admin.from("twiml_apps").delete().eq("sid", data.sid);
