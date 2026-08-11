@@ -192,19 +192,51 @@ function ControlButton({
   icon: Icon,
   label,
   onClick,
+  onLongPress,
   active,
   disabled,
 }: {
   icon: typeof Mic;
   label: string;
   onClick: () => void;
+  onLongPress?: () => void;
   active?: boolean;
   disabled?: boolean;
 }) {
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fired = useRef(false);
+
+  const clear = () => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+  };
+
   return (
     <button
       type="button"
-      onClick={onClick}
+      onPointerDown={() => {
+        if (!onLongPress) return;
+        fired.current = false;
+        clear();
+        timer.current = setTimeout(() => {
+          fired.current = true;
+          onLongPress();
+        }, 450);
+      }}
+      onPointerUp={clear}
+      onPointerLeave={clear}
+      onContextMenu={(event) => {
+        if (onLongPress) event.preventDefault();
+      }}
+      onClick={() => {
+        clear();
+        // A completed long-press already opened the picker.
+        if (fired.current) {
+          fired.current = false;
+          return;
+        }
+        onClick();
+      }}
       disabled={disabled}
       className="flex flex-col items-center gap-2 disabled:opacity-40"
     >
