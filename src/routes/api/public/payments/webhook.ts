@@ -40,6 +40,7 @@ function shapeFrom(subscription: any, env: StripeEnv) {
     status: subscription.status as string,
     current_period_start: iso(periodStart),
     current_period_end: iso(periodEnd),
+    trial_ends_at: iso(subscription.trial_end),
     cancel_at_period_end: Boolean(subscription.cancel_at_period_end),
     environment: env,
     updated_at: new Date().toISOString(),
