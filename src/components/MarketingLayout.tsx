@@ -116,15 +116,16 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         <div className="absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-success/15 blur-3xl" />
       </div>
 
-      <header
-        className={cn(
-          "sticky top-0 z-40 border-b transition-colors duration-300",
-          scrolled
-            ? "border-border bg-background/85 backdrop-blur-xl"
-            : "border-transparent bg-background/40 backdrop-blur-md",
-        )}
-      >
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
+      {/* Detached, floating pill chrome — matches the in-app header language. */}
+      <header className="sticky top-0 z-40 px-3 pt-2 pb-1 transition-all duration-300 sm:px-5 sm:pt-3">
+        <div
+          className={cn(
+            "mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-full px-3 py-2 transition-all duration-300 sm:gap-4 sm:px-4",
+            scrolled
+              ? "glass-panel shadow-lg backdrop-blur-xl"
+              : "border border-transparent bg-background/30 backdrop-blur-md",
+          )}
+        >
           <Link to="/" aria-label="SixVox home" className="flex min-h-11 items-center gap-2">
             <img
               src={logoMark}
@@ -158,7 +159,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               aria-expanded={open}
               aria-controls="marketing-mobile-nav"
               onClick={() => setOpen((value) => !value)}
-              className="key-raised flex h-11 w-11 items-center justify-center rounded-full md:hidden"
+              className="surface-row flex h-11 w-11 items-center justify-center rounded-full md:hidden"
             >
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
@@ -176,7 +177,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"
-          className="fixed inset-0 top-[3.5rem] z-50 overflow-y-auto overscroll-contain border-t border-border bg-background px-5 pt-4 [scrollbar-gutter:stable] md:hidden"
+          className="fixed inset-0 top-[4.25rem] z-50 overflow-y-auto overscroll-contain bg-background px-4 pt-3 [scrollbar-gutter:stable] md:hidden"
         >
           <nav aria-label="Mobile">
           <ul className="grid gap-1.5">
