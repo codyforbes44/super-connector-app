@@ -330,7 +330,6 @@ export const getBillingHistory = createServerFn({ method: "POST" })
 export const listSubscribers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-  .middleware([requireSupabaseAuth])
     const { supabase, userId } = context;
     const { data: isSuper } = await supabase.rpc("is_super_admin", { _user_id: userId });
     if (!isSuper) throw new Error("Forbidden");
