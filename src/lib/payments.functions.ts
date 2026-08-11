@@ -67,6 +67,15 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         userId,
       });
 
+      // First-time subscribers get the free trial; anyone who has ever had a
+      // subscription on this customer does not.
+      const priorSubs = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "all",
+        limit: 1,
+      });
+      const trialEligible = priorSubs.data.length === 0;
+
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: stripePrice.id, quantity: 1 }],
         mode: "subscription",
