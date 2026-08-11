@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
 import { MessagingServicesSection } from "@/components/MessagingServices";
+import { BringYourOwnNumber } from "@/components/line/BringYourOwnNumber";
+import { EsimExplainer } from "@/components/line/EsimExplainer";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -85,8 +87,8 @@ function NumbersScreen() {
   return (
     <div>
       <ScreenHeader
-        title="Numbers"
-        subtitle={boot.isAdmin ? "Provision, wire and assign" : "Numbers assigned to you"}
+        title="Your lines"
+        subtitle={boot.isAdmin ? "SixVox numbers and your own carrier line" : "Lines that ring on this phone"}
         action={
           boot.isAdmin ? (
             <Button size="icon" variant="ghost" onClick={runSync} disabled={syncing}>
@@ -112,7 +114,7 @@ function NumbersScreen() {
       {boot.numbers.length === 0 ? (
         <EmptyState
           icon={Hash}
-          title="No numbers yet"
+          title="No SixVox line yet"
           description={
             boot.isAdmin
               ? "Sync the numbers you already own, or search and claim a new one."
@@ -127,7 +129,7 @@ function NumbersScreen() {
           }
         />
       ) : (
-        <ul className="space-y-2 px-3 pb-4">
+        <ul className="space-y-2 px-3 pb-2">
           {boot.numbers.map((n) => {
             const owner = (team.data ?? []).find((t) => t.id === n.assigned_to);
             return (
@@ -161,6 +163,14 @@ function NumbersScreen() {
           })}
         </ul>
       )}
+
+      <section className="space-y-3 px-3 pt-2 pb-4">
+        <h2 className="px-1 text-[0.7rem] font-semibold tracking-wide text-muted-foreground uppercase">
+          Your own phone number
+        </h2>
+        <BringYourOwnNumber lines={boot.numbers.map((n) => ({ phone_number: n.phone_number }))} />
+        <EsimExplainer />
+      </section>
 
       {boot.isAdmin ? (
         <MessagingServicesSection numbers={boot.numbers} />
