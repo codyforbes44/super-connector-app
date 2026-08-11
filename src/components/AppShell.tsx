@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TrialBanner />
-        <main className="mx-auto w-full max-w-lg flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:max-w-2xl lg:max-w-4xl lg:pb-10 xl:max-w-5xl">
+        <main className="mx-auto w-full max-w-lg min-w-0 flex-1 overflow-x-clip pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:max-w-2xl lg:max-w-4xl lg:pb-10 xl:max-w-5xl">
           {children}
         </main>
       </div>
