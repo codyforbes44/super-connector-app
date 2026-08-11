@@ -74,7 +74,8 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           );
 
           return xml(
-            `<Dial callerId="${esc(presentedId)}" answerOnBridge="true" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}" action="${esc(statusUrl)}"><Number>${esc(to)}</Number></Dial>`,
+            // Live two-party calls are never recorded — only voicemail is.
+            `<Dial callerId="${esc(presentedId)}" answerOnBridge="true" action="${esc(statusUrl)}"><Number>${esc(to)}</Number></Dial>`,
           );
         }
 
@@ -166,7 +167,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
 
         const fallback =
           number?.forward_to && !aiAnswering
-            ? `<Dial callerId="${esc(appNumber)}" timeout="${RING_SECONDS}" ringTone="us" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}"><Number>${esc(number.forward_to as string)}</Number></Dial>${unanswered}`
+            ? `<Dial callerId="${esc(appNumber)}" timeout="${RING_SECONDS}" ringTone="us"><Number>${esc(number.forward_to as string)}</Number></Dial>${unanswered}`
             : unanswered;
 
         // Let the caller hear three rings before voicemail answers. The AI
@@ -183,7 +184,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           .join("");
 
         return xml(
-          `<Dial callerId="${esc(from)}" timeout="${RING_SECONDS}" ringTone="us" answerOnBridge="true" record="record-from-answer-dual" recordingStatusCallback="${esc(statusUrl)}">${clients}</Dial>${fallback}`,
+          `<Dial callerId="${esc(from)}" timeout="${RING_SECONDS}" ringTone="us" answerOnBridge="true">${clients}</Dial>${fallback}`,
         );
       },
     },
