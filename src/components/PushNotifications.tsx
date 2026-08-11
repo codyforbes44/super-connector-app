@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { errorMessage } from "@/lib/format";
 import {
   currentSubscription,
@@ -13,9 +15,11 @@ import {
   pushSupported,
 } from "@/lib/push";
 import {
+  getPushAlertPrefs,
   listPushDevices,
   removePushSubscription,
   savePushSubscription,
+  savePushAlertPrefs,
   sendTestPush,
 } from "@/lib/push.functions";
 
@@ -30,6 +34,25 @@ export function PushNotifications() {
   const [busy, setBusy] = useState(false);
 
   const devices = useQuery({ queryKey: ["push-devices"], queryFn: () => listPushDevices() });
+  const alertPrefs = useQuery({
+    queryKey: ["push-alert-prefs"],
+    queryFn: () => getPushAlertPrefs(),
+  });
+
+  async function setPref(key: "push_esim_ready" | "push_esim_failed", value: boolean) {
+    queryClient.setQueryData(["push-alert-prefs"], (old: unknown) => ({
+      push_esim_ready: true,
+      push_esim_failed: true,
+      ...(old as object | null),
+      [key]: value,
+    }));
+    try {
+      await savePushAlertPrefs({ data: { [key]: value } });
+    } catch (error) {
+      toast.error(errorMessage(error));
+      await queryClient.invalidateQueries({ queryKey: ["push-alert-prefs"] });
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -134,6 +157,32 @@ export function PushNotifications() {
           {otherDevices} other device{otherDevices === 1 ? "" : "s"} also receiving alerts
         </p>
       ) : null}
+
+      <div className="glass-panel space-y-1 rounded-2xl px-3 py-1">
+        <p className="pt-2 text-xs font-medium text-muted-foreground">Travel eSIM alerts</p>
+        <div className="flex min-h-11 items-center justify-between gap-3 py-2">
+          <Label htmlFor="push-esim-ready" className="text-xs font-normal leading-snug">
+            eSIM ready to install
+          </Label>
+          <Switch
+            id="push-esim-ready"
+            checked={alertPrefs.data?.push_esim_ready ?? true}
+            disabled={alertPrefs.isLoading}
+            onCheckedChange={(v) => void setPref("push_esim_ready", v)}
+          />
+        </div>
+        <div className="flex min-h-11 items-center justify-between gap-3 border-t border-border/40 py-2">
+          <Label htmlFor="push-esim-failed" className="text-xs font-normal leading-snug">
+            eSIM setup failed
+          </Label>
+          <Switch
+            id="push-esim-failed"
+            checked={alertPrefs.data?.push_esim_failed ?? true}
+            disabled={alertPrefs.isLoading}
+            onCheckedChange={(v) => void setPref("push_esim_failed", v)}
+          />
+        </div>
+      </div>
     </section>
   );
 }

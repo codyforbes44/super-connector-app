@@ -47,6 +47,16 @@ async function alertOrder(
   detail?: string,
 ): Promise<void> {
   try {
+    const { data: prefs } = await admin
+      .from("notification_prefs")
+      .select("push_esim_ready, push_esim_failed")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const enabled =
+      outcome === "ready"
+        ? ((prefs?.["push_esim_ready"] as boolean | undefined) ?? true)
+        : ((prefs?.["push_esim_failed"] as boolean | undefined) ?? true);
+    if (!enabled) return;
     const { sendPushToUsers } = await import("./push.server");
     await sendPushToUsers(admin, [userId], {
       title: outcome === "ready" ? "Your eSIM is ready" : "eSIM setup needs attention",
