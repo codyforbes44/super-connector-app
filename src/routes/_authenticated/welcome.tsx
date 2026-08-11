@@ -103,12 +103,9 @@ function Welcome() {
   async function runSearch() {
     setSearching(true);
     try {
+      const code = areaCode.trim();
       const result = (await searchAvailableNumbers({
-        data: {
-          country: "US",
-          areaCode: areaCode.trim() || undefined,
-          type: "local",
-        },
+        data: { country: "US", type: "local", ...(code ? { areaCode: code } : {}) },
       })) as unknown as { numbers?: Available[] } | Available[];
       const list = Array.isArray(result) ? result : (result.numbers ?? []);
       setOptions(list.slice(0, 3));
@@ -265,7 +262,7 @@ function Welcome() {
             <p className="mt-2 text-sm text-muted-foreground">
               {hasNumber
                 ? "You already have a line connected. You can add more any time."
-                : "Pick an area code and claim a number — it&apos;s live the moment you tap it."}
+                : "Pick an area code and claim a number — it goes live the moment you tap it."}
             </p>
 
             {hasNumber ? (
