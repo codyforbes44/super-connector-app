@@ -116,15 +116,16 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         <div className="absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-success/15 blur-3xl" />
       </div>
 
-      <header
-        className={cn(
-          "sticky top-0 z-40 border-b transition-colors duration-300",
-          scrolled
-            ? "border-border bg-background/85 backdrop-blur-xl"
-            : "border-transparent bg-background/40 backdrop-blur-md",
-        )}
-      >
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
+      {/* Detached, floating pill chrome — matches the in-app header language. */}
+      <header className="sticky top-0 z-40 px-3 pt-2 pb-1 transition-all duration-300 sm:px-5 sm:pt-3">
+        <div
+          className={cn(
+            "mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-full px-3 py-2 transition-all duration-300 sm:gap-4 sm:px-4",
+            scrolled
+              ? "glass-panel shadow-lg backdrop-blur-xl"
+              : "border border-transparent bg-background/30 backdrop-blur-md",
+          )}
+        >
           <Link to="/" aria-label="SixVox home" className="flex min-h-11 items-center gap-2">
             <img
               src={logoMark}
@@ -158,7 +159,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               aria-expanded={open}
               aria-controls="marketing-mobile-nav"
               onClick={() => setOpen((value) => !value)}
-              className="key-raised flex h-11 w-11 items-center justify-center rounded-full md:hidden"
+              className="surface-row flex h-11 w-11 items-center justify-center rounded-full md:hidden"
             >
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
@@ -176,7 +177,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"
-          className="fixed inset-0 top-[3.5rem] z-50 overflow-y-auto overscroll-contain border-t border-border bg-background px-5 pt-4 [scrollbar-gutter:stable] md:hidden"
+          className="fixed inset-0 top-[4.25rem] z-50 overflow-y-auto overscroll-contain bg-background px-4 pt-3 [scrollbar-gutter:stable] md:hidden"
         >
           <nav aria-label="Mobile">
           <ul className="grid gap-1.5">
@@ -208,15 +209,15 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       {/* Thumb-reach conversion bar: phones only, once the hero has scrolled away. */}
       <div
         className={cn(
-          "safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/92 px-4 pt-3 backdrop-blur-xl transition-transform duration-300 md:hidden",
-          pastHero && !open && pathname !== "/contact" ? "translate-y-0" : "translate-y-full",
+          "safe-bottom fixed inset-x-0 bottom-0 z-30 px-3 pt-3 transition-transform duration-300 md:hidden",
+          pastHero && !open && pathname !== "/contact" ? "translate-y-0" : "translate-y-[130%]",
         )}
       >
-        <div className="flex items-center gap-2">
+        <div className="glass-panel flex items-center gap-2 rounded-full p-1.5 backdrop-blur-xl">
           {signedIn ? (
             <Link
               to="/pricing"
-              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+              className="surface-row flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
             >
               See pricing
             </Link>
@@ -224,14 +225,14 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <Link
               to="/auth"
               search={{ mode: "signin" }}
-              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+              className="surface-row flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
             >
               Sign in
             </Link>
           ) : (
             <Link
               to="/pricing"
-              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+              className="surface-row flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
             >
               See pricing
             </Link>
@@ -257,7 +258,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <footer className="relative mt-20 border-t border-border md:mt-24">
+      <footer className="relative mt-20 border-t border-border/60 md:mt-24">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
@@ -355,7 +356,7 @@ export function Section({
 
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <span className="glass-panel inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground">
+    <span className="surface-row inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
       <span className="h-1.5 w-1.5 rounded-full bg-success" />
       {children}
     </span>
@@ -368,9 +369,9 @@ export function StatBand({
   stats: Array<{ value: string; label: string }>;
 }) {
   return (
-    <dl className="glass-panel grid grid-cols-2 gap-px overflow-hidden rounded-3xl md:grid-cols-4">
+    <dl className="glass-panel grid grid-cols-2 divide-x divide-y divide-border/60 overflow-hidden rounded-3xl md:grid-cols-4 md:divide-y-0">
       {stats.map((stat) => (
-        <div key={stat.label} className="surface-subtle p-5 md:p-6">
+        <div key={stat.label} className="p-5 md:p-6">
           <dt className="sr-only">{stat.label}</dt>
           <dd>
             <span className="font-display block text-xl font-semibold text-primary sm:text-2xl">

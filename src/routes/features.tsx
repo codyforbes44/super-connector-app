@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { CtaBand, Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
+import { FeatureGroup, FeatureRow, TONES } from "@/components/marketing/FeatureList";
 import { breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Features — everything SixVox does for your business line";
@@ -144,19 +145,17 @@ function FeaturesPage() {
           <h2 className="font-display text-sm font-semibold tracking-wide text-primary uppercase">
             {group.heading}
           </h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {group.items.map((item) => (
-              <article key={item.title} className="glass-panel rounded-3xl p-5">
-                <span className="key-raised flex h-11 w-11 items-center justify-center rounded-full">
-                  <item.icon className="h-[1.05rem] w-[1.05rem] text-primary" />
-                </span>
-                <h3 className="font-display mt-4 text-sm font-semibold">{item.title}</h3>
-                <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
-                  {item.body}
-                </p>
-              </article>
+          <FeatureGroup className="mt-5">
+            {group.items.map((item, itemIndex) => (
+              <FeatureRow
+                key={item.title}
+                icon={item.icon}
+                tone={TONES[itemIndex % TONES.length]!}
+                title={item.title}
+                body={item.body}
+              />
             ))}
-          </div>
+          </FeatureGroup>
         </Section>
       ))}
 

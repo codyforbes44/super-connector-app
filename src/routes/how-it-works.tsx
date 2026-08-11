@@ -81,9 +81,9 @@ function HowItWorksPage() {
       <Section className="py-4">
         <ol className="grid gap-3 md:grid-cols-2">
           {STEPS.map((step, index) => (
-            <li key={step.title} className="glass-panel rounded-3xl p-5">
+            <li key={step.title} className="surface-row rounded-3xl p-5">
               <div className="flex items-center justify-between gap-3">
-                <span className="key-signal font-display flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground">
+                <span className="font-display flex size-10 items-center justify-center rounded-2xl bg-primary/18 text-sm font-semibold text-primary">
                   {index + 1}
                 </span>
                 <span className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">
