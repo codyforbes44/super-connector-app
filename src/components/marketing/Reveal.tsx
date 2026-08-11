@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -11,12 +11,14 @@ export function Reveal({
   children,
   delay = 0,
   className,
+  as: Tag = "div",
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
+  as?: ElementType;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function Reveal({
   }, []);
 
   return (
-    <div
+    <Tag
       ref={ref}
       style={shown && delay ? { transitionDelay: `${delay}ms` } : undefined}
       className={cn(
@@ -52,6 +54,6 @@ export function Reveal({
       )}
     >
       {children}
-    </div>
+    </Tag>
   );
 }
