@@ -7,7 +7,7 @@ import {
   MarketingLayout,
   Section,
 } from "@/components/MarketingLayout";
-import { breadcrumbLd, pageHead } from "@/lib/seo";
+import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "FAQ — SixVox questions answered";
 const DESCRIPTION =
@@ -113,7 +113,12 @@ const ALL_FAQS = GROUPS.flatMap((group) => group.items);
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
-    ...pageHead({ path: "/faq", title: TITLE, description: DESCRIPTION }),
+    ...pageHead({
+      path: "/faq",
+      title: TITLE,
+      description: DESCRIPTION,
+      image: `${SITE_URL}/og-faq.jpg`,
+    }),
     scripts: [
       {
         type: "application/ld+json",
