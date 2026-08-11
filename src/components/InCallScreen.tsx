@@ -199,7 +199,7 @@ function ControlButton({
   icon: typeof Mic;
   label: string;
   onClick: () => void;
-  onLongPress?: () => void;
+  onLongPress?: (() => void) | undefined;
   active?: boolean;
   disabled?: boolean;
 }) {
