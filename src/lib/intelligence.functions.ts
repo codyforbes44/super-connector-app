@@ -242,7 +242,11 @@ export const saveAssistantSettings = createServerFn({ method: "POST" })
     }) => input,
   )
   .handler(async ({ context, data }) => {
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      transcribe_calls?: boolean;
+      digest_enabled?: boolean;
+      assistant_instructions?: string | null;
+    } = {};
     if (typeof data.transcribeCalls === "boolean") patch["transcribe_calls"] = data.transcribeCalls;
     if (typeof data.digestEnabled === "boolean") patch["digest_enabled"] = data.digestEnabled;
     if (typeof data.assistantInstructions === "string") {
