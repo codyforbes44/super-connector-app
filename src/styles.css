@@ -310,3 +310,17 @@
     padding-bottom: 0;
   }
 }
+
+/* Smooth in-page scrolling for anchor links and "back to top" jumps.
+   The reduce-motion block above overrides this for users who ask for it. */
+html {
+  scroll-behavior: smooth;
+  /* Reserve the scrollbar gutter so showing/hiding it never shifts layout. */
+  scrollbar-gutter: stable;
+}
+
+/* Anchor targets must clear the sticky marketing header. */
+:target,
+[id] {
+  scroll-margin-top: 5rem;
+}

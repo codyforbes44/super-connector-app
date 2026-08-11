@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowRight, ChevronDown, Menu, Radio, X } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const sheetRef = useRef<HTMLDivElement | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -33,13 +35,57 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
     setOpen(false);
   }, [pathname]);
 
-  // Lock background scrolling while the mobile sheet is open.
+  // Lock background scrolling while the sheet is open, without layout shift:
+  // hiding the scrollbar would otherwise widen the page by its width.
   useEffect(() => {
     if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const { body, documentElement } = document;
+    const gutter = window.innerWidth - documentElement.clientWidth;
+    const prevOverflow = body.style.overflow;
+    const prevPadding = body.style.paddingRight;
+    body.style.overflow = "hidden";
+    if (gutter > 0) body.style.paddingRight = `${gutter}px`;
     return () => {
-      document.body.style.overflow = previous;
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPadding;
+    };
+  }, [open]);
+
+  // Move focus into the sheet, keep Tab inside it, and hand focus back to the
+  // toggle on close — the standard dialog contract for a full-screen menu.
+  useEffect(() => {
+    if (!open) return;
+    const sheet = sheetRef.current;
+    if (!sheet) return;
+    const focusables = () =>
+      Array.from(
+        sheet.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+      ).filter((el) => el.offsetParent !== null);
+
+    focusables()[0]?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !sheet.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    sheet.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      sheet.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keydown", onKeyDown);
+      toggleRef.current?.focus();
     };
   }, [open]);
 
@@ -110,6 +156,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             </Link>
             <button
               type="button"
+              ref={toggleRef}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
               aria-controls="marketing-mobile-nav"
@@ -126,11 +173,15 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       {/* Full-height mobile sheet. Kept outside the blurred header so it is not
           trapped by the header's backdrop-filter containing block. */}
       {open ? (
-        <nav
+        <div
           id="marketing-mobile-nav"
-          aria-label="Mobile"
-          className="fixed inset-0 top-[3.5rem] z-50 overflow-y-auto border-t border-border bg-background px-5 pt-4 md:hidden"
+          ref={sheetRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site menu"
+          className="fixed inset-0 top-[3.5rem] z-50 overflow-y-auto overscroll-contain border-t border-border bg-background px-5 pt-4 [scrollbar-gutter:stable] md:hidden"
         >
+          <nav aria-label="Mobile">
           <ul className="grid gap-1.5">
             {NAV.map((item) => (
               <li key={item.to}>
@@ -146,6 +197,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               </li>
             ))}
           </ul>
+          </nav>
           <div className="safe-bottom mt-4 grid gap-2 pb-6">
             <Link
               to="/auth"
@@ -164,7 +216,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               Sign in
             </Link>
           </div>
-        </nav>
+        </div>
       ) : null}
 
       <main id="main" className="pb-mobile-cta relative">
