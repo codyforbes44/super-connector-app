@@ -11,6 +11,58 @@ import {
 type CheckoutSessionResult = { clientSecret: string } | { error: string };
 type PortalSessionResult = { url: string } | { error: string };
 
+export type BillingInvoice = {
+  id: string;
+  number: string | null;
+  status: string | null;
+  amountPaid: number;
+  amountDue: number;
+  currency: string;
+  created: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  description: string | null;
+  hostedInvoiceUrl: string | null;
+  pdfUrl: string | null;
+};
+
+export type BillingTimelineEvent = {
+  key: string;
+  at: string | null;
+  kind: "created" | "trialing" | "active" | "past_due" | "canceled" | "renewal" | "payment";
+  title: string;
+  detail: string | null;
+  future?: boolean;
+};
+
+export type BillingHistoryResult =
+  | {
+      customerId: string | null;
+      status: string | null;
+      cancelAtPeriodEnd: boolean;
+      currentPeriodEnd: string | null;
+      invoices: BillingInvoice[];
+      timeline: BillingTimelineEvent[];
+    }
+  | { error: string };
+
+const ZERO_DECIMAL = new Set([
+  "bif","clp","djf","gnf","jpy","kmf","krw","mga","pyg","rwf","ugx","vnd","vuv","xaf","xof","xpf",
+]);
+const THREE_DECIMAL = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
+
+function toMajor(amount: number | null | undefined, currency: string): number {
+  const value = amount ?? 0;
+  const c = (currency ?? "").toLowerCase();
+  if (ZERO_DECIMAL.has(c)) return value;
+  if (THREE_DECIMAL.has(c)) return value / 1000;
+  return value / 100;
+}
+
+function iso(seconds: number | null | undefined): string | null {
+  return seconds ? new Date(seconds * 1000).toISOString() : null;
+}
+
 async function resolveOrCreateCustomer(
   stripe: ReturnType<typeof createStripeClient>,
   options: { email?: string | undefined; userId?: string | undefined },
