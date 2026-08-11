@@ -123,26 +123,65 @@ function preferredId(devices: Map<string, MediaDeviceInfo> | undefined): string 
   return ids.find((id) => id === "communications") ?? ids.find((id) => id === "default") ?? ids[0] ?? null;
 }
 
+/** Human label for a device id, falling back to something we can show a user. */
+function labelFor(devices: Map<string, MediaDeviceInfo> | undefined, id: string | null): string | null {
+  if (!id) return null;
+  const label = devices?.get(id)?.label?.trim();
+  if (label) return label;
+  return id === "communications" || id === "default" ? "the system default device" : null;
+}
+
+export type RebindResult = {
+  /** True when we bound at least one device without the browser refusing. */
+  ok: boolean;
+  /** True when the bound input or output differs from the previous rebind. */
+  changed: boolean;
+  inputLabel: string | null;
+  outputLabel: string | null;
+};
+
+/** Last ids we successfully bound, so we only tell the user about real moves. */
+let lastInputId: string | null = null;
+let lastOutputId: string | null = null;
+
+/** Forget the bound route. Call when a call ends so the next call starts clean. */
+export function resetAudioBinding(): void {
+  lastInputId = null;
+  lastOutputId = null;
+}
+
 /**
  * Re-bind the call to the currently preferred mic and speaker. Backgrounding
  * (or pairing a headset while backgrounded) can leave the SDK holding a track
  * from a device that is gone, which sounds like a dead mic on return.
  */
-export async function rebindAudioDevices(audio: DeviceAudio | undefined | null): Promise<void> {
-  if (!audio) return;
+export async function rebindAudioDevices(audio: DeviceAudio | undefined | null): Promise<RebindResult> {
+  const inert: RebindResult = { ok: false, changed: false, inputLabel: null, outputLabel: null };
+  if (!audio) return inert;
+  const inputId = preferredId(audio.availableInputDevices);
+  const outputId = preferredId(audio.availableOutputDevices);
+  const changed =
+    (inputId !== null && inputId !== lastInputId) || (outputId !== null && outputId !== lastOutputId);
   try {
-    const inputId = preferredId(audio.availableInputDevices);
     if (inputId && audio.setInputDevice) {
       // Re-setting the same id forces a fresh getUserMedia on the live device.
       await audio.setInputDevice(inputId);
     }
-    const outputId = preferredId(audio.availableOutputDevices);
     if (outputId) {
       await audio.speakerDevices?.set(outputId);
       await audio.ringtoneDevices?.set(outputId);
     }
+    lastInputId = inputId;
+    lastOutputId = outputId;
+    return {
+      ok: Boolean(inputId || outputId),
+      changed,
+      inputLabel: labelFor(audio.availableInputDevices, inputId),
+      outputLabel: labelFor(audio.availableOutputDevices, outputId),
+    };
   } catch {
     /* the browser may refuse device selection; the default route still works */
+    return { ...inert, changed };
   }
 }
 
