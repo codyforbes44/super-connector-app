@@ -1,17 +1,18 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Inbox, Plus, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Archive, Check, Inbox, MessageSquarePlus, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ComposeSheet } from "@/components/ComposeSheet";
-import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { EmptyState, ScreenHeader, useScreenFab } from "@/components/AppShell";
+import { SwipeRow } from "@/components/SwipeRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage, formatPhone, initialsFor, relativeTime } from "@/lib/format";
-import { importHistory } from "@/lib/twilio.functions";
+import { importHistory, markConversationRead } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/inbox/")({
@@ -34,6 +35,12 @@ function InboxScreen() {
   const [search, setSearch] = useState("");
   const [composing, setComposing] = useState(false);
   const [importing, setImporting] = useState(false);
+
+  useScreenFab({
+    icon: MessageSquarePlus,
+    label: "New message",
+    onClick: useCallback(() => setComposing(true), []),
+  });
 
   const conversations = useQuery({
     queryKey: ["conversations"],
@@ -84,6 +91,25 @@ function InboxScreen() {
     );
   });
 
+  async function markRead(id: string) {
+    try {
+      await markConversationRead({ data: { conversationId: id } });
+      await queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  }
+
+  async function archive(id: string) {
+    const { error } = await supabase.from("conversations").update({ archived: true }).eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Conversation archived.");
+    await queryClient.invalidateQueries({ queryKey: ["conversations"] });
+  }
+
   return (
     <div>
       <ScreenHeader
@@ -124,58 +150,77 @@ function InboxScreen() {
           }
         />
       ) : (
-        <ul className="grid gap-2 px-3 pb-4 md:grid-cols-2 xl:grid-cols-3">
+        <ul className="divide-y divide-border/60 border-y border-border/60 pb-4">
           {rows.map((c) => (
             <li key={c.id}>
-              <Link
-                to="/inbox/$id"
-                params={{ id: c.id }}
-                className="glass-panel flex items-center gap-3 rounded-3xl px-3.5 py-3 transition-transform active:scale-[0.99]"
+              <SwipeRow
+                left={
+                  c.unread_count > 0
+                    ? {
+                        label: "Mark read",
+                        icon: <Check className="size-4" />,
+                        onAction: () => void markRead(c.id),
+                      }
+                    : undefined
+                }
+                right={{
+                  label: "Archive",
+                  icon: <Archive className="size-4" />,
+                  tone: "muted",
+                  onAction: () => void archive(c.id),
+                }}
               >
-                <span
-                  className={cn(
-                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                    c.channel === "whatsapp"
-                      ? "ring-glow-success bg-success/20 text-success"
-                      : "ring-glow bg-primary/20 text-primary",
-                  )}
+                <Link
+                  to="/inbox/$id"
+                  params={{ id: c.id }}
+                  className="flex min-h-[4.5rem] items-center gap-3 bg-background/40 px-4 py-3 transition-colors active:bg-secondary/60"
                 >
-                  {initialsFor(c.contact_name || c.contact_number)}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-sm font-semibold">
-                      {c.contact_name || formatPhone(c.contact_number)}
-                    </span>
-                    <span className="tabular shrink-0 text-[0.7rem] text-muted-foreground">
-                      {relativeTime(c.last_message_at)}
-                    </span>
+                  <span
+                    className={cn(
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                      c.channel === "whatsapp"
+                        ? "bg-success/15 text-success"
+                        : "bg-primary/15 text-primary",
+                    )}
+                  >
+                    {initialsFor(c.contact_name || c.contact_number)}
                   </span>
-                  <span className="mt-0.5 flex items-center gap-2">
-                    <span className="truncate text-xs text-muted-foreground">
-                      {c.last_message_preview || "No messages yet"}
-                    </span>
-                    {c.unread_count > 0 ? (
-                      <span className="key-signal ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.65rem] font-bold">
-                        {c.unread_count}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span
+                        className={cn(
+                          "truncate text-[0.95rem]",
+                          c.unread_count > 0 ? "font-semibold" : "font-medium",
+                        )}
+                      >
+                        {c.contact_name || formatPhone(c.contact_number)}
                       </span>
-                    ) : null}
+                      <span className="tabular shrink-0 text-[0.7rem] text-muted-foreground">
+                        {relativeTime(c.last_message_at)}
+                      </span>
+                    </span>
+                    <span className="mt-0.5 flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "truncate text-[0.8rem]",
+                          c.unread_count > 0 ? "text-foreground/80" : "text-muted-foreground",
+                        )}
+                      >
+                        {c.last_message_preview || "No messages yet"}
+                      </span>
+                      {c.unread_count > 0 ? (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[0.65rem] font-bold text-primary-foreground">
+                          {c.unread_count}
+                        </span>
+                      ) : null}
+                    </span>
                   </span>
-                </span>
-              </Link>
+                </Link>
+              </SwipeRow>
             </li>
           ))}
         </ul>
       )}
-
-      <button
-        type="button"
-        onClick={() => setComposing(true)}
-        className="key-call fixed right-[max(1rem,calc(50%-15rem))] bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full transition-transform active:scale-95 md:right-[max(1.5rem,calc(50%-21rem))] lg:right-8 lg:bottom-8"
-      >
-        <Plus className="h-6 w-6" />
-        <span className="sr-only">New message</span>
-      </button>
 
       <ComposeSheet open={composing} onOpenChange={setComposing} numbers={boot.numbers} />
     </div>
