@@ -13,6 +13,15 @@ import { PLANS, type BillingInterval, type PlanCode } from "@/lib/plans";
 import { safeRedirectPath, useSession } from "@/hooks/useSession";
 
 const TITLE = "Sign in or start your free trial — SixVox";
+
+/**
+ * OAuth/email links must return to a PUBLIC same-origin URL. `/auth` forwards
+ * the (now signed-in) user to the saved destination once the session hydrates.
+ */
+function returnUrl(next?: string) {
+  const origin = window.location.origin;
+  return next ? `${origin}/auth?redirect=${encodeURIComponent(next)}` : origin;
+}
 const DESCRIPTION =
   "Sign in to SixVox or create an account to run your business calls, texts, WhatsApp and AI receptionist from your phone.";
 
