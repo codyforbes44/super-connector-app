@@ -225,6 +225,7 @@ export async function finalizeOrder(
 
     return { order: (updated as unknown as EsimOrder) ?? order, error: null };
   } catch (error) {
+  } catch (error) {
     const message = error instanceof Error ? error.message : "Could not finish that order.";
     await supabaseAdmin
       .from("esim_orders")
