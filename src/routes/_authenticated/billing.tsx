@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { BillingHistory } from "@/components/BillingHistory";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { Button } from "@/components/ui/button";
@@ -189,6 +190,8 @@ function BillingScreen() {
             </Button>
           </div>
         ) : null}
+
+        {checkoutPrice ? null : <BillingHistory />}
 
         {checkoutPrice ? (
           <div className="space-y-3">
