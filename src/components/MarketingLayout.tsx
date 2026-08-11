@@ -59,14 +59,11 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       >
         Skip to content
       </a>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 right-[-10%] h-[28rem] w-[28rem] rounded-full bg-primary/20 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-success/15 blur-3xl"
-      />
+      {/* Decorative glows, clipped to the shell so they can never widen the page. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 right-[-10%] h-[28rem] w-[28rem] rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-success/15 blur-3xl" />
+      </div>
 
       <header
         className={cn(
@@ -77,7 +74,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         )}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" aria-label="SixVox home" className="flex min-h-11 items-center gap-2">
             <span className="key-signal flex h-9 w-9 items-center justify-center rounded-full">
               <Radio className="h-4 w-4" />
             </span>
