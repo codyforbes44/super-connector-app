@@ -19,9 +19,15 @@ export const Route = createFileRoute("/_authenticated/inbox/")({
   head: () => ({
     meta: [
       { title: "Inbox — SixVox" },
-      { name: "description", content: "Every SMS, MMS and WhatsApp conversation in one thread list." },
+      {
+        name: "description",
+        content: "Every SMS, MMS and WhatsApp conversation in one thread list.",
+      },
       { property: "og:title", content: "Inbox — SixVox" },
-      { property: "og:description", content: "Every SMS, MMS and WhatsApp conversation in one thread list." },
+      {
+        property: "og:description",
+        content: "Every SMS, MMS and WhatsApp conversation in one thread list.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -72,7 +78,9 @@ function InboxScreen() {
     setImporting(true);
     try {
       const result = await importHistory();
-      toast.success(`Pulled ${result.imported} message${result.imported === 1 ? "" : "s"} from Twilio.`);
+      toast.success(
+        `Pulled ${result.imported} message${result.imported === 1 ? "" : "s"} from Twilio.`,
+      );
       await queryClient.invalidateQueries({ queryKey: ["conversations"] });
     } catch (error) {
       toast.error(errorMessage(error));
@@ -124,11 +132,11 @@ function InboxScreen() {
       />
 
       <div className="px-4 py-3">
-          <Input
+        <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search conversations"
-            className="h-11 rounded-full px-4"
+          className="h-11 rounded-full px-4"
         />
       </div>
 

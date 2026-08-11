@@ -64,7 +64,10 @@ export function SwipeRow({
 
       <div
         style={{ transform: `translateX(${dx}px)` }}
-        className={cn("relative bg-background/0", start.current?.active ? "" : "transition-transform")}
+        className={cn(
+          "relative bg-background/0",
+          start.current?.active ? "" : "transition-transform",
+        )}
         onPointerDown={(e) => {
           if (e.pointerType === "mouse" && e.button !== 0) return;
           start.current = { x: e.clientX, y: e.clientY, active: false };

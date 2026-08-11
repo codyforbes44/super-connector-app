@@ -55,10 +55,7 @@ function Body({
   return (
     <>
       <span
-        className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-xl",
-          TONE[tone],
-        )}
+        className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl", TONE[tone])}
       >
         <Icon className="size-[1.05rem]" />
       </span>

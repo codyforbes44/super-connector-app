@@ -1,6 +1,15 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowDownLeft, ArrowLeft, ArrowUpRight, Phone, PhoneMissed, Send, Sparkles, StickyNote } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowLeft,
+  ArrowUpRight,
+  Phone,
+  PhoneMissed,
+  Send,
+  Sparkles,
+  StickyNote,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -242,7 +251,10 @@ function ThreadScreen() {
                             ? "Incoming call"
                             : "Outgoing call"}
                       {c.duration ? (
-                        <span className="tabular text-muted-foreground"> · {formatDuration(c.duration)}</span>
+                        <span className="tabular text-muted-foreground">
+                          {" "}
+                          · {formatDuration(c.duration)}
+                        </span>
                       ) : null}
                     </p>
                     <span className="tabular shrink-0 text-[0.65rem] text-muted-foreground">

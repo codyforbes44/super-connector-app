@@ -84,12 +84,12 @@ export const Route = createFileRoute("/_authenticated/calls")({
     const pick = <T extends string>(raw: unknown, allowed: readonly T[], fallback: T): T =>
       allowed.includes(raw as T) ? (raw as T) : fallback;
     return {
-      q: typeof search['q'] === "string" ? search['q'] : "",
-      direction: pick(search['direction'], ["all", "inbound", "outbound"] as const, "all"),
-      range: pick(search['range'], ["all", "today", "7d", "30d"] as const, "all"),
-      device: pick(search['device'], ["all", "app", "phone"] as const, "all"),
-      ...(typeof search['incoming'] === "string" && search['incoming']
-        ? { incoming: search['incoming'] }
+      q: typeof search["q"] === "string" ? search["q"] : "",
+      direction: pick(search["direction"], ["all", "inbound", "outbound"] as const, "all"),
+      range: pick(search["range"], ["all", "today", "7d", "30d"] as const, "all"),
+      device: pick(search["device"], ["all", "app", "phone"] as const, "all"),
+      ...(typeof search["incoming"] === "string" && search["incoming"]
+        ? { incoming: search["incoming"] }
         : {}),
     };
   },
@@ -308,9 +308,19 @@ function CallsScreen() {
 
       {(calls.data ?? []).length === 0 ? (
         <EmptyState
-          icon={filters.q || filters.direction !== "all" || filters.range !== "all" || filters.device !== "all" ? Filter : PhoneCall}
+          icon={
+            filters.q ||
+            filters.direction !== "all" ||
+            filters.range !== "all" ||
+            filters.device !== "all"
+              ? Filter
+              : PhoneCall
+          }
           title={
-            filters.q || filters.direction !== "all" || filters.range !== "all" || filters.device !== "all"
+            filters.q ||
+            filters.direction !== "all" ||
+            filters.range !== "all" ||
+            filters.device !== "all"
               ? "No matching calls"
               : "No calls yet"
           }
@@ -338,37 +348,42 @@ function CallsScreen() {
                   onClick={() => setDetail(call)}
                   className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
                 >
-                <span
-                  className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                    missed
-                      ? "bg-destructive/15 text-destructive"
-                      : inbound
-                        ? "bg-success/15 text-success"
-                        : "bg-primary/15 text-primary",
-                  )}
-                >
-                  {inbound ? (
-                    <ArrowDownLeft className="h-4 w-4" />
-                  ) : (
-                    <ArrowUpRight className="h-4 w-4" />
-                  )}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="flex min-w-0 items-center gap-1.5 text-[0.95rem] font-medium">
-                    <span className="truncate">{formatPhone(other)}</span>
-                    {call.answered_in_app ? (
-                      <Smartphone className="h-3 w-3 shrink-0 text-primary" aria-label="Answered in app" />
-                    ) : null}
-                    <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
-                      {relativeTime(call.started_at)}
-                    </span>
-                  </p>
-                  <p className="truncate text-[0.78rem] text-muted-foreground">
-                    <span className={cn(missed && "text-destructive")}>{callStory(call)}</span>
-                    {call.duration ? <span className="tabular"> · {duration(call.duration)}</span> : null}
-                  </p>
-                </div>
+                  <span
+                    className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                      missed
+                        ? "bg-destructive/15 text-destructive"
+                        : inbound
+                          ? "bg-success/15 text-success"
+                          : "bg-primary/15 text-primary",
+                    )}
+                  >
+                    {inbound ? (
+                      <ArrowDownLeft className="h-4 w-4" />
+                    ) : (
+                      <ArrowUpRight className="h-4 w-4" />
+                    )}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="flex min-w-0 items-center gap-1.5 text-[0.95rem] font-medium">
+                      <span className="truncate">{formatPhone(other)}</span>
+                      {call.answered_in_app ? (
+                        <Smartphone
+                          className="h-3 w-3 shrink-0 text-primary"
+                          aria-label="Answered in app"
+                        />
+                      ) : null}
+                      <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
+                        {relativeTime(call.started_at)}
+                      </span>
+                    </p>
+                    <p className="truncate text-[0.78rem] text-muted-foreground">
+                      <span className={cn(missed && "text-destructive")}>{callStory(call)}</span>
+                      {call.duration ? (
+                        <span className="tabular"> · {duration(call.duration)}</span>
+                      ) : null}
+                    </p>
+                  </div>
                 </button>
                 <button
                   type="button"
@@ -407,7 +422,10 @@ function CallsScreen() {
                 ["Direction", detail.direction],
                 ["Status", detail.status ?? "—"],
                 ["Duration", duration(detail.duration)],
-                ["Device", detail.answered_in_app ? "In-app (TwiML App client)" : "Phone / forwarded"],
+                [
+                  "Device",
+                  detail.answered_in_app ? "In-app (TwiML App client)" : "Phone / forwarded",
+                ],
                 ["Client identity", detail.client_identity ?? "—"],
                 ["Price", detail.price ?? "—"],
                 ["Started", new Date(detail.started_at).toLocaleString()],
@@ -433,9 +451,7 @@ function CallsScreen() {
                 contactNumber={otherParty(detail)}
                 appNumber={detail.app_number}
               />
-              {otherParty(detail) ? (
-                <CallerContextCard contactNumber={otherParty(detail)} />
-              ) : null}
+              {otherParty(detail) ? <CallerContextCard contactNumber={otherParty(detail)} /> : null}
               <AiCallTranscript callSid={detail.sid} />
             </div>
           ) : null}
@@ -446,7 +462,9 @@ function CallsScreen() {
               onClick={() => void callBack(detail)}
             >
               <PhoneCall className="mr-2 h-4 w-4" />
-              {otherParty(detail) ? `Call back ${formatPhone(otherParty(detail))}` : "Number unavailable"}
+              {otherParty(detail)
+                ? `Call back ${formatPhone(otherParty(detail))}`
+                : "Number unavailable"}
             </Button>
           ) : null}
           {detail && otherParty(detail) ? (
