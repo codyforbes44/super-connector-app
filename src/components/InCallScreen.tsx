@@ -1,5 +1,5 @@
-import { Mic, MicOff, Phone, PhoneOff, Volume2, Grid3x3 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Check, Mic, MicOff, Phone, PhoneOff, Volume2, Volume1, Grid3x3 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { formatPhone } from "@/lib/format";
 import { haptic } from "@/lib/haptics";
@@ -28,6 +28,7 @@ export function InCallScreen() {
   const voice = useVoice();
   const [keypad, setKeypad] = useState(false);
   const [typed, setTyped] = useState("");
+  const [outputSheet, setOutputSheet] = useState(false);
   const elapsed = useElapsed(voice.startedAt);
 
   const ringing = voice.callState === "ringing" && voice.direction === "inbound";
@@ -41,6 +42,7 @@ export function InCallScreen() {
     if (voice.callState === "idle") {
       setKeypad(false);
       setTyped("");
+      setOutputSheet(false);
     }
     // Drop any "Incoming call" push notification once the call is in the app.
     if (typeof navigator !== "undefined" && navigator.serviceWorker?.controller) {
