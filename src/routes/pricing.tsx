@@ -95,7 +95,7 @@ function PricingPage() {
     <MarketingLayout>
       <Section className="pb-10">
         <Eyebrow>Simple, per-workspace pricing</Eyebrow>
-        <h1 className="font-display mt-5 text-4xl leading-[1.05] font-semibold md:text-5xl">
+        <h1 className="font-display mt-5 text-[2rem] leading-[1.06] font-semibold text-balance sm:text-4xl md:text-5xl">
           Start free. Pick a plan when you're ready.
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
