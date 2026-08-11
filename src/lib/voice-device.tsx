@@ -9,6 +9,10 @@ import {
   rebindAudioDevices,
   watchAudioDevices,
   resetAudioBinding,
+  listOutputDevices,
+  outputSelectionSupported,
+  setOutputDevice,
+  type OutputChoice,
   type DeviceAudio,
 } from "@/lib/call-keepalive";
 import {
@@ -49,6 +53,13 @@ type VoiceContextValue = {
   hangup: () => void;
   toggleMute: () => void;
   sendDigit: (digit: string) => void;
+  /** False on iOS, where the platform owns earpiece/loudspeaker routing. */
+  audioOutputSupported: boolean;
+  outputDevices: OutputChoice[];
+  outputDeviceId: string | null;
+  speakerOn: boolean;
+  toggleSpeaker: () => Promise<void>;
+  selectOutput: (id: string) => Promise<void>;
 };
 
 const VoiceContext = createContext<VoiceContextValue | null>(null);
@@ -87,6 +98,12 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [micState, setMicState] = useState<MicState>("unknown");
+  const [outputDevices, setOutputDevices] = useState<OutputChoice[]>([]);
+  const [outputDeviceId, setOutputDeviceId] = useState<string | null>(null);
+  const [speakerOn, setSpeakerOn] = useState(false);
+  // Mirrors outputDeviceId for the rebind effect without re-running it.
+  const outputRef = useRef<string | null>(null);
+  const audioOutputSupported = outputSelectionSupported();
 
   useEffect(() => {
     let dispose: (() => void) | undefined;
@@ -116,6 +133,9 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     setMuted(false);
     setStartedAt(null);
     resetAudioBinding();
+    outputRef.current = null;
+    setOutputDeviceId(null);
+    setSpeakerOn(false);
   }, []);
 
   const bindCall = useCallback(
@@ -253,7 +273,10 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       running = true;
       const toastId = announce ? toast.loading("Audio device changed — reconnecting…") : null;
       try {
-        const result = await rebindAudioDevices(deviceRef.current?.audio);
+        const audio = deviceRef.current?.audio;
+        // A hand-picked output survives backgrounding and headset churn.
+        const result = await rebindAudioDevices(audio, outputRef.current);
+        setOutputDevices(listOutputDevices(audio));
         // Always re-assert the mic track, even if device selection was refused.
         reviveCallAudio(callRef.current, muted);
         if (cancelled || toastId === null) return;
@@ -291,6 +314,60 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     };
   }, [callState, muted]);
 
+  // Keep the picker list fresh for the duration of a call.
+  useEffect(() => {
+    if (callState === "idle") return;
+    const read = () => setOutputDevices(listOutputDevices(deviceRef.current?.audio));
+    read();
+    const timer = setTimeout(read, 600);
+    const stop = watchAudioDevices(read);
+    return () => {
+      clearTimeout(timer);
+      stop();
+    };
+  }, [callState]);
+
+  const selectOutput = useCallback(
+    async (id: string) => {
+      const audio = deviceRef.current?.audio;
+      const ok = await setOutputDevice(audio, id);
+      if (!ok) {
+        toast.warning("Couldn't switch audio output", {
+          description: "Your browser refused the change — the call is still connected.",
+        });
+        return;
+      }
+      outputRef.current = id;
+      setOutputDeviceId(id);
+      const choice = listOutputDevices(audio).find((d) => d.id === id);
+      setSpeakerOn(choice?.kind === "speaker");
+    },
+    [],
+  );
+
+  const toggleSpeaker = useCallback(async () => {
+    if (!audioOutputSupported) {
+      toast.info("iOS controls the speaker", {
+        description:
+          "Use your phone's own speaker control during the call, or connect a headset.",
+      });
+      return;
+    }
+    const audio = deviceRef.current?.audio;
+    const devices = listOutputDevices(audio);
+    setOutputDevices(devices);
+    const speaker = devices.find((d) => d.kind === "speaker");
+    const normal = devices.find((d) => d.kind === "earpiece") ?? devices.find((d) => d.id === "default") ?? devices[0];
+    const target = speakerOn ? normal : (speaker ?? normal);
+    if (!target || (!speakerOn && !speaker)) {
+      toast.info("No separate loudspeaker on this device", {
+        description: "This browser only exposes one audio output for calls.",
+      });
+      return;
+    }
+    await selectOutput(target.id);
+  }, [audioOutputSupported, selectOutput, speakerOn]);
+
   const value: VoiceContextValue = {
     status,
     callState,
@@ -325,6 +402,12 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       setMuted(next);
     },
     sendDigit: (digit: string) => callRef.current?.sendDigits(digit),
+    audioOutputSupported,
+    outputDevices,
+    outputDeviceId,
+    speakerOn,
+    toggleSpeaker,
+    selectOutput,
   };
 
   return <VoiceContext.Provider value={value}>{children}</VoiceContext.Provider>;

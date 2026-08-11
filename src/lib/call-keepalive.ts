@@ -144,6 +144,50 @@ export type RebindResult = {
 let lastInputId: string | null = null;
 let lastOutputId: string | null = null;
 
+/**
+ * Can this browser choose an audio output at all? Safari on iPhone and iPad
+ * has no `setSinkId`, so earpiece/loudspeaker routing belongs to iOS and a web
+ * app cannot move it. Feature-detect rather than sniff the user agent.
+ */
+export function outputSelectionSupported(): boolean {
+  if (typeof window === "undefined") return false;
+  return typeof (HTMLMediaElement.prototype as { setSinkId?: unknown }).setSinkId === "function";
+}
+
+export type OutputChoice = { id: string; label: string; kind: "speaker" | "earpiece" | "other" };
+
+function classify(label: string): OutputChoice["kind"] {
+  if (/speaker|speakerphone|loud/i.test(label)) return "speaker";
+  if (/earpiece|handset|receiver/i.test(label)) return "earpiece";
+  return "other";
+}
+
+/** The output devices we can offer the user, newest OS labels included. */
+export function listOutputDevices(audio: DeviceAudio | undefined | null): OutputChoice[] {
+  const devices = audio?.availableOutputDevices;
+  if (!devices) return [];
+  return Array.from(devices.entries()).map(([id, info]) => {
+    const label = info?.label?.trim() || (id === "default" ? "System default" : "Audio device");
+    return { id, label, kind: classify(label) };
+  });
+}
+
+/** Bind both call audio and ringtone to one output. Returns false if refused. */
+export async function setOutputDevice(
+  audio: DeviceAudio | undefined | null,
+  id: string,
+): Promise<boolean> {
+  if (!audio?.speakerDevices) return false;
+  try {
+    await audio.speakerDevices.set(id);
+    await audio.ringtoneDevices?.set(id);
+    lastOutputId = id;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Forget the bound route. Call when a call ends so the next call starts clean. */
 export function resetAudioBinding(): void {
   lastInputId = null;
@@ -155,11 +199,19 @@ export function resetAudioBinding(): void {
  * (or pairing a headset while backgrounded) can leave the SDK holding a track
  * from a device that is gone, which sounds like a dead mic on return.
  */
-export async function rebindAudioDevices(audio: DeviceAudio | undefined | null): Promise<RebindResult> {
+export async function rebindAudioDevices(
+  audio: DeviceAudio | undefined | null,
+  /** An output the user picked by hand — it wins over the OS-preferred one. */
+  explicitOutputId?: string | null,
+): Promise<RebindResult> {
   const inert: RebindResult = { ok: false, changed: false, inputLabel: null, outputLabel: null };
   if (!audio) return inert;
   const inputId = preferredId(audio.availableInputDevices);
-  const outputId = preferredId(audio.availableOutputDevices);
+  const explicitStillPresent =
+    explicitOutputId && audio.availableOutputDevices?.has(explicitOutputId)
+      ? explicitOutputId
+      : null;
+  const outputId = explicitStillPresent ?? preferredId(audio.availableOutputDevices);
   const changed =
     (inputId !== null && inputId !== lastInputId) || (outputId !== null && outputId !== lastOutputId);
   try {
