@@ -130,7 +130,7 @@ function ContactPage() {
                   className={
                     topic === item.value
                       ? "key-signal min-h-11 rounded-full px-4 text-xs font-semibold text-primary-foreground"
-                      : "key-raised min-h-11 rounded-full px-4 text-xs font-semibold text-muted-foreground"
+                      : "surface-row min-h-11 rounded-full px-4 text-xs font-semibold text-muted-foreground"
                   }
                 >
                   {item.label}
@@ -221,8 +221,8 @@ function ContactPage() {
         </form>
 
         <aside className="glass-panel h-fit rounded-3xl p-6">
-          <span className="key-raised flex h-11 w-11 items-center justify-center rounded-full">
-            <Mail className="h-[1.05rem] w-[1.05rem] text-primary" />
+          <span className="flex size-10 items-center justify-center rounded-2xl bg-primary/18 text-primary">
+            <Mail className="size-[1.1rem]" />
           </span>
           <h2 className="font-display mt-4 text-sm font-semibold">What happens next</h2>
           <ul className="mt-2 space-y-2 text-[0.82rem] leading-relaxed text-muted-foreground">
