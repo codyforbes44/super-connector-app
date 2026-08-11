@@ -6,15 +6,13 @@ import {
   Hash,
   Inbox,
   PhoneCall,
+  PlayCircle,
   ShieldCheck,
   Sparkles,
   Wand2,
   X,
 } from "lucide-react";
 
-// Build-time responsive variants keep the marketing hero small on phones.
-import heroSrcSet from "@/assets/hero-app.jpg?w=480;768;1024;1440&format=webp&as=srcset";
-import heroApp from "@/assets/hero-app.jpg?w=1024&format=webp";
 import receptionistSrcSet from "@/assets/ai-receptionist.jpg?w=420;640;900&format=webp&as=srcset";
 import receptionistShot from "@/assets/ai-receptionist.jpg?w=640&format=webp";
 import {
@@ -25,6 +23,9 @@ import {
   Section,
   StatBand,
 } from "@/components/MarketingLayout";
+import { LivePhoneDemo } from "@/components/marketing/LivePhoneDemo";
+import { Reveal } from "@/components/marketing/Reveal";
+import { StickySignupBar } from "@/components/marketing/StickySignupBar";
 import { PLANS } from "@/lib/plans";
 import { SITE_URL, pageHead } from "@/lib/seo";
 import { cn } from "@/lib/utils";
@@ -41,18 +42,6 @@ export const Route = createFileRoute("/")({
       description: DESCRIPTION,
       image: `${SITE_URL}/og-home.jpg`,
     }),
-    links: [
-      // The hero is the LCP element; preload the same responsive set the
-      // <img> uses so the browser starts it before hydration.
-      {
-        rel: "preload",
-        as: "image",
-        href: heroApp,
-        imageSrcSet: heroSrcSet,
-        imageSizes: "(min-width: 768px) 44rem, 100vw",
-        fetchPriority: "high",
-      },
-    ],
     scripts: [
       {
         type: "application/ld+json",
