@@ -264,7 +264,7 @@ function FooterCol({
           <li key={`${link.to}-${link.label}`}>
             <Link
               to={link.to}
-              className="inline-flex min-h-10 items-center text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex min-h-11 items-center text-[0.82rem] text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
             </Link>
