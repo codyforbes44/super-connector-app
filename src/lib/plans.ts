@@ -30,7 +30,7 @@ export const PLANS: PlanMeta[] = [
       "1 seat",
       "SMS, MMS and calling",
       "Voicemail with transcription",
-      "Call history and recordings",
+      "Call history and voicemail transcripts",
       "Push and email alerts",
     ],
   },
