@@ -267,8 +267,13 @@ function Landing() {
         </Reveal>
         <ol className="mt-6 grid gap-3 sm:grid-cols-3">
           {STEPS.map((step, stepIndex) => (
-            <Reveal key={step.n} delay={stepIndex * 90}>
-              <li className="glass-panel h-full rounded-3xl p-5 transition-transform duration-300 hover:-translate-y-1">
+            <Reveal
+              key={step.n}
+              as="li"
+              delay={stepIndex * 90}
+              className="glass-panel h-full rounded-3xl p-5 transition-transform duration-300 hover:-translate-y-1"
+            >
+              <>
                 <div className="flex items-center justify-between gap-2">
                   <span className="key-signal flex h-10 w-10 items-center justify-center rounded-full font-display text-sm font-semibold">
                     {step.n}
@@ -281,7 +286,7 @@ function Landing() {
                 <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
                   {step.body}
                 </p>
-              </li>
+              </>
             </Reveal>
           ))}
         </ol>
@@ -305,8 +310,13 @@ function Landing() {
         </Reveal>
         <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature, featureIndex) => (
-            <Reveal key={feature.title} delay={(featureIndex % 3) * 80}>
-              <li className="glass-panel h-full rounded-3xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40">
+            <Reveal
+              key={feature.title}
+              as="li"
+              delay={(featureIndex % 3) * 80}
+              className="glass-panel h-full rounded-3xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40"
+            >
+              <>
                 <span className="key-raised flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
                   <feature.icon className="h-[1.05rem] w-[1.05rem] text-primary" />
                 </span>
@@ -314,7 +324,7 @@ function Landing() {
                 <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
                   {feature.body}
                 </p>
-              </li>
+              </>
             </Reveal>
           ))}
         </ul>
