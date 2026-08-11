@@ -3,6 +3,8 @@ import { ArrowRight, ChevronDown, Menu, Radio, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { AccountActions } from "@/components/AccountMenu";
+import { useSession } from "@/hooks/useSession";
 
 const NAV = [
   { to: "/features", label: "Features" },
@@ -16,6 +18,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
+  const { status } = useSession();
+  const signedIn = status === "signedIn";
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const toggleRef = useRef<HTMLButtonElement | null>(null);
@@ -141,19 +145,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link
-              to="/auth"
-              className="hidden min-h-11 items-center rounded-full px-4 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
-            >
-              Sign in
-            </Link>
-            <Link
-              to="/auth"
-              search={{ mode: "signup" }}
-              className="key-call hidden min-h-11 items-center rounded-full px-4 text-sm font-semibold sm:inline-flex"
-            >
-              Start free
-            </Link>
+            <AccountActions />
             <button
               type="button"
               ref={toggleRef}
@@ -199,22 +191,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           </ul>
           </nav>
           <div className="safe-bottom mt-4 grid gap-2 pb-6">
-            <Link
-              to="/auth"
-              search={{ mode: "signup" }}
-              onClick={() => setOpen(false)}
-              className="key-call flex min-h-14 items-center justify-center gap-2 rounded-full text-base font-semibold"
-            >
-              Start free trial
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <Link
-              to="/auth"
-              onClick={() => setOpen(false)}
-              className="key-raised flex min-h-14 items-center justify-center rounded-full text-base font-semibold"
-            >
-              Sign in
-            </Link>
+            <AccountActions stacked />
           </div>
         </div>
       ) : null}
@@ -231,9 +208,17 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         )}
       >
         <div className="flex items-center gap-2">
-          {pathname === "/pricing" ? (
+          {signedIn ? (
+            <Link
+              to="/pricing"
+              className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
+            >
+              See pricing
+            </Link>
+          ) : pathname === "/pricing" ? (
             <Link
               to="/auth"
+              search={{ mode: "signin" }}
               className="key-raised flex min-h-12 flex-1 items-center justify-center rounded-full text-sm font-semibold"
             >
               Sign in
@@ -246,14 +231,24 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               See pricing
             </Link>
           )}
-          <Link
-            to="/auth"
-            search={{ mode: "signup" }}
-            className="key-call flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-full text-sm font-semibold"
-          >
-            Start free
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
+          {signedIn ? (
+            <Link
+              to="/inbox"
+              className="key-call flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-full text-sm font-semibold"
+            >
+              Open app
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              search={{ mode: "signup" }}
+              className="key-call flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-full text-sm font-semibold"
+            >
+              Start free
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          )}
         </div>
       </div>
 

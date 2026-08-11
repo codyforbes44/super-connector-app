@@ -10,20 +10,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { errorMessage } from "@/lib/format";
 import { PLANS, type BillingInterval, type PlanCode } from "@/lib/plans";
+import { safeRedirectPath, useSession } from "@/hooks/useSession";
 
 const TITLE = "Sign in or start your free trial — SixVox";
+
+/**
+ * OAuth/email links must return to a PUBLIC same-origin URL. `/auth` forwards
+ * the (now signed-in) user to the saved destination once the session hydrates.
+ */
+function returnUrl(next?: string) {
+  const origin = window.location.origin;
+  return next ? `${origin}/auth?redirect=${encodeURIComponent(next)}` : origin;
+}
 const DESCRIPTION =
   "Sign in to SixVox or create an account to run your business calls, texts, WhatsApp and AI receptionist from your phone.";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { mode?: "signin" | "signup"; plan?: PlanCode; interval?: BillingInterval } => {
+  ): {
+    mode?: "signin" | "signup";
+    plan?: PlanCode;
+    interval?: BillingInterval;
+    redirect?: string;
+  } => {
     const plan = PLANS.find((item) => item.code === search["plan"])?.code;
+    const next = safeRedirectPath(search["redirect"]);
     return {
       mode: search["mode"] === "signup" ? "signup" : "signin",
       ...(plan ? { plan } : {}),
       ...(plan ? { interval: search["interval"] === "year" ? "year" : "month" } : {}),
+      ...(next ? { redirect: next } : {}),
     };
   },
   head: () => ({
@@ -41,7 +58,8 @@ export const Route = createFileRoute("/auth")({
 
 function AuthScreen() {
   const navigate = useNavigate();
-  const { mode: initialMode, plan, interval } = Route.useSearch();
+  const { mode: initialMode, plan, interval, redirect: next } = Route.useSearch();
+  const { status } = useSession();
   const [mode, setMode] = useState<"signin" | "signup">(initialMode ?? "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,16 +67,24 @@ function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
 
-  const nextDestination = () =>
-    plan
-      ? navigate({ to: "/billing", search: { plan, interval: interval ?? "month" } })
-      : navigate({ to: "/welcome" });
+  const nextDestination = () => {
+    if (plan) {
+      return navigate({ to: "/billing", search: { plan, interval: interval ?? "month" } });
+    }
+    if (next) return navigate({ to: next } as never);
+    return navigate({ to: "/welcome" });
+  };
 
+  // Reactive: forwards the user as soon as a persisted session is restored,
+  // including a session that hydrates after this screen has mounted.
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void navigate({ to: "/inbox" });
-    });
-  }, [navigate]);
+    if (status !== "signedIn") return;
+    if (next) {
+      void navigate({ to: next, replace: true } as never);
+      return;
+    }
+    void navigate({ to: "/inbox", replace: true });
+  }, [status, next, navigate]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -69,7 +95,7 @@ function AuthScreen() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: returnUrl(next),
             data: { display_name: name },
           },
         });
@@ -93,7 +119,7 @@ function AuthScreen() {
   async function handleGoogle() {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: returnUrl(next),
     });
     if (result.error) {
       setBusy(false);
