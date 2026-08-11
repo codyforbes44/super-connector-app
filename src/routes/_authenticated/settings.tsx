@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { SettingsGroup, SettingsLink } from "@/components/settings/SettingsGroup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -100,17 +101,15 @@ function SettingsScreen() {
 
       <CallerRules />
 
-      <section className="border-t border-border px-4 py-4">
-        <Link to="/insights" className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Your week</p>
-            <p className="text-[0.7rem] text-muted-foreground">
-              Calls answered, missed, and what people wanted
-            </p>
-          </div>
-        </Link>
-      </section>
+      <SettingsGroup title="Your week">
+        <SettingsLink
+          to="/insights"
+          icon={Sparkles}
+          tone="violet"
+          title="Insights"
+          description="Calls answered, missed, and what people wanted"
+        />
+      </SettingsGroup>
 
       {boot.isAdmin ? (
         <>
@@ -165,77 +164,57 @@ function SettingsScreen() {
           </section>
 
           {boot.isOwner ? (
-          <section className="border-t border-border px-4 py-4">
-            <Link
-              to="/advanced"
-              className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
-            >
-              <SlidersHorizontal className="h-4 w-4 text-primary" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">Advanced</p>
-                <p className="text-[0.7rem] text-muted-foreground">
-                  Account health, routing endpoints and the API console
-                </p>
-              </div>
-            </Link>
-          </section>
+            <SettingsGroup title="Owner">
+              <SettingsLink
+                to="/advanced"
+                icon={SlidersHorizontal}
+                tone="amber"
+                title="Advanced"
+                description="Account health, routing endpoints and the API console"
+              />
+            </SettingsGroup>
           ) : null}
         </>
       ) : null}
 
-      <section className="space-y-2 border-t border-border px-4 py-4">
-        <Link
+      <SettingsGroup title="Your account">
+        <SettingsLink
           to="/receptionist"
-          className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
-        >
-          <Bot className="h-4 w-4 text-primary" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">AI receptionist</p>
-            <p className="text-[0.7rem] text-muted-foreground">
-              Voices, agents and per-number answering
-            </p>
-          </div>
-        </Link>
-
-        <Link to="/connectors" className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3">
-          <Plug className="h-4 w-4 text-primary" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Connectors</p>
-            <p className="text-[0.7rem] text-muted-foreground">
-              Connection status and guided setup
-            </p>
-          </div>
-        </Link>
-
-        <Link to="/billing" className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3">
-          <CreditCard className="h-4 w-4 text-primary" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Billing & plan</p>
-            <p className="text-[0.7rem] text-muted-foreground">
-              {billing.isSuperAdmin
-                ? "Super admin — unlimited access"
-                : billing.plan
-                  ? `${billing.plan.name} · ${billing.subscription?.status ?? "active"}`
-                  : "Choose a plan"}
-            </p>
-          </div>
-        </Link>
-
+          icon={Bot}
+          tone="violet"
+          title="AI receptionist"
+          description="Voices, agents and per-number answering"
+        />
+        <SettingsLink
+          to="/connectors"
+          icon={Plug}
+          tone="cyan"
+          title="Connectors"
+          description="Connection status and guided setup"
+        />
+        <SettingsLink
+          to="/billing"
+          icon={CreditCard}
+          tone="amber"
+          title="Billing & plan"
+          description={
+            billing.isSuperAdmin
+              ? "Super admin — unlimited access"
+              : billing.plan
+                ? `${billing.plan.name} · ${billing.subscription?.status ?? "active"}`
+                : "Choose a plan"
+          }
+        />
         {billing.isSuperAdmin ? (
-          <Link
+          <SettingsLink
             to="/subscribers"
-            className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3"
-          >
-            <Users className="h-4 w-4 text-primary" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold">Subscribers</p>
-              <p className="text-[0.7rem] text-muted-foreground">
-                Manage accounts, plans and access
-              </p>
-            </div>
-          </Link>
+            icon={Users}
+            tone="green"
+            title="Subscribers"
+            description="Manage accounts, plans and access"
+          />
         ) : null}
-      </section>
+      </SettingsGroup>
 
       <section className="border-t border-border px-4 py-4">
         <Button
