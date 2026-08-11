@@ -10,23 +10,37 @@ export function webhookUrl(
   return `${PUBLIC_BASE_URL}/api/public/twilio/${kind}?t=${encodeURIComponent(token)}`;
 }
 
-export type Role = "owner" | "admin" | "agent";
+export type Role = "super_admin" | "owner" | "admin" | "agent";
 
 export async function getRole(supabase: SupabaseClient, userId: string): Promise<Role> {
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   const roles = (data ?? []).map((r) => r.role as Role);
+  if (roles.includes("super_admin")) return "super_admin";
   if (roles.includes("owner")) return "owner";
   if (roles.includes("admin")) return "admin";
   return "agent";
 }
 
 export function isAdminRole(role: Role): boolean {
-  return role === "owner" || role === "admin";
+  return role === "super_admin" || role === "owner" || role === "admin";
+}
+
+/** Owner-level: the account owner and the platform super admin only. */
+export function isOwnerRole(role: Role): boolean {
+  return role === "super_admin" || role === "owner";
 }
 
 export async function requireAdmin(supabase: SupabaseClient, userId: string): Promise<Role> {
   const role = await getRole(supabase, userId);
   if (!isAdminRole(role)) throw new Error("Forbidden: this action requires an admin.");
+  return role;
+}
+
+/** Guard for critical settings and destructive admin endpoints. */
+export async function requireOwner(supabase: SupabaseClient, userId: string): Promise<Role> {
+  const role = await getRole(supabase, userId);
+  if (!isOwnerRole(role))
+    throw new Error("Forbidden: this action requires the account owner.");
   return role;
 }
 
