@@ -222,9 +222,10 @@ function SettingsScreen() {
           variant="ghost"
           className="key-end w-full rounded-full sm:w-auto sm:px-8"
           onClick={async () => {
-            await supabase.auth.signOut();
+            await queryClient.cancelQueries();
             queryClient.clear();
-            await navigate({ to: "/auth" });
+            await supabase.auth.signOut();
+            await navigate({ to: "/auth", search: { mode: "signin" }, replace: true });
           }}
         >
           <LogOut className="mr-2 h-4 w-4" />
