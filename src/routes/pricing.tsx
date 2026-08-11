@@ -103,7 +103,11 @@ function PricingPage() {
           per-message surcharge, no locked features.
         </p>
 
-        <div className="glass-panel mt-8 inline-flex rounded-full p-1">
+        <div
+          role="group"
+          aria-label="Billing interval"
+          className="glass-panel mt-8 inline-flex rounded-full p-1"
+        >
           {(["month", "year"] as BillingInterval[]).map((option) => (
             <button
               key={option}
@@ -111,7 +115,7 @@ function PricingPage() {
               aria-pressed={interval === option}
               onClick={() => setInterval(option)}
               className={cn(
-                "rounded-full px-5 py-2 text-xs font-semibold transition-all",
+                "inline-flex min-h-11 items-center rounded-full px-5 text-xs font-semibold transition-all",
                 interval === option
                   ? "key-signal text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -176,8 +180,45 @@ function PricingPage() {
 
       <Section className="py-9 md:py-14">
         <h2 className="font-display text-xl font-semibold">Compare every plan</h2>
-        <div className="glass-panel mt-5 overflow-x-auto rounded-3xl">
-          <table className="w-full min-w-[34rem] text-left text-sm">
+        {/* Phones get a stacked, per-plan breakdown; the real table returns at md. */}
+        <div className="mt-5 grid gap-3 md:hidden">
+          {PLANS.map((plan, planIndex) => (
+            <div key={plan.code} className="glass-panel rounded-3xl p-5">
+              <h3 className="font-display text-sm font-semibold">{plan.name}</h3>
+              <dl className="mt-3 divide-y divide-border/60">
+                {FEATURE_MATRIX.map((row) => {
+                  const value = [row.solo, row.team, row.scale][planIndex] as string;
+                  return (
+                    <div
+                      key={row.label}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2.5"
+                    >
+                      <dt className="min-w-0 text-[0.82rem] text-muted-foreground">{row.label}</dt>
+                      <dd className="shrink-0 text-[0.82rem] font-medium">
+                        {value === "Yes" ? (
+                          <>
+                            <Check className="h-4 w-4 text-success" aria-hidden />
+                            <span className="sr-only">Included</span>
+                          </>
+                        ) : value === "—" ? (
+                          <>
+                            <Minus className="h-4 w-4 text-muted-foreground" aria-hidden />
+                            <span className="sr-only">Not included</span>
+                          </>
+                        ) : (
+                          value
+                        )}
+                      </dd>
+                    </div>
+                  );
+                })}
+              </dl>
+            </div>
+          ))}
+        </div>
+
+        <div className="glass-panel mt-5 hidden overflow-x-auto rounded-3xl md:block">
+          <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border">
                 <th className="px-5 py-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
