@@ -16,6 +16,8 @@ import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
 import { AiCallTranscript } from "@/components/AiCallTranscript";
+import { CallSummaryCard } from "@/components/intelligence/CallSummaryCard";
+import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { CallReadiness } from "@/components/CallReadiness";
 import { Dialpad } from "@/components/Dialpad";
