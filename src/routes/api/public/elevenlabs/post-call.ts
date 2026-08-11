@@ -68,6 +68,32 @@ export const Route = createFileRoute("/api/public/elevenlabs/post-call")({
           });
         }
 
+        // Fold the conversation into call intelligence: transcript, summary,
+        // follow-ups and the caller's rolling memory.
+        if (appNumber && transcript.length) {
+          const { ingestCallTranscript } = await import("@/lib/intelligence.server");
+          const contactNumber =
+            (dynamic["caller_number"] as string) ||
+            (dynamic["system__caller_id"] as string) ||
+            null;
+          await ingestCallTranscript(supabaseAdmin as never, {
+            callSid,
+            appNumber,
+            contactNumber,
+            direction: "inbound",
+            source: "elevenlabs",
+            turns: transcript
+              .filter((turn) => (turn.message ?? "").trim())
+              .map((turn) => ({
+                speaker: turn.role === "agent" ? ("assistant" as const) : ("caller" as const),
+                text: (turn.message ?? "").trim(),
+                ...(typeof turn.time_in_call_secs === "number"
+                  ? { at: turn.time_in_call_secs }
+                  : {}),
+              })),
+          });
+        }
+
         return new Response("ok");
       },
     },

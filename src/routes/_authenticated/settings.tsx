@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Bot, CreditCard, LogOut, Plug, SlidersHorizontal, Users } from "lucide-react";
+import { Bot, CreditCard, LogOut, Plug, SlidersHorizontal, Sparkles, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -22,6 +22,8 @@ import { errorMessage } from "@/lib/format";
 import { PushNotifications } from "@/components/PushNotifications";
 import { DeviceAccess } from "@/components/DeviceAccess";
 import { CallingSettings } from "@/components/CallingSettings";
+import { AssistantSettings } from "@/components/intelligence/AssistantSettings";
+import { CallerRules } from "@/components/intelligence/CallerRules";
 import { EmailNotifications } from "@/components/EmailNotifications";
 import { Badge } from "@/components/ui/badge";
 import { listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
@@ -93,6 +95,22 @@ function SettingsScreen() {
       </div>
 
       <CallingSettings />
+
+      <AssistantSettings />
+
+      <CallerRules />
+
+      <section className="border-t border-border px-4 py-4">
+        <Link to="/insights" className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">Your week</p>
+            <p className="text-[0.7rem] text-muted-foreground">
+              Calls answered, missed, and what people wanted
+            </p>
+          </div>
+        </Link>
+      </section>
 
       {boot.isAdmin ? (
         <>

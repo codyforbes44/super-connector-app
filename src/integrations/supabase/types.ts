@@ -332,6 +332,99 @@ export type Database = {
         }
         Relationships: []
       }
+      call_intelligence: {
+        Row: {
+          action_items: Json
+          app_number: string | null
+          call_sid: string
+          contact_number: string | null
+          created_at: string
+          entities: Json
+          id: string
+          intent: string | null
+          model: string | null
+          sentiment: string | null
+          summary: string | null
+          topics: string[]
+          updated_at: string
+          urgency: string | null
+          user_id: string
+        }
+        Insert: {
+          action_items?: Json
+          app_number?: string | null
+          call_sid: string
+          contact_number?: string | null
+          created_at?: string
+          entities?: Json
+          id?: string
+          intent?: string | null
+          model?: string | null
+          sentiment?: string | null
+          summary?: string | null
+          topics?: string[]
+          updated_at?: string
+          urgency?: string | null
+          user_id: string
+        }
+        Update: {
+          action_items?: Json
+          app_number?: string | null
+          call_sid?: string
+          contact_number?: string | null
+          created_at?: string
+          entities?: Json
+          id?: string
+          intent?: string | null
+          model?: string | null
+          sentiment?: string | null
+          summary?: string | null
+          topics?: string[]
+          updated_at?: string
+          urgency?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      call_transcripts: {
+        Row: {
+          app_number: string | null
+          call_sid: string
+          contact_number: string | null
+          created_at: string
+          full_text: string
+          id: string
+          source: string
+          turns: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          app_number?: string | null
+          call_sid: string
+          contact_number?: string | null
+          created_at?: string
+          full_text?: string
+          id?: string
+          source?: string
+          turns?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          app_number?: string | null
+          call_sid?: string
+          contact_number?: string | null
+          created_at?: string
+          full_text?: string
+          id?: string
+          source?: string
+          turns?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       caller_id_routes: {
         Row: {
           caller_id: string
@@ -398,6 +491,36 @@ export type Database = {
           status?: string
           updated_at?: string
           validation_code?: string | null
+        }
+        Relationships: []
+      }
+      caller_rules: {
+        Row: {
+          behavior: string
+          contact_number: string
+          created_at: string
+          id: string
+          label: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          behavior?: string
+          contact_number: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          behavior?: string
+          contact_number?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -471,6 +594,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      contact_memory: {
+        Row: {
+          call_count: number
+          contact_number: string
+          created_at: string
+          id: string
+          last_call_at: string | null
+          rolling_summary: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          call_count?: number
+          contact_number: string
+          created_at?: string
+          id?: string
+          last_call_at?: string | null
+          rolling_summary?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          call_count?: number
+          contact_number?: string
+          created_at?: string
+          id?: string
+          last_call_at?: string | null
+          rolling_summary?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       contacts: {
         Row: {
@@ -1154,9 +1310,11 @@ export type Database = {
       profiles: {
         Row: {
           agent_phone: string | null
+          assistant_instructions: string | null
           avatar_url: string | null
           created_at: string
           default_number: string | null
+          digest_enabled: boolean
           display_name: string | null
           email: string | null
           id: string
@@ -1166,13 +1324,16 @@ export type Database = {
           onboarding_step: number
           setup_state: Json
           support_requested_at: string | null
+          transcribe_calls: boolean
           workspace_name: string | null
         }
         Insert: {
           agent_phone?: string | null
+          assistant_instructions?: string | null
           avatar_url?: string | null
           created_at?: string
           default_number?: string | null
+          digest_enabled?: boolean
           display_name?: string | null
           email?: string | null
           id: string
@@ -1182,13 +1343,16 @@ export type Database = {
           onboarding_step?: number
           setup_state?: Json
           support_requested_at?: string | null
+          transcribe_calls?: boolean
           workspace_name?: string | null
         }
         Update: {
           agent_phone?: string | null
+          assistant_instructions?: string | null
           avatar_url?: string | null
           created_at?: string
           default_number?: string | null
+          digest_enabled?: boolean
           display_name?: string | null
           email?: string | null
           id?: string
@@ -1198,6 +1362,7 @@ export type Database = {
           onboarding_step?: number
           setup_state?: Json
           support_requested_at?: string | null
+          transcribe_calls?: boolean
           workspace_name?: string | null
         }
         Relationships: []

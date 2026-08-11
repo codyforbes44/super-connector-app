@@ -16,6 +16,8 @@ import { toast } from "sonner";
 
 import { EmptyState, ScreenHeader } from "@/components/AppShell";
 import { AiCallTranscript } from "@/components/AiCallTranscript";
+import { CallSummaryCard } from "@/components/intelligence/CallSummaryCard";
+import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { CallReadiness } from "@/components/CallReadiness";
 import { Dialpad } from "@/components/Dialpad";
@@ -417,7 +419,19 @@ function CallsScreen() {
               ))}
             </dl>
           ) : null}
-          {detail ? <AiCallTranscript callSid={detail.sid} /> : null}
+          {detail ? (
+            <div className="mt-3 space-y-3">
+              <CallSummaryCard
+                callSid={detail.sid}
+                contactNumber={otherParty(detail)}
+                appNumber={detail.app_number}
+              />
+              {otherParty(detail) ? (
+                <CallerContextCard contactNumber={otherParty(detail)} />
+              ) : null}
+              <AiCallTranscript callSid={detail.sid} />
+            </div>
+          ) : null}
           {detail ? (
             <Button
               className="key-call mt-3 h-12 w-full rounded-full"
