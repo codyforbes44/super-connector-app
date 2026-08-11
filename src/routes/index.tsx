@@ -24,6 +24,7 @@ import {
   StatBand,
 } from "@/components/MarketingLayout";
 import { LivePhoneDemo } from "@/components/marketing/LivePhoneDemo";
+import { FeatureGroup, FeatureRow, IconTile, TONES } from "@/components/marketing/FeatureList";
 import { Reveal } from "@/components/marketing/Reveal";
 import { StickySignupBar } from "@/components/marketing/StickySignupBar";
 import { PLANS } from "@/lib/plans";
@@ -204,7 +205,7 @@ function Landing() {
               </Link>
               <Link
                 to="/how-it-works"
-                className="key-raised inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
+                className="surface-row inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
               >
                 <PlayCircle className="h-4 w-4 text-primary" />
                 See how it works
@@ -244,17 +245,19 @@ function Landing() {
           <h2 className="font-display text-2xl font-semibold md:text-3xl">
             One app instead of four half-solutions.
           </h2>
-          <ul className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <FeatureGroup className="mt-6">
             {REPLACES.map((item) => (
-              <li key={item} className="glass-panel rounded-3xl p-4 text-[0.85rem] sm:p-5">
-                <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                  <X className="h-3.5 w-3.5 text-destructive" aria-hidden />
-                  Replaces
+              <div key={item} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-destructive/15 text-destructive">
+                  <X className="size-4" aria-hidden />
                 </span>
-                <p className="mt-2 leading-relaxed text-pretty">{item}</p>
-              </li>
+                <p className="min-w-0 flex-1 text-[0.9rem] leading-relaxed text-pretty">{item}</p>
+                <span className="shrink-0 text-[0.7rem] font-semibold tracking-wide text-muted-foreground uppercase">
+                  Replaced
+                </span>
+              </div>
             ))}
-          </ul>
+          </FeatureGroup>
         </Reveal>
       </Section>
 
@@ -271,11 +274,11 @@ function Landing() {
               key={step.n}
               as="li"
               delay={stepIndex * 90}
-              className="glass-panel h-full rounded-3xl p-5 transition-transform duration-300 hover:-translate-y-1"
+              className="surface-row h-full rounded-3xl p-5 transition-transform duration-300 hover:-translate-y-1"
             >
               <>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="key-signal flex h-10 w-10 items-center justify-center rounded-full font-display text-sm font-semibold">
+                  <span className="font-display flex size-10 items-center justify-center rounded-2xl bg-primary/18 text-sm font-semibold text-primary">
                     {step.n}
                   </span>
                   <span className="text-[0.65rem] tracking-wide text-primary uppercase">
@@ -314,12 +317,10 @@ function Landing() {
               key={feature.title}
               as="li"
               delay={(featureIndex % 3) * 80}
-              className="glass-panel h-full rounded-3xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40"
+              className="surface-row h-full rounded-3xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40"
             >
               <>
-                <span className="key-raised flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
-                  <feature.icon className="h-[1.05rem] w-[1.05rem] text-primary" />
-                </span>
+                <IconTile icon={feature.icon} tone={TONES[featureIndex % TONES.length]!} />
                 <h3 className="font-display mt-4 text-sm font-semibold">{feature.title}</h3>
                 <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
                   {feature.body}
@@ -380,7 +381,7 @@ function Landing() {
         </p>
         <ul className="mt-6 grid gap-3 md:grid-cols-2">
           {CONTRAST.map((row) => (
-            <li key={row.us} className="glass-panel rounded-3xl p-5">
+            <li key={row.us} className="surface-row rounded-3xl p-5">
               <p className="flex items-start gap-2 text-[0.82rem] text-muted-foreground line-through decoration-destructive/60">
                 <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive no-underline" aria-hidden />
                 {row.them}
@@ -420,7 +421,7 @@ function Landing() {
                 search={{ mode: "signup", plan: plan.code, interval: "month" }}
                 className={cn(
                   "mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full px-5 text-sm font-semibold",
-                  plan.highlighted ? "key-call" : "key-raised",
+                  plan.highlighted ? "key-call" : "surface-row",
                 )}
               >
                 Start free
