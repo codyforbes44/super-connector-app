@@ -1,6 +1,9 @@
 export type PlanCode = "solo" | "team" | "scale";
 export type BillingInterval = "month" | "year";
 
+/** Free trial length applied to every new subscription. */
+export const TRIAL_DAYS = 14;
+
 export type PlanMeta = {
   code: PlanCode;
   name: string;
@@ -18,8 +21,8 @@ export const PLANS: PlanMeta[] = [
     code: "solo",
     name: "Solo",
     tagline: "One number, everything that matters.",
-    monthly: 29,
-    yearly: 290,
+    monthly: 19,
+    yearly: 190,
     numbers: 1,
     seats: 1,
     features: [
@@ -35,8 +38,8 @@ export const PLANS: PlanMeta[] = [
     code: "team",
     name: "Team",
     tagline: "A shared inbox for the whole crew.",
-    monthly: 79,
-    yearly: 790,
+    monthly: 59,
+    yearly: 590,
     numbers: 3,
     seats: 5,
     highlighted: true,
@@ -55,8 +58,8 @@ export const PLANS: PlanMeta[] = [
     code: "scale",
     name: "Scale",
     tagline: "Unrestricted telephony, no ceiling.",
-    monthly: 199,
-    yearly: 1990,
+    monthly: 129,
+    yearly: 1290,
     numbers: 10,
     seats: null,
     features: [
