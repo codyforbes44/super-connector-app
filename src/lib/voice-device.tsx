@@ -9,6 +9,10 @@ import {
   rebindAudioDevices,
   watchAudioDevices,
   resetAudioBinding,
+  listOutputDevices,
+  outputSelectionSupported,
+  setOutputDevice,
+  type OutputChoice,
   type DeviceAudio,
 } from "@/lib/call-keepalive";
 import {
@@ -49,6 +53,13 @@ type VoiceContextValue = {
   hangup: () => void;
   toggleMute: () => void;
   sendDigit: (digit: string) => void;
+  /** False on iOS, where the platform owns earpiece/loudspeaker routing. */
+  audioOutputSupported: boolean;
+  outputDevices: OutputChoice[];
+  outputDeviceId: string | null;
+  speakerOn: boolean;
+  toggleSpeaker: () => Promise<void>;
+  selectOutput: (id: string) => Promise<void>;
 };
 
 const VoiceContext = createContext<VoiceContextValue | null>(null);
@@ -87,6 +98,12 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [micState, setMicState] = useState<MicState>("unknown");
+  const [outputDevices, setOutputDevices] = useState<OutputChoice[]>([]);
+  const [outputDeviceId, setOutputDeviceId] = useState<string | null>(null);
+  const [speakerOn, setSpeakerOn] = useState(false);
+  // Mirrors outputDeviceId for the rebind effect without re-running it.
+  const outputRef = useRef<string | null>(null);
+  const audioOutputSupported = outputSelectionSupported();
 
   useEffect(() => {
     let dispose: (() => void) | undefined;
@@ -116,6 +133,9 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     setMuted(false);
     setStartedAt(null);
     resetAudioBinding();
+    outputRef.current = null;
+    setOutputDeviceId(null);
+    setSpeakerOn(false);
   }, []);
 
   const bindCall = useCallback(
