@@ -18,9 +18,10 @@ function Privacy() {
       <h2>What we collect</h2>
       <p>
         We collect the account details you give us (name, email address and workspace name), the
-        business communications you send and receive through SixVox (calls, messages, voicemail,
-        recordings, transcripts and their metadata), the contacts you save, and technical data such
-        as device type and push notification tokens.
+        business communications you send and receive through SixVox (call metadata, messages,
+        voicemail recordings and their transcripts), the contacts you save, and technical data such
+        as device type and push notification tokens. SixVox does not record live calls — only
+        voicemail a caller chooses to leave is stored.
       </p>
 
       <h2>How we use it</h2>

@@ -58,7 +58,7 @@ function Terms() {
 
       <h2>Your content</h2>
       <p>
-        Your messages, recordings, contacts and other content remain yours. You grant us the
+        Your messages, voicemail, contacts and other content remain yours. You grant us the
         limited licence needed to store, transmit, transcribe and display that content in order to
         run the service.
       </p>
