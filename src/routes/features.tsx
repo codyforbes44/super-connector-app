@@ -16,7 +16,7 @@ import {
 
 import { CtaBand, Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 import { FeatureGroup, FeatureRow, TONES } from "@/components/marketing/FeatureList";
-import { breadcrumbLd, pageHead } from "@/lib/seo";
+import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Features — everything SixVox does for your business line";
 const DESCRIPTION =
@@ -24,7 +24,12 @@ const DESCRIPTION =
 
 export const Route = createFileRoute("/features")({
   head: () => ({
-    ...pageHead({ path: "/features", title: TITLE, description: DESCRIPTION }),
+    ...pageHead({
+      path: "/features",
+      title: TITLE,
+      description: DESCRIPTION,
+      image: `${SITE_URL}/og-features.jpg`,
+    }),
     scripts: [
       {
         type: "application/ld+json",

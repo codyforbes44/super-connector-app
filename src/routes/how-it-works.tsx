@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { CtaBand, Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
-import { breadcrumbLd, pageHead } from "@/lib/seo";
+import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "How it works — SixVox onboarding in minutes";
 const DESCRIPTION =
@@ -9,7 +9,12 @@ const DESCRIPTION =
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
-    ...pageHead({ path: "/how-it-works", title: TITLE, description: DESCRIPTION }),
+    ...pageHead({
+      path: "/how-it-works",
+      title: TITLE,
+      description: DESCRIPTION,
+      image: `${SITE_URL}/og-how-it-works.jpg`,
+    }),
     scripts: [
       {
         type: "application/ld+json",

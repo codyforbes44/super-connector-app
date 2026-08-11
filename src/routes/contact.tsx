@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage } from "@/lib/format";
 import { submitLead } from "@/lib/payments.functions";
-import { breadcrumbLd, pageHead } from "@/lib/seo";
+import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Contact SixVox — talk to the team";
 const DESCRIPTION =
@@ -18,7 +18,12 @@ const DESCRIPTION =
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
-    ...pageHead({ path: "/contact", title: TITLE, description: DESCRIPTION }),
+    ...pageHead({
+      path: "/contact",
+      title: TITLE,
+      description: DESCRIPTION,
+      image: `${SITE_URL}/og-contact.jpg`,
+    }),
     scripts: [
       {
         type: "application/ld+json",

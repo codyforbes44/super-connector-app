@@ -46,7 +46,13 @@ const BILLING_FAQS = [
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
-    ...pageHead({ path: "/pricing", title: TITLE, description: DESCRIPTION, type: "product" }),
+    ...pageHead({
+      path: "/pricing",
+      title: TITLE,
+      description: DESCRIPTION,
+      type: "product",
+      image: `${SITE_URL}/og-pricing.jpg`,
+    }),
     scripts: [
       {
         type: "application/ld+json",
