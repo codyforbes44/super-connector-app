@@ -72,7 +72,7 @@ export function FeatureRow({
 }) {
   return (
     <div className="flex items-start gap-3 px-4 py-3.5 sm:px-5 sm:py-4">
-      <IconTile icon={icon} tone={tone} />
+      <IconTile icon={icon} tone={tone ?? "cyan"} />
       <div className="min-w-0 flex-1">
         <p className="text-[0.95rem] font-medium">{title}</p>
         {body ? (
