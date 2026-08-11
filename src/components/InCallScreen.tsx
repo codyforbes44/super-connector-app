@@ -2,6 +2,7 @@ import { Check, Mic, MicOff, Phone, PhoneOff, Volume2, Volume1, Grid3x3 } from "
 import { useEffect, useRef, useState } from "react";
 
 import { formatPhone } from "@/lib/format";
+import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
 import { haptic } from "@/lib/haptics";
 import { useVoice } from "@/lib/voice-device";
 import { startRingtone, stopRingtone } from "@/lib/ringtone";
@@ -68,6 +69,11 @@ export function InCallScreen() {
         </span>
         <h1 className="font-display text-center text-2xl font-semibold">{formatPhone(party)}</h1>
         <p className="tabular text-sm text-muted-foreground">{label}</p>
+        {ringingIn && party ? (
+          <div className="w-full max-w-[19rem]">
+            <CallerContextCard contactNumber={party} compact />
+          </div>
+        ) : null}
       </div>
 
       {keypad ? (
