@@ -25,8 +25,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "SixVox";
   const options = {
     body: payload.body || "",
-    icon: "/icon-512.png",
-    badge: "/icon-512.png",
+    icon: "/icon-192.png",
+    badge: "/notification-badge.png",
     tag: payload.tag || undefined,
     renotify: Boolean(payload.tag),
     data: { url: payload.url || "/inbox", type: payload.type || "message" },
