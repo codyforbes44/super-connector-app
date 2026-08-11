@@ -9,24 +9,35 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+    // Trust the persisted session first: an installed app opened offline (or a
+    // cold start on a flaky connection) must stay signed in. Only a genuinely
+    // missing session sends someone back to /auth.
+    const { data: sessionResult } = await supabase.auth.getSession();
+    const session = sessionResult.session;
+    if (!session?.user) {
+      throw redirect({ to: "/auth", search: { mode: "signin", redirect: location.href } });
+    }
+    const user = session.user;
+    let online = true;
 
     if (!location.pathname.startsWith("/billing")) {
-      const [{ data: roles }, { data: subs }] = await Promise.all([
+      const [{ data: roles, error: rolesError }, { data: subs, error: subsError }] = await Promise.all([
         supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", data.user.id)
+          .eq("user_id", user.id)
           .eq("role", "super_admin"),
         supabase
           .from("subscriptions")
           .select("status, comped, suspended, current_period_end")
-          .eq("user_id", data.user.id)
+          .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(1),
       ]);
 
+      // A failed entitlement lookup (offline, transient 5xx) must never look
+      // like "no subscription" and bounce a paying user out of the app.
+      online = !rolesError && !subsError;
       const sub = subs?.[0];
       const future =
         !sub?.current_period_end || new Date(sub.current_period_end) > new Date();
@@ -36,24 +47,25 @@ export const Route = createFileRoute("/_authenticated")({
           !sub.suspended &&
           (sub.comped ||
             (["active", "trialing", "past_due", "canceled"].includes(sub.status) && future)));
-      if (!active) throw redirect({ to: "/billing" });
+      if (online && !active) throw redirect({ to: "/billing" });
     }
 
     if (
+      online &&
       !location.pathname.startsWith("/billing") &&
       !location.pathname.startsWith("/welcome")
     ) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("onboarding_completed, onboarding_skipped")
-        .eq("id", data.user.id)
+        .eq("id", user.id)
         .maybeSingle();
       if (profile && !profile.onboarding_completed && !profile.onboarding_skipped) {
         throw redirect({ to: "/welcome" });
       }
     }
 
-    return { user: data.user };
+    return { user };
   },
   component: AuthenticatedLayout,
   errorComponent: ({ error }) => (
