@@ -67,6 +67,19 @@ export const Route = createFileRoute("/api/public/twilio/status")({
               .eq("sid", callSid)
               .maybeSingle();
             if (call && call.direction === "inbound") {
+              // A transcribed voicemail is enough to produce a summary,
+              // follow-ups and caller memory for this call.
+              if (patch.transcription) {
+                const { ingestCallTranscript } = await import("@/lib/intelligence.server");
+                await ingestCallTranscript(supabaseAdmin as never, {
+                  callSid,
+                  appNumber: call.app_number as string,
+                  contactNumber: call.from_number as string,
+                  direction: "inbound",
+                  source: "voicemail",
+                  turns: [{ speaker: "caller", text: patch.transcription }],
+                });
+              }
               const { notifyNumber } = await import("@/lib/notify.server");
               const templates = await import("@/lib/email-templates/index");
               const from = call.from_number as string;
