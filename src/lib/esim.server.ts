@@ -38,6 +38,31 @@ export type EsimOrder = {
 const CACHE_MS = 10 * 60 * 1000;
 let catalogueCache: { at: number; packages: EsimPackage[] } | null = null;
 
+/** Fire-and-forget push alert about an eSIM order — never blocks fulfilment. */
+async function alertOrder(
+  admin: SB,
+  userId: string,
+  order: { id: string; package_title: string },
+  outcome: "ready" | "failed",
+  detail?: string,
+): Promise<void> {
+  try {
+    const { sendPushToUsers } = await import("./push.server");
+    await sendPushToUsers(admin, [userId], {
+      title: outcome === "ready" ? "Your eSIM is ready" : "eSIM setup needs attention",
+      body:
+        outcome === "ready"
+          ? `${order.package_title} is provisioned — tap to install it.`
+          : `${order.package_title} couldn't be provisioned. ${detail ?? ""}`.trim(),
+      url: `/esim?order=${encodeURIComponent(order.id)}`,
+      tag: `esim-${order.id}`,
+      requireInteraction: outcome === "failed",
+    });
+  } catch (error) {
+    console.error("eSIM push alert failed", error);
+  }
+}
+
 export async function listPackages(): Promise<{
   configured: boolean;
   packages: EsimPackage[];
@@ -205,6 +230,7 @@ export async function finalizeOrder(
       .from("esim_orders")
       .update({ status: "failed", last_error: message })
       .eq("id", order.id);
+    await alertOrder(supabaseAdmin as unknown as SB, userId, order, "failed", message);
     return { order: { ...order, status: "failed", last_error: message }, error: message };
   }
 }
