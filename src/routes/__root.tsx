@@ -169,6 +169,10 @@ function RootComponent() {
     void registerAppServiceWorker();
   }, []);
 
+  // Keeps the access token fresh (wake-ups, bfcache, reconnects) and honours
+  // the "Remember me" choice for where the session is stored.
+  useEffect(() => startSessionKeeper(), []);
+
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
