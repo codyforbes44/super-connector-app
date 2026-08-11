@@ -172,7 +172,10 @@ function FaqPage() {
 
         <p className="mt-8 text-sm text-muted-foreground">
           Still stuck?{" "}
-          <Link to="/contact" className="text-primary underline">
+          <Link
+            to="/contact"
+            className="inline-flex min-h-11 items-center text-primary underline"
+          >
             Talk to us
           </Link>
           .

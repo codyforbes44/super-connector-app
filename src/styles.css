@@ -68,6 +68,9 @@
 
 :root {
   --radius: 1.125rem;
+  /* The whole product ships one dark theme; keep native UI (form controls,
+     scrollbars, autofill) dark on public pages too. */
+  color-scheme: dark;
   /* Midnight Dialer v2: near-black navy canvas, neon cyan signal, amber alert. */
   --background: oklch(0.16 0.045 245);
   --foreground: oklch(0.975 0.008 220);
