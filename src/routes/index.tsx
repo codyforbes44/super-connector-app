@@ -12,8 +12,11 @@ import {
   X,
 } from "lucide-react";
 
-import heroApp from "@/assets/hero-app.jpg";
-import receptionistShot from "@/assets/ai-receptionist.jpg";
+// Build-time responsive variants keep the marketing hero small on phones.
+import heroSrcSet from "@/assets/hero-app.jpg?w=480;768;1024;1440&format=webp&as=srcset";
+import heroApp from "@/assets/hero-app.jpg?w=1024&format=webp";
+import receptionistSrcSet from "@/assets/ai-receptionist.jpg?w=420;640;900&format=webp&as=srcset";
+import receptionistShot from "@/assets/ai-receptionist.jpg?w=640&format=webp";
 import {
   CtaBand,
   Eyebrow,
@@ -192,6 +195,8 @@ function Landing() {
           <div className="relative">
             <img
               src={heroApp}
+              srcSet={heroSrcSet}
+              sizes="(min-width: 768px) 44rem, 100vw"
               width={1280}
               height={1024}
               fetchPriority="high"
@@ -298,11 +303,14 @@ function Landing() {
           </div>
           <img
             src={receptionistShot}
+            srcSet={receptionistSrcSet}
+            sizes="(min-width: 768px) 30rem, 100vw"
             width={1024}
             height={1024}
             loading="lazy"
+            decoding="async"
             alt="The SixVox AI receptionist answering a call, with a live transcript below the call controls"
-            className="w-full rounded-[1.5rem] object-cover"
+            className="aspect-square w-full rounded-[1.5rem] object-cover"
           />
         </div>
       </Section>
