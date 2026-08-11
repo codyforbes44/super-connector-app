@@ -263,13 +263,20 @@ function BillingScreen() {
                 >
                   {plan?.code === item.code && isActive ? "Change billing" : `Choose ${item.name}`}
                 </Button>
+                <p className="mt-2 text-center text-[0.7rem] text-muted-foreground">
+                  {TRIAL_DAYS} days free, then $
+                  {interval === "month" ? item.monthly : item.yearly}/
+                  {interval === "month" ? "mo" : "yr"}
+                </p>
               </div>
             ))}
 
             <p className="px-1 pb-2 text-[0.7rem] leading-relaxed text-muted-foreground">
               Prices in USD. Sales tax or VAT is calculated at checkout. Subscriptions renew
               automatically each {interval === "month" ? "month" : "year"} until cancelled — cancel
-              any time from this screen and keep access until the end of the paid period.
+              any time from this screen and keep access until the end of the paid period. Payments
+              are handled by our payment network partner, whose descriptor may appear on your card
+              statement.
             </p>
           </>
         )}
