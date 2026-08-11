@@ -143,6 +143,7 @@ function ContactPage() {
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
+                className="h-12 text-base"
                 required
                 autoComplete="name"
                 aria-invalid={Boolean(errors["name"])}
@@ -160,6 +161,7 @@ function ContactPage() {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                className="h-12 text-base"
                 type="email"
                 required
                 inputMode="email"
@@ -181,6 +183,7 @@ function ContactPage() {
             <Label htmlFor="company">Company (optional)</Label>
             <Input
               id="company"
+              className="h-12 text-base"
               autoComplete="organization"
               value={form.company}
               onChange={update("company")}
@@ -190,6 +193,7 @@ function ContactPage() {
             <Label htmlFor="message">How can we help?</Label>
             <Textarea
               id="message"
+              className="min-h-40 text-base"
               rows={6}
               required
               aria-invalid={Boolean(errors["message"])}
@@ -207,6 +211,13 @@ function ContactPage() {
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
             Send message
           </Button>
+          <p aria-live="polite" className="sr-only">
+            {busy
+              ? "Sending your message."
+              : Object.keys(errors).length > 0
+                ? "The form has errors. Please review the highlighted fields."
+                : ""}
+          </p>
         </form>
 
         <aside className="glass-panel h-fit rounded-3xl p-6">
