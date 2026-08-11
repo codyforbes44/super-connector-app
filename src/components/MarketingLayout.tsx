@@ -181,7 +181,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           aria-label="Site menu"
           className="fixed inset-0 top-[3.5rem] z-50 overflow-y-auto overscroll-contain border-t border-border bg-background px-5 pt-4 [scrollbar-gutter:stable] md:hidden"
         >
-          <ul aria-label="Mobile" className="grid gap-1.5">
+          <nav aria-label="Mobile">
+          <ul className="grid gap-1.5">
             {NAV.map((item) => (
               <li key={item.to}>
                 <Link
@@ -196,6 +197,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               </li>
             ))}
           </ul>
+          </nav>
           <div className="safe-bottom mt-4 grid gap-2 pb-6">
             <Link
               to="/auth"
