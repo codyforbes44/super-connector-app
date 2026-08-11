@@ -134,14 +134,14 @@ function A2pScreen() {
   const status = useQuery({
     queryKey: ["a2p-status"],
     queryFn: () => a2pStatus(),
-    enabled: boot.isAdmin,
+    enabled: boot.isOwner,
     retry: false,
     refetchOnWindowFocus: true,
   });
   const services = useQuery({
     queryKey: ["messaging-services"],
     queryFn: () => listMessagingServices(),
-    enabled: boot.isAdmin,
+    enabled: boot.isOwner,
     retry: false,
   });
 
@@ -206,10 +206,10 @@ function A2pScreen() {
     onError: (e) => toast.error(errorMessage(e)),
   });
 
-  if (!boot.isAdmin) {
+  if (!boot.isOwner) {
     return (
       <div className="px-6 py-20 text-center text-sm text-muted-foreground">
-        This area is for account administrators.
+        This area is for the account owner.
       </div>
     );
   }

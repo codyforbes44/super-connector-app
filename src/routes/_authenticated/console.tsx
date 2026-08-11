@@ -65,12 +65,12 @@ function ConsoleScreen() {
     null,
   );
 
-  if (!boot.isAdmin) {
+  if (!boot.isOwner) {
     return (
       <div className="px-6 py-20 text-center">
-        <p className="font-display text-lg font-semibold">Admins only</p>
+        <p className="font-display text-lg font-semibold">Owners only</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          The raw API console is restricted to workspace owners and admins.
+          The raw API console is restricted to the account owner.
         </p>
       </div>
     );

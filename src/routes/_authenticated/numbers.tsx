@@ -99,7 +99,7 @@ function NumbersScreen() {
         }
       />
 
-      {boot.isAdmin ? (
+      {boot.isOwner ? (
         <div className="px-4 py-3">
           <Button
             className="key-signal h-12 w-full rounded-full font-semibold"
@@ -172,11 +172,11 @@ function NumbersScreen() {
         <EsimExplainer />
       </section>
 
-      {boot.isAdmin ? (
+      {boot.isOwner ? (
         <MessagingServicesSection numbers={boot.numbers} />
       ) : null}
 
-      {boot.isAdmin ? (
+      {boot.isOwner ? (
         <BuySheet
           open={buying}
           onOpenChange={setBuying}

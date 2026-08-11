@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { requireAdmin } from "./app.server";
+import { requireAdmin, requireOwner } from "./app.server";
 import { FROM_ALERTS, sendEmail } from "./email.server";
 import type { TemplateName } from "./email-templates/index";
 import { applyOverride, TEMPLATE_CATALOG, type TemplateOverride } from "./email-templates/overrides";
@@ -220,7 +220,7 @@ export async function saveTemplateOverride(
     enabled: boolean;
   },
 ) {
-  await requireAdmin(supabase, userId);
+  await requireOwner(supabase, userId);
   const { error } = await supabase.from("email_template_overrides").upsert(
     {
       template: input.template,
