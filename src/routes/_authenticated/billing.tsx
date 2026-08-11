@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
 import { errorMessage } from "@/lib/format";
 import { createPortalSession } from "@/lib/payments.functions";
-import { PLANS, priceIdFor, type BillingInterval, type PlanCode } from "@/lib/plans";
+import { PLANS, TRIAL_DAYS, priceIdFor, type BillingInterval, type PlanCode } from "@/lib/plans";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 
@@ -45,6 +45,17 @@ function BillingScreen() {
   const [portalBusy, setPortalBusy] = useState(false);
   const [activating, setActivating] = useState(checkout === "done");
   const pollRef = useRef<number | null>(null);
+
+  const trialEndsAt = subscription?.trial_ends_at ?? null;
+  const trialDaysLeft =
+    subscription?.status === "trialing" && trialEndsAt
+      ? Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86_400_000))
+      : null;
+  const currentAmount = plan
+    ? subscription?.billing_interval === "year"
+      ? `$${plan.yearly}/yr`
+      : `$${plan.monthly}/mo`
+    : null;
 
   // After returning from Stripe, trust the database (written by the webhook)
   // rather than the redirect. Poll briefly so a slow webhook never looks like
@@ -141,10 +152,16 @@ function BillingScreen() {
                   {plan?.name ?? "SixVox"} · {subscription.comped ? "Complimentary" : subscription.status}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {subscription.current_period_end
+                  {trialDaysLeft !== null
+                    ? `Trial — ${trialDaysLeft} day${trialDaysLeft === 1 ? "" : "s"} left${
+                        trialEndsAt
+                          ? `, first charge ${new Date(trialEndsAt).toLocaleDateString()}`
+                          : ""
+                      }${currentAmount ? ` (${currentAmount})` : ""}`
+                    : subscription.current_period_end
                     ? `${subscription.cancel_at_period_end ? "Ends" : "Renews"} ${new Date(
                         subscription.current_period_end,
-                      ).toLocaleDateString()}`
+                      ).toLocaleDateString()}${currentAmount ? ` · ${currentAmount}` : ""}`
                     : "No renewal date on file"}
                 </p>
               </div>
