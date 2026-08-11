@@ -54,7 +54,7 @@ async function alertOrder(
         outcome === "ready"
           ? `${order.package_title} is provisioned — tap to install it.`
           : `${order.package_title} couldn't be provisioned. ${detail ?? ""}`.trim(),
-      url: `/esim?order=${encodeURIComponent(order.id)}`,
+      url: `/esim?esim_order=${encodeURIComponent(order.id)}`,
       tag: `esim-${order.id}`,
       requireInteraction: outcome === "failed",
     });
