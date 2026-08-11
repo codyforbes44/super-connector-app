@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowRight, ChevronDown, Menu, Radio, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import logoMark from "@/assets/sixvox-logo.png";
 import { cn } from "@/lib/utils";
 import { AccountActions } from "@/components/AccountMenu";
 import { useSession } from "@/hooks/useSession";
@@ -125,9 +126,13 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
           <Link to="/" aria-label="SixVox home" className="flex min-h-11 items-center gap-2">
-            <span className="key-signal flex h-9 w-9 items-center justify-center rounded-full">
-              <Radio className="h-4 w-4" />
-            </span>
+            <img
+              src={logoMark}
+              alt="SixVox logo"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
+            />
             <span className="font-display text-base font-semibold tracking-tight">SixVox</span>
           </Link>
 
@@ -256,9 +261,14 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="key-signal flex h-8 w-8 items-center justify-center rounded-full">
-                <Radio className="h-3.5 w-3.5" />
-              </span>
+              <img
+                src={logoMark}
+                alt="SixVox logo"
+                width={32}
+                height={32}
+                loading="lazy"
+                className="h-8 w-8 object-contain"
+              />
               <span className="font-display text-sm font-semibold">SixVox</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
