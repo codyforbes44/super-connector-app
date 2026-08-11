@@ -111,7 +111,7 @@ function SettingsScreen() {
                     </p>
                     <p className="truncate text-[0.7rem] text-muted-foreground">{member.email}</p>
                   </Link>
-                  {boot.role === "owner" ? (
+                  {boot.isOwner ? (
                     <Select
                       value={member.roles[0] ?? "agent"}
                       onValueChange={async (value) => {
@@ -146,6 +146,7 @@ function SettingsScreen() {
             </ul>
           </section>
 
+          {boot.isOwner ? (
           <section className="border-t border-border px-4 py-4">
             <Link
               to="/advanced"
@@ -160,6 +161,7 @@ function SettingsScreen() {
               </div>
             </Link>
           </section>
+          ) : null}
         </>
       ) : null}
 

@@ -108,21 +108,21 @@ function AdvancedBody() {
   const overview = useQuery({
     queryKey: ["account-overview"],
     queryFn: () => accountOverview(),
-    enabled: boot.isAdmin,
+    enabled: boot.isOwner,
     retry: false,
   });
   const diagnostics = useQuery({
     queryKey: ["webhook-diagnostics"],
     queryFn: () => webhookDiagnostics(),
-    enabled: boot.isAdmin,
+    enabled: boot.isOwner,
     retry: false,
     refetchInterval: 60_000,
   });
 
-  if (!boot.isAdmin) {
+  if (!boot.isOwner) {
     return (
       <div className="px-6 py-20 text-center text-sm text-muted-foreground">
-        This area is for account administrators.
+        This area is for the account owner.
       </div>
     );
   }
