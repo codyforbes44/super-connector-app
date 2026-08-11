@@ -175,7 +175,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       <div
         className={cn(
           "safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/92 px-4 pt-3 backdrop-blur-xl transition-transform duration-300 md:hidden",
-          pastHero && !open ? "translate-y-0" : "translate-y-full",
+          pastHero && !open && pathname !== "/contact" ? "translate-y-0" : "translate-y-full",
         )}
       >
         <div className="flex items-center gap-2">
