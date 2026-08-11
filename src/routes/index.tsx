@@ -116,9 +116,24 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { n: "1", title: "Create your account", body: "Email or Google. No card, no sales call." },
-  { n: "2", title: "Pick your number", body: "Claim a new number or bring the one you already use." },
-  { n: "3", title: "Start talking", body: "Send your first text, take your first call — right away." },
+  {
+    n: "1",
+    title: "Create your account",
+    body: "Email or Google. No card, no sales call.",
+    time: "20 seconds",
+  },
+  {
+    n: "2",
+    title: "Pick your number",
+    body: "Claim a new number or bring the one you already use.",
+    time: "30 seconds",
+  },
+  {
+    n: "3",
+    title: "Start talking",
+    body: "Send your first text, take your first call — right away.",
+    time: "Immediately",
+  },
 ];
 
 const REPLACES = [
@@ -160,55 +175,59 @@ const HOME_FAQS = [
 function Landing() {
   return (
     <MarketingLayout>
-      <Section className="pt-8 pb-10 md:pt-14">
-        <div className="grid items-center gap-10 md:grid-cols-[1.05fr_1fr]">
+      <Section className="relative pt-8 pb-10 md:pt-14">
+        {/* Soft signal glow anchors the hero without a heavy image download. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-primary/15 blur-[90px]"
+        />
+        <div className="grid items-center gap-10 md:grid-cols-[1.05fr_0.95fr]">
           <div>
             <Eyebrow>14-day free trial · no card required</Eyebrow>
             <h1 className="font-display mt-5 text-[2.15rem] leading-[1.05] font-semibold text-balance sm:text-4xl md:text-6xl">
-              Your business line,
-              <span className="text-primary"> answered beautifully.</span>
+              Never miss the call
+              <span className="text-primary text-glow"> that pays for the week.</span>
             </h1>
             <p className="mt-5 max-w-xl text-[0.95rem] leading-relaxed text-pretty text-muted-foreground md:text-[1rem]">
-              SixVox brings calls, texts, WhatsApp, voicemail and an AI receptionist into one
-              app that fits in your pocket. Set it up in about a minute.
+              SixVox is a second line that answers for you. Calls, texts, WhatsApp and voicemail in
+              one app — with an AI receptionist that books the job and writes the summary while
+              you're busy.
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
-                className="key-call inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold transition-transform active:scale-[0.98] sm:min-h-12 sm:text-sm"
+                className="key-call inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] sm:min-h-12 sm:text-sm"
               >
-                Start free trial
+                Start free — 14 days
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/how-it-works"
-                className="key-raised inline-flex min-h-14 items-center justify-center rounded-full px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
+                className="key-raised inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
               >
+                <PlayCircle className="h-4 w-4 text-primary" />
                 See how it works
               </Link>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              Free for 14 days · Cancel any time · Keep your number
-            </p>
+            <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+              {["No card required", "Keep your number", "Cancel any time", "Live in a minute"].map(
+                (item) => (
+                  <li key={item} className="flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-success" aria-hidden />
+                    {item}
+                  </li>
+                ),
+              )}
+            </ul>
           </div>
 
-          <div className="relative">
-            <img
-              src={heroApp}
-              srcSet={heroSrcSet}
-              sizes="(min-width: 768px) 44rem, 100vw"
-              width={1280}
-              height={1024}
-              fetchPriority="high"
-              decoding="async"
-              alt="SixVox running on a phone, showing the unified inbox of calls, texts and voicemail"
-              className="aspect-[5/4] w-full rounded-[2rem] object-cover shadow-2xl"
-            />
-          </div>
+          <Reveal className="relative">
+            <LivePhoneDemo />
+          </Reveal>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-12">
           <StatBand
             stats={[
               { value: "14 days", label: "Free trial, no card required" },
@@ -221,57 +240,82 @@ function Landing() {
       </Section>
 
       <Section className="py-9 md:py-14">
-        <h2 className="font-display text-2xl font-semibold md:text-3xl">
-          One app instead of four half-solutions.
-        </h2>
-        <ul className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {REPLACES.map((item) => (
-            <li key={item} className="glass-panel rounded-3xl p-4 text-[0.85rem] sm:p-5">
-              <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <X className="h-3.5 w-3.5 text-destructive" aria-hidden />
-                Replaces
-              </span>
-              <p className="mt-2 leading-relaxed text-pretty">{item}</p>
-            </li>
-          ))}
-        </ul>
+        <Reveal>
+          <h2 className="font-display text-2xl font-semibold md:text-3xl">
+            One app instead of four half-solutions.
+          </h2>
+          <ul className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {REPLACES.map((item) => (
+              <li key={item} className="glass-panel rounded-3xl p-4 text-[0.85rem] sm:p-5">
+                <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                  <X className="h-3.5 w-3.5 text-destructive" aria-hidden />
+                  Replaces
+                </span>
+                <p className="mt-2 leading-relaxed text-pretty">{item}</p>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </Section>
 
       <Section className="py-9 md:py-14">
-        <h2 className="font-display text-2xl font-semibold md:text-3xl">Live in three steps</h2>
+        <Reveal>
+          <h2 className="font-display text-2xl font-semibold md:text-3xl">Live in three steps</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Most people are taking calls before their coffee cools.
+          </p>
+        </Reveal>
         <ol className="mt-6 grid gap-3 sm:grid-cols-3">
-          {STEPS.map((step) => (
-            <li key={step.n} className="glass-panel rounded-3xl p-5">
-              <span className="key-signal flex h-10 w-10 items-center justify-center rounded-full font-display text-sm font-semibold">
-                {step.n}
-              </span>
-              <h3 className="font-display mt-4 text-sm font-semibold">{step.title}</h3>
-              <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
-                {step.body}
-              </p>
-            </li>
+          {STEPS.map((step, stepIndex) => (
+            <Reveal key={step.n} delay={stepIndex * 90}>
+              <li className="glass-panel h-full rounded-3xl p-5 transition-transform duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="key-signal flex h-10 w-10 items-center justify-center rounded-full font-display text-sm font-semibold">
+                    {step.n}
+                  </span>
+                  <span className="text-[0.65rem] tracking-wide text-primary uppercase">
+                    {step.time}
+                  </span>
+                </div>
+                <h3 className="font-display mt-4 text-sm font-semibold">{step.title}</h3>
+                <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
+                  {step.body}
+                </p>
+              </li>
+            </Reveal>
           ))}
         </ol>
+        <Reveal delay={120}>
+          <Link
+            to="/auth"
+            search={{ mode: "signup" }}
+            className="key-call mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold sm:w-auto"
+          >
+            Take step one
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Reveal>
       </Section>
 
       <Section className="py-9 md:py-14">
-        <h2 className="font-display text-2xl font-semibold md:text-3xl">
-          Everything a business line should do.
-        </h2>
+        <Reveal>
+          <h2 className="font-display text-2xl font-semibold md:text-3xl">
+            Everything a business line should do.
+          </h2>
+        </Reveal>
         <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((feature) => (
-            <li
-              key={feature.title}
-              className="glass-panel rounded-3xl p-5 transition-colors hover:border-primary/40"
-            >
-              <span className="key-raised flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
-                <feature.icon className="h-[1.05rem] w-[1.05rem] text-primary" />
-              </span>
-              <h3 className="font-display mt-4 text-sm font-semibold">{feature.title}</h3>
-              <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
-                {feature.body}
-              </p>
-            </li>
+          {FEATURES.map((feature, featureIndex) => (
+            <Reveal key={feature.title} delay={(featureIndex % 3) * 80}>
+              <li className="glass-panel h-full rounded-3xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40">
+                <span className="key-raised flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
+                  <feature.icon className="h-[1.05rem] w-[1.05rem] text-primary" />
+                </span>
+                <h3 className="font-display mt-4 text-sm font-semibold">{feature.title}</h3>
+                <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted-foreground">
+                  {feature.body}
+                </p>
+              </li>
+            </Reveal>
           ))}
         </ul>
       </Section>
