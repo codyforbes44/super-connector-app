@@ -1,7 +1,7 @@
 {
   "packageId": "app.sixvox",
   "host": "sixvox.3bi.io",
-  "name": "SixVox",
+  "name": "SixVox — Business Calls, Texts & AI Receptionist",
   "launcherName": "SixVox",
   "display": "standalone",
   "themeColor": "#08131c",
@@ -11,8 +11,8 @@
   "startUrl": "/inbox",
   "iconUrl": "https://sixvox.3bi.io/icon-512.png",
   "maskableIconUrl": "https://sixvox.3bi.io/icon-maskable-512.png",
-  "appVersion": "1",
-  "appVersionName": "1.0.0",
+  "appVersion": "2",
+  "appVersionName": "1.0.1",
   "shortName": "SixVox",
   "fullName": "SixVox — Business Calls, Texts & AI Receptionist",
   "shortcuts": [

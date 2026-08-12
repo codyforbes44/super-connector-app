@@ -1,0 +1,87 @@
+name: PWA / TWA artifacts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/manifest.webmanifest'
+      - 'twa-manifest.json'
+      - 'scripts/sync-twa-manifest.mjs'
+      - '.github/workflows/pwa-twa.yml'
+  pull_request:
+    paths:
+      - 'public/manifest.webmanifest'
+      - 'twa-manifest.json'
+  workflow_dispatch:
+
+concurrency:
+  group: pwa-twa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync TWA manifest from web manifest
+        run: node scripts/sync-twa-manifest.mjs
+
+      - name: Commit manifest sync
+        if: github.event_name == 'push'
+        run: |
+          if [ -n "$(git status --porcelain twa-manifest.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(twa): sync twa-manifest.json [skip ci]" twa-manifest.json
+            git push
+          fi
+
+      - name: Build PWA (service worker + manifest)
+        run: npm run build
+
+      - name: Build Android App Bundle (TWA)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          npm install -g @bubblewrap/cli
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > android.keystore
+            bubblewrap updateConfig --jdkPath "$JAVA_HOME" || true
+            bubblewrap build --manifest=twa-manifest.json --skipPwaValidation \
+              --signingKeyPath=android.keystore \
+              --signingKeyAlias="$KEY_ALIAS" <<EOF
+          $KEYSTORE_PASSWORD
+          $KEY_PASSWORD
+          EOF
+          else
+            echo "No signing keystore configured — building unsigned bundle."
+            bubblewrap build --manifest=twa-manifest.json --skipPwaValidation --skipSigning || true
+          fi
+          rm -f android.keystore
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sixvox-twa
+          if-no-files-found: warn
+          path: |
+            app-release-bundle.aab
+            app-release-signed.apk
+            twa-manifest.json
