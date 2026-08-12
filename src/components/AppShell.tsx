@@ -42,6 +42,9 @@ export function useScreenFab(fab: ScreenFab) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // The in-app experience is dark-only; the public site's preference is
+  // restored when the shell unmounts.
+  useForcedDarkTheme();
   const [fab, setFab] = useState<ScreenFab | null>(null);
   const set = useCallback((next: ScreenFab | null) => setFab(next), []);
   const fabValue = useMemo(() => ({ set }), [set]);
