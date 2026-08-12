@@ -102,6 +102,30 @@ jobs:
           echo "name=$VN" >> "$GITHUB_OUTPUT"
           ls -la *.aab *.apk 2>/dev/null || true
 
+      - name: Generate versioned CHANGELOG.md
+        id: changelog
+        run: |
+          VERSION="v${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}"
+          PREV_TAG=$(git tag --list 'twa-v*' --sort=-creatordate | head -n 1)
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="$PREV_TAG..HEAD"
+          else
+            RANGE=""
+          fi
+          {
+            echo "# SixVox TWA $VERSION"
+            echo ""
+            echo "- Version name: ${{ steps.ver.outputs.name }}"
+            echo "- Version code: ${{ steps.ver.outputs.code }}"
+            echo "- Commit: ${{ github.sha }}"
+            echo "- Built: $(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo ""
+            echo "## Changes"
+            echo ""
+            git log --no-merges --pretty='- %s (%h)' $RANGE | head -n 200
+          } > CHANGELOG.md
+          cat CHANGELOG.md
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -112,23 +136,19 @@ jobs:
             app-release-bundle.aab
             app-release-signed.apk
             twa-manifest.json
+            CHANGELOG.md
 
       - name: Create GitHub Release
-        if: >
-          hashFiles('app-release-bundle.aab') != '' &&
-          (startsWith(github.ref, 'refs/tags/') ||
-           (github.event_name == 'workflow_dispatch' && inputs.release))
+        if: hashFiles('app-release-bundle.aab') != '' && github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: twa-v${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}
           name: SixVox TWA v${{ steps.ver.outputs.name }} (${{ steps.ver.outputs.code }})
-          body: |
-            Android App Bundle built from `twa-manifest.json`.
-            Version name: ${{ steps.ver.outputs.name }}
-            Version code: ${{ steps.ver.outputs.code }}
+          body_path: CHANGELOG.md
           files: |
             app-release-bundle.aab
             app-release-signed.apk
+            CHANGELOG.md
           fail_on_unmatched_files: false
 
       - name: Resolve Play track
@@ -140,7 +160,13 @@ jobs:
           if [ -z "$TRACK" ]; then TRACK="internal"; fi
           STATUS="${{ inputs.play_status }}"
           if [ -z "$STATUS" ]; then STATUS="draft"; fi
+          # Pushes to main always go to the internal testing track as a completed release.
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            TRACK="internal"
+            STATUS="completed"
+          fi
           ENABLED=true
+          [ "${{ github.event_name }}" = "pull_request" ] && ENABLED=false
           [ "$TRACK" = "none" ] && ENABLED=false
           [ -z "$SA_JSON" ] && ENABLED=false
           [ ! -f app-release-bundle.aab ] && ENABLED=false
@@ -176,3 +202,7 @@ jobs:
             echo "- Status: ${{ steps.play.outputs.status }}"
             echo "- Result: ${{ steps.playupload.outcome }}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Attach release notes to Play track
+        if: steps.play.outputs.enabled == 'true' && steps.playupload.outcome == 'success'
+        run: echo "Play release ${{ steps.ver.outputs.name }} (${{ steps.ver.outputs.code }}) sent to ${{ steps.play.outputs.track }} with status ${{ steps.play.outputs.status }}." >> "$GITHUB_STEP_SUMMARY"
