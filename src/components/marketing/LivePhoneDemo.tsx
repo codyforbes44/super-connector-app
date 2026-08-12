@@ -326,9 +326,8 @@ export function LivePhoneDemo() {
       </div>
 
       <div className="glass-panel relative overflow-hidden rounded-[2.4rem] p-2.5 shadow-2xl">
-        <div className="app-gradient relative flex h-[32rem] flex-col rounded-[1.9rem] px-4 pt-5 pb-4">
-          <div className="mx-auto mb-4 h-1.5 w-16 rounded-full bg-foreground/15" aria-hidden />
-
+        <div className="app-gradient relative flex h-[32rem] flex-col overflow-hidden rounded-[1.9rem] pt-2.5 pb-2.5">
+          <StatusBar />
           {scene === "ring" ? <RingScene scenario={scenario} /> : null}
           {scene === "answer" ? <AnswerScene scenario={scenario} turns={shownTurns} /> : null}
           {scene === "outcome" ? <OutcomeScene scenario={scenario} /> : null}
