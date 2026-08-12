@@ -10,7 +10,10 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "twa:sync": "node scripts/sync-twa-manifest.mjs",
+    "twa:check": "node scripts/sync-twa-manifest.mjs --check",
+    "twa:build": "npm run twa:sync && npm run build && bubblewrap build --manifest=twa-manifest.json --skipPwaValidation"
   },
   "dependencies": {
     "@block65/webcrypto-web-push": "^1.0.2",
