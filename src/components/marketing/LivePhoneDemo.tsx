@@ -559,27 +559,37 @@ function OutcomeScene({ scenario }: { scenario: Scenario }) {
 
 function InboxScene({ scenario }: { scenario: Scenario }) {
   return (
-    <SceneShell>
-      <p className="font-display text-base font-semibold">Inbox</p>
-      <p className="text-[0.7rem] text-muted-foreground">Everything, already written down</p>
-      <ul className="mt-3 space-y-2">
+    <div className="animate-fade-in flex min-h-0 flex-1 flex-col">
+      <PillHeader
+        title="Inbox"
+        subtitle="6 numbers · SMS, MMS & WhatsApp"
+        action={RefreshCw}
+      />
+      <div className="px-3 pb-1">
+        <div className="surface-row rounded-full px-4 py-2 text-[0.72rem] text-muted-foreground">
+          Search conversations
+        </div>
+      </div>
+      <ul className="mt-1 flex-1 divide-y divide-border/60 overflow-hidden border-t border-border/60">
         {scenario.inbox.map((row) => (
-          <li
-            key={row.title}
-            className={cn(
-              "animate-fade-in flex gap-2.5 rounded-2xl px-3 py-2.5",
-              row.accent ? "glass-panel border-primary/40" : "surface-row",
-            )}
-          >
-            <row.icon className="mt-0.5 size-4 shrink-0 text-primary" />
+          <li key={row.title} className="animate-fade-in flex items-center gap-3 px-4 py-2.5">
+            <span
+              className={cn(
+                "grid size-9 shrink-0 place-items-center rounded-full",
+                row.accent ? "key-signal" : "surface-row text-primary",
+              )}
+            >
+              <row.icon className="size-4" />
+            </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-[0.8rem] font-semibold">{row.title}</p>
-              <p className="line-clamp-2 text-[0.72rem] text-muted-foreground">{row.body}</p>
+              <p className="truncate text-[0.72rem] text-muted-foreground">{row.body}</p>
             </div>
             <span className="shrink-0 text-[0.65rem] text-muted-foreground">{row.meta}</span>
           </li>
         ))}
       </ul>
-    </SceneShell>
+      <TabPod />
+    </div>
   );
 }
