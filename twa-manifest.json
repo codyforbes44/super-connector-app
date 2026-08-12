@@ -1,0 +1,50 @@
+{
+  "packageId": "app.sixvox",
+  "host": "sixvox.3bi.io",
+  "name": "SixVox",
+  "launcherName": "SixVox",
+  "display": "standalone",
+  "themeColor": "#08131c",
+  "navigationColor": "#08131c",
+  "backgroundColor": "#08131c",
+  "enableNotifications": true,
+  "startUrl": "/inbox",
+  "iconUrl": "https://sixvox.3bi.io/icon-512.png",
+  "maskableIconUrl": "https://sixvox.3bi.io/icon-maskable-512.png",
+  "appVersion": "1",
+  "appVersionName": "1.0.0",
+  "shortName": "SixVox",
+  "fullName": "SixVox — Business Calls, Texts & AI Receptionist",
+  "shortcuts": [
+    {
+      "name": "Inbox",
+      "shortName": "Inbox",
+      "url": "/inbox",
+      "icon": "https://sixvox.3bi.io/icon-192.png"
+    },
+    {
+      "name": "Dialer",
+      "shortName": "Dialer",
+      "url": "/calls",
+      "icon": "https://sixvox.3bi.io/icon-192.png"
+    }
+  ],
+  "signing": {
+    "mode": "none"
+  },
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    },
+    "locationDelegation": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "minSdkVersion": 23,
+  "targetSdkVersion": 34,
+  "orientation": "portrait"
+}
