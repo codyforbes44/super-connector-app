@@ -57,12 +57,13 @@ export function useTheme() {
     applyTheme(initial);
 
     // If the user has not set an explicit preference, follow the system.
-    if (!stored) {
-      const mql = window.matchMedia("(prefers-color-scheme: light)");
-      const listener = (e: MediaQueryListEvent) => applyTheme(e.matches ? "light" : "dark");
-      mql.addEventListener("change", listener);
-      return () => mql.removeEventListener("change", listener);
-    }
+    const mql = window.matchMedia("(prefers-color-scheme: light)");
+    const listener = (e: MediaQueryListEvent) => {
+      if (readStoredTheme()) return;
+      applyTheme(e.matches ? "light" : "dark");
+    };
+    mql.addEventListener("change", listener);
+    return () => mql.removeEventListener("change", listener);
   }, []);
 
   const setTheme = useCallback((next: Theme) => {
