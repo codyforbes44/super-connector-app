@@ -378,7 +378,99 @@ export function LivePhoneDemo() {
 }
 
 function SceneShell({ children }: { children: React.ReactNode }) {
-  return <div className="animate-fade-in flex min-h-0 flex-1 flex-col">{children}</div>;
+  return <div className="animate-fade-in flex min-h-0 flex-1 flex-col px-3">{children}</div>;
+}
+
+/** Thin iOS-style status strip so the frame reads as the real installed app. */
+function StatusBar() {
+  return (
+    <div
+      aria-hidden
+      className="flex items-center justify-between px-5 pb-1 text-[0.6rem] font-semibold text-foreground/70"
+    >
+      <span className="flex items-center gap-1">
+        <span className="flex items-end gap-[2px]">
+          <span className="h-1 w-[3px] rounded-[1px] bg-current" />
+          <span className="h-1.5 w-[3px] rounded-[1px] bg-current" />
+          <span className="h-2 w-[3px] rounded-[1px] bg-current" />
+          <span className="h-2.5 w-[3px] rounded-[1px] bg-current opacity-40" />
+        </span>
+      </span>
+      <span>9:41</span>
+      <span className="flex items-center gap-1">
+        <span className="relative h-2.5 w-5 rounded-[3px] border border-current/70">
+          <span className="absolute inset-[1.5px] right-1/3 rounded-[1px] bg-current" />
+        </span>
+      </span>
+    </div>
+  );
+}
+
+/** Floating rounded pill header, same as every in-app screen. */
+function PillHeader({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string;
+  subtitle: string;
+  action?: LucideIcon;
+}) {
+  const Action = action;
+  return (
+    <div className="flex items-start gap-2 px-3 pt-1 pb-2">
+      <div className="glass-panel min-w-0 flex-1 rounded-[1.4rem] px-4 py-2.5">
+        <p className="font-display truncate text-[1.05rem] leading-tight font-semibold">{title}</p>
+        <p className="truncate text-[0.68rem] text-muted-foreground">{subtitle}</p>
+      </div>
+      {Action ? (
+        <span className="glass-panel grid size-11 shrink-0 place-items-center rounded-full text-foreground/80">
+          <Action className="size-4" />
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+const TABS = [
+  { icon: InboxIcon, label: "Inbox" },
+  { icon: PhoneCall, label: "Calls" },
+  { icon: Hash, label: "Numbers" },
+  { icon: Wand2, label: "Tools" },
+  { icon: Settings, label: "Settings" },
+] as const;
+
+/** Detached tab pod + primary action button, mirroring the app shell. */
+function TabPod({ active = "Inbox", fab = SquarePen }: { active?: string; fab?: LucideIcon }) {
+  const Fab = fab;
+  return (
+    <div aria-hidden className="mt-2 flex items-center gap-2 px-2.5">
+      <div className="glass-panel flex flex-1 items-center justify-between rounded-full px-2 py-1.5">
+        {TABS.map((tab) => {
+          const on = tab.label === active;
+          return (
+            <span
+              key={tab.label}
+              className="flex min-w-0 flex-1 flex-col items-center gap-0.5 text-[0.5rem]"
+            >
+              <span
+                className={cn(
+                  "grid size-7 place-items-center rounded-full",
+                  on ? "key-signal" : "text-muted-foreground",
+                )}
+              >
+                <tab.icon className="size-3.5" />
+              </span>
+              <span className={on ? "text-primary" : "text-muted-foreground"}>{tab.label}</span>
+            </span>
+          );
+        })}
+      </div>
+      <span className="key-call grid size-11 shrink-0 place-items-center rounded-full">
+        <Fab className="size-4" />
+      </span>
+    </div>
+  );
 }
 
 function RingScene({ scenario }: { scenario: Scenario }) {
