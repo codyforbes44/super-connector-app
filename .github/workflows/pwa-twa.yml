@@ -130,3 +130,49 @@ jobs:
             app-release-bundle.aab
             app-release-signed.apk
           fail_on_unmatched_files: false
+
+      - name: Resolve Play track
+        id: play
+        env:
+          SA_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          TRACK="${{ inputs.play_track }}"
+          if [ -z "$TRACK" ]; then TRACK="internal"; fi
+          STATUS="${{ inputs.play_status }}"
+          if [ -z "$STATUS" ]; then STATUS="draft"; fi
+          ENABLED=true
+          [ "$TRACK" = "none" ] && ENABLED=false
+          [ -z "$SA_JSON" ] && ENABLED=false
+          [ ! -f app-release-bundle.aab ] && ENABLED=false
+          echo "track=$TRACK" >> "$GITHUB_OUTPUT"
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "enabled=$ENABLED" >> "$GITHUB_OUTPUT"
+          if [ "$ENABLED" != "true" ]; then
+            echo "Skipping Play upload (track=$TRACK, aab present=$( [ -f app-release-bundle.aab ] && echo yes || echo no ), service account=$( [ -n "$SA_JSON" ] && echo yes || echo no ))" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload AAB to Google Play
+        if: steps.play.outputs.enabled == 'true'
+        id: playupload
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: app.sixvox
+          releaseFiles: app-release-bundle.aab
+          track: ${{ steps.play.outputs.track }}
+          status: ${{ steps.play.outputs.status }}
+          releaseName: ${{ steps.ver.outputs.name }} (${{ steps.ver.outputs.code }})
+          changesNotSentForReview: false
+
+      - name: Report Play release status
+        if: always() && steps.play.outputs.enabled == 'true'
+        run: |
+          {
+            echo "### Google Play upload"
+            echo ""
+            echo "- Package: \`app.sixvox\`"
+            echo "- Version: ${{ steps.ver.outputs.name }} (${{ steps.ver.outputs.code }})"
+            echo "- Track: ${{ steps.play.outputs.track }}"
+            echo "- Status: ${{ steps.play.outputs.status }}"
+            echo "- Result: ${{ steps.playupload.outcome }}"
+          } >> "$GITHUB_STEP_SUMMARY"
