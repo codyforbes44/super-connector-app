@@ -1,15 +1,21 @@
 import {
   Bot,
   Calendar,
+  Hash,
+  Inbox as InboxIcon,
   MessageSquare,
   Mic,
   Pause,
   PhoneCall,
   PhoneOff,
   Play,
+  RefreshCw,
+  Settings,
   ShieldBan,
   Sparkles,
+  SquarePen,
   Voicemail,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -320,9 +326,8 @@ export function LivePhoneDemo() {
       </div>
 
       <div className="glass-panel relative overflow-hidden rounded-[2.4rem] p-2.5 shadow-2xl">
-        <div className="app-gradient relative flex h-[32rem] flex-col rounded-[1.9rem] px-4 pt-5 pb-4">
-          <div className="mx-auto mb-4 h-1.5 w-16 rounded-full bg-foreground/15" aria-hidden />
-
+        <div className="app-gradient relative flex h-[32rem] flex-col overflow-hidden rounded-[1.9rem] pt-2.5 pb-2.5">
+          <StatusBar />
           {scene === "ring" ? <RingScene scenario={scenario} /> : null}
           {scene === "answer" ? <AnswerScene scenario={scenario} turns={shownTurns} /> : null}
           {scene === "outcome" ? <OutcomeScene scenario={scenario} /> : null}
@@ -373,7 +378,99 @@ export function LivePhoneDemo() {
 }
 
 function SceneShell({ children }: { children: React.ReactNode }) {
-  return <div className="animate-fade-in flex min-h-0 flex-1 flex-col">{children}</div>;
+  return <div className="animate-fade-in flex min-h-0 flex-1 flex-col px-3">{children}</div>;
+}
+
+/** Thin iOS-style status strip so the frame reads as the real installed app. */
+function StatusBar() {
+  return (
+    <div
+      aria-hidden
+      className="flex items-center justify-between px-5 pb-1 text-[0.6rem] font-semibold text-foreground/70"
+    >
+      <span className="flex items-center gap-1">
+        <span className="flex items-end gap-[2px]">
+          <span className="h-1 w-[3px] rounded-[1px] bg-current" />
+          <span className="h-1.5 w-[3px] rounded-[1px] bg-current" />
+          <span className="h-2 w-[3px] rounded-[1px] bg-current" />
+          <span className="h-2.5 w-[3px] rounded-[1px] bg-current opacity-40" />
+        </span>
+      </span>
+      <span>9:41</span>
+      <span className="flex items-center gap-1">
+        <span className="relative h-2.5 w-5 rounded-[3px] border border-current/70">
+          <span className="absolute inset-[1.5px] right-1/3 rounded-[1px] bg-current" />
+        </span>
+      </span>
+    </div>
+  );
+}
+
+/** Floating rounded pill header, same as every in-app screen. */
+function PillHeader({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string;
+  subtitle: string;
+  action?: LucideIcon;
+}) {
+  const Action = action;
+  return (
+    <div className="flex items-start gap-2 px-3 pt-1 pb-2">
+      <div className="glass-panel min-w-0 flex-1 rounded-[1.4rem] px-4 py-2.5">
+        <p className="font-display truncate text-[1.05rem] leading-tight font-semibold">{title}</p>
+        <p className="truncate text-[0.68rem] text-muted-foreground">{subtitle}</p>
+      </div>
+      {Action ? (
+        <span className="glass-panel grid size-11 shrink-0 place-items-center rounded-full text-foreground/80">
+          <Action className="size-4" />
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+const TABS = [
+  { icon: InboxIcon, label: "Inbox" },
+  { icon: PhoneCall, label: "Calls" },
+  { icon: Hash, label: "Numbers" },
+  { icon: Wand2, label: "Tools" },
+  { icon: Settings, label: "Settings" },
+] as const;
+
+/** Detached tab pod + primary action button, mirroring the app shell. */
+function TabPod({ active = "Inbox", fab = SquarePen }: { active?: string; fab?: LucideIcon }) {
+  const Fab = fab;
+  return (
+    <div aria-hidden className="mt-2 flex items-center gap-2 px-2.5">
+      <div className="glass-panel flex flex-1 items-center justify-between rounded-full px-2 py-1.5">
+        {TABS.map((tab) => {
+          const on = tab.label === active;
+          return (
+            <span
+              key={tab.label}
+              className="flex min-w-0 flex-1 flex-col items-center gap-0.5 text-[0.5rem]"
+            >
+              <span
+                className={cn(
+                  "grid size-7 place-items-center rounded-full",
+                  on ? "key-signal" : "text-muted-foreground",
+                )}
+              >
+                <tab.icon className="size-3.5" />
+              </span>
+              <span className={on ? "text-primary" : "text-muted-foreground"}>{tab.label}</span>
+            </span>
+          );
+        })}
+      </div>
+      <span className="key-call grid size-11 shrink-0 place-items-center rounded-full">
+        <Fab className="size-4" />
+      </span>
+    </div>
+  );
 }
 
 function RingScene({ scenario }: { scenario: Scenario }) {
@@ -406,7 +503,7 @@ function RingScene({ scenario }: { scenario: Scenario }) {
 function AnswerScene({ scenario, turns }: { scenario: Scenario; turns: Turn[] }) {
   return (
     <SceneShell>
-      <div className="flex items-center gap-2.5">
+      <div className="glass-panel flex items-center gap-2.5 rounded-[1.4rem] px-3 py-2.5">
         <span className="key-signal grid size-9 shrink-0 place-items-center rounded-full">
           <Bot className="size-4" />
         </span>
@@ -417,7 +514,7 @@ function AnswerScene({ scenario, turns }: { scenario: Scenario; turns: Turn[] })
         <Mic className="ml-auto size-4 shrink-0 text-primary motion-safe:animate-pulse" />
       </div>
 
-      <ul className="mt-4 flex-1 space-y-2 overflow-hidden">
+      <ul className="mt-3 flex-1 space-y-2 overflow-hidden px-1">
         {turns.map((turn, turnIndex) => (
           <li
             key={turnIndex}
@@ -462,27 +559,37 @@ function OutcomeScene({ scenario }: { scenario: Scenario }) {
 
 function InboxScene({ scenario }: { scenario: Scenario }) {
   return (
-    <SceneShell>
-      <p className="font-display text-base font-semibold">Inbox</p>
-      <p className="text-[0.7rem] text-muted-foreground">Everything, already written down</p>
-      <ul className="mt-3 space-y-2">
+    <div className="animate-fade-in flex min-h-0 flex-1 flex-col">
+      <PillHeader
+        title="Inbox"
+        subtitle="6 numbers · SMS, MMS & WhatsApp"
+        action={RefreshCw}
+      />
+      <div className="px-3 pb-1">
+        <div className="surface-row rounded-full px-4 py-2 text-[0.72rem] text-muted-foreground">
+          Search conversations
+        </div>
+      </div>
+      <ul className="mt-1 flex-1 divide-y divide-border/60 overflow-hidden border-t border-border/60">
         {scenario.inbox.map((row) => (
-          <li
-            key={row.title}
-            className={cn(
-              "animate-fade-in flex gap-2.5 rounded-2xl px-3 py-2.5",
-              row.accent ? "glass-panel border-primary/40" : "surface-row",
-            )}
-          >
-            <row.icon className="mt-0.5 size-4 shrink-0 text-primary" />
+          <li key={row.title} className="animate-fade-in flex items-center gap-3 px-4 py-2.5">
+            <span
+              className={cn(
+                "grid size-9 shrink-0 place-items-center rounded-full",
+                row.accent ? "key-signal" : "surface-row text-primary",
+              )}
+            >
+              <row.icon className="size-4" />
+            </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-[0.8rem] font-semibold">{row.title}</p>
-              <p className="line-clamp-2 text-[0.72rem] text-muted-foreground">{row.body}</p>
+              <p className="truncate text-[0.72rem] text-muted-foreground">{row.body}</p>
             </div>
             <span className="shrink-0 text-[0.65rem] text-muted-foreground">{row.meta}</span>
           </li>
         ))}
       </ul>
-    </SceneShell>
+      <TabPod />
+    </div>
   );
 }
