@@ -113,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Run your business number, inbox, calls and AI receptionist from one mobile app built for teams.",
       },
       { name: "theme-color", content: "#08131c" },
-      { name: "color-scheme", content: "dark" },
+      { name: "color-scheme", content: "dark light" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
