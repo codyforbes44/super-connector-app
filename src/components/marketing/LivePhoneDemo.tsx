@@ -1,15 +1,21 @@
 import {
   Bot,
   Calendar,
+  Hash,
+  Inbox as InboxIcon,
   MessageSquare,
   Mic,
   Pause,
   PhoneCall,
   PhoneOff,
   Play,
+  RefreshCw,
+  Settings,
   ShieldBan,
   Sparkles,
+  SquarePen,
   Voicemail,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
