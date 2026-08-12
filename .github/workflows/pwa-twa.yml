@@ -18,6 +18,16 @@ on:
         description: 'Create a GitHub Release with the AAB'
         type: boolean
         default: false
+      play_track:
+        description: 'Google Play track to upload to'
+        type: choice
+        default: internal
+        options: [none, internal, alpha, beta, production]
+      play_status:
+        description: 'Release status on that track'
+        type: choice
+        default: draft
+        options: [draft, inProgress, halted, completed]
 
 concurrency:
   group: pwa-twa-${{ github.ref }}
