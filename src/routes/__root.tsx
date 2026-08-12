@@ -10,6 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerAppServiceWorker } from "@/lib/service-worker";
 import { Toaster } from "@/components/ui/sonner";
@@ -112,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Run your business number, inbox, calls and AI receptionist from one mobile app built for teams.",
       },
       { name: "theme-color", content: "#08131c" },
-      { name: "color-scheme", content: "dark" },
+      { name: "color-scheme", content: "dark light" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
@@ -154,9 +155,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
       </head>
       <body>
         {children}
