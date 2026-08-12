@@ -503,7 +503,7 @@ function RingScene({ scenario }: { scenario: Scenario }) {
 function AnswerScene({ scenario, turns }: { scenario: Scenario; turns: Turn[] }) {
   return (
     <SceneShell>
-      <div className="flex items-center gap-2.5">
+      <div className="glass-panel flex items-center gap-2.5 rounded-[1.4rem] px-3 py-2.5">
         <span className="key-signal grid size-9 shrink-0 place-items-center rounded-full">
           <Bot className="size-4" />
         </span>
@@ -514,7 +514,7 @@ function AnswerScene({ scenario, turns }: { scenario: Scenario; turns: Turn[] })
         <Mic className="ml-auto size-4 shrink-0 text-primary motion-safe:animate-pulse" />
       </div>
 
-      <ul className="mt-4 flex-1 space-y-2 overflow-hidden">
+      <ul className="mt-3 flex-1 space-y-2 overflow-hidden px-1">
         {turns.map((turn, turnIndex) => (
           <li
             key={turnIndex}
