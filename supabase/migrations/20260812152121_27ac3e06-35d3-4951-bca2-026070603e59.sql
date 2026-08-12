@@ -1,0 +1,1 @@
+DELETE FROM public.phone_numbers WHERE phone_number IN ('+18336641238', '+18888841091');
