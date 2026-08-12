@@ -18,7 +18,6 @@ export function applyTheme(theme: Theme) {
   const root = document.documentElement;
   root.classList.toggle("dark", theme === "dark");
   root.classList.toggle("light", theme === "light");
-  root.style.colorScheme = theme;
   document
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute("content", THEME_COLOR[theme]);
@@ -36,7 +35,7 @@ export function readStoredTheme(): Theme | null {
 /** Inlined in the document head so the first paint already has the right theme. */
 export const THEME_BOOTSTRAP_SCRIPT = `(function(){try{var t=localStorage.getItem(${JSON.stringify(
   THEME_STORAGE_KEY,
-)});if(t!=="light"&&t!=="dark"){t="dark";}var r=document.documentElement;r.classList.toggle("dark",t==="dark");r.classList.toggle("light",t==="light");r.style.colorScheme=t;}catch(e){}})();`;
+)});if(t!=="light"&&t!=="dark"){t="dark";}var r=document.documentElement;r.classList.toggle("dark",t==="dark");r.classList.toggle("light",t==="light");}catch(e){}})();`;
 
 /** Theme state for the public site. Reads the class the bootstrap script set. */
 export function useTheme() {
