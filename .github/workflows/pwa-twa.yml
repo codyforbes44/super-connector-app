@@ -13,6 +13,11 @@ on:
       - 'public/manifest.webmanifest'
       - 'twa-manifest.json'
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Create a GitHub Release with the AAB'
+        type: boolean
+        default: false
 
 concurrency:
   group: pwa-twa-${{ github.ref }}
@@ -21,6 +26,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -76,12 +83,40 @@ jobs:
           fi
           rm -f android.keystore
 
+      - name: Read app version
+        id: ver
+        run: |
+          VC=$(node -p "require('./twa-manifest.json').appVersionCode || 1")
+          VN=$(node -p "require('./twa-manifest.json').appVersionName || '1.0.0'")
+          echo "code=$VC" >> "$GITHUB_OUTPUT"
+          echo "name=$VN" >> "$GITHUB_OUTPUT"
+          ls -la *.aab *.apk 2>/dev/null || true
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sixvox-twa
+          name: sixvox-twa-v${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}
           if-no-files-found: warn
+          retention-days: 30
           path: |
             app-release-bundle.aab
             app-release-signed.apk
             twa-manifest.json
+
+      - name: Create GitHub Release
+        if: >
+          hashFiles('app-release-bundle.aab') != '' &&
+          (startsWith(github.ref, 'refs/tags/') ||
+           (github.event_name == 'workflow_dispatch' && inputs.release))
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: twa-v${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}
+          name: SixVox TWA v${{ steps.ver.outputs.name }} (${{ steps.ver.outputs.code }})
+          body: |
+            Android App Bundle built from `twa-manifest.json`.
+            Version name: ${{ steps.ver.outputs.name }}
+            Version code: ${{ steps.ver.outputs.code }}
+          files: |
+            app-release-bundle.aab
+            app-release-signed.apk
+          fail_on_unmatched_files: false
