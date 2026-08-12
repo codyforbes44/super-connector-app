@@ -6,6 +6,7 @@ import logoMark from "@/assets/sixvox-logo.png";
 import { cn } from "@/lib/utils";
 import { AccountActions } from "@/components/AccountMenu";
 import { useSession } from "@/hooks/useSession";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV = [
   { to: "/features", label: "Features" },
@@ -151,6 +152,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <AccountActions />
             <button
               type="button"

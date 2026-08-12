@@ -13,6 +13,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { TrialBanner } from "@/components/TrialBanner";
+import { useForcedDarkTheme } from "@/lib/theme";
 
 const TABS = [
   { to: "/inbox", label: "Inbox", icon: Inbox },
