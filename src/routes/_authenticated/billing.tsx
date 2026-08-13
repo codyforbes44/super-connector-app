@@ -130,8 +130,7 @@ function BillingScreen() {
             <div>
               <p className="text-sm font-semibold">We couldn&apos;t take your last payment</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Your workspace keeps working while we retry. Update your card to avoid
-                interruption.
+                Your workspace keeps working while we retry. Update your card to avoid interruption.
               </p>
             </div>
           </div>
@@ -153,7 +152,8 @@ function BillingScreen() {
               </span>
               <div className="min-w-0">
                 <p className="font-display text-sm font-semibold">
-                  {plan?.name ?? "SixVox"} · {subscription.comped ? "Complimentary" : subscription.status}
+                  {plan?.name ?? "SixVox"} ·{" "}
+                  {subscription.comped ? "Complimentary" : subscription.status}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {trialDaysLeft !== null
@@ -163,10 +163,10 @@ function BillingScreen() {
                           : ""
                       }${currentAmount ? ` (${currentAmount})` : ""}`
                     : subscription.current_period_end
-                    ? `${subscription.cancel_at_period_end ? "Ends" : "Renews"} ${new Date(
-                        subscription.current_period_end,
-                      ).toLocaleDateString()}${currentAmount ? ` · ${currentAmount}` : ""}`
-                    : "No renewal date on file"}
+                      ? `${subscription.cancel_at_period_end ? "Ends" : "Renews"} ${new Date(
+                          subscription.current_period_end,
+                        ).toLocaleDateString()}${currentAmount ? ` · ${currentAmount}` : ""}`
+                      : "No renewal date on file"}
                 </p>
               </div>
             </div>
@@ -270,8 +270,7 @@ function BillingScreen() {
                   {plan?.code === item.code && isActive ? "Change billing" : `Choose ${item.name}`}
                 </Button>
                 <p className="mt-2 text-center text-[0.7rem] text-muted-foreground">
-                  {TRIAL_DAYS} days free, then $
-                  {interval === "month" ? item.monthly : item.yearly}/
+                  {TRIAL_DAYS} days free, then ${interval === "month" ? item.monthly : item.yearly}/
                   {interval === "month" ? "mo" : "yr"}
                 </p>
               </div>

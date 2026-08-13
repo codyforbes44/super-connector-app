@@ -15,13 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader, useScreenFab } from "@/components/AppShell";
-import {
-  Empty,
-  ErrorState,
-  ListGroup,
-  ListSkeleton,
-  Screen,
-} from "@/components/screen";
+import { Empty, ErrorState, ListGroup, ListSkeleton, Screen } from "@/components/screen";
 import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallSummaryCard } from "@/components/intelligence/CallSummaryCard";
 import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
@@ -299,130 +293,132 @@ function CallsScreen() {
       <CallFilters value={filters} onChange={setFilters} />
 
       <Screen onRefresh={sync}>
-      <CallReadiness />
+        <CallReadiness />
 
-      {ringHint && voice.callState === "idle" ? (
-        <p className="mb-3 rounded-2xl border border-border bg-card px-3.5 py-2.5 text-xs text-muted-foreground">
-          Connecting the incoming call to this device…
-        </p>
-      ) : null}
+        {ringHint && voice.callState === "idle" ? (
+          <p className="mb-3 rounded-2xl border border-border bg-card px-3.5 py-2.5 text-xs text-muted-foreground">
+            Connecting the incoming call to this device…
+          </p>
+        ) : null}
 
-      {audio ? (
-        <div className="mb-3 rounded-2xl border border-border bg-card p-3">
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-          <audio className="w-full" controls autoPlay src={audio} />
-        </div>
-      ) : null}
+        {audio ? (
+          <div className="mb-3 rounded-2xl border border-border bg-card p-3">
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <audio className="w-full" controls autoPlay src={audio} />
+          </div>
+        ) : null}
 
-      {calls.isLoading ? (
-        <ListSkeleton rows={6} />
-      ) : calls.isError ? (
-        <ErrorState
-          title="Couldn't load your calls"
-          description={errorMessage(calls.error)}
-          onRetry={() => void calls.refetch()}
-        />
-      ) : (calls.data ?? []).length === 0 ? (
-        <Empty
-          icon={
-            filters.q ||
-            filters.direction !== "all" ||
-            filters.range !== "all" ||
-            filters.device !== "all"
-              ? Filter
-              : PhoneCall
-          }
-          title={
-            filters.q ||
-            filters.direction !== "all" ||
-            filters.range !== "all" ||
-            filters.device !== "all"
-              ? "No matching calls"
-              : "No calls yet"
-          }
-          description="Place a call, adjust your filters, or pull your recent call history into the app."
-          action={
-            <Button variant="secondary" onClick={sync} disabled={syncing}>
-              Sync call history
-            </Button>
-          }
-        />
-      ) : (
-        <ListGroup className="min-w-0">
-          {(calls.data ?? []).map((call) => {
-            const inbound = call.direction === "inbound";
-            const other = inbound ? call.from_number : call.to_number;
-            const redialTo = otherParty(call);
-            const missed = ["no-answer", "failed", "busy", "canceled"].includes(call.status ?? "");
-            return (
-              <div
-                key={call.id}
-                className="flex min-h-[4.5rem] min-w-0 items-center gap-2.5 px-4 py-3 sm:gap-3"
-              >
-                <button
-                  type="button"
-                  onClick={() => setDetail(call)}
-                  className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
+        {calls.isLoading ? (
+          <ListSkeleton rows={6} />
+        ) : calls.isError ? (
+          <ErrorState
+            title="Couldn't load your calls"
+            description={errorMessage(calls.error)}
+            onRetry={() => void calls.refetch()}
+          />
+        ) : (calls.data ?? []).length === 0 ? (
+          <Empty
+            icon={
+              filters.q ||
+              filters.direction !== "all" ||
+              filters.range !== "all" ||
+              filters.device !== "all"
+                ? Filter
+                : PhoneCall
+            }
+            title={
+              filters.q ||
+              filters.direction !== "all" ||
+              filters.range !== "all" ||
+              filters.device !== "all"
+                ? "No matching calls"
+                : "No calls yet"
+            }
+            description="Place a call, adjust your filters, or pull your recent call history into the app."
+            action={
+              <Button variant="secondary" onClick={sync} disabled={syncing}>
+                Sync call history
+              </Button>
+            }
+          />
+        ) : (
+          <ListGroup className="min-w-0">
+            {(calls.data ?? []).map((call) => {
+              const inbound = call.direction === "inbound";
+              const other = inbound ? call.from_number : call.to_number;
+              const redialTo = otherParty(call);
+              const missed = ["no-answer", "failed", "busy", "canceled"].includes(
+                call.status ?? "",
+              );
+              return (
+                <div
+                  key={call.id}
+                  className="flex min-h-[4.5rem] min-w-0 items-center gap-2.5 px-4 py-3 sm:gap-3"
                 >
-                  <span
-                    className={cn(
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
-                      missed
-                        ? "bg-destructive/15 text-destructive"
-                        : inbound
-                          ? "bg-success/15 text-success"
-                          : "bg-primary/15 text-primary",
-                    )}
+                  <button
+                    type="button"
+                    onClick={() => setDetail(call)}
+                    className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
                   >
-                    {inbound ? (
-                      <ArrowDownLeft className="h-4 w-4" />
-                    ) : (
-                      <ArrowUpRight className="h-4 w-4" />
-                    )}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="flex min-w-0 items-center gap-1.5 text-[0.95rem] font-medium">
-                      <span className="truncate">{formatPhone(other)}</span>
-                      {call.answered_in_app ? (
-                        <Smartphone
-                          className="h-3 w-3 shrink-0 text-primary"
-                          aria-label="Answered in app"
-                        />
-                      ) : null}
-                      <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
-                        {relativeTime(call.started_at)}
-                      </span>
-                    </p>
-                    <p className="truncate text-[0.78rem] text-muted-foreground">
-                      <span className={cn(missed && "text-destructive")}>{callStory(call)}</span>
-                      {call.duration ? (
-                        <span className="tabular"> · {duration(call.duration)}</span>
-                      ) : null}
-                    </p>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => playVoicemail(call.sid)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
-                >
-                  <Play className="h-4 w-4" />
-                  <span className="sr-only">Play voicemail</span>
-                </button>
-                <button
-                  type="button"
-                  disabled={!redialTo}
-                  onClick={() => void callBack(call)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
-                >
-                  <PhoneCall className="h-4 w-4" />
-                  <span className="sr-only">Call back {redialTo || "unavailable"}</span>
-                </button>
-              </div>
-            );
-          })}
-        </ListGroup>
-      )}
+                    <span
+                      className={cn(
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+                        missed
+                          ? "bg-destructive/15 text-destructive"
+                          : inbound
+                            ? "bg-success/15 text-success"
+                            : "bg-primary/15 text-primary",
+                      )}
+                    >
+                      {inbound ? (
+                        <ArrowDownLeft className="h-4 w-4" />
+                      ) : (
+                        <ArrowUpRight className="h-4 w-4" />
+                      )}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="flex min-w-0 items-center gap-1.5 text-[0.95rem] font-medium">
+                        <span className="truncate">{formatPhone(other)}</span>
+                        {call.answered_in_app ? (
+                          <Smartphone
+                            className="h-3 w-3 shrink-0 text-primary"
+                            aria-label="Answered in app"
+                          />
+                        ) : null}
+                        <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
+                          {relativeTime(call.started_at)}
+                        </span>
+                      </p>
+                      <p className="truncate text-[0.78rem] text-muted-foreground">
+                        <span className={cn(missed && "text-destructive")}>{callStory(call)}</span>
+                        {call.duration ? (
+                          <span className="tabular"> · {duration(call.duration)}</span>
+                        ) : null}
+                      </p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => playVoicemail(call.sid)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
+                  >
+                    <Play className="h-4 w-4" />
+                    <span className="sr-only">Play voicemail</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!redialTo}
+                    onClick={() => void callBack(call)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
+                  >
+                    <PhoneCall className="h-4 w-4" />
+                    <span className="sr-only">Call back {redialTo || "unavailable"}</span>
+                  </button>
+                </div>
+              );
+            })}
+          </ListGroup>
+        )}
       </Screen>
 
       <Sheet open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>

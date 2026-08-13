@@ -129,9 +129,7 @@ function ReceptionistPage() {
           {active ? (
             <>
               <SheetHeader className="px-0">
-                <SheetTitle className="font-display">
-                  {formatPhone(active.phone_number)}
-                </SheetTitle>
+                <SheetTitle className="font-display">{formatPhone(active.phone_number)}</SheetTitle>
               </SheetHeader>
               <div className="pb-[env(safe-area-inset-bottom)]">
                 <AnswerModeCard number={active} canEdit={isAdmin} onChanged={refresh} />

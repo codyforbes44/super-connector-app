@@ -64,9 +64,7 @@ function SubscribersScreen() {
           className="h-11 rounded-xl"
         />
 
-        {query.isLoading ? (
-          <ListSkeleton rows={4} />
-        ) : null}
+        {query.isLoading ? <ListSkeleton rows={4} /> : null}
 
         {query.isError ? (
           <ErrorState
@@ -77,13 +75,20 @@ function SubscribersScreen() {
         ) : null}
 
         {!query.isLoading && !query.isError && rows.length === 0 ? (
-          <Empty icon={ShieldCheck} title="No accounts yet" description="New signups appear here." />
+          <Empty
+            icon={ShieldCheck}
+            title="No accounts yet"
+            description="New signups appear here."
+          />
         ) : null}
 
         {rows.map((row) => {
-          const sub = row.subscription as
-            | { plan_code: string | null; status: string; comped: boolean; suspended: boolean }
-            | null;
+          const sub = row.subscription as {
+            plan_code: string | null;
+            status: string;
+            comped: boolean;
+            suspended: boolean;
+          } | null;
           const plan = planByCode(sub?.plan_code);
           return (
             <div key={row.id} className="rounded-2xl border border-border bg-card p-4">

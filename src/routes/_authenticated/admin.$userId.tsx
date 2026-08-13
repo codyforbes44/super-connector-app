@@ -102,144 +102,148 @@ function MemberAccount() {
       />
 
       <Screen onRefresh={refresh}>
-      {team.isError || forwarding.isError ? (
-        <ErrorState
-          title="Couldn't load this member"
-          description={errorMessage(team.error ?? forwarding.error)}
-          onRetry={() => {
-            void team.refetch();
-            void forwarding.refetch();
-          }}
-        />
-      ) : null}
+        {team.isError || forwarding.isError ? (
+          <ErrorState
+            title="Couldn't load this member"
+            description={errorMessage(team.error ?? forwarding.error)}
+            onRetry={() => {
+              void team.refetch();
+              void forwarding.refetch();
+            }}
+          />
+        ) : null}
 
-      <Section title="Their line" className="space-y-3">
-        {team.isLoading ? (
-          <ListSkeleton rows={2} />
-        ) : theirNumbers.length ? (
-          <ul className="space-y-2">
-            {theirNumbers.map((n) => (
-              <li key={n.sid} className="rounded-2xl border border-border bg-card px-4 py-3">
-                <p className="tabular text-sm font-semibold">{formatPhone(n.phone_number)}</p>
-                <p className="text-[0.7rem] text-muted-foreground">
-                  {n.friendly_name || "No label"} ·{" "}
-                  {n.outbound_caller_id
-                    ? `calls out as ${formatPhone(n.outbound_caller_id)}`
-                    : "calls out as itself"}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-xs text-muted-foreground">No line assigned yet.</p>
-        )}
-
-        <div className="space-y-1.5">
-          <Label>Assign a spare line</Label>
-          <Select value={assigning} onValueChange={setAssigning}>
-            <SelectTrigger className="h-11 w-full rounded-xl px-4">
-              <SelectValue placeholder={spare.length ? "Pick a line" : "No spare lines"} />
-            </SelectTrigger>
-            <SelectContent>
-              {spare.map((n) => (
-                <SelectItem key={n.sid} value={n.sid}>
-                  {formatPhone(n.phone_number)}
-                </SelectItem>
+        <Section title="Their line" className="space-y-3">
+          {team.isLoading ? (
+            <ListSkeleton rows={2} />
+          ) : theirNumbers.length ? (
+            <ul className="space-y-2">
+              {theirNumbers.map((n) => (
+                <li key={n.sid} className="rounded-2xl border border-border bg-card px-4 py-3">
+                  <p className="tabular text-sm font-semibold">{formatPhone(n.phone_number)}</p>
+                  <p className="text-[0.7rem] text-muted-foreground">
+                    {n.friendly_name || "No label"} ·{" "}
+                    {n.outbound_caller_id
+                      ? `calls out as ${formatPhone(n.outbound_caller_id)}`
+                      : "calls out as itself"}
+                  </p>
+                </li>
               ))}
-            </SelectContent>
-          </Select>
-          <Button
-            className="key-signal h-11 w-full rounded-xl font-semibold"
-            disabled={!assigning || assign.isPending}
-            onClick={() => assign.mutate(assigning)}
-          >
-            Assign line
-          </Button>
-          <Link
-            to="/numbers"
-            className="block text-center text-[0.7rem] text-muted-foreground underline-offset-4 hover:underline"
-          >
-            Need a new one? Find and claim a number
-          </Link>
-        </div>
-      </Section>
+            </ul>
+          ) : (
+            <p className="text-xs text-muted-foreground">No line assigned yet.</p>
+          )}
 
-      {theirNumbers.length ? (
-        <Section title="How their calls are answered" className="space-y-3">
-          {theirNumbers.map((n) => (
-            <div key={n.sid} className="space-y-3 rounded-2xl border border-border bg-card p-4">
-              <p className="tabular text-xs font-semibold text-muted-foreground">
-                {formatPhone(n.phone_number)}
-              </p>
-              <AnswerModeCard number={n} canEdit onChanged={refresh} />
-            </div>
-          ))}
-        </Section>
-      ) : null}
-
-      <Section title="Their own number" className="space-y-3">
-        {fwd ? (
-          <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center gap-2">
-              <p className="tabular flex-1 text-sm font-semibold">
-                {formatPhone(fwd.personal_number)}
-              </p>
-              <Badge variant={fwd.status === "verified" ? "secondary" : "outline"}>
-                {fwd.status}
-              </Badge>
-            </div>
-            <p className="text-[0.7rem] text-muted-foreground">
-              {FORWARD_MODE_LABEL[(fwd.forward_mode === "all" ? "all" : "conditional") as ForwardMode]}{" "}
-              · {carrierById(fwd.carrier).name} · forwards to{" "}
-              {fwd.assigned_number ? formatPhone(fwd.assigned_number) : "no line yet"}
-            </p>
-            {fwd.last_forwarded_call_at ? (
-              <p className="text-[0.7rem] text-muted-foreground">
-                Last forwarded call {new Date(fwd.last_forwarded_call_at).toLocaleString()}
-              </p>
-            ) : null}
+          <div className="space-y-1.5">
+            <Label>Assign a spare line</Label>
+            <Select value={assigning} onValueChange={setAssigning}>
+              <SelectTrigger className="h-11 w-full rounded-xl px-4">
+                <SelectValue placeholder={spare.length ? "Pick a line" : "No spare lines"} />
+              </SelectTrigger>
+              <SelectContent>
+                {spare.map((n) => (
+                  <SelectItem key={n.sid} value={n.sid}>
+                    {formatPhone(n.phone_number)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button
-              variant="secondary"
-              className="h-10 w-full rounded-xl"
-              onClick={async () => {
-                try {
-                  await setForwardingStatus({
-                    data: {
-                      targetUserId: userId,
-                      status: fwd.status === "verified" ? "pending" : "verified",
-                    },
-                  });
-                  await refresh();
-                  toast.success("Forwarding status updated.");
-                } catch (error) {
-                  toast.error(errorMessage(error));
-                }
-              }}
+              className="key-signal h-11 w-full rounded-xl font-semibold"
+              disabled={!assigning || assign.isPending}
+              onClick={() => assign.mutate(assigning)}
             >
-              <CheckCircle2 className="mr-2 size-4" />
-              {fwd.status === "verified" ? "Mark as not working" : "Mark forwarding as working"}
+              Assign line
             </Button>
+            <Link
+              to="/numbers"
+              className="block text-center text-[0.7rem] text-muted-foreground underline-offset-4 hover:underline"
+            >
+              Need a new one? Find and claim a number
+            </Link>
           </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            This member hasn&apos;t set up call forwarding from their own phone.
-          </p>
-        )}
-      </Section>
+        </Section>
 
-      <Section>
-        <Link
-          to="/subscribers"
-          className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
-        >
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Plan, seats and access</p>
-            <p className="text-[0.7rem] text-muted-foreground">
-              Change plan, comp, suspend or set their role
+        {theirNumbers.length ? (
+          <Section title="How their calls are answered" className="space-y-3">
+            {theirNumbers.map((n) => (
+              <div key={n.sid} className="space-y-3 rounded-2xl border border-border bg-card p-4">
+                <p className="tabular text-xs font-semibold text-muted-foreground">
+                  {formatPhone(n.phone_number)}
+                </p>
+                <AnswerModeCard number={n} canEdit onChanged={refresh} />
+              </div>
+            ))}
+          </Section>
+        ) : null}
+
+        <Section title="Their own number" className="space-y-3">
+          {fwd ? (
+            <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-center gap-2">
+                <p className="tabular flex-1 text-sm font-semibold">
+                  {formatPhone(fwd.personal_number)}
+                </p>
+                <Badge variant={fwd.status === "verified" ? "secondary" : "outline"}>
+                  {fwd.status}
+                </Badge>
+              </div>
+              <p className="text-[0.7rem] text-muted-foreground">
+                {
+                  FORWARD_MODE_LABEL[
+                    (fwd.forward_mode === "all" ? "all" : "conditional") as ForwardMode
+                  ]
+                }{" "}
+                · {carrierById(fwd.carrier).name} · forwards to{" "}
+                {fwd.assigned_number ? formatPhone(fwd.assigned_number) : "no line yet"}
+              </p>
+              {fwd.last_forwarded_call_at ? (
+                <p className="text-[0.7rem] text-muted-foreground">
+                  Last forwarded call {new Date(fwd.last_forwarded_call_at).toLocaleString()}
+                </p>
+              ) : null}
+              <Button
+                variant="secondary"
+                className="h-10 w-full rounded-xl"
+                onClick={async () => {
+                  try {
+                    await setForwardingStatus({
+                      data: {
+                        targetUserId: userId,
+                        status: fwd.status === "verified" ? "pending" : "verified",
+                      },
+                    });
+                    await refresh();
+                    toast.success("Forwarding status updated.");
+                  } catch (error) {
+                    toast.error(errorMessage(error));
+                  }
+                }}
+              >
+                <CheckCircle2 className="mr-2 size-4" />
+                {fwd.status === "verified" ? "Mark as not working" : "Mark forwarding as working"}
+              </Button>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              This member hasn&apos;t set up call forwarding from their own phone.
             </p>
-          </div>
-        </Link>
-      </Section>
+          )}
+        </Section>
+
+        <Section>
+          <Link
+            to="/subscribers"
+            className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
+          >
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Plan, seats and access</p>
+              <p className="text-[0.7rem] text-muted-foreground">
+                Change plan, comp, suspend or set their role
+              </p>
+            </div>
+          </Link>
+        </Section>
       </Screen>
     </div>
   );
