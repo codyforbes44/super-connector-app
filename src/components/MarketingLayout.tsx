@@ -284,6 +284,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             title="Product"
             links={[
               { to: "/features", label: "Features" },
+              { to: "/use-cases", label: "Use Cases" },
               { to: "/how-it-works", label: "How it works" },
               { to: "/pricing", label: "Pricing" },
             ]}
