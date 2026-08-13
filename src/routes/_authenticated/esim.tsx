@@ -13,7 +13,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { ScreenHeader } from "@/components/AppShell";
+import { AsyncList, Empty, ListGroup, Screen, Section } from "@/components/screen";
 import { EsimCheckout } from "@/components/esim/EsimCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Badge } from "@/components/ui/badge";
@@ -106,11 +107,15 @@ function EsimScreen() {
             (p.countryCode ?? "").toLowerCase().includes(q),
         )
       : packages;
-    return list.slice(0, 60);
+    return list;
   }, [packages, query]);
 
   const mine = (orders.data ?? []) as unknown as Order[];
   const openOrder = mine.find((o) => o.id === detail) ?? null;
+
+  const refresh = async () => {
+    await Promise.all([catalogue.refetch(), orders.refetch()]);
+  };
 
   return (
     <div className="pb-6">
@@ -134,27 +139,25 @@ function EsimScreen() {
 
       <PaymentTestModeBanner />
 
+      <Screen className="px-3 sm:px-3" onRefresh={refresh}>
       {finalize.isPending ? (
-        <p className="glass-panel mx-3 mt-3 flex items-center gap-2 rounded-2xl px-3.5 py-3 text-xs">
+        <p className="mt-3 flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-3 text-xs">
           <Loader2 className="h-4 w-4 animate-spin text-primary" />
           Confirming your payment and preparing the eSIM…
         </p>
       ) : null}
 
       {mine.length > 0 ? (
-        <section className="space-y-2 px-3 pt-3">
-          <h2 className="px-1 text-[0.7rem] font-semibold tracking-wide text-muted-foreground uppercase">
-            Your data plans
-          </h2>
+        <Section title="Your data plans">
           <ul className="space-y-2">
             {mine.map((order) => (
               <li key={order.id}>
                 <button
                   type="button"
                   onClick={() => setDetail(order.id)}
-                  className="glass-panel flex w-full items-center gap-3 rounded-3xl px-4 py-3 text-left"
+                  className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-left"
                 >
-                  <span className="key-raised grid size-10 shrink-0 place-items-center rounded-full">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15">
                     <Signal className="size-4 text-primary" />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -175,16 +178,12 @@ function EsimScreen() {
               </li>
             ))}
           </ul>
-        </section>
+        </Section>
       ) : null}
 
-      <section className="space-y-3 px-3 pt-4">
-        <h2 className="px-1 text-[0.7rem] font-semibold tracking-wide text-muted-foreground uppercase">
-          Data plans
-        </h2>
-
+      <Section title="Data plans" className="space-y-3">
         {!catalogue.data?.configured ? (
-          <div className="glass-panel rounded-3xl p-4 text-xs text-muted-foreground">
+          <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
             <p className="text-sm font-semibold text-foreground">Data plans aren&apos;t live yet</p>
             <p className="mt-1">
               Everything is built and waiting — plan browsing, card payment and instant delivery of
@@ -204,24 +203,28 @@ function EsimScreen() {
             {catalogue.data.error ? (
               <p className="text-xs text-destructive">{catalogue.data.error}</p>
             ) : null}
-            {catalogue.isLoading ? (
-              <p className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Loading destinations…
-              </p>
-            ) : filtered.length === 0 ? (
-              <EmptyState
-                icon={Globe2}
-                title="No plans match"
-                description="Try a different country, region or 'global'."
-              />
-            ) : (
-              <ul className="space-y-2">
-                {filtered.map((pkg) => (
+            <AsyncList
+              query={catalogue}
+              items={filtered}
+              skeletonRows={6}
+              className="mt-2"
+              errorTitle="Couldn't load data plans"
+              empty={
+                <Empty
+                  icon={Globe2}
+                  title="No plans match"
+                  description="Try a different country, region or 'global'."
+                />
+              }
+            >
+              {(page) => (
+                <ul className="space-y-2">
+                  {page.map((pkg) => (
                   <li
                     key={pkg.id}
-                    className="glass-panel flex items-center gap-3 rounded-3xl px-4 py-3"
+                    className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
                   >
-                    <span className="key-raised grid size-10 shrink-0 place-items-center rounded-full">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15">
                       <Wifi className="size-4 text-primary" />
                     </span>
                     <span className="min-w-0 flex-1">
@@ -232,19 +235,21 @@ function EsimScreen() {
                     </span>
                     <Button
                       size="sm"
-                      className="key-signal h-10 shrink-0 rounded-xl px-4 font-semibold"
+                      className="h-10 shrink-0 rounded-xl px-4 font-semibold"
                       disabled={!paymentsConfigured()}
                       onClick={() => setBuying(pkg.id)}
                     >
                       {money(pkg.priceCents)}
                     </Button>
                   </li>
-                ))}
-              </ul>
-            )}
+                  ))}
+                </ul>
+              )}
+            </AsyncList>
           </>
         )}
-      </section>
+      </Section>
+      </Screen>
 
       {buying ? (
         <Sheet open onOpenChange={(v) => !v && setBuying(null)}>
