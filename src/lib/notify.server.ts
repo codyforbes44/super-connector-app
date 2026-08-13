@@ -131,12 +131,14 @@ export async function notifyNumber(
       );
       if (digestUserIds.length) {
         const { queueDigestEvent } = await import("./digest.server");
+        const prefKey = opts.email.prefKey;
+        const kind = prefKey === "email_inbound_message" ? "message" : prefKey.replace("email_", "");
         for (const userId of digestUserIds) {
-          await queueDigestEvent(admin, userId, opts.email.prefKey.replace("email_", ""), {
+          await queueDigestEvent(admin, userId, kind, {
             appNumber,
             at: new Date().toUTCString(),
             ...(opts.email.context ?? {}),
-            ...(opts.push ? { from: opts.push.body, preview: opts.push.body } : {}),
+            ...(opts.push ? { from: opts.push.title, preview: opts.push.body } : {}),
           });
         }
       }
