@@ -116,9 +116,16 @@ const FEATURES = [
   },
 ];
 
+const CHANNELS = [
+  { icon: PhoneCall, label: "Calls" },
+  { icon: MessageSquare, label: "SMS" },
+  { icon: ImageIcon, label: "MMS" },
+  { icon: MessageCircle, label: "WhatsApp" },
+  { icon: Voicemail, label: "Voicemail" },
+  { icon: Bot, label: "AI receptionist" },
+] as const;
+
 const STEPS = [
-  {
-    n: "1",
   {
     n: "1",
     title: "Create your account",
