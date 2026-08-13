@@ -297,82 +297,102 @@ export function LivePhoneDemo() {
         className="pointer-events-none absolute -inset-8 -z-10 rounded-full bg-primary/20 blur-3xl"
       />
 
-      {/* Scenario picker */}
-      <div
-        role="tablist"
-        aria-label="Choose a call scenario"
-        className="glass-panel mb-3 flex items-center gap-1 rounded-full p-1"
-      >
-        {SCENARIOS.map((item) => {
-          const active = item.id === scenario.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => pickScenario(item.id)}
-              className={cn(
-                "flex min-h-11 flex-1 items-center justify-center rounded-xl px-2 py-2 text-[0.7rem] font-semibold transition-colors",
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {item.tab}
-            </button>
-          );
-        })}
-      </div>
+      {/* One object: picker docked to the top of the frame, controls to the bottom. */}
+      <div className="glass-panel relative overflow-hidden rounded-[2.6rem] p-2.5 shadow-2xl">
+        <div
+          role="tablist"
+          aria-label="Choose a call scenario"
+          className="surface-track mb-2.5 flex items-center gap-1 rounded-full p-1"
+        >
+          {SCENARIOS.map((item) => {
+            const active = item.id === scenario.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => pickScenario(item.id)}
+                className={cn(
+                  "flex min-h-10 flex-1 items-center justify-center rounded-full px-2 py-1.5 text-[0.68rem] font-semibold transition-colors",
+                  active
+                    ? "key-signal"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {item.tab}
+              </button>
+            );
+          })}
+        </div>
 
-      <div className="glass-panel relative overflow-hidden rounded-[2.4rem] p-2.5 shadow-2xl">
-        <div className="app-gradient relative flex h-[32rem] flex-col overflow-hidden rounded-[1.9rem] pt-2.5 pb-2.5">
+        <div className="app-gradient relative flex h-[28.5rem] flex-col overflow-hidden rounded-[1.9rem] pt-2.5 pb-2.5">
           <StatusBar />
           {scene === "ring" ? <RingScene scenario={scenario} /> : null}
           {scene === "answer" ? <AnswerScene scenario={scenario} turns={shownTurns} /> : null}
           {scene === "outcome" ? <OutcomeScene scenario={scenario} /> : null}
           {scene === "inbox" ? <InboxScene scenario={scenario} /> : null}
         </div>
-      </div>
 
-      {/* Scene scrubber + playback control */}
-      <div className="mt-4 flex items-center justify-center gap-3">
-        <button
-          type="button"
-          onClick={() => setPlaying((value) => !value)}
-          disabled={reduce}
-          aria-label={playing ? "Pause demo" : "Play demo"}
-          className="surface-row grid size-8 shrink-0 place-items-center rounded-full text-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
-        >
-          {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-        </button>
-        <div className="flex items-center gap-2">
-          {SCENE_ORDER.map((item, itemIndex) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => {
-                setPlaying(false);
-                goTo(itemIndex);
-              }}
-              aria-label={sceneLabels[item]}
-              aria-current={item === scene}
-              className="grid h-6 place-items-center px-0.5"
-            >
-              <span
-                className={cn(
-                  "h-1.5 rounded-full transition-all duration-500",
-                  item === scene ? "w-6 bg-primary" : "w-1.5 bg-foreground/25",
-                )}
-              />
-            </button>
-          ))}
+        {/* Slim transport bar docked to the device */}
+        <div className="mt-2.5 flex items-center gap-2.5 px-1 pb-0.5">
+          <button
+            type="button"
+            onClick={() => setPlaying((value) => !value)}
+            disabled={reduce}
+            aria-label={playing ? "Pause demo" : "Play demo"}
+            className="surface-row grid size-8 shrink-0 place-items-center rounded-full text-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
+          >
+            {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
+          </button>
+          <div className="flex items-center gap-1.5">
+            {SCENE_ORDER.map((item, itemIndex) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => {
+                  setPlaying(false);
+                  goTo(itemIndex);
+                }}
+                aria-label={sceneLabels[item]}
+                aria-current={item === scene}
+                className="grid h-6 place-items-center px-0.5"
+              >
+                <span
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-500",
+                    item === scene ? "w-6 bg-primary" : "w-1.5 bg-foreground/25",
+                  )}
+                />
+              </button>
+            ))}
+          </div>
+          <p
+            aria-live="polite"
+            className="ml-auto truncate text-right text-[0.7rem] font-medium text-muted-foreground"
+          >
+            {sceneLabels[scene]}
+          </p>
         </div>
       </div>
-      <p aria-live="polite" className="mt-1 text-center text-xs text-muted-foreground">
-        {sceneLabels[scene]}
-      </p>
-      <p className="mt-1 text-center text-[0.7rem] text-muted-foreground/70">{scenario.blurb}</p>
+
+      {/* Scene-synced call-outs: the story for people who don't watch the loop. */}
+      <span
+        key={`left-${scene}`}
+        className="glass-panel animate-fade-in pointer-events-none absolute top-[38%] -left-6 hidden rounded-full px-3 py-1.5 text-[0.68rem] font-semibold whitespace-nowrap shadow-lg lg:block"
+      >
+        <span className="mr-1.5 inline-block size-1.5 rounded-full bg-primary align-middle" />
+        {CALLOUTS[scene].left}
+      </span>
+      <span
+        key={`right-${scene}`}
+        className="glass-panel animate-fade-in pointer-events-none absolute top-[64%] -right-7 hidden rounded-full px-3 py-1.5 text-[0.68rem] font-semibold whitespace-nowrap shadow-lg lg:block"
+      >
+        <span className="mr-1.5 inline-block size-1.5 rounded-full bg-success align-middle" />
+        {CALLOUTS[scene].right}
+      </span>
+
+      <p className="mt-2 text-center text-[0.72rem] text-muted-foreground">{scenario.blurb}</p>
     </div>
   );
 }
