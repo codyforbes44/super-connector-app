@@ -14,7 +14,14 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { EmptyState, ScreenHeader, useScreenFab } from "@/components/AppShell";
+import { ScreenHeader, useScreenFab } from "@/components/AppShell";
+import {
+  Empty,
+  ErrorState,
+  ListGroup,
+  ListSkeleton,
+  Screen,
+} from "@/components/screen";
 import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallSummaryCard } from "@/components/intelligence/CallSummaryCard";
 import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
@@ -291,23 +298,32 @@ function CallsScreen() {
 
       <CallFilters value={filters} onChange={setFilters} />
 
+      <Screen onRefresh={sync}>
       <CallReadiness />
 
       {ringHint && voice.callState === "idle" ? (
-        <p className="glass-panel mx-4 mb-3 rounded-2xl px-3.5 py-2.5 text-xs text-muted-foreground">
+        <p className="mb-3 rounded-2xl border border-border bg-card px-3.5 py-2.5 text-xs text-muted-foreground">
           Connecting the incoming call to this device…
         </p>
       ) : null}
 
       {audio ? (
-        <div className="glass-panel mx-4 mb-3 rounded-3xl p-3">
+        <div className="mb-3 rounded-2xl border border-border bg-card p-3">
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <audio className="w-full" controls autoPlay src={audio} />
         </div>
       ) : null}
 
-      {(calls.data ?? []).length === 0 ? (
-        <EmptyState
+      {calls.isLoading ? (
+        <ListSkeleton rows={6} />
+      ) : calls.isError ? (
+        <ErrorState
+          title="Couldn't load your calls"
+          description={errorMessage(calls.error)}
+          onRetry={() => void calls.refetch()}
+        />
+      ) : (calls.data ?? []).length === 0 ? (
+        <Empty
           icon={
             filters.q ||
             filters.direction !== "all" ||
@@ -324,22 +340,22 @@ function CallsScreen() {
               ? "No matching calls"
               : "No calls yet"
           }
-          description="Place a call, adjust your filters, or pull your recent Twilio voice history into the app."
+          description="Place a call, adjust your filters, or pull your recent call history into the app."
           action={
             <Button variant="secondary" onClick={sync} disabled={syncing}>
-              Sync my numbers
+              Sync call history
             </Button>
           }
         />
       ) : (
-        <ul className="min-w-0 divide-y divide-border/60 border-y border-border/60 pb-4">
+        <ListGroup className="min-w-0">
           {(calls.data ?? []).map((call) => {
             const inbound = call.direction === "inbound";
             const other = inbound ? call.from_number : call.to_number;
             const redialTo = otherParty(call);
             const missed = ["no-answer", "failed", "busy", "canceled"].includes(call.status ?? "");
             return (
-              <li
+              <div
                 key={call.id}
                 className="flex min-h-[4.5rem] min-w-0 items-center gap-2.5 px-4 py-3 sm:gap-3"
               >
@@ -350,7 +366,7 @@ function CallsScreen() {
                 >
                   <span
                     className={cn(
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
                       missed
                         ? "bg-destructive/15 text-destructive"
                         : inbound
@@ -402,14 +418,15 @@ function CallsScreen() {
                   <PhoneCall className="h-4 w-4" />
                   <span className="sr-only">Call back {redialTo || "unavailable"}</span>
                 </button>
-              </li>
+              </div>
             );
           })}
-        </ul>
+        </ListGroup>
       )}
+      </Screen>
 
       <Sheet open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
-        <SheetContent side="bottom" className="app-gradient rounded-t-[2rem] border-border">
+        <SheetContent side="bottom" className="rounded-t-3xl border-border bg-card">
           <SheetHeader className="px-0">
             <SheetTitle className="font-display text-center">Call details</SheetTitle>
           </SheetHeader>
@@ -434,7 +451,7 @@ function CallsScreen() {
               ].map(([label, value]) => (
                 <div
                   key={label as string}
-                  className="glass-panel flex items-start justify-between gap-3 rounded-2xl px-3.5 py-2.5"
+                  className="flex items-start justify-between gap-3 rounded-2xl border border-border bg-secondary/40 px-3.5 py-2.5"
                 >
                   <dt className="shrink-0 text-[0.7rem] tracking-wide text-muted-foreground uppercase">
                     {label}
