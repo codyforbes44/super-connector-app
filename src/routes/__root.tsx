@@ -123,6 +123,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "SixVox" },
       { name: "application-name", content: "SixVox" },
+      { name: "msapplication-TileColor", content: "#0B0B0C" },
+      { name: "msapplication-TileImage", content: "/favicon-192x192.png" },
+      { name: "msapplication-config", content: "/browserconfig.xml" },
       { property: "og:title", content: "SixVox — business calls, texts and AI receptionist" },
       {
         property: "og:description",
