@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { AnswerModeCard } from "@/components/receptionist/AnswerModeCard";
 import { ScreenHeader } from "@/components/AppShell";
+import { ErrorState, ListSkeleton, Screen, Section } from "@/components/screen";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -53,9 +54,12 @@ function MemberAccount() {
 
   if (!boot.isAdmin) {
     return (
-      <div className="px-6 py-20 text-center text-sm text-muted-foreground">
-        This area is for account administrators.
-      </div>
+      <Screen>
+        <ErrorState
+          title="Administrators only"
+          description="This area is for account administrators."
+        />
+      </Screen>
     );
   }
 
@@ -82,14 +86,14 @@ function MemberAccount() {
   });
 
   return (
-    <div className="pb-10">
+    <div className="min-w-0">
       <ScreenHeader
         title={member?.display_name || member?.email || "Member"}
         subtitle={member?.email ?? userId}
         action={
           <Link
             to="/subscribers"
-            className="key-raised grid size-9 place-items-center rounded-full text-muted-foreground"
+            className="grid size-9 place-items-center rounded-xl bg-secondary text-muted-foreground"
             aria-label="Back"
           >
             <ArrowLeft className="size-4" />
@@ -97,12 +101,25 @@ function MemberAccount() {
         }
       />
 
-      <section className="space-y-3 px-4 py-4">
-        <h2 className="font-display text-sm font-semibold">Their line</h2>
-        {theirNumbers.length ? (
+      <Screen onRefresh={refresh}>
+      {team.isError || forwarding.isError ? (
+        <ErrorState
+          title="Couldn't load this member"
+          description={errorMessage(team.error ?? forwarding.error)}
+          onRetry={() => {
+            void team.refetch();
+            void forwarding.refetch();
+          }}
+        />
+      ) : null}
+
+      <Section title="Their line" className="space-y-3">
+        {team.isLoading ? (
+          <ListSkeleton rows={2} />
+        ) : theirNumbers.length ? (
           <ul className="space-y-2">
             {theirNumbers.map((n) => (
-              <li key={n.sid} className="glass-panel rounded-2xl px-4 py-3">
+              <li key={n.sid} className="rounded-2xl border border-border bg-card px-4 py-3">
                 <p className="tabular text-sm font-semibold">{formatPhone(n.phone_number)}</p>
                 <p className="text-[0.7rem] text-muted-foreground">
                   {n.friendly_name || "No label"} ·{" "}
@@ -145,26 +162,24 @@ function MemberAccount() {
             Need a new one? Find and claim a number
           </Link>
         </div>
-      </section>
+      </Section>
 
       {theirNumbers.length ? (
-        <section className="space-y-3 border-t border-border px-4 py-4">
-          <h2 className="font-display text-sm font-semibold">How their calls are answered</h2>
+        <Section title="How their calls are answered" className="space-y-3">
           {theirNumbers.map((n) => (
-            <div key={n.sid} className="glass-panel space-y-3 rounded-3xl p-4">
+            <div key={n.sid} className="space-y-3 rounded-2xl border border-border bg-card p-4">
               <p className="tabular text-xs font-semibold text-muted-foreground">
                 {formatPhone(n.phone_number)}
               </p>
               <AnswerModeCard number={n} canEdit onChanged={refresh} />
             </div>
           ))}
-        </section>
+        </Section>
       ) : null}
 
-      <section className="space-y-3 border-t border-border px-4 py-4">
-        <h2 className="font-display text-sm font-semibold">Their own number</h2>
+      <Section title="Their own number" className="space-y-3">
         {fwd ? (
-          <div className="glass-panel space-y-2 rounded-3xl p-4">
+          <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-2">
               <p className="tabular flex-1 text-sm font-semibold">
                 {formatPhone(fwd.personal_number)}
@@ -210,10 +225,13 @@ function MemberAccount() {
             This member hasn&apos;t set up call forwarding from their own phone.
           </p>
         )}
-      </section>
+      </Section>
 
-      <section className="border-t border-border px-4 py-4">
-        <Link to="/subscribers" className="glass-panel flex items-center gap-3 rounded-2xl px-4 py-3">
+      <Section>
+        <Link
+          to="/subscribers"
+          className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
+        >
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">Plan, seats and access</p>
             <p className="text-[0.7rem] text-muted-foreground">
@@ -221,7 +239,8 @@ function MemberAccount() {
             </p>
           </div>
         </Link>
-      </section>
+      </Section>
+      </Screen>
     </div>
   );
 }
