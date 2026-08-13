@@ -9,12 +9,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { GmailConnect } from "@/components/tools/GmailConnect";
 import { errorMessage, relativeTime } from "@/lib/format";
-import { readMailThread, searchMail, sendMailMessage } from "@/lib/integrations.functions";
+import {
+  getMailUnread,
+  readMailThread,
+  replyMailThread,
+  searchMail,
+  sendMailMessage,
+} from "@/lib/integrations.functions";
 
 export function MailPanel({ presetEmail }: { presetEmail?: string }) {
   const [query, setQuery] = useState(presetEmail ?? "");
   const [active, setActive] = useState<string | null>(null);
   const [compose, setCompose] = useState({ to: presetEmail ?? "", subject: "", body: "" });
+  const [replyBody, setReplyBody] = useState("");
 
   const mail = useQuery({
     queryKey: ["gmail", query],
@@ -25,6 +32,19 @@ export function MailPanel({ presetEmail }: { presetEmail?: string }) {
     queryKey: ["gmail-thread", active],
     queryFn: () => readMailThread({ data: { threadId: active as string } }),
     enabled: Boolean(active),
+  });
+
+  const unread = useQuery({ queryKey: ["gmail-unread"], queryFn: () => getMailUnread() });
+
+  const reply = useMutation({
+    mutationFn: () => replyMailThread({ data: { threadId: active as string, body: replyBody } }),
+    onSuccess: () => {
+      toast.success("Reply sent");
+      setReplyBody("");
+      void thread.refetch();
+      void mail.refetch();
+    },
+    onError: (error) => toast.error(errorMessage(error)),
   });
 
   const send = useMutation({
@@ -44,6 +64,16 @@ export function MailPanel({ presetEmail }: { presetEmail?: string }) {
   return (
     <div className="space-y-4">
       <GmailConnect compact />
+      {unread.data?.connected && unread.data.unread > 0 ? (
+        <button
+          type="button"
+          onClick={() => setQuery("is:unread")}
+          className="glass-panel flex w-full items-center justify-between rounded-2xl px-4 py-2.5 text-left text-sm"
+        >
+          <span className="font-medium">{unread.data.unread} unread in your inbox</span>
+          <span className="text-xs text-primary">Show</span>
+        </button>
+      ) : null}
       <div className="flex gap-2">
         <Input
           value={query}
@@ -92,6 +122,28 @@ export function MailPanel({ presetEmail }: { presetEmail?: string }) {
               </p>
             </div>
           ))}
+          <div className="space-y-2 pt-1">
+            <Label>Reply</Label>
+            <Textarea
+              rows={3}
+              value={replyBody}
+              onChange={(e) => setReplyBody(e.target.value)}
+              placeholder="Write a reply…"
+            />
+            <Button
+              className="w-full"
+              disabled={!replyBody.trim() || reply.isPending}
+              onClick={() => reply.mutate()}
+            >
+              {reply.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <>
+                  <Send className="size-4" /> Send reply
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       )}
 
