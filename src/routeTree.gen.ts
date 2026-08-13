@@ -40,6 +40,7 @@ import { Route as AuthenticatedAssistantSidRouteImport } from './routes/_authent
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
+import { Route as ApiPublicDigestRunRouteImport } from './routes/api/public/digest/run'
 import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/public/elevenlabs/post-call'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend/webhook'
@@ -208,6 +209,11 @@ const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
   path: '/oauth/google/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDigestRunRoute = ApiPublicDigestRunRouteImport.update({
+  id: '/api/public/digest/run',
+  path: '/api/public/digest/run',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicElevenlabsPostCallRoute =
   ApiPublicElevenlabsPostCallRouteImport.update({
     id: '/api/public/elevenlabs/post-call',
@@ -288,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
@@ -329,6 +336,7 @@ export interface FileRoutesByTo {
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/inbox': typeof AuthenticatedInboxIndexRoute
+  '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
@@ -372,6 +380,7 @@ export interface FileRoutesById {
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
@@ -415,6 +424,7 @@ export interface FileRouteTypes {
     | '/inbox/$id'
     | '/oauth/google/return'
     | '/inbox/'
+    | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
@@ -456,6 +466,7 @@ export interface FileRouteTypes {
     | '/inbox/$id'
     | '/oauth/google/return'
     | '/inbox'
+    | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
@@ -498,6 +509,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inbox/$id'
     | '/oauth/google/return'
     | '/_authenticated/inbox/'
+    | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
@@ -522,6 +534,7 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
+  ApiPublicDigestRunRoute: typeof ApiPublicDigestRunRoute
   ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
@@ -752,6 +765,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthGoogleReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/digest/run': {
+      id: '/api/public/digest/run'
+      path: '/api/public/digest/run'
+      fullPath: '/api/public/digest/run'
+      preLoaderRoute: typeof ApiPublicDigestRunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/elevenlabs/post-call': {
       id: '/api/public/elevenlabs/post-call'
       path: '/api/public/elevenlabs/post-call'
@@ -878,6 +898,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
+  ApiPublicDigestRunRoute: ApiPublicDigestRunRoute,
   ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,
