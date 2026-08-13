@@ -5,14 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
-import {
-  Empty,
-  ErrorState,
-  ListGroup,
-  ListSkeleton,
-  Screen,
-  Section,
-} from "@/components/screen";
+import { Empty, ErrorState, ListGroup, ListSkeleton, Screen, Section } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,10 +50,7 @@ type Contact = {
 
 type DeviceContact = { name?: string[]; tel?: string[]; email?: string[]; address?: unknown[] };
 type ContactsManager = {
-  select: (
-    props: string[],
-    options?: { multiple?: boolean },
-  ) => Promise<DeviceContact[]>;
+  select: (props: string[], options?: { multiple?: boolean }) => Promise<DeviceContact[]>;
   getProperties: () => Promise<string[]>;
 };
 
@@ -159,104 +149,106 @@ function ContactsScreen() {
 
       <Screen onRefresh={refresh}>
         <div className="space-y-3 pt-2">
-        <div className="relative">
-          <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search name, number or email"
-            className="h-11 rounded-xl pl-9"
-          />
-        </div>
-
-        <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/18 text-primary">
-            <Smartphone className="size-[1.05rem]" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Sync device contacts</p>
-            <p className="text-xs text-muted-foreground">
-              {deviceSupported
-                ? "You pick who to share — nothing is read automatically."
-                : "Your browser can't share the address book. Open SixVox on Android Chrome, or add people by hand."}
-            </p>
+          <div className="relative">
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search name, number or email"
+              className="h-11 rounded-xl pl-9"
+            />
           </div>
-          <Button
-            size="sm"
-            className="rounded-xl"
-            disabled={!deviceSupported || syncDevice.isPending}
-            onClick={() => syncDevice.mutate()}
-          >
-            {syncDevice.isPending ? <Loader2 className="size-4 animate-spin" /> : "Sync"}
-          </Button>
-        </div>
+
+          <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/18 text-primary">
+              <Smartphone className="size-[1.05rem]" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Sync device contacts</p>
+              <p className="text-xs text-muted-foreground">
+                {deviceSupported
+                  ? "You pick who to share — nothing is read automatically."
+                  : "Your browser can't share the address book. Open SixVox on Android Chrome, or add people by hand."}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              className="rounded-xl"
+              disabled={!deviceSupported || syncDevice.isPending}
+              onClick={() => syncDevice.mutate()}
+            >
+              {syncDevice.isPending ? <Loader2 className="size-4 animate-spin" /> : "Sync"}
+            </Button>
+          </div>
         </div>
 
-      {contacts.isLoading ? (
-        <div className="mt-4">
-          <ListSkeleton rows={6} />
-        </div>
-      ) : contacts.isError ? (
-        <div className="mt-4">
-          <ErrorState
-            title="Couldn't load contacts"
-            description={errorMessage(contacts.error)}
-            onRetry={() => void contacts.refetch()}
-          />
-        </div>
-      ) : rows.length === 0 ? (
-        <Empty
-          icon={Users}
-          title={term ? "No matches" : "No contacts yet"}
-          description={
-            term
-              ? "Try a different name or number."
-              : "Add someone by hand, or sync the people already on your phone."
-          }
-          action={
-            <Button className="rounded-xl" onClick={() => setEditing("new")}>
-              Add a contact
-            </Button>
-          }
-        />
-      ) : (
-        groups.map(([letter, list]) => (
-          <Section key={letter} title={letter}>
-            <ListGroup>
-              {list.map((contact) => (
-            <div key={contact.id} className="flex min-h-14 items-center gap-3 px-4 py-3">
-              <button
-                type="button"
-                className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                onClick={() => setEditing(contact)}
-              >
-                <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/15 text-sm font-semibold text-primary">
-                  {initialsFor(contact.name || contact.phone_number)}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-[0.95rem] font-medium">
-                    {contact.name || formatPhone(contact.phone_number)}
-                  </span>
-                  <span className="tabular block truncate text-xs text-muted-foreground">
-                    {contact.name ? formatPhone(contact.phone_number) : contact.email || "No name"}
-                  </span>
-                </span>
-              </button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => del.mutate(contact.id)}
-                disabled={del.isPending}
-              >
-                <Trash2 className="size-4 text-destructive" />
-                <span className="sr-only">Delete contact</span>
+        {contacts.isLoading ? (
+          <div className="mt-4">
+            <ListSkeleton rows={6} />
+          </div>
+        ) : contacts.isError ? (
+          <div className="mt-4">
+            <ErrorState
+              title="Couldn't load contacts"
+              description={errorMessage(contacts.error)}
+              onRetry={() => void contacts.refetch()}
+            />
+          </div>
+        ) : rows.length === 0 ? (
+          <Empty
+            icon={Users}
+            title={term ? "No matches" : "No contacts yet"}
+            description={
+              term
+                ? "Try a different name or number."
+                : "Add someone by hand, or sync the people already on your phone."
+            }
+            action={
+              <Button className="rounded-xl" onClick={() => setEditing("new")}>
+                Add a contact
               </Button>
-            </div>
-              ))}
-            </ListGroup>
-          </Section>
-        ))
-      )}
+            }
+          />
+        ) : (
+          groups.map(([letter, list]) => (
+            <Section key={letter} title={letter}>
+              <ListGroup>
+                {list.map((contact) => (
+                  <div key={contact.id} className="flex min-h-14 items-center gap-3 px-4 py-3">
+                    <button
+                      type="button"
+                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                      onClick={() => setEditing(contact)}
+                    >
+                      <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/15 text-sm font-semibold text-primary">
+                        {initialsFor(contact.name || contact.phone_number)}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-[0.95rem] font-medium">
+                          {contact.name || formatPhone(contact.phone_number)}
+                        </span>
+                        <span className="tabular block truncate text-xs text-muted-foreground">
+                          {contact.name
+                            ? formatPhone(contact.phone_number)
+                            : contact.email || "No name"}
+                        </span>
+                      </span>
+                    </button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => del.mutate(contact.id)}
+                      disabled={del.isPending}
+                    >
+                      <Trash2 className="size-4 text-destructive" />
+                      <span className="sr-only">Delete contact</span>
+                    </Button>
+                  </div>
+                ))}
+              </ListGroup>
+            </Section>
+          ))
+        )}
       </Screen>
 
       {editing ? (
@@ -289,8 +281,7 @@ function ContactSheet({
   const [notes, setNotes] = useState(contact?.notes ?? "");
 
   const save = useMutation({
-    mutationFn: () =>
-      saveContact({ data: { phoneNumber: phone, name, email, address, notes } }),
+    mutationFn: () => saveContact({ data: { phoneNumber: phone, name, email, address, notes } }),
     onSuccess: async () => {
       toast.success("Contact saved.");
       await onSaved();

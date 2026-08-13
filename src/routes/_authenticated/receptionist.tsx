@@ -1,12 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Bot, ChevronRight, Sparkles, Voicemail } from "lucide-react";
+import { ArrowLeft, Bot, ChevronRight, PhoneOff, Sparkles, Voicemail } from "lucide-react";
 import { useState } from "react";
 
 import { AgentList } from "@/components/receptionist/AgentList";
 import { AnswerModeCard } from "@/components/receptionist/AnswerModeCard";
 import { VoiceLibrary } from "@/components/receptionist/VoiceLibrary";
 import { ScreenHeader } from "@/components/AppShell";
+import { Empty, ListGroup, Row, Screen } from "@/components/screen";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBootstrap } from "@/hooks/useBootstrap";
@@ -54,14 +55,14 @@ function ReceptionistPage() {
   const active = numbers.find((n) => n.sid === activeSid) ?? null;
 
   return (
-    <div className="pb-8">
+    <div className="min-w-0">
       <ScreenHeader
         title="AI receptionist"
         subtitle="Voices, agents and per-number answering"
         action={
           <Link
             to="/settings"
-            className="key-raised grid size-9 place-items-center rounded-full text-muted-foreground"
+            className="grid size-9 place-items-center rounded-xl bg-secondary text-muted-foreground"
             aria-label="Back to settings"
           >
             <ArrowLeft className="size-4" />
@@ -69,51 +70,44 @@ function ReceptionistPage() {
         }
       />
 
-      <div className="px-4 pt-4">
+      <Screen onRefresh={refresh}>
         <Tabs defaultValue="numbers">
-          <TabsList className="grid w-full grid-cols-3 rounded-full bg-muted/40 p-1">
-            <TabsTrigger value="numbers" className="rounded-full text-xs">
+          <TabsList className="grid w-full grid-cols-3 rounded-xl bg-secondary p-1">
+            <TabsTrigger value="numbers" className="rounded-lg text-xs">
               Numbers
             </TabsTrigger>
-            <TabsTrigger value="voices" className="rounded-full text-xs">
+            <TabsTrigger value="voices" className="rounded-lg text-xs">
               Voices
             </TabsTrigger>
-            <TabsTrigger value="agents" className="rounded-full text-xs">
+            <TabsTrigger value="agents" className="rounded-lg text-xs">
               Agents
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="numbers" className="mt-4 space-y-2">
+          <TabsContent value="numbers" className="mt-4">
             {numbers.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">
-                No numbers yet. Add one from the Numbers tab first.
-              </p>
+              <Empty
+                icon={PhoneOff}
+                title="No numbers yet"
+                description="Add a number first and it will show up here with its answering mode."
+              />
             ) : (
-              numbers.map((number) => {
-                const meta = MODE_META[number.answer_mode ?? "classic"] ?? CLASSIC_META;
-                const Icon = meta.icon;
-                return (
-                  <button
-                    key={number.sid}
-                    type="button"
-                    onClick={() => setActiveSid(number.sid)}
-                    className="flex w-full items-center gap-3 rounded-2xl bg-muted/30 p-3 text-left"
-                  >
-                    <span className="key-raised grid size-10 shrink-0 place-items-center rounded-full">
-                      <Icon className="size-4 text-primary" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">
-                        {formatPhone(number.phone_number)}
-                      </span>
-                      <span className="block truncate text-xs text-muted-foreground">
-                        {meta.label}
-                      </span>
-                    </span>
-                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-                  </button>
-                );
-              })
+              <ListGroup>
+                {numbers.map((number) => {
+                  const meta = MODE_META[number.answer_mode ?? "classic"] ?? CLASSIC_META;
+                  return (
+                    <Row
+                      key={number.sid}
+                      icon={meta.icon}
+                      iconClassName="bg-primary/15 text-primary"
+                      title={formatPhone(number.phone_number)}
+                      subtitle={meta.label}
+                      chevron
+                      onClick={() => setActiveSid(number.sid)}
+                    />
+                  );
+                })}
+              </ListGroup>
             )}
           </TabsContent>
 
@@ -125,26 +119,24 @@ function ReceptionistPage() {
             <AgentList canEdit={isAdmin} onRefresh={refresh} />
           </TabsContent>
         </Tabs>
-      </div>
+      </Screen>
 
       <Sheet open={Boolean(active)} onOpenChange={(v) => !v && setActiveSid(null)}>
         <SheetContent
           side="bottom"
-          className="app-gradient max-h-[90dvh] overflow-y-auto rounded-t-[2rem] border-border"
+          className="max-h-[90dvh] overflow-y-auto rounded-t-3xl border-border bg-card"
         >
           {active ? (
             <>
               <SheetHeader className="px-0">
-                <SheetTitle className="font-display">
-                  {formatPhone(active.phone_number)}
-                </SheetTitle>
+                <SheetTitle className="font-display">{formatPhone(active.phone_number)}</SheetTitle>
               </SheetHeader>
               <div className="pb-[env(safe-area-inset-bottom)]">
                 <AnswerModeCard number={active} canEdit={isAdmin} onChanged={refresh} />
                 <Link
                   to="/assistant/$sid"
                   params={{ sid: active.sid }}
-                  className="mt-4 flex items-center justify-between rounded-2xl bg-muted/30 p-3 text-sm"
+                  className="mt-4 flex items-center justify-between rounded-2xl border border-border bg-secondary/40 p-3 text-sm"
                 >
                   Advanced prompt & fallback
                   <ChevronRight className="size-4 text-muted-foreground" />
