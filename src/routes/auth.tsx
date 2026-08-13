@@ -236,7 +236,7 @@ function AuthScreen() {
         </div>
         <Button
           type="submit"
-          className="key-call h-12 w-full rounded-xl text-sm font-semibold"
+          className="key-signal h-12 w-full rounded-xl text-sm font-semibold"
           disabled={busy}
         >
           {mode === "signin" ? "Sign in" : "Start free trial"}

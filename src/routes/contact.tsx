@@ -212,7 +212,7 @@ function ContactPage() {
               </p>
             ) : null}
           </div>
-          <Button type="submit" className="key-call min-h-12 w-full rounded-xl" disabled={busy}>
+          <Button type="submit" className="key-signal min-h-12 w-full rounded-xl" disabled={busy}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
             Send message
           </Button>

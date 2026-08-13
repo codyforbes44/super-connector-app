@@ -166,7 +166,7 @@ function PricingPage() {
                 search={{ mode: "signup", plan: plan.code, interval }}
                 className={cn(
                   "mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold",
-                  plan.highlighted ? "key-call" : "surface-row",
+                  plan.highlighted ? "key-signal" : "surface-row",
                 )}
               >
                 Start {plan.name} free

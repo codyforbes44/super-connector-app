@@ -113,8 +113,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       </a>
       {/* Decorative glows, clipped to the shell so they can never widen the page. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 right-[-10%] h-[28rem] w-[28rem] rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-success/15 blur-3xl" />
+        <div className="absolute -top-40 right-[-10%] h-[28rem] w-[28rem] rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-primary/8 blur-3xl" />
       </div>
 
       {/* Detached, floating pill chrome — matches the in-app header language. */}
@@ -242,7 +242,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           {signedIn ? (
             <Link
               to="/inbox"
-              className="key-call flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-xl text-sm font-semibold"
+              className="key-signal flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-xl text-sm font-semibold"
             >
               Open app
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -251,7 +251,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <Link
               to="/auth"
               search={{ mode: "signup" }}
-              className="key-call flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-xl text-sm font-semibold"
+              className="key-signal flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-xl text-sm font-semibold"
             >
               Start free
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -410,7 +410,7 @@ export function CtaBand({
       <Link
         to="/auth"
         search={{ mode: "signup" }}
-        className="key-call inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold md:w-auto"
+        className="key-signal inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold md:w-auto"
       >
         {label}
         <ArrowRight className="h-4 w-4" />
