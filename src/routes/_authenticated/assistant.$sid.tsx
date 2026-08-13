@@ -156,12 +156,24 @@ function AssistantConfigScreen() {
         </div>
       </header>
 
+      <PullToRefresh
+        onRefresh={async () => {
+          await Promise.all([numberQuery.refetch(), agents.refetch()]);
+        }}
+      />
+
       {numberQuery.isLoading ? (
-        <div className="grid place-items-center py-16">
-          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        <div className="px-4">
+          <ListSkeleton rows={4} />
         </div>
       ) : numberQuery.isError ? (
-        <p className="px-4 text-sm text-destructive">{errorMessage(numberQuery.error)}</p>
+        <div className="px-4">
+          <ErrorState
+            title="Couldn't load this assistant"
+            description={errorMessage(numberQuery.error)}
+            onRetry={() => void numberQuery.refetch()}
+          />
+        </div>
       ) : (
         <div className="space-y-4 px-4">
           <div className="glass-panel flex items-center gap-3 rounded-3xl p-4">
