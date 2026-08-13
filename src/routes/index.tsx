@@ -176,69 +176,98 @@ const HOME_FAQS = [
 function Landing() {
   return (
     <MarketingLayout>
-      <Section className="relative pt-8 pb-10 md:pt-14">
-        {/* Soft signal glow anchors the hero without a heavy image download. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-primary/15 blur-[90px]"
-        />
-        <div className="grid items-center gap-10 md:grid-cols-[1.05fr_0.95fr]">
-          <div>
-            <Eyebrow>14-day free trial · no card required</Eyebrow>
-            <h1 className="font-display mt-5 text-[2.15rem] leading-[1.05] font-semibold text-balance sm:text-4xl md:text-6xl">
-              Never miss the call
-              <span className="text-primary text-glow"> that pays for the week.</span>
-            </h1>
-            <p className="mt-5 max-w-xl text-[0.95rem] leading-relaxed text-pretty text-muted-foreground md:text-[1rem]">
-              SixVox is a second line that answers for you. Calls, texts, WhatsApp and voicemail in
-              one app — with an AI receptionist that books the job and writes the summary while
-              you're busy.
-            </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link
-                to="/auth"
-                search={{ mode: "signup" }}
-                className="key-signal inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] sm:min-h-12 sm:text-sm"
-              >
-                Start free — 14 days
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/how-it-works"
-                className="surface-row inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
-              >
-                <PlayCircle className="h-4 w-4 text-primary" />
-                See how it works
-              </Link>
+      <div className="theme-dark hero-band -mt-px">
+        <Section className="relative overflow-hidden pt-7 pb-10 md:pt-12 md:pb-14">
+          {/* Signal rings + amber wash anchor the hero without a heavy image download. */}
+          <div
+            aria-hidden
+            className="signal-rings pointer-events-none absolute top-[-6rem] right-[-8rem] -z-10 hidden size-[36rem] md:block"
+          />
+          <div className="grid gap-8 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-10">
+            <div className="order-1">
+              <Eyebrow>14-day free trial · no card required</Eyebrow>
+              <h1 className="font-display mt-5 text-[2.3rem] leading-[1.03] font-semibold text-balance sm:text-5xl md:text-6xl">
+                Never miss the call
+                <span className="text-primary"> that pays for the week.</span>
+              </h1>
+              <p className="mt-5 max-w-xl text-[0.98rem] leading-relaxed text-pretty text-muted-foreground md:text-[1.05rem]">
+                SixVox is a second line that answers for you — calls, texts, WhatsApp and voicemail
+                in one app.
+                <span className="block text-foreground/90">
+                  When you can't pick up, the AI receptionist books the job and drops the summary in
+                  your inbox.
+                </span>
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Link
+                  to="/auth"
+                  search={{ mode: "signup" }}
+                  className="key-signal inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold shadow-[0_14px_34px_-18px_var(--color-primary)] transition-transform hover:scale-[1.02] active:scale-[0.98] sm:min-h-12 sm:text-sm"
+                >
+                  Start free — 14 days
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/how-it-works"
+                  className="surface-row inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
+                >
+                  <PlayCircle className="h-4 w-4 text-primary" />
+                  See how it works
+                </Link>
+              </div>
+              <p className="mt-4 text-xs text-muted-foreground">
+                Built for trades, solo operators, small teams and people who work from anywhere —{" "}
+                <Link to="/use-cases" className="font-semibold text-primary underline-offset-4 hover:underline">
+                  see the use cases
+                </Link>
+                .
+              </p>
             </div>
-            <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
-              {["No card required", "Keep your number", "Cancel any time", "Live in a minute"].map(
-                (item) => (
+
+            <Reveal className="relative order-2 md:order-none">
+              <LivePhoneDemo />
+            </Reveal>
+
+            <div className="order-3 md:col-start-1 md:row-start-2 md:self-start">
+              <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                {[
+                  "No card required",
+                  "Keep your number",
+                  "Cancel any time",
+                  "Live in a minute",
+                ].map((item) => (
                   <li key={item} className="flex items-center gap-1.5">
-                    <Check className="h-3.5 w-3.5 text-success" aria-hidden />
+                    <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
                     {item}
                   </li>
-                ),
-              )}
-            </ul>
+                ))}
+              </ul>
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {CHANNELS.map((channel) => (
+                  <li
+                    key={channel.label}
+                    className="surface-row inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.7rem] font-medium"
+                  >
+                    <channel.icon className="size-3.5 text-primary" aria-hidden />
+                    {channel.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
-          <Reveal className="relative">
-            <LivePhoneDemo />
-          </Reveal>
-        </div>
-
-        <div className="mt-12">
-          <StatBand
-            stats={[
-              { value: "14 days", label: "Free trial, no card required" },
-              { value: "< 1 min", label: "From signup to your first message" },
-              { value: "3 channels", label: "Calls, SMS/MMS and WhatsApp in one thread list" },
-              { value: "24/7", label: "AI receptionist answering when you can't" },
-            ]}
-          />
-        </div>
-      </Section>
+          <div className="mt-10">
+            <StatBand
+              stats={[
+                { value: "14 days", label: "Free trial, no card required" },
+                { value: "< 1 min", label: "From signup to your first message" },
+                { value: "3 channels", label: "Calls, SMS/MMS and WhatsApp in one thread list" },
+                { value: "24/7", label: "AI receptionist answering when you can't" },
+              ]}
+            />
+          </div>
+        </Section>
+      </div>
 
       <Section className="py-9 md:py-14">
         <Reveal>
