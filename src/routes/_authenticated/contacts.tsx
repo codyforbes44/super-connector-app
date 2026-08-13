@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
-import { Empty, ErrorState, ListGroup, ListSkeleton, Screen, Section } from "@/components/screen";
+import { AsyncList, Empty, ListGroup, Screen, Section } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -117,22 +117,6 @@ function ContactsScreen() {
   });
 
   const rows = (contacts.data ?? []) as Contact[];
-
-  // A–Z sections keep long lists scannable on a phone.
-  const groups = (() => {
-    const map = new Map<string, Contact[]>();
-    for (const contact of rows) {
-      const label = (contact.name || formatPhone(contact.phone_number)).trim();
-      const first = label.charAt(0).toUpperCase();
-      const key = /[A-Z]/.test(first) ? first : "#";
-      const list = map.get(key);
-      if (list) list.push(contact);
-      else map.set(key, [contact]);
-    }
-    return [...map.entries()].sort(([a], [b]) =>
-      a === "#" ? 1 : b === "#" ? -1 : a.localeCompare(b),
-    );
-  })();
 
   return (
     <div className="min-w-0">
