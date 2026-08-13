@@ -81,7 +81,7 @@ export function VoiceSetup() {
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="App name"
-          className="h-10 rounded-full px-4"
+          className="h-10 rounded-xl px-4"
         />
         <Button
           className="rounded-full"

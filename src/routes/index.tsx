@@ -198,14 +198,14 @@ function Landing() {
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
-                className="key-call inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] sm:min-h-12 sm:text-sm"
+                className="key-signal inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] sm:min-h-12 sm:text-sm"
               >
                 Start free — 14 days
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/how-it-works"
-                className="surface-row inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
+                className="surface-row inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold sm:min-h-12 sm:text-sm"
               >
                 <PlayCircle className="h-4 w-4 text-primary" />
                 See how it works
@@ -297,7 +297,7 @@ function Landing() {
           <Link
             to="/auth"
             search={{ mode: "signup" }}
-            className="key-call mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold sm:w-auto"
+            className="key-signal mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-6 text-sm font-semibold sm:w-auto"
           >
             Take step one
             <ArrowRight className="h-4 w-4" />
@@ -420,8 +420,8 @@ function Landing() {
                 to="/auth"
                 search={{ mode: "signup", plan: plan.code, interval: "month" }}
                 className={cn(
-                  "mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full px-5 text-sm font-semibold",
-                  plan.highlighted ? "key-call" : "surface-row",
+                  "mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold",
+                  plan.highlighted ? "key-signal" : "surface-row",
                 )}
               >
                 Start free

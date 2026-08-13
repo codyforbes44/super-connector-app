@@ -101,7 +101,7 @@ export function VoiceLibrary({
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           placeholder="Search voices"
-          className="h-11 rounded-full pl-11 pr-4"
+          className="h-11 rounded-xl pl-11 pr-4"
         />
       </div>
 

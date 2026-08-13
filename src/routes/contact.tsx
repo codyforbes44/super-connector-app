@@ -88,7 +88,7 @@ function ContactPage() {
       <MarketingLayout>
         <Section className="py-16">
           <div className="glass-panel mx-auto max-w-xl rounded-[2rem] p-8 text-center">
-            <span className="key-signal mx-auto flex h-14 w-14 items-center justify-center rounded-full">
+            <span className="key-signal mx-auto flex h-14 w-14 items-center justify-center rounded-xl">
               <Mail className="h-5 w-5 text-primary" />
             </span>
             <h1 className="font-display mt-5 text-2xl font-semibold">Message received</h1>
@@ -134,8 +134,8 @@ function ContactPage() {
                   onClick={() => setTopic(item.value)}
                   className={
                     topic === item.value
-                      ? "key-signal min-h-11 rounded-full px-4 text-xs font-semibold text-primary-foreground"
-                      : "surface-row min-h-11 rounded-full px-4 text-xs font-semibold text-muted-foreground"
+                      ? "key-signal min-h-11 rounded-xl px-4 text-xs font-semibold text-primary-foreground"
+                      : "surface-row min-h-11 rounded-xl px-4 text-xs font-semibold text-muted-foreground"
                   }
                 >
                   {item.label}
@@ -212,7 +212,7 @@ function ContactPage() {
               </p>
             ) : null}
           </div>
-          <Button type="submit" className="key-call min-h-12 w-full rounded-full" disabled={busy}>
+          <Button type="submit" className="key-signal min-h-12 w-full rounded-xl" disabled={busy}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
             Send message
           </Button>

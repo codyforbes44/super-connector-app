@@ -33,7 +33,7 @@ export function StickySignupBar() {
         <Link
           to="/auth"
           search={{ mode: "signup" }}
-          className="key-call inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-5 text-sm font-semibold"
+          className="key-signal inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold"
         >
           Start
           <ArrowRight className="size-4" />

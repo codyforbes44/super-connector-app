@@ -92,7 +92,7 @@ export function ForwardingStatusCard({ row, onEdit }: { row: Row; onEdit: () => 
           </ul>
           <Button
             variant="ghost"
-            className="key-end mt-3 h-10 w-full rounded-full"
+            className="key-end mt-3 h-10 w-full rounded-xl"
             onClick={async () => {
               try {
                 await stopMyForwarding();
@@ -116,7 +116,7 @@ export function ForwardingStatusCard({ row, onEdit }: { row: Row; onEdit: () => 
           </p>
           <Button
             variant="ghost"
-            className="key-raised h-10 w-full rounded-full text-xs font-semibold"
+            className="key-raised h-10 w-full rounded-xl text-xs font-semibold"
             disabled={checking}
             onClick={async () => {
               setChecking(true);

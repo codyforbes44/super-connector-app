@@ -107,7 +107,7 @@ function NumbersScreen() {
       {boot.isOwner ? (
         <div className="px-4 py-3">
           <Button
-            className="key-signal h-12 w-full rounded-full font-semibold"
+            className="key-signal h-12 w-full rounded-xl font-semibold"
             onClick={() => setBuying(true)}
           >
             <Search className="mr-2 h-4 w-4" />
@@ -251,7 +251,7 @@ function BuySheet({
               <Input
                 value={country}
                 onChange={(e) => setCountry(e.target.value.toUpperCase().slice(0, 2))}
-                className="h-11 rounded-full px-4"
+                className="h-11 rounded-xl px-4"
               />
             </div>
             <div className="space-y-1.5">
@@ -260,13 +260,13 @@ function BuySheet({
                 value={areaCode}
                 onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
                 inputMode="numeric"
-                className="h-11 rounded-full px-4"
+                className="h-11 rounded-xl px-4"
               />
             </div>
             <div className="space-y-1.5">
               <Label>Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger className="h-11 w-full rounded-full px-4">
+                <SelectTrigger className="h-11 w-full rounded-xl px-4">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -278,7 +278,7 @@ function BuySheet({
             </div>
           </div>
           <Button
-            className="h-11 w-full rounded-full"
+            className="h-11 w-full rounded-xl"
             variant="secondary"
             onClick={() => search.mutate()}
             disabled={search.isPending}
@@ -387,13 +387,13 @@ function NumberSheet({
               value={friendlyName}
               onChange={(e) => setFriendlyName(e.target.value)}
               maxLength={64}
-              className="h-11 rounded-full px-4"
+              className="h-11 rounded-xl px-4"
             />
           </div>
           <div className="space-y-1.5">
             <Label>Assigned agent</Label>
             <Select value={assigned} onValueChange={setAssigned}>
-              <SelectTrigger className="h-11 w-full rounded-full px-4">
+              <SelectTrigger className="h-11 w-full rounded-xl px-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -414,7 +414,7 @@ function NumberSheet({
               placeholder="Leave empty to send to voicemail"
               inputMode="tel"
               maxLength={20}
-              className="h-11 rounded-full px-4"
+              className="h-11 rounded-xl px-4"
             />
           </div>
           <div className="space-y-1.5">
@@ -423,14 +423,14 @@ function NumberSheet({
               value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
               maxLength={300}
-              className="h-11 rounded-full px-4"
+              className="h-11 rounded-xl px-4"
             />
           </div>
 
           <VoiceAssistant number={number} onChanged={onChanged} />
 
           <Button
-            className="key-signal h-12 w-full rounded-full font-semibold"
+            className="key-signal h-12 w-full rounded-xl font-semibold"
             onClick={save}
             disabled={busy}
           >

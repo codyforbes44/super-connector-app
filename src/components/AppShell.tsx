@@ -101,7 +101,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <Link
                       to={tab.to}
                       className={cn(
-                        "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-full py-1.5 text-[0.6rem] font-medium transition-colors",
+                        "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[0.6rem] font-medium transition-colors",
                         active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                       )}
                     >
@@ -127,7 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={fab.onClick}
-              className="key-call pointer-events-auto flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95"
+              className="key-call pointer-events-auto flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95"
             >
               <FabIcon className="h-6 w-6" />
               <span className="sr-only">{fab.label}</span>
@@ -140,7 +140,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={fab.onClick}
-            className="key-call fixed right-8 bottom-8 z-40 hidden h-14 w-14 items-center justify-center rounded-full transition-transform active:scale-95 lg:flex"
+            className="key-call fixed right-8 bottom-8 z-40 hidden h-14 w-14 items-center justify-center rounded-xl transition-transform active:scale-95 lg:flex"
           >
             <FabIcon className="h-6 w-6" />
             <span className="sr-only">{fab.label}</span>

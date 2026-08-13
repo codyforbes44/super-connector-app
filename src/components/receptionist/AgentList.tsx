@@ -46,7 +46,7 @@ export function AgentList({
     <div className="space-y-3">
       {canEdit ? (
         <Button
-          className="key-signal h-12 w-full rounded-full font-semibold"
+          className="key-signal h-12 w-full rounded-xl font-semibold"
           onClick={() => setCreating(true)}
         >
           <Plus className="mr-2 size-4" />

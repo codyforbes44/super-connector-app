@@ -118,7 +118,7 @@ function Wizard({
               inputMode="tel"
               maxLength={20}
               placeholder="(580) 238-4777"
-              className="h-11 rounded-full px-4"
+              className="h-11 rounded-xl px-4"
             />
           </div>
           <div className="space-y-1.5">
@@ -145,7 +145,7 @@ function Wizard({
             ))}
           </div>
           <Button
-            className="key-signal h-11 w-full rounded-full font-semibold"
+            className="key-signal h-11 w-full rounded-xl font-semibold"
             disabled={personal.replace(/\D/g, "").length < 10}
             onClick={() => setStep(1)}
           >
@@ -160,7 +160,7 @@ function Wizard({
           <div className="space-y-1.5">
             <Label>Your phone carrier</Label>
             <Select value={carrier} onValueChange={setCarrier}>
-              <SelectTrigger className="h-11 w-full rounded-full px-4">
+              <SelectTrigger className="h-11 w-full rounded-xl px-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -176,7 +176,7 @@ function Wizard({
             <Label>Forward to this SixVox line</Label>
             {lines.length ? (
               <Select value={line} onValueChange={setLine}>
-                <SelectTrigger className="h-11 w-full rounded-full px-4">
+                <SelectTrigger className="h-11 w-full rounded-xl px-4">
                   <SelectValue placeholder="Pick a line" />
                 </SelectTrigger>
                 <SelectContent>
@@ -195,7 +195,7 @@ function Wizard({
             )}
           </div>
           <Button
-            className="key-signal h-11 w-full rounded-full font-semibold"
+            className="key-signal h-11 w-full rounded-xl font-semibold"
             disabled={!line}
             onClick={() => setStep(2)}
           >
@@ -248,7 +248,7 @@ function Wizard({
             })}
           </ul>
           <Button
-            className="key-signal h-11 w-full rounded-full font-semibold"
+            className="key-signal h-11 w-full rounded-xl font-semibold"
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >

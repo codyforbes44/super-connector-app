@@ -15,7 +15,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-pressed={!isDark}
       title={isDark ? "Light theme" : "Dark theme"}
       className={cn(
-        "surface-row flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground",
+        "surface-row flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:text-foreground",
         className,
       )}
     >

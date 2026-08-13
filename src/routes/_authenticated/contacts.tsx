@@ -140,7 +140,7 @@ function ContactsScreen() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search name, number or email"
-            className="h-11 rounded-full pl-9"
+            className="h-11 rounded-xl pl-9"
           />
         </div>
 
@@ -315,7 +315,7 @@ function ContactSheet({
             />
           </div>
           <Button
-            className="h-12 w-full rounded-full font-semibold"
+            className="h-12 w-full rounded-xl font-semibold"
             onClick={() => save.mutate()}
             disabled={save.isPending || !phone.trim()}
           >

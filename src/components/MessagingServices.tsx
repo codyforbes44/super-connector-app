@@ -238,7 +238,7 @@ function ServiceSheet({
               <div className="flex-1 space-y-1.5">
                 <Label>Add a number</Label>
                 <Select value={toAdd} onValueChange={setToAdd}>
-                  <SelectTrigger className="h-11 w-full rounded-full px-4">
+                  <SelectTrigger className="h-11 w-full rounded-xl px-4">
                     <SelectValue placeholder="Choose a number" />
                   </SelectTrigger>
                   <SelectContent>
@@ -251,7 +251,7 @@ function ServiceSheet({
                 </Select>
               </div>
               <Button
-                className="key-signal h-11 rounded-full"
+                className="key-signal h-11 rounded-xl"
                 disabled={!toAdd}
                 onClick={async () => {
                   try {

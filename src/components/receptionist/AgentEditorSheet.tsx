@@ -138,7 +138,7 @@ export function AgentEditorSheet({
                 onChange={(e) => setName(e.target.value)}
                 maxLength={80}
                 placeholder="Front desk"
-                className="h-11 rounded-full px-4"
+                className="h-11 rounded-xl px-4"
               />
             </div>
 
@@ -185,7 +185,7 @@ export function AgentEditorSheet({
             <div className="space-y-1.5">
               <Label>Voice</Label>
               <Select value={voiceId} onValueChange={setVoiceId}>
-                <SelectTrigger className="h-11 w-full rounded-full px-4">
+                <SelectTrigger className="h-11 w-full rounded-xl px-4">
                   <SelectValue placeholder={voices.isLoading ? "Loading voices…" : "Pick a voice"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -201,7 +201,7 @@ export function AgentEditorSheet({
             <div className="space-y-1.5">
               <Label>Language</Label>
               <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="h-11 w-full rounded-full px-4">
+                <SelectTrigger className="h-11 w-full rounded-xl px-4">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -215,7 +215,7 @@ export function AgentEditorSheet({
             </div>
 
             <Button
-              className="key-signal h-12 w-full rounded-full font-semibold"
+              className="key-signal h-12 w-full rounded-xl font-semibold"
               onClick={save}
               disabled={saving}
             >

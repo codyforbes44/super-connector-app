@@ -190,7 +190,7 @@ function ThreadScreen() {
         </Button>
         <span
           className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-semibold",
             convo?.channel === "whatsapp"
               ? "ring-glow-success bg-success/20 text-success"
               : "ring-glow bg-primary/20 text-primary",
@@ -210,7 +210,7 @@ function ThreadScreen() {
         <button
           type="button"
           onClick={call}
-          className="key-call flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95"
+          className="key-call flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95"
         >
           <Phone className="h-5 w-5" />
           <span className="sr-only">Call contact</span>
@@ -317,7 +317,7 @@ function ThreadScreen() {
             type="button"
             onClick={() => setNoteMode(!noteMode)}
             className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95",
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95",
               noteMode ? "key-signal" : "key-raised text-muted-foreground",
             )}
           >
@@ -335,7 +335,7 @@ function ThreadScreen() {
           <button
             type="submit"
             disabled={busy || !draft.trim()}
-            className="key-call flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-50"
+            className="key-call flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95 disabled:opacity-50"
           >
             <Send className="h-4 w-4" />
             <span className="sr-only">Send</span>

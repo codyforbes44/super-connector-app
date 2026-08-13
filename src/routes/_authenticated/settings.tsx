@@ -70,11 +70,11 @@ function SettingsScreen() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             maxLength={80}
-            className="h-11 rounded-full px-4"
+            className="h-11 rounded-xl px-4"
           />
         </div>
         <Button
-          className="key-signal h-11 w-full rounded-full sm:w-auto sm:px-8"
+          className="key-signal h-11 w-full rounded-xl sm:w-auto sm:px-8"
           onClick={async () => {
             try {
               await updateMyProfile({ data: { displayName } });
@@ -153,7 +153,7 @@ function SettingsScreen() {
                         }
                       }}
                     >
-                      <SelectTrigger className="h-9 w-28 rounded-full px-3">
+                      <SelectTrigger className="h-9 w-28 rounded-xl px-3">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

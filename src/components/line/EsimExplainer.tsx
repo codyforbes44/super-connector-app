@@ -51,7 +51,7 @@ export function EsimExplainer() {
         </p>
         <Link
           to="/esim"
-          className="key-raised flex h-11 items-center justify-center rounded-full text-sm font-semibold text-foreground"
+          className="key-raised flex h-11 items-center justify-center rounded-xl text-sm font-semibold text-foreground"
         >
           Browse travel data eSIMs
         </Link>

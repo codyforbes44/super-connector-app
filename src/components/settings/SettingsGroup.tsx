@@ -32,7 +32,7 @@ export function SettingsGroup({
       {description ? (
         <p className="px-1 pb-2 text-xs text-muted-foreground">{description}</p>
       ) : null}
-      <div className="glass-panel divide-y divide-border/60 overflow-hidden rounded-3xl">
+      <div className="hairline-list overflow-hidden rounded-2xl border border-border bg-card">
         {children}
       </div>
     </section>
@@ -74,7 +74,7 @@ function Body({
 }
 
 const ROW =
-  "flex min-h-14 w-full items-center gap-3 px-3.5 py-2.5 transition-colors active:bg-secondary/60";
+  "flex min-h-14 w-full items-center gap-3 px-3.5 py-2.5 transition-colors hover:bg-accent active:bg-accent";
 
 export function SettingsLink({
   to,
