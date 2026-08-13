@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Empty, Screen, Section } from "@/components/screen";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -67,12 +68,10 @@ function ConsoleScreen() {
 
   if (!boot.isOwner) {
     return (
-      <div className="px-6 py-20 text-center">
-        <p className="font-display text-lg font-semibold">Owners only</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The raw API console is restricted to the account owner.
-        </p>
-      </div>
+      <Empty
+        title="Owners only"
+        description="The raw API console is restricted to the account owner."
+      />
     );
   }
 
@@ -93,20 +92,21 @@ function ConsoleScreen() {
   }
 
   return (
-    <div className="app-gradient min-h-dvh pb-6">
-      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border/60 bg-background/40 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur-xl">
+    <div className="min-h-dvh pb-6">
+      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-background/95 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur">
         <Button
           size="icon"
           variant="ghost"
-          className="rounded-full"
+          className="rounded-xl"
           onClick={() => void navigate({ to: "/settings" })}
         >
           <ArrowLeft className="h-5 w-5" />
+          <span className="sr-only">Back to settings</span>
         </Button>
         <h1 className="font-display text-lg font-semibold tracking-tight">API console</h1>
       </header>
 
-      <div className="space-y-4 px-4 py-4">
+      <Screen className="space-y-4 pt-4">
         <p className="text-xs text-muted-foreground">
           <span className="text-foreground">api (account-scoped)</span> prefixes{" "}
           <code>/2010-04-01/Accounts/&#123;Sid&#125;</code> for you. Other hosts take the full path,
@@ -178,7 +178,7 @@ function ConsoleScreen() {
         </Button>
 
         {response ? (
-          <div className="space-y-2">
+          <Section title="Response">
             <p
               className={cn(
                 "text-xs font-semibold",
@@ -187,12 +187,12 @@ function ConsoleScreen() {
             >
               {response.status} {response.ok ? "OK" : "Error"}
             </p>
-            <pre className="glass-panel no-scrollbar max-h-96 overflow-auto rounded-2xl p-3 font-mono text-[0.7rem] whitespace-pre-wrap">
+            <pre className="no-scrollbar mt-2 max-h-96 overflow-auto rounded-2xl border border-border bg-card p-3 font-mono text-[0.7rem] whitespace-pre-wrap">
               {response.body}
             </pre>
-          </div>
+          </Section>
         ) : null}
-      </div>
+      </Screen>
     </div>
   );
 }
