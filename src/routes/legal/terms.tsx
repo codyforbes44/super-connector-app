@@ -76,7 +76,7 @@ function Terms() {
 
       <h2>Contact</h2>
       <p>
-        Questions about these terms: <a href="mailto:hello@magnoliamaids.pro">hello@magnoliamaids.pro</a>.
+        Questions about these terms: <a href="mailto:support@bookme.bet">support@bookme.bet</a>.
       </p>
     </LegalPage>
   );
