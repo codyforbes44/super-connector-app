@@ -120,7 +120,7 @@ function MemberAccount() {
         <div className="space-y-1.5">
           <Label>Assign a spare line</Label>
           <Select value={assigning} onValueChange={setAssigning}>
-            <SelectTrigger className="h-11 w-full rounded-full px-4">
+            <SelectTrigger className="h-11 w-full rounded-xl px-4">
               <SelectValue placeholder={spare.length ? "Pick a line" : "No spare lines"} />
             </SelectTrigger>
             <SelectContent>
@@ -132,7 +132,7 @@ function MemberAccount() {
             </SelectContent>
           </Select>
           <Button
-            className="key-signal h-11 w-full rounded-full font-semibold"
+            className="key-signal h-11 w-full rounded-xl font-semibold"
             disabled={!assigning || assign.isPending}
             onClick={() => assign.mutate(assigning)}
           >
@@ -185,7 +185,7 @@ function MemberAccount() {
             ) : null}
             <Button
               variant="secondary"
-              className="h-10 w-full rounded-full"
+              className="h-10 w-full rounded-xl"
               onClick={async () => {
                 try {
                   await setForwardingStatus({

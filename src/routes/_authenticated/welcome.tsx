@@ -231,7 +231,7 @@ function Welcome() {
       <div className="glass-panel mt-6 rounded-[2rem] p-5 sm:p-6">
         {step === 0 ? (
           <>
-            <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-full">
+            <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-xl">
               <Sparkles className="h-6 w-6" />
             </span>
             <h1 className="font-display text-2xl font-semibold">Welcome to SixVox</h1>
@@ -246,7 +246,7 @@ function Welcome() {
                 value={workspace}
                 onChange={(event) => setWorkspace(event.target.value)}
                 placeholder="Acme Plumbing"
-                className="h-12 rounded-full px-4"
+                className="h-12 rounded-xl px-4"
                 maxLength={80}
               />
             </div>
@@ -255,7 +255,7 @@ function Welcome() {
 
         {step === 1 ? (
           <>
-            <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-full">
+            <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-xl">
               <Hash className="h-6 w-6" />
             </span>
             <h1 className="font-display text-2xl font-semibold">Your business number</h1>
@@ -287,12 +287,12 @@ function Welcome() {
                       setAreaCode(event.target.value.replace(/\D/g, "").slice(0, 3))
                     }
                     placeholder="Area code (512)"
-                    className="h-12 flex-1 rounded-full px-4"
+                    className="h-12 flex-1 rounded-xl px-4"
                     aria-label="Area code"
                   />
                   <Button
                     variant="secondary"
-                    className="h-12 rounded-full px-5 font-semibold"
+                    className="h-12 rounded-xl px-5 font-semibold"
                     onClick={() => void runSearch()}
                     disabled={searching}
                   >
@@ -341,7 +341,7 @@ function Welcome() {
 
         {step === 2 ? (
           <>
-            <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-full">
+            <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-xl">
               <BellRing className="h-6 w-6" />
             </span>
             <h1 className="font-display text-2xl font-semibold">Never miss a customer</h1>
@@ -356,7 +356,7 @@ function Welcome() {
 
         {step === 3 ? (
           <>
-            <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-full">
+            <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-xl">
               <PhoneCall className="h-6 w-6" />
             </span>
             <h1 className="font-display text-2xl font-semibold">Take your first call</h1>
@@ -374,11 +374,11 @@ function Welcome() {
                 value={myPhone}
                 onChange={(event) => setMyPhone(event.target.value)}
                 placeholder="+1 512 555 0148"
-                className="h-12 rounded-full px-4"
+                className="h-12 rounded-xl px-4"
               />
               <Button
                 variant="secondary"
-                className="h-12 w-full rounded-full font-semibold"
+                className="h-12 w-full rounded-xl font-semibold"
                 onClick={() => void ringMe()}
                 disabled={busy || !hasNumber}
               >
@@ -404,7 +404,7 @@ function Welcome() {
         ) : null}
 
         <Button
-          className="key-call mt-7 h-12 w-full rounded-full text-sm font-semibold"
+          className="key-call mt-7 h-12 w-full rounded-xl text-sm font-semibold"
           disabled={busy}
           onClick={() => void next()}
         >

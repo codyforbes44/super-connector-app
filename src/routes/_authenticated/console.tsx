@@ -117,7 +117,7 @@ function ConsoleScreen() {
           <div className="space-y-1.5">
             <Label>Host</Label>
             <Select value={host} onValueChange={setHost}>
-              <SelectTrigger className="h-11 w-full rounded-full px-4">
+              <SelectTrigger className="h-11 w-full rounded-xl px-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -132,7 +132,7 @@ function ConsoleScreen() {
           <div className="space-y-1.5">
             <Label>Method</Label>
             <Select value={method} onValueChange={setMethod}>
-              <SelectTrigger className="h-11 w-full rounded-full px-4">
+              <SelectTrigger className="h-11 w-full rounded-xl px-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -153,7 +153,7 @@ function ConsoleScreen() {
             value={path}
             onChange={(e) => setPath(e.target.value)}
             maxLength={400}
-            className="h-11 rounded-full px-4 font-mono text-xs"
+            className="h-11 rounded-xl px-4 font-mono text-xs"
           />
         </div>
 
@@ -170,7 +170,7 @@ function ConsoleScreen() {
         </div>
 
         <Button
-          className="key-signal h-12 w-full rounded-full font-semibold"
+          className="key-signal h-12 w-full rounded-xl font-semibold"
           onClick={run}
           disabled={busy}
         >

@@ -169,7 +169,7 @@ export function AnswerModeCard({
       <div className="space-y-1.5">
         <Label>AI voice</Label>
         <Select value={voiceId} onValueChange={setVoiceId} disabled={!canEdit}>
-          <SelectTrigger className="h-11 w-full rounded-full px-4">
+          <SelectTrigger className="h-11 w-full rounded-xl px-4">
             <SelectValue placeholder={voices.isLoading ? "Loading voices…" : "Pick a voice"} />
           </SelectTrigger>
           <SelectContent>
@@ -189,7 +189,7 @@ export function AnswerModeCard({
         <div className="space-y-1.5">
           <Label>Conversational agent</Label>
           <Select value={agentId} onValueChange={setAgentId} disabled={!canEdit}>
-            <SelectTrigger className="h-11 w-full rounded-full px-4">
+            <SelectTrigger className="h-11 w-full rounded-xl px-4">
               <SelectValue placeholder={agents.isLoading ? "Loading agents…" : "Pick an agent"} />
             </SelectTrigger>
             <SelectContent>
@@ -219,7 +219,7 @@ export function AnswerModeCard({
           <div className="flex gap-2 pt-1">
             <Button
               variant="secondary"
-              className="h-10 flex-1 rounded-full"
+              className="h-10 flex-1 rounded-xl"
               onClick={doPreview}
               disabled={busy !== null}
             >
@@ -233,7 +233,7 @@ export function AnswerModeCard({
             {canEdit ? (
               <Button
                 variant="secondary"
-                className="h-10 flex-1 rounded-full"
+                className="h-10 flex-1 rounded-xl"
                 onClick={doRender}
                 disabled={busy !== null}
               >
@@ -247,7 +247,7 @@ export function AnswerModeCard({
 
       {canEdit ? (
         <Button
-          className="key-signal h-11 w-full rounded-full font-semibold"
+          className="key-signal h-11 w-full rounded-xl font-semibold"
           onClick={save}
           disabled={busy !== null}
         >

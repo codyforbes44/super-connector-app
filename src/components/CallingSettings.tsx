@@ -178,7 +178,7 @@ export function CallingSettings() {
             saveDefault.mutate(value);
           }}
         >
-          <SelectTrigger className="h-11 w-full rounded-full px-4">
+          <SelectTrigger className="h-11 w-full rounded-xl px-4">
             <SelectValue placeholder="Pick a number" />
           </SelectTrigger>
           <SelectContent>
@@ -204,11 +204,11 @@ export function CallingSettings() {
             placeholder="+1 555 010 2030"
             value={agentPhone}
             onChange={(event) => setAgentPhone(event.target.value)}
-            className="h-11 flex-1 rounded-full px-4"
+            className="h-11 flex-1 rounded-xl px-4"
           />
           <Button
             variant="outline"
-            className="h-11 rounded-full px-5"
+            className="h-11 rounded-xl px-5"
             disabled={saveAgentPhone.isPending}
             onClick={() => saveAgentPhone.mutate()}
           >
@@ -234,7 +234,7 @@ export function CallingSettings() {
 
       <Button
         variant="outline"
-        className="h-11 w-full rounded-full"
+        className="h-11 w-full rounded-xl"
         disabled={testCall.isPending || !defaultNumber || testTo.trim().length < 7}
         onClick={() => testCall.mutate()}
       >
@@ -262,10 +262,10 @@ export function CallingSettings() {
                 inputMode="tel"
                 maxLength={20}
                 placeholder="+1 555 010 2030"
-                className="h-11 flex-1 rounded-full px-4"
+                className="h-11 flex-1 rounded-xl px-4"
               />
               <Button
-                className="key-signal h-11 rounded-full px-5"
+                className="key-signal h-11 rounded-xl px-5"
                 disabled={!newCallerId.trim() || startVerification.isPending}
                 onClick={() => startVerification.mutate()}
               >
@@ -332,7 +332,7 @@ export function CallingSettings() {
                       onClick={() =>
                         removeCallerId.mutate({ sid: item.sid, phoneNumber: item.phoneNumber })
                       }
-                      className="key-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-foreground"
+                      className="key-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-foreground"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -360,7 +360,7 @@ export function CallingSettings() {
                     })
                   }
                 >
-                  <SelectTrigger className="h-10 w-full rounded-full px-4">
+                  <SelectTrigger className="h-10 w-full rounded-xl px-4">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -401,7 +401,7 @@ export function CallingSettings() {
                   type="button"
                   aria-label={`Remove rule ${route.pattern}`}
                   onClick={() => removeRoute.mutate(route.id)}
-                  className="key-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-foreground"
+                  className="key-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-foreground"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -413,16 +413,16 @@ export function CallingSettings() {
                 onChange={(e) => setRoutePattern(e.target.value)}
                 inputMode="tel"
                 placeholder="+1512 or +15550102030"
-                className="h-10 rounded-full px-4"
+                className="h-10 rounded-xl px-4"
               />
               <Input
                 value={routeLabel}
                 onChange={(e) => setRouteLabel(e.target.value)}
                 placeholder="Label (optional)"
-                className="h-10 rounded-full px-4"
+                className="h-10 rounded-xl px-4"
               />
               <Select value={routeCallerId} onValueChange={setRouteCallerId}>
-                <SelectTrigger className="h-10 w-full rounded-full px-4">
+                <SelectTrigger className="h-10 w-full rounded-xl px-4">
                   <SelectValue placeholder="Present this caller ID" />
                 </SelectTrigger>
                 <SelectContent>
@@ -434,7 +434,7 @@ export function CallingSettings() {
                 </SelectContent>
               </Select>
               <Button
-                className="key-signal h-10 w-full rounded-full"
+                className="key-signal h-10 w-full rounded-xl"
                 disabled={!routePattern.trim() || !routeCallerId || saveRoute.isPending}
                 onClick={() => saveRoute.mutate()}
               >

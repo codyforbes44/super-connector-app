@@ -56,7 +56,7 @@ export function CallFilters({
           value={value.q}
           onChange={(event) => onChange({ q: event.target.value })}
           placeholder="Search number, status, call SID, agent"
-          className="h-11 rounded-full pl-11"
+          className="h-11 rounded-xl pl-11"
           aria-label="Search call history"
         />
       </div>

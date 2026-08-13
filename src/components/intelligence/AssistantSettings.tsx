@@ -87,7 +87,7 @@ export function AssistantSettings() {
         </p>
       </div>
       <Button
-        className="key-signal h-11 w-full rounded-full sm:w-auto sm:px-8"
+        className="key-signal h-11 w-full rounded-xl sm:w-auto sm:px-8"
         onClick={() => void save({ assistantInstructions: instructions }, "Instructions saved.")}
       >
         Save instructions

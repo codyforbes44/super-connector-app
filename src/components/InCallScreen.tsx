@@ -89,7 +89,7 @@ export function InCallScreen() {
                   voice.sendDigit(digit);
                   setTyped((prev) => (prev + digit).slice(0, 24));
                 }}
-                className="key-raised mx-auto flex h-14 w-14 items-center justify-center rounded-full font-display text-lg font-semibold transition-transform duration-75 active:scale-95"
+                className="key-raised mx-auto flex h-14 w-14 items-center justify-center rounded-xl font-display text-lg font-semibold transition-transform duration-75 active:scale-95"
               >
                 {digit}
               </button>
@@ -248,7 +248,7 @@ function ControlButton({
     >
       <span
         className={cn(
-          "flex h-14 w-14 items-center justify-center rounded-full",
+          "flex h-14 w-14 items-center justify-center rounded-xl",
           active ? "key-signal" : "key-raised",
         )}
       >

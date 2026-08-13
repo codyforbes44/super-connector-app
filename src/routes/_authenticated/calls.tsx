@@ -350,7 +350,7 @@ function CallsScreen() {
                 >
                   <span
                     className={cn(
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
                       missed
                         ? "bg-destructive/15 text-destructive"
                         : inbound
@@ -388,7 +388,7 @@ function CallsScreen() {
                 <button
                   type="button"
                   onClick={() => playVoicemail(call.sid)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary/70 text-foreground"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
                 >
                   <Play className="h-4 w-4" />
                   <span className="sr-only">Play voicemail</span>
@@ -397,7 +397,7 @@ function CallsScreen() {
                   type="button"
                   disabled={!redialTo}
                   onClick={() => void callBack(call)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success/15 text-success disabled:opacity-40"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
                 >
                   <PhoneCall className="h-4 w-4" />
                   <span className="sr-only">Call back {redialTo || "unavailable"}</span>
@@ -457,7 +457,7 @@ function CallsScreen() {
           ) : null}
           {detail ? (
             <Button
-              className="key-call mt-3 h-12 w-full rounded-full"
+              className="key-call mt-3 h-12 w-full rounded-xl"
               disabled={!otherParty(detail)}
               onClick={() => void callBack(detail)}
             >
@@ -470,7 +470,7 @@ function CallsScreen() {
           {detail && otherParty(detail) ? (
             <a
               href={`tel:${otherParty(detail)}`}
-              className="key-raised mt-2 flex h-11 w-full items-center justify-center rounded-full text-sm font-semibold"
+              className="key-raised mt-2 flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold"
             >
               <Smartphone className="mr-2 h-4 w-4" />
               Call on my cellular line
@@ -492,7 +492,7 @@ function CallsScreen() {
                 Caller ID
               </Label>
               <Select value={from} onValueChange={setFrom}>
-                <SelectTrigger className="h-11 w-full rounded-full px-4">
+                <SelectTrigger className="h-11 w-full rounded-xl px-4">
                   <SelectValue placeholder="Number" />
                 </SelectTrigger>
                 <SelectContent>

@@ -65,7 +65,7 @@ export function BillingHistory() {
         <p className="mt-1 text-xs text-muted-foreground">{data.error}</p>
         <Button
           variant="secondary"
-          className="mt-3 h-11 w-full rounded-full"
+          className="mt-3 h-11 w-full rounded-xl"
           onClick={() => void query.refetch()}
         >
           Try again
@@ -154,7 +154,7 @@ export function BillingHistory() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="View invoice"
-                      className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:text-foreground"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-muted-foreground hover:text-foreground"
                     >
                       <ExternalLink className="h-4 w-4" />
                     </a>
@@ -165,7 +165,7 @@ export function BillingHistory() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Download receipt PDF"
-                      className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:text-foreground"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-muted-foreground hover:text-foreground"
                     >
                       <Download className="h-4 w-4" />
                     </a>

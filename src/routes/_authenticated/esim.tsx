@@ -198,7 +198,7 @@ function EsimScreen() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search a country or region"
-              className="h-12 rounded-full px-4 text-base"
+              className="h-12 rounded-xl px-4 text-base"
               inputMode="search"
             />
             {catalogue.data.error ? (
@@ -232,7 +232,7 @@ function EsimScreen() {
                     </span>
                     <Button
                       size="sm"
-                      className="key-signal h-10 shrink-0 rounded-full px-4 font-semibold"
+                      className="key-signal h-10 shrink-0 rounded-xl px-4 font-semibold"
                       disabled={!paymentsConfigured()}
                       onClick={() => setBuying(pkg.id)}
                     >
@@ -331,7 +331,7 @@ function OrderSheet({
               </p>
               <Button
                 variant="secondary"
-                className="mt-3 h-10 rounded-full"
+                className="mt-3 h-10 rounded-xl"
                 onClick={onRetry}
                 disabled={retrying}
               >
@@ -357,7 +357,7 @@ function OrderSheet({
               {appleUrl ? (
                 <a
                   href={appleUrl}
-                  className="key-signal flex h-12 w-full items-center justify-center rounded-full text-sm font-semibold"
+                  className="key-signal flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold"
                 >
                   <QrCode className="mr-2 h-4 w-4" />
                   Install on this iPhone

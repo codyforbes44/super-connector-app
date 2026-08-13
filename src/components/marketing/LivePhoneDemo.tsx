@@ -313,7 +313,7 @@ export function LivePhoneDemo() {
               aria-selected={active}
               onClick={() => pickScenario(item.id)}
               className={cn(
-                "flex min-h-11 flex-1 items-center justify-center rounded-full px-2 py-2 text-[0.7rem] font-semibold transition-colors",
+                "flex min-h-11 flex-1 items-center justify-center rounded-xl px-2 py-2 text-[0.7rem] font-semibold transition-colors",
                 active
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",

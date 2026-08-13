@@ -64,10 +64,10 @@ export function CallerRules() {
           onChange={(event) => setNumber(event.target.value)}
           inputMode="tel"
           placeholder="+1 555 010 1234"
-          className="h-11 rounded-full px-4"
+          className="h-11 rounded-xl px-4"
         />
         <Select value={behavior} onValueChange={(value) => setBehavior(value as Behavior)}>
-          <SelectTrigger className="h-11 rounded-full px-4 sm:w-48">
+          <SelectTrigger className="h-11 rounded-xl px-4 sm:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -79,7 +79,7 @@ export function CallerRules() {
           </SelectContent>
         </Select>
         <Button
-          className="key-signal h-11 rounded-full sm:px-6"
+          className="key-signal h-11 rounded-xl sm:px-6"
           disabled={!number.trim() || save.isPending}
           onClick={() => save.mutate()}
         >

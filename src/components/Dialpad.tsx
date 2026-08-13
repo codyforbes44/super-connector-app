@@ -43,7 +43,7 @@ export function Dialpad({
               haptic("heavy");
               onChange("");
             }}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors active:text-foreground"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors active:text-foreground"
           >
             <Delete className="h-5 w-5" />
             <span className="sr-only">Delete last digit</span>

@@ -145,7 +145,7 @@ function BillingScreen() {
         {subscription && isActive ? (
           <div className="glass-panel rounded-3xl p-4">
             <div className="flex items-center gap-3">
-              <span className="key-signal flex h-11 w-11 items-center justify-center rounded-full">
+              <span className="key-signal flex h-11 w-11 items-center justify-center rounded-xl">
                 <Sparkles className="h-[1.05rem] w-[1.05rem] text-primary" />
               </span>
               <div className="min-w-0">

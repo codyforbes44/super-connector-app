@@ -166,7 +166,7 @@ function AuthScreen() {
         className="pointer-events-none absolute -top-16 right-0 h-56 w-56 rounded-full bg-primary/25 blur-3xl"
       />
       <div className="glass-panel relative rounded-[2rem] p-6">
-      <span className="key-signal mb-5 flex h-14 w-14 items-center justify-center rounded-full">
+      <span className="key-signal mb-5 flex h-14 w-14 items-center justify-center rounded-xl">
         <PhoneCall className="h-6 w-6" />
       </span>
       <h1 className="font-display text-3xl font-semibold">
@@ -181,7 +181,7 @@ function AuthScreen() {
       <Button
         type="button"
         variant="secondary"
-        className="mt-7 h-12 w-full rounded-full text-sm font-semibold"
+        className="mt-7 h-12 w-full rounded-xl text-sm font-semibold"
         disabled={busy}
         onClick={handleGoogle}
       >
@@ -202,7 +202,7 @@ function AuthScreen() {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-            className="h-12 rounded-full px-4 text-base"
+            className="h-12 rounded-xl px-4 text-base"
               autoComplete="name"
               maxLength={80}
             />
@@ -216,7 +216,7 @@ function AuthScreen() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-12 rounded-full px-4 text-base"
+            className="h-12 rounded-xl px-4 text-base"
             autoComplete="email"
             maxLength={255}
           />
@@ -230,13 +230,13 @@ function AuthScreen() {
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-12 rounded-full px-4 text-base"
+            className="h-12 rounded-xl px-4 text-base"
             autoComplete={mode === "signin" ? "current-password" : "new-password"}
           />
         </div>
         <Button
           type="submit"
-          className="key-call h-12 w-full rounded-full text-sm font-semibold"
+          className="key-call h-12 w-full rounded-xl text-sm font-semibold"
           disabled={busy}
         >
           {mode === "signin" ? "Sign in" : "Start free trial"}
@@ -265,7 +265,7 @@ function AuthScreen() {
 
       <button
         type="button"
-        className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+        className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
         onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
       >
         {mode === "signin"

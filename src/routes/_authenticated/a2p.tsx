@@ -366,7 +366,7 @@ function A2pScreen() {
             placeholder="+15558675310"
           />
           <Button
-            className="key-signal h-11 w-full rounded-full"
+            className="key-signal h-11 w-full rounded-xl"
             onClick={() => saveBusiness.mutate()}
             disabled={saveBusiness.isPending}
           >
@@ -389,7 +389,7 @@ function A2pScreen() {
         ) : null}
         <Button
           variant="secondary"
-          className="h-11 w-full rounded-full"
+          className="h-11 w-full rounded-xl"
           onClick={() => saveBrand.mutate()}
           disabled={saveBrand.isPending || s?.business.state !== "approved"}
         >
@@ -498,7 +498,7 @@ function A2pScreen() {
             />
           </div>
           <Button
-            className="key-signal h-11 w-full rounded-full"
+            className="key-signal h-11 w-full rounded-xl"
             onClick={() => saveCampaign.mutate()}
             disabled={saveCampaign.isPending || s?.brand.state !== "approved"}
           >

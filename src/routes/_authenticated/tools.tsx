@@ -162,7 +162,7 @@ function VerifyPanel() {
         <div className="space-y-1.5">
           <Label>Service</Label>
           <Select value={activeService} onValueChange={setService}>
-            <SelectTrigger className="h-11 w-full rounded-full px-4">
+            <SelectTrigger className="h-11 w-full rounded-xl px-4">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -185,13 +185,13 @@ function VerifyPanel() {
             onChange={(e) => setPhone(e.target.value)}
             inputMode="tel"
             maxLength={20}
-            className="h-11 rounded-full px-4"
+            className="h-11 rounded-xl px-4"
           />
         </div>
         <div className="space-y-1.5">
           <Label>Channel</Label>
           <Select value={channel} onValueChange={setChannel}>
-            <SelectTrigger className="h-11 w-full rounded-full px-4">
+            <SelectTrigger className="h-11 w-full rounded-xl px-4">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -205,7 +205,7 @@ function VerifyPanel() {
       </div>
 
       <Button
-        className="key-signal h-11 w-full rounded-full sm:w-auto sm:px-8"
+        className="key-signal h-11 w-full rounded-xl sm:w-auto sm:px-8"
         disabled={!activeService || !phone}
         onClick={async () => {
           try {
@@ -227,12 +227,12 @@ function VerifyPanel() {
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 10))}
             inputMode="numeric"
-            className="tabular h-11 rounded-full px-4"
+            className="tabular h-11 rounded-xl px-4"
           />
         </div>
         <Button
           variant="secondary"
-          className="h-11 rounded-full"
+          className="h-11 rounded-xl"
           disabled={!activeService || !code}
           onClick={async () => {
             try {
@@ -277,11 +277,11 @@ function LookupPanel() {
             onChange={(e) => setPhone(e.target.value)}
             inputMode="tel"
             maxLength={20}
-            className="h-11 rounded-full px-4"
+            className="h-11 rounded-xl px-4"
           />
         </div>
         <Button
-          className="key-signal h-11 rounded-full"
+          className="key-signal h-11 rounded-xl"
           disabled={!phone || run.isPending}
           onClick={() => run.mutate()}
         >

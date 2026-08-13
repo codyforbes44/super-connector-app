@@ -240,7 +240,7 @@ function AssistantConfigScreen() {
             <div className="space-y-1.5">
               <Label>Spoken language</Label>
               <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="h-11 w-full rounded-full px-4">
+                <SelectTrigger className="h-11 w-full rounded-xl px-4">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -295,7 +295,7 @@ function AssistantConfigScreen() {
                   placeholder="+15551234567"
                   inputMode="tel"
                   maxLength={20}
-                  className="h-11 rounded-full px-4"
+                  className="h-11 rounded-xl px-4"
                 />
               </div>
             ) : null}
@@ -306,13 +306,13 @@ function AssistantConfigScreen() {
                 onChange={(e) => setMaxDuration(e.target.value.replace(/\D/g, ""))}
                 inputMode="numeric"
                 maxLength={4}
-                className="h-11 rounded-full px-4"
+                className="h-11 rounded-xl px-4"
               />
             </div>
           </section>
 
           <Button
-            className="key-signal h-12 w-full rounded-full font-semibold"
+            className="key-signal h-12 w-full rounded-xl font-semibold"
             onClick={save}
             disabled={saving}
           >

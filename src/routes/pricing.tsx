@@ -125,7 +125,7 @@ function PricingPage() {
               aria-pressed={interval === option}
               onClick={() => setInterval(option)}
               className={cn(
-                "inline-flex min-h-11 items-center rounded-full px-5 text-xs font-semibold transition-all",
+                "inline-flex min-h-11 items-center rounded-xl px-5 text-xs font-semibold transition-all",
                 interval === option
                   ? "key-signal text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -165,7 +165,7 @@ function PricingPage() {
                 to="/auth"
                 search={{ mode: "signup", plan: plan.code, interval }}
                 className={cn(
-                  "mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full px-5 text-sm font-semibold",
+                  "mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold",
                   plan.highlighted ? "key-call" : "surface-row",
                 )}
               >
