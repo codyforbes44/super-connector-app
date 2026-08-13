@@ -723,6 +723,33 @@ export type Database = {
           },
         ]
       }
+      digest_queue: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          payload: Json
+          sent: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          payload?: Json
+          sent?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          sent?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_log: {
         Row: {
           body_html: string | null
@@ -1315,9 +1342,11 @@ export type Database = {
           created_at: string
           default_number: string | null
           digest_enabled: boolean
+          digest_hour: number
           display_name: string | null
           email: string | null
           id: string
+          last_digest_sent_at: string | null
           onboarding_completed: boolean
           onboarding_skipped: boolean
           onboarding_state: Json
@@ -1334,9 +1363,11 @@ export type Database = {
           created_at?: string
           default_number?: string | null
           digest_enabled?: boolean
+          digest_hour?: number
           display_name?: string | null
           email?: string | null
           id: string
+          last_digest_sent_at?: string | null
           onboarding_completed?: boolean
           onboarding_skipped?: boolean
           onboarding_state?: Json
@@ -1353,9 +1384,11 @@ export type Database = {
           created_at?: string
           default_number?: string | null
           digest_enabled?: boolean
+          digest_hour?: number
           display_name?: string | null
           email?: string | null
           id?: string
+          last_digest_sent_at?: string | null
           onboarding_completed?: boolean
           onboarding_skipped?: boolean
           onboarding_state?: Json

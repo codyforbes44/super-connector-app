@@ -201,3 +201,56 @@ export async function sendMail(
     headers: { "Content-Type": "application/json" },
   });
 }
+
+/** Number of unread messages in the connected mailbox. */
+export async function unreadCount(userId: string): Promise<number> {
+  const label = await api<{ messagesUnread?: number; threadsUnread?: number }>(
+    userId,
+    `${BASE}/labels/INBOX`,
+  );
+  return label.messagesUnread ?? 0;
+}
+
+/**
+ * Reply inside an existing thread: correct recipient, "Re:" subject, quoted
+ * original and the RFC822 threading headers Gmail needs.
+ */
+export async function replyToThread(
+  userId: string,
+  opts: { threadId: string; body: string; to?: string },
+) {
+  const thread = await api<{ id: string; messages?: GmailMessage[] }>(
+    userId,
+    `${BASE}/threads/${opts.threadId}`,
+    { query: { format: "full" } },
+  );
+  const messages = thread.messages ?? [];
+  const last = messages[messages.length - 1];
+  if (!last) throw new Error("That conversation no longer exists.");
+
+  const me = await profile(userId).catch(() => null);
+  const fromHeader = header(last, "From");
+  const replyTo = header(last, "Reply-To");
+  const toHeader = header(last, "To");
+  const mine = me?.emailAddress?.toLowerCase() ?? "";
+  // If the last message was mine, reply to whoever it went to.
+  const recipient =
+    opts.to ||
+    (mine && fromHeader.toLowerCase().includes(mine) ? toHeader : replyTo || fromHeader);
+
+  const subject = header(last, "Subject") || "(no subject)";
+  const messageId = header(last, "Message-ID") || header(last, "Message-Id");
+  const quoted = extractBody(last.payload)
+    .split("\n")
+    .slice(0, 20)
+    .map((line) => `> ${line}`)
+    .join("\n");
+
+  return sendMail(userId, {
+    to: recipient,
+    subject: /^re:/i.test(subject) ? subject : `Re: ${subject}`,
+    body: `${opts.body}\n\n${quoted}`,
+    threadId: opts.threadId,
+    ...(messageId ? { inReplyTo: messageId } : {}),
+  });
+}

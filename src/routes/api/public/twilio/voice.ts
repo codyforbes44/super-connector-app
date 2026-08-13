@@ -53,9 +53,20 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           }
           const { data: number } = await supabaseAdmin
             .from("phone_numbers")
-            .select(`forward_to, ${VOICE_CONFIG_COLUMNS}`)
+            .select(`forward_to, assigned_to, ${VOICE_CONFIG_COLUMNS}`)
             .eq("phone_number", appNumber)
             .maybeSingle();
+
+          // Opt-in call transcription: only with a spoken consent notice.
+          let transcribeCalls = false;
+          if (number?.assigned_to) {
+            const { data: owner } = await supabaseAdmin
+              .from("profiles")
+              .select("transcribe_calls")
+              .eq("id", number.assigned_to as string)
+              .maybeSingle();
+            transcribeCalls = Boolean(owner?.transcribe_calls);
+          }
 
           // Alert watchers immediately so a backgrounded device can pick up.
           try {
@@ -74,14 +85,26 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
 
           const aiAnswering = number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id;
 
-          const { voicemailTwiml, ringbackTwiml, RING_SECONDS } = await import(
-            "@/lib/voice-answer.server"
-          );
+          const {
+            voicemailTwiml,
+            ringbackTwiml,
+            RING_SECONDS,
+            RECORDING_CONSENT,
+            recordingCallbackUrl,
+          } = await import("@/lib/voice-answer.server");
+
+          const consent = transcribeCalls
+            ? `<Say voice="alice">${escapeXml(RECORDING_CONSENT)}</Say>`
+            : "";
+          const dialRecording = transcribeCalls
+            ? ` record="record-from-answer-dual" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed"`
+            : "";
 
           if (number?.forward_to && !aiAnswering) {
             return xml(
-              // Live two-party calls are never recorded — only voicemail is.
-              `<Dial callerId="${escapeXml(appNumber)}" timeout="${RING_SECONDS}" ringTone="us"><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
+              // Live two-party calls are recorded only when the line owner
+              // opted in, and always after a spoken consent notice.
+              `${consent}<Dial callerId="${escapeXml(appNumber)}" timeout="${RING_SECONDS}" ringTone="us"${dialRecording}><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
             );
           }
 
@@ -94,7 +117,7 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           // The AI hand-off is a <Redirect>; anything queued before it (the
           // ring-back <Dial>) delays the answer, so only ring for human/voicemail.
           const handOff = answer.startsWith("<Redirect");
-          const twiml = handOff ? answer : ringbackTwiml() + answer;
+          const twiml = handOff ? answer : consent + ringbackTwiml() + answer;
 
           try {
             await supabaseAdmin
@@ -121,7 +144,7 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
             // never block the fallback
           }
           return xml(
-            `<Say voice="alice">Thanks for calling. Please leave a message after the tone.</Say><Record maxLength="120" playBeep="true" transcribe="true" /><Say voice="alice">We did not receive a recording. Goodbye.</Say>`,
+            `<Say voice="alice">Thanks for calling. Please leave a message after the tone.</Say><Record maxLength="120" playBeep="true" /><Say voice="alice">We did not receive a recording. Goodbye.</Say>`,
           );
         }
       },

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BellRing, Loader2, MailCheck } from "lucide-react";
+import { BellRing, Loader2, MailCheck, Sunrise } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { errorMessage } from "@/lib/format";
+import { getDigestSettings, saveDigestSettings, sendDigestNow } from "@/lib/digest.functions";
 import {
   getIntegrationStatus,
   getNotificationPrefs,
@@ -57,6 +58,8 @@ export function EmailNotifications() {
     email_inbound_message: true,
     email_ai_summary: true,
     email_account: true,
+    email_daily_digest: true,
+    digest_mode: "instant",
   });
 
   useEffect(() => {
@@ -90,6 +93,8 @@ export function EmailNotifications() {
           quiet_start: form.quiet_start,
           quiet_end: form.quiet_end,
           timezone: form.timezone,
+          email_daily_digest: Boolean(form["email_daily_digest"]),
+          digest_mode: String(form["digest_mode"] || "instant"),
         },
       }),
     onSuccess: () => {
@@ -106,6 +111,7 @@ export function EmailNotifications() {
   });
 
   const email = status.data?.email;
+  const digestMode = String(form["digest_mode"] || "instant") === "digest";
 
   return (
     <div className="glass-panel space-y-4 rounded-2xl p-4">
@@ -185,6 +191,95 @@ export function EmailNotifications() {
           {test.isPending ? <Loader2 className="size-4 animate-spin" /> : <MailCheck className="size-4" />}
         </Button>
       </div>
+
+      <DigestSettings
+        digestMode={digestMode}
+        onDigestModeChange={(value) =>
+          setForm((f) => ({ ...f, digest_mode: value ? "digest" : "instant" }))
+        }
+      />
+    </div>
+  );
+}
+
+function DigestSettings({
+  digestMode,
+  onDigestModeChange,
+}: {
+  digestMode: boolean;
+  onDigestModeChange: (value: boolean) => void;
+}) {
+  const qc = useQueryClient();
+  const digest = useQuery({ queryKey: ["digest-settings"], queryFn: () => getDigestSettings() });
+  const [hour, setHour] = useState<number | null>(null);
+  const currentHour = hour ?? digest.data?.hour ?? 8;
+
+  const save = useMutation({
+    mutationFn: (input: { enabled?: boolean; hour?: number }) =>
+      saveDigestSettings({ data: input }),
+    onSuccess: () => {
+      toast.success("Daily digest updated");
+      void qc.invalidateQueries({ queryKey: ["digest-settings"] });
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+
+  const now = useMutation({
+    mutationFn: () => sendDigestNow(),
+    onSuccess: (res) => {
+      const sent = (res as { sent?: boolean } | null)?.sent;
+      toast.success(sent === false ? "Nothing new to digest right now" : "Digest sent");
+      void qc.invalidateQueries({ queryKey: ["digest-settings"] });
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+
+  const enabled = Boolean(digest.data?.enabled);
+
+  return (
+    <div className="space-y-3 border-t border-border pt-3">
+      <div className="flex items-center justify-between">
+        <p className="flex items-center gap-2 text-sm font-medium">
+          <Sunrise className="size-4" /> Daily digest
+        </p>
+        <Switch checked={enabled} onCheckedChange={(v) => save.mutate({ enabled: v })} />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        One email each morning with missed calls, voicemails and unread threads.
+      </p>
+
+      {enabled && (
+        <>
+          <div className="space-y-1">
+            <Label>Delivered at (your time)</Label>
+            <Input
+              type="number"
+              min={0}
+              max={23}
+              value={currentHour}
+              onChange={(e) => setHour(Number(e.target.value))}
+              onBlur={() => save.mutate({ hour: currentHour })}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Hold instant alerts for the digest</span>
+            <Switch checked={digestMode} onCheckedChange={onDigestModeChange} />
+          </div>
+          {digest.data?.lastSentAt ? (
+            <p className="text-xs text-muted-foreground">
+              Last sent {new Date(digest.data.lastSentAt).toLocaleString()}
+            </p>
+          ) : null}
+          <Button
+            variant="secondary"
+            className="w-full"
+            disabled={now.isPending}
+            onClick={() => now.mutate()}
+          >
+            {now.isPending ? <Loader2 className="size-4 animate-spin" /> : "Send digest now"}
+          </Button>
+        </>
+      )}
     </div>
   );
 }
