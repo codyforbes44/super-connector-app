@@ -52,22 +52,6 @@ function MemberAccount() {
   });
   const [assigning, setAssigning] = useState<string>("");
 
-  if (!boot.isAdmin) {
-    return (
-      <Screen>
-        <ErrorState
-          title="Administrators only"
-          description="This area is for account administrators."
-        />
-      </Screen>
-    );
-  }
-
-  const member = (team.data ?? []).find((t) => t.id === userId);
-  const theirNumbers = boot.numbers.filter((n) => n.assigned_to === userId);
-  const spare = boot.numbers.filter((n) => !n.assigned_to);
-  const fwd = (forwarding.data ?? []).find((f) => f.user_id === userId) ?? null;
-
   const refresh = async () => {
     await Promise.all([
       qc.invalidateQueries({ queryKey: ["bootstrap"] }),
@@ -84,6 +68,22 @@ function MemberAccount() {
     },
     onError: (error) => toast.error(errorMessage(error)),
   });
+
+  if (!boot.isAdmin) {
+    return (
+      <Screen>
+        <ErrorState
+          title="Administrators only"
+          description="This area is for account administrators."
+        />
+      </Screen>
+    );
+  }
+
+  const member = (team.data ?? []).find((t) => t.id === userId);
+  const theirNumbers = boot.numbers.filter((n) => n.assigned_to === userId);
+  const spare = boot.numbers.filter((n) => !n.assigned_to);
+  const fwd = (forwarding.data ?? []).find((f) => f.user_id === userId) ?? null;
 
   return (
     <div className="min-w-0">
