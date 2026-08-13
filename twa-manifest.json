@@ -4,9 +4,9 @@
   "name": "SixVox — Business Calls, Texts & AI Receptionist",
   "launcherName": "SixVox",
   "display": "standalone",
-  "themeColor": "#08131c",
-  "navigationColor": "#08131c",
-  "backgroundColor": "#08131c",
+  "themeColor": "#0B0B0C",
+  "navigationColor": "#0B0B0C",
+  "backgroundColor": "#0B0B0C",
   "enableNotifications": true,
   "startUrl": "/inbox",
   "iconUrl": "https://sixvox.3bi.io/icon-512.png",
@@ -20,13 +20,13 @@
       "name": "Inbox",
       "shortName": "Inbox",
       "url": "/inbox",
-      "icon": "https://sixvox.3bi.io/icon-192.png"
+      "icon": "https://sixvox.3bi.io/shortcut-inbox.png"
     },
     {
       "name": "Dialer",
       "shortName": "Dialer",
       "url": "/calls",
-      "icon": "https://sixvox.3bi.io/icon-192.png"
+      "icon": "https://sixvox.3bi.io/shortcut-dialer.png"
     }
   ],
   "signing": {

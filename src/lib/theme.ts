@@ -9,7 +9,7 @@ export type Theme = "light" | "dark";
 export const THEME_STORAGE_KEY = "sixvox-theme";
 
 const THEME_COLOR: Record<Theme, string> = {
-  dark: "#08131c",
+  dark: "#0B0B0C",
   light: "#f4f8fb",
 };
 
