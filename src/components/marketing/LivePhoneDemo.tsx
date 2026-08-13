@@ -211,6 +211,13 @@ const SCENE_MS: Record<SceneId, number> = {
 
 const SCENE_ORDER: SceneId[] = ["ring", "answer", "outcome", "inbox"];
 
+const CALLOUTS: Record<SceneId, { left: string; right: string }> = {
+  ring: { left: "Rings your phone, not a desk", right: "Caller history on screen" },
+  answer: { left: "AI answered in 1.2s", right: "Live transcript, your script" },
+  outcome: { left: "Handled without you", right: "Confirmation text sent" },
+  inbox: { left: "Summary in your inbox", right: "Every channel, one thread list" },
+};
+
 function useReducedMotion() {
   const [reduce, setReduce] = useState(false);
   useEffect(() => {
@@ -297,82 +304,102 @@ export function LivePhoneDemo() {
         className="pointer-events-none absolute -inset-8 -z-10 rounded-full bg-primary/20 blur-3xl"
       />
 
-      {/* Scenario picker */}
-      <div
-        role="tablist"
-        aria-label="Choose a call scenario"
-        className="glass-panel mb-3 flex items-center gap-1 rounded-full p-1"
-      >
-        {SCENARIOS.map((item) => {
-          const active = item.id === scenario.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => pickScenario(item.id)}
-              className={cn(
-                "flex min-h-11 flex-1 items-center justify-center rounded-xl px-2 py-2 text-[0.7rem] font-semibold transition-colors",
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {item.tab}
-            </button>
-          );
-        })}
-      </div>
+      {/* One object: picker docked to the top of the frame, controls to the bottom. */}
+      <div className="glass-panel relative overflow-hidden rounded-[2.6rem] p-2.5 shadow-2xl">
+        <div
+          role="tablist"
+          aria-label="Choose a call scenario"
+          className="surface-track mb-2.5 flex items-center gap-1 rounded-full p-1"
+        >
+          {SCENARIOS.map((item) => {
+            const active = item.id === scenario.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => pickScenario(item.id)}
+                className={cn(
+                  "flex min-h-10 flex-1 items-center justify-center rounded-full px-2 py-1.5 text-[0.68rem] font-semibold transition-colors",
+                  active
+                    ? "key-signal"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {item.tab}
+              </button>
+            );
+          })}
+        </div>
 
-      <div className="glass-panel relative overflow-hidden rounded-[2.4rem] p-2.5 shadow-2xl">
-        <div className="app-gradient relative flex h-[32rem] flex-col overflow-hidden rounded-[1.9rem] pt-2.5 pb-2.5">
+        <div className="app-gradient relative flex h-[28.5rem] flex-col overflow-hidden rounded-[1.9rem] pt-2.5 pb-2.5">
           <StatusBar />
           {scene === "ring" ? <RingScene scenario={scenario} /> : null}
           {scene === "answer" ? <AnswerScene scenario={scenario} turns={shownTurns} /> : null}
           {scene === "outcome" ? <OutcomeScene scenario={scenario} /> : null}
           {scene === "inbox" ? <InboxScene scenario={scenario} /> : null}
         </div>
-      </div>
 
-      {/* Scene scrubber + playback control */}
-      <div className="mt-4 flex items-center justify-center gap-3">
-        <button
-          type="button"
-          onClick={() => setPlaying((value) => !value)}
-          disabled={reduce}
-          aria-label={playing ? "Pause demo" : "Play demo"}
-          className="surface-row grid size-8 shrink-0 place-items-center rounded-full text-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
-        >
-          {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-        </button>
-        <div className="flex items-center gap-2">
-          {SCENE_ORDER.map((item, itemIndex) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => {
-                setPlaying(false);
-                goTo(itemIndex);
-              }}
-              aria-label={sceneLabels[item]}
-              aria-current={item === scene}
-              className="grid h-6 place-items-center px-0.5"
-            >
-              <span
-                className={cn(
-                  "h-1.5 rounded-full transition-all duration-500",
-                  item === scene ? "w-6 bg-primary" : "w-1.5 bg-foreground/25",
-                )}
-              />
-            </button>
-          ))}
+        {/* Slim transport bar docked to the device */}
+        <div className="mt-2.5 flex items-center gap-2.5 px-1 pb-0.5">
+          <button
+            type="button"
+            onClick={() => setPlaying((value) => !value)}
+            disabled={reduce}
+            aria-label={playing ? "Pause demo" : "Play demo"}
+            className="surface-row grid size-8 shrink-0 place-items-center rounded-full text-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
+          >
+            {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
+          </button>
+          <div className="flex items-center gap-1.5">
+            {SCENE_ORDER.map((item, itemIndex) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => {
+                  setPlaying(false);
+                  goTo(itemIndex);
+                }}
+                aria-label={sceneLabels[item]}
+                aria-current={item === scene}
+                className="grid h-6 place-items-center px-0.5"
+              >
+                <span
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-500",
+                    item === scene ? "w-6 bg-primary" : "w-1.5 bg-foreground/25",
+                  )}
+                />
+              </button>
+            ))}
+          </div>
+          <p
+            aria-live="polite"
+            className="ml-auto truncate text-right text-[0.7rem] font-medium text-muted-foreground"
+          >
+            {sceneLabels[scene]}
+          </p>
         </div>
       </div>
-      <p aria-live="polite" className="mt-1 text-center text-xs text-muted-foreground">
-        {sceneLabels[scene]}
-      </p>
-      <p className="mt-1 text-center text-[0.7rem] text-muted-foreground/70">{scenario.blurb}</p>
+
+      {/* Scene-synced call-outs: the story for people who don't watch the loop. */}
+      <span
+        key={`left-${scene}`}
+        className="glass-panel animate-fade-in pointer-events-none absolute top-[30%] hidden rounded-full px-3 py-1.5 text-[0.68rem] font-semibold whitespace-nowrap shadow-lg lg:block lg:right-full lg:mr-[-1.25rem]"
+      >
+        <span className="mr-1.5 inline-block size-1.5 rounded-full bg-primary align-middle" />
+        {CALLOUTS[scene].left}
+      </span>
+      <span
+        key={`right-${scene}`}
+        className="glass-panel animate-fade-in pointer-events-none absolute top-[70%] hidden rounded-full px-3 py-1.5 text-[0.68rem] font-semibold whitespace-nowrap shadow-lg lg:block lg:right-full lg:mr-[-1.25rem]"
+      >
+        <span className="mr-1.5 inline-block size-1.5 rounded-full bg-success align-middle" />
+        {CALLOUTS[scene].right}
+      </span>
+
+      <p className="mt-2 text-center text-[0.72rem] text-muted-foreground">{scenario.blurb}</p>
     </div>
   );
 }
@@ -476,14 +503,21 @@ function TabPod({ active = "Inbox", fab = SquarePen }: { active?: string; fab?: 
 function RingScene({ scenario }: { scenario: Scenario }) {
   return (
     <SceneShell>
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3.5 text-center">
+        <span className="surface-row inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.65rem] font-semibold text-primary">
+          <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" />
+          SixVox is answering
+        </span>
         <span className="ring-glow grid size-24 place-items-center rounded-full text-2xl font-semibold motion-safe:animate-pulse">
           {scenario.caller.initials}
         </span>
         <div>
           <p className="font-display text-lg font-semibold">{scenario.caller.name}</p>
-          <p className="text-xs text-muted-foreground">{scenario.caller.number} · Incoming</p>
+          <p className="tabular text-xs text-muted-foreground">
+            {scenario.caller.number} · Incoming · 00:03
+          </p>
         </div>
+        <Waveform />
         <p className="glass-panel rounded-2xl px-3 py-2 text-[0.7rem] text-muted-foreground">
           {scenario.caller.context}
         </p>
@@ -497,6 +531,27 @@ function RingScene({ scenario }: { scenario: Scenario }) {
         </span>
       </div>
     </SceneShell>
+  );
+}
+
+const WAVE_BARS = [40, 72, 96, 58, 82, 100, 64, 44, 88, 56, 76, 92, 48, 68, 36];
+
+/** Purely decorative live-audio bars so the ring frame never reads as idle. */
+function Waveform() {
+  return (
+    <div aria-hidden className="flex h-6 items-center justify-center gap-[3px]">
+      {WAVE_BARS.map((height, barIndex) => (
+        <span
+          key={barIndex}
+          className="w-[3px] rounded-full bg-primary/70 motion-safe:animate-pulse"
+          style={{
+            height: `${height}%`,
+            animationDelay: `${barIndex * 80}ms`,
+            animationDuration: "1100ms",
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
