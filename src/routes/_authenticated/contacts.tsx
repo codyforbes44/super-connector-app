@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
-import { Empty, ErrorState, ListGroup, ListSkeleton, Screen, Section } from "@/components/screen";
+import { AsyncList, Empty, ListGroup, Screen, Section } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -118,22 +118,6 @@ function ContactsScreen() {
 
   const rows = (contacts.data ?? []) as Contact[];
 
-  // A–Z sections keep long lists scannable on a phone.
-  const groups = (() => {
-    const map = new Map<string, Contact[]>();
-    for (const contact of rows) {
-      const label = (contact.name || formatPhone(contact.phone_number)).trim();
-      const first = label.charAt(0).toUpperCase();
-      const key = /[A-Z]/.test(first) ? first : "#";
-      const list = map.get(key);
-      if (list) list.push(contact);
-      else map.set(key, [contact]);
-    }
-    return [...map.entries()].sort(([a], [b]) =>
-      a === "#" ? 1 : b === "#" ? -1 : a.localeCompare(b),
-    );
-  })();
-
   return (
     <div className="min-w-0">
       <ScreenHeader
@@ -182,35 +166,31 @@ function ContactsScreen() {
           </div>
         </div>
 
-        {contacts.isLoading ? (
-          <div className="mt-4">
-            <ListSkeleton rows={6} />
-          </div>
-        ) : contacts.isError ? (
-          <div className="mt-4">
-            <ErrorState
-              title="Couldn't load contacts"
-              description={errorMessage(contacts.error)}
-              onRetry={() => void contacts.refetch()}
+        <AsyncList
+          query={contacts}
+          items={rows}
+          skeletonRows={6}
+          className="mt-4"
+          errorTitle="Couldn't load contacts"
+          empty={
+            <Empty
+              icon={Users}
+              title={term ? "No matches" : "No contacts yet"}
+              description={
+                term
+                  ? "Try a different name or number."
+                  : "Add someone by hand, or sync the people already on your phone."
+              }
+              action={
+                <Button className="rounded-xl" onClick={() => setEditing("new")}>
+                  Add a contact
+                </Button>
+              }
             />
-          </div>
-        ) : rows.length === 0 ? (
-          <Empty
-            icon={Users}
-            title={term ? "No matches" : "No contacts yet"}
-            description={
-              term
-                ? "Try a different name or number."
-                : "Add someone by hand, or sync the people already on your phone."
-            }
-            action={
-              <Button className="rounded-xl" onClick={() => setEditing("new")}>
-                Add a contact
-              </Button>
-            }
-          />
-        ) : (
-          groups.map(([letter, list]) => (
+          }
+        >
+          {(page) =>
+            groupContacts(page).map(([letter, list]) => (
             <Section key={letter} title={letter}>
               <ListGroup>
                 {list.map((contact) => (
@@ -247,8 +227,9 @@ function ContactsScreen() {
                 ))}
               </ListGroup>
             </Section>
-          ))
-        )}
+            ))
+          }
+        </AsyncList>
       </Screen>
 
       {editing ? (
@@ -262,6 +243,22 @@ function ContactsScreen() {
         />
       ) : null}
     </div>
+  );
+}
+
+/** A–Z sections keep long lists scannable on a phone. */
+function groupContacts(list: Contact[]): [string, Contact[]][] {
+  const map = new Map<string, Contact[]>();
+  for (const contact of list) {
+    const label = (contact.name || formatPhone(contact.phone_number)).trim();
+    const first = label.charAt(0).toUpperCase();
+    const key = /[A-Z]/.test(first) ? first : "#";
+    const existing = map.get(key);
+    if (existing) existing.push(contact);
+    else map.set(key, [contact]);
+  }
+  return [...map.entries()].sort(([a], [b]) =>
+    a === "#" ? 1 : b === "#" ? -1 : a.localeCompare(b),
   );
 }
 

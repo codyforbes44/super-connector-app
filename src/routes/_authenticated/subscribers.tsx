@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
-import { Empty, ErrorState, ListSkeleton, Screen } from "@/components/screen";
+import { AsyncList, Empty, Screen } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorMessage } from "@/lib/format";
@@ -64,25 +64,23 @@ function SubscribersScreen() {
           className="h-11 rounded-xl"
         />
 
-        {query.isLoading ? <ListSkeleton rows={4} /> : null}
-
-        {query.isError ? (
-          <ErrorState
-            title="Restricted"
-            description="Only the super admin can view subscribers."
-            onRetry={() => void query.refetch()}
-          />
-        ) : null}
-
-        {!query.isLoading && !query.isError && rows.length === 0 ? (
-          <Empty
-            icon={ShieldCheck}
-            title="No accounts yet"
-            description="New signups appear here."
-          />
-        ) : null}
-
-        {rows.map((row) => {
+        <AsyncList
+          query={query}
+          items={rows}
+          skeletonRows={4}
+          className="space-y-3"
+          errorTitle="Restricted"
+          errorDescription="Only the super admin can view subscribers."
+          empty={
+            <Empty
+              icon={ShieldCheck}
+              title="No accounts yet"
+              description="New signups appear here."
+            />
+          }
+        >
+          {(page) =>
+            page.map((row) => {
           const sub = row.subscription as {
             plan_code: string | null;
             status: string;
@@ -134,7 +132,9 @@ function SubscribersScreen() {
               </div>
             </div>
           );
-        })}
+            })
+          }
+        </AsyncList>
       </Screen>
     </div>
   );

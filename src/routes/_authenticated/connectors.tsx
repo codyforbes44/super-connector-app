@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, Check, CircleSlash, Loader2, Plug, ChevronRight } from "lucide-react";
 
-import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { ScreenHeader } from "@/components/AppShell";
+import { ErrorState, ListSkeleton, PullToRefresh } from "@/components/screen";
 import { DeviceAccess } from "@/components/DeviceAccess";
 import { Button } from "@/components/ui/button";
 import { getConnectorsOverview } from "@/lib/connectors.functions";
@@ -60,21 +61,20 @@ function ConnectorsScreen() {
         }
       />
 
+      <PullToRefresh onRefresh={() => overview.refetch()} />
+
       {overview.isLoading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        <div className="px-4 py-4">
+          <ListSkeleton rows={5} />
         </div>
       ) : overview.isError ? (
-        <EmptyState
-          icon={Plug}
-          title="Couldn't load connectors"
-          description="Something went wrong reading your integration status. Try again in a moment."
-          action={
-            <Button className="rounded-full" onClick={() => overview.refetch()}>
-              Retry
-            </Button>
-          }
-        />
+        <div className="px-4 py-4">
+          <ErrorState
+            title="Couldn't load connectors"
+            description="Something went wrong reading your integration status. Try again in a moment."
+            onRetry={() => void overview.refetch()}
+          />
+        </div>
       ) : data ? (
         <div className="space-y-6 px-4 py-4">
           <DeviceAccess />

@@ -4,7 +4,8 @@ import { Hash, Link2, RefreshCw, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { ScreenHeader } from "@/components/AppShell";
+import { Empty, ListGroup, Screen, Section, usePagedList, LoadMore } from "@/components/screen";
 import { MessagingServicesSection } from "@/components/MessagingServices";
 import { BringYourOwnNumber } from "@/components/line/BringYourOwnNumber";
 import { EsimExplainer } from "@/components/line/EsimExplainer";
@@ -67,7 +68,12 @@ function NumbersScreen() {
     enabled: boot.isAdmin,
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
+  const refresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
+    if (boot.isAdmin) await queryClient.invalidateQueries({ queryKey: ["team"] });
+  };
+
+  const paged = usePagedList(boot.numbers, 25);
 
   async function runSync() {
     setSyncing(true);
@@ -104,8 +110,9 @@ function NumbersScreen() {
         }
       />
 
+      <Screen className="px-3 pt-0 sm:px-3" onRefresh={refresh}>
       {boot.isOwner ? (
-        <div className="px-4 py-3">
+        <div className="py-3">
           <Button
             className="key-signal h-12 w-full rounded-xl font-semibold"
             onClick={() => setBuying(true)}
@@ -117,7 +124,7 @@ function NumbersScreen() {
       ) : null}
 
       {boot.numbers.length === 0 ? (
-        <EmptyState
+        <Empty
           icon={Hash}
           title="No SixVox line yet"
           description={
@@ -134,11 +141,12 @@ function NumbersScreen() {
           }
         />
       ) : (
-        <ul className="space-y-2 px-3 pb-2">
-          {boot.numbers.map((n) => {
+        <>
+        <ListGroup>
+          {paged.items.map((n) => {
             const owner = (team.data ?? []).find((t) => t.id === n.assigned_to);
             return (
-              <li key={n.sid} className="glass-panel rounded-3xl px-4 py-3">
+              <div key={n.sid} className="px-4 py-3">
                 <button
                   type="button"
                   className="w-full text-left"
@@ -163,23 +171,27 @@ function NumbersScreen() {
                     {owner ? ` · ${owner.display_name || owner.email}` : " · unassigned"}
                   </p>
                 </button>
-              </li>
+              </div>
             );
           })}
-        </ul>
+        </ListGroup>
+        <LoadMore
+          hasMore={paged.hasMore}
+          remaining={paged.remaining}
+          onLoadMore={paged.loadMore}
+        />
+        </>
       )}
 
-      <section className="space-y-3 px-3 pt-2 pb-4">
-        <h2 className="px-1 text-[0.7rem] font-semibold tracking-wide text-muted-foreground uppercase">
-          Your own phone number
-        </h2>
+      <Section title="Your own phone number" className="space-y-3 pb-2">
         <BringYourOwnNumber lines={boot.numbers.map((n) => ({ phone_number: n.phone_number }))} />
         <EsimExplainer />
-      </section>
+      </Section>
 
       {boot.isOwner ? (
         <MessagingServicesSection numbers={boot.numbers} />
       ) : null}
+      </Screen>
 
       {boot.isOwner ? (
         <BuySheet

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { PullToRefresh } from "@/components/screen";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -234,6 +235,12 @@ function A2pScreen() {
             <ArrowLeft className="size-4" />
           </Link>
         }
+      />
+
+      <PullToRefresh
+        onRefresh={async () => {
+          await Promise.all([status.refetch(), services.refetch()]);
+        }}
       />
 
       <section className="space-y-3 px-4 py-4">

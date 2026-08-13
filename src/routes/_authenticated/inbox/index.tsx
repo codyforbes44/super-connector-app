@@ -5,9 +5,9 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ComposeSheet } from "@/components/ComposeSheet";
-import { EmptyState, ScreenHeader, useScreenFab } from "@/components/AppShell";
+import { ScreenHeader, useScreenFab } from "@/components/AppShell";
 import { SwipeRow } from "@/components/SwipeRow";
-import { ListSkeleton, PullToRefresh } from "@/components/screen";
+import { AsyncList, Empty, PullToRefresh } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -147,24 +147,28 @@ function InboxScreen() {
         onRefresh={() => queryClient.invalidateQueries({ queryKey: ["conversations"] })}
       />
 
-      {conversations.isLoading ? (
-        <div className="px-4">
-          <ListSkeleton rows={6} />
-        </div>
-      ) : rows.length === 0 ? (
-        <EmptyState
-          icon={Inbox}
-          title="No conversations yet"
-          description="Send your first message, or import recent history straight from your carrier."
-          action={
-            <Button onClick={runImport} variant="secondary" disabled={importing}>
-              Import history
-            </Button>
-          }
-        />
-      ) : (
-        <ul className="hairline-list border-y border-border pb-4">
-          {rows.map((c) => (
+      <AsyncList
+        query={conversations}
+        items={rows}
+        skeletonRows={6}
+        className="px-4"
+        errorTitle="Couldn't load your inbox"
+        empty={
+          <Empty
+            icon={Inbox}
+            title="No conversations yet"
+            description="Send your first message, or import recent history straight from your carrier."
+            action={
+              <Button onClick={runImport} variant="secondary" disabled={importing}>
+                Import history
+              </Button>
+            }
+          />
+        }
+      >
+        {(page) => (
+          <ul className="hairline-list -mx-4 border-y border-border">
+            {page.map((c) => (
             <li key={c.id}>
               <SwipeRow
                 left={
@@ -231,9 +235,10 @@ function InboxScreen() {
                 </Link>
               </SwipeRow>
             </li>
-          ))}
-        </ul>
-      )}
+            ))}
+          </ul>
+        )}
+      </AsyncList>
 
       <ComposeSheet open={composing} onOpenChange={setComposing} numbers={boot.numbers} />
     </div>
