@@ -35,7 +35,7 @@
           "purpose": "any"
         },
         {
-          "src": "/shortcut-inbox.png",
+          "src": "/shortcut-inbox-maskable.png",
           "sizes": "192x192",
           "type": "image/png",
           "purpose": "maskable"
@@ -55,7 +55,7 @@
           "purpose": "any"
         },
         {
-          "src": "/shortcut-dialer.png",
+          "src": "/shortcut-dialer-maskable.png",
           "sizes": "192x192",
           "type": "image/png",
           "purpose": "maskable"
