@@ -44,13 +44,17 @@ function inQuietHours(row: PrefRow, now = new Date()): boolean {
   return start <= end ? cur >= start && cur < end : cur >= start || cur < end;
 }
 
-/** Resolve email recipients for a set of users, honouring their preferences. */
-export async function emailRecipients(
+/**
+ * Resolve email recipients for a set of users, honouring their preferences.
+ * Users in digest mode are returned separately so their alert can be queued
+ * into the daily digest instead of being dropped.
+ */
+export async function resolveEmailAudience(
   admin: SupabaseClient,
   userIds: string[],
   prefKey: EmailPrefKey,
-): Promise<string[]> {
-  if (!userIds.length) return [];
+): Promise<{ instant: string[]; digestUserIds: string[] }> {
+  if (!userIds.length) return { instant: [], digestUserIds: [] };
 
   const [{ data: prefs }, { data: profiles }] = await Promise.all([
     admin.from("notification_prefs").select("*").in("user_id", userIds),
@@ -59,20 +63,33 @@ export async function emailRecipients(
 
   const prefById = new Map((prefs ?? []).map((p) => [p.user_id as string, p as PrefRow]));
   const out: string[] = [];
+  const digestUserIds: string[] = [];
 
   for (const id of userIds) {
     const row = prefById.get(id);
     // No row yet = defaults (all instant alerts on).
     if (row) {
       if (row[prefKey] === false) continue;
-      if (row.digest_mode === "digest") continue;
+      if (row.digest_mode === "digest") {
+        digestUserIds.push(id);
+        continue;
+      }
       if (inQuietHours(row)) continue;
     }
     const address =
       row?.email_address || (profiles ?? []).find((p) => p.id === id)?.email || null;
     if (address) out.push(address as string);
   }
-  return [...new Set(out)];
+  return { instant: [...new Set(out)], digestUserIds };
+}
+
+/** Back-compat helper: instant email recipients only. */
+export async function emailRecipients(
+  admin: SupabaseClient,
+  userIds: string[],
+  prefKey: EmailPrefKey,
+): Promise<string[]> {
+  return (await resolveEmailAudience(admin, userIds, prefKey)).instant;
 }
 
 type PushPayload = Parameters<typeof sendPushToUsers>[2];
@@ -107,7 +124,22 @@ export async function notifyNumber(
 
   if (opts.email) {
     try {
-      const to = await emailRecipients(admin, users, opts.email.prefKey);
+      const { instant: to, digestUserIds } = await resolveEmailAudience(
+        admin,
+        users,
+        opts.email.prefKey,
+      );
+      if (digestUserIds.length) {
+        const { queueDigestEvent } = await import("./digest.server");
+        for (const userId of digestUserIds) {
+          await queueDigestEvent(admin, userId, opts.email.prefKey.replace("email_", ""), {
+            appNumber,
+            at: new Date().toUTCString(),
+            ...(opts.email.context ?? {}),
+            ...(opts.push ? { from: opts.push.body, preview: opts.push.body } : {}),
+          });
+        }
+      }
       if (to.length) {
         await sendEmail(admin, {
           to,
