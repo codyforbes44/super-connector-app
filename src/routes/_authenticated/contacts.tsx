@@ -248,6 +248,7 @@ function ContactsScreen() {
 
 function ContactSheet({
   contact,
+  contact,
   onClose,
   onSaved,
 }: {
