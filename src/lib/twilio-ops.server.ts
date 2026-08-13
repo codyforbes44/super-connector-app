@@ -75,11 +75,17 @@ function smsRoutedHere(n: TwilioNumber): boolean {
 export async function syncNumbers(supabase: SB, userId: string) {
   await requireAdmin(supabase, userId);
   const admin = await adminClient();
-  const res = await twilioRequest<{ incoming_phone_numbers: TwilioNumber[] }>({
-    path: "/IncomingPhoneNumbers.json",
-    params: { PageSize: 200 },
-  });
-  const list = res.incoming_phone_numbers ?? [];
+  // Walk every page so the local list always mirrors the live Twilio account.
+  const list: TwilioNumber[] = [];
+  for (let page = 0; page < 20; page += 1) {
+    const res = await twilioRequest<{ incoming_phone_numbers: TwilioNumber[] }>({
+      path: "/IncomingPhoneNumbers.json",
+      params: { PageSize: 100, Page: page },
+    });
+    const chunk = res.incoming_phone_numbers ?? [];
+    list.push(...chunk);
+    if (chunk.length < 100) break;
+  }
   for (const n of list) {
     await admin.from("phone_numbers").upsert(
       {
@@ -94,13 +100,16 @@ export async function syncNumbers(supabase: SB, userId: string) {
       { onConflict: "sid" },
     );
   }
+  // Drop anything released in the Twilio console (including the empty case).
   const sids = list.map((n) => n.sid);
-  if (sids.length) {
-    await admin.from("phone_numbers").delete().not("sid", "in", `(${sids.join(",")})`);
-  }
-  await audit(admin, userId, "numbers.sync", { count: list.length });
+  const prune = admin.from("phone_numbers").delete();
+  const { data: removed } = sids.length
+    ? await prune.not("sid", "in", `(${sids.join(",")})`).select("phone_number")
+    : await prune.not("sid", "is", null).select("phone_number");
+  const removedCount = removed?.length ?? 0;
+  await audit(admin, userId, "numbers.sync", { count: list.length, removed: removedCount });
   const { data } = await supabase.from("phone_numbers").select("*").order("phone_number");
-  return data ?? [];
+  return { numbers: data ?? [], synced: list.length, removed: removedCount };
 }
 
 export async function assignNumber(

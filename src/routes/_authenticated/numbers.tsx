@@ -72,9 +72,14 @@ function NumbersScreen() {
   async function runSync() {
     setSyncing(true);
     try {
-      await syncNumbers();
-      await refresh();
-      toast.success("Numbers synced.");
+      const result = await syncNumbers();
+      await queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
+      await queryClient.refetchQueries({ queryKey: ["bootstrap"] });
+      toast.success(
+        result.removed > 0
+          ? `Synced ${result.synced} number${result.synced === 1 ? "" : "s"} · removed ${result.removed} released`
+          : `Synced ${result.synced} number${result.synced === 1 ? "" : "s"} from Twilio.`,
+      );
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
