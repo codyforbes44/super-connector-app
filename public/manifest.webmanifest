@@ -21,7 +21,7 @@
       "description": "Open your SixVox inbox",
       "url": "/inbox",
       "icons": [
-        { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+        { "src": "/shortcut-inbox.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
       ]
     },
     {
@@ -30,7 +30,7 @@
       "description": "Open the SixVox dialer",
       "url": "/calls",
       "icons": [
-        { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+        { "src": "/shortcut-dialer.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
       ]
     }
   ],
