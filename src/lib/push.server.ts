@@ -9,6 +9,10 @@ type NotifyPayload = {
   /** "call" renders a ringing, sticky notification with an Answer action. */
   type?: "message" | "call" | "call-ended";
   requireInteraction?: boolean;
+  /** Large icon override; defaults to the amber notification mark in the worker. */
+  icon?: string;
+  /** Optional big-picture image (e.g. MMS media). */
+  image?: string;
 };
 
 function vapid() {
