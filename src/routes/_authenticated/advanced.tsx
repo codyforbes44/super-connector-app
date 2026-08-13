@@ -4,6 +4,7 @@ import { AlertTriangle, ArrowLeft, Copy, ShieldCheck, Terminal } from "lucide-re
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { PullToRefresh } from "@/components/screen";
 import { ElevenLabsStatus } from "@/components/ElevenLabsStatus";
 import { MessagingServicesSection } from "@/components/MessagingServices";
 import { VoiceSetup } from "@/components/VoiceSetup";
@@ -152,6 +153,12 @@ function AdvancedBody() {
             <ArrowLeft className="size-4" />
           </Link>
         }
+      />
+
+      <PullToRefresh
+        onRefresh={async () => {
+          await Promise.all([overview.refetch(), diagnostics.refetch()]);
+        }}
       />
 
       <section className="space-y-3 px-4 py-4">
