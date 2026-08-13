@@ -393,7 +393,7 @@ export function LivePhoneDemo() {
       </span>
       <span
         key={`right-${scene}`}
-        className="glass-panel animate-fade-in pointer-events-none absolute top-[70%] hidden rounded-full px-3 py-1.5 text-[0.68rem] font-semibold whitespace-nowrap shadow-lg lg:block lg:left-full lg:ml-[-1.25rem]"
+        className="glass-panel animate-fade-in pointer-events-none absolute top-[70%] hidden rounded-full px-3 py-1.5 text-[0.68rem] font-semibold whitespace-nowrap shadow-lg lg:block lg:right-full lg:mr-[-1.25rem]"
       >
         <span className="mr-1.5 inline-block size-1.5 rounded-full bg-success align-middle" />
         {CALLOUTS[scene].right}
