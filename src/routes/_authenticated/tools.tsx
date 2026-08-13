@@ -55,28 +55,28 @@ function ToolsScreen() {
       <div className="px-4 py-3">
         <Tabs defaultValue="verify">
           <TabsList className="glass-panel flex w-full gap-1 overflow-x-auto rounded-2xl p-1">
-            <TabsTrigger value="verify" className="rounded-full">
+            <TabsTrigger value="verify" className="rounded-lg text-xs">
               Verify
             </TabsTrigger>
-            <TabsTrigger value="lookup" className="rounded-full">
+            <TabsTrigger value="lookup" className="rounded-lg text-xs">
               Lookup
             </TabsTrigger>
-            <TabsTrigger value="mail" className="rounded-full">
+            <TabsTrigger value="mail" className="rounded-lg text-xs">
               Mail
             </TabsTrigger>
-            <TabsTrigger value="calendar" className="rounded-full">
+            <TabsTrigger value="calendar" className="rounded-lg text-xs">
               Calendar
             </TabsTrigger>
-            <TabsTrigger value="cal-settings" className="rounded-full">
+            <TabsTrigger value="cal-settings" className="rounded-lg text-xs">
               Cal sync
             </TabsTrigger>
-            <TabsTrigger value="maps" className="rounded-full">
+            <TabsTrigger value="maps" className="rounded-lg text-xs">
               Maps
             </TabsTrigger>
-            <TabsTrigger value="email" className="rounded-full">
+            <TabsTrigger value="email" className="rounded-lg text-xs">
               Delivery
             </TabsTrigger>
-            <TabsTrigger value="templates" className="rounded-full">
+            <TabsTrigger value="templates" className="rounded-lg text-xs">
               Templates
             </TabsTrigger>
           </TabsList>
@@ -126,7 +126,7 @@ function VerifyPanel() {
 
   if (services.isError) {
     return (
-      <p className="glass-panel rounded-3xl p-4 text-sm text-muted-foreground">
+      <p className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
         {errorMessage(services.error)}
       </p>
     );
@@ -138,13 +138,13 @@ function VerifyPanel() {
   return (
     <div className="space-y-4">
       {list.length === 0 ? (
-        <div className="glass-panel space-y-3 rounded-3xl p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-sm text-muted-foreground">
             No Verify service exists yet. Create one to start sending one-time passcodes.
           </p>
           <Button
             variant="secondary"
-            className="w-full rounded-full"
+            className="h-11 w-full rounded-xl"
             onClick={async () => {
               try {
                 await createVerifyService({ data: { name: "SixVox" } });
@@ -298,7 +298,7 @@ function LookupPanel() {
             line_type_intelligence?: { type?: string; carrier_name?: string } | null;
           };
           return (
-            <li key={row.id} className="glass-panel rounded-2xl px-3.5 py-3">
+            <li key={row.id} className="rounded-2xl border border-border bg-card px-3.5 py-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="tabular text-sm font-semibold">{formatPhone(row.phone_number)}</p>
                 <span className="text-[0.7rem] text-muted-foreground">
