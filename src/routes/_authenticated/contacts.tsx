@@ -166,35 +166,31 @@ function ContactsScreen() {
           </div>
         </div>
 
-        {contacts.isLoading ? (
-          <div className="mt-4">
-            <ListSkeleton rows={6} />
-          </div>
-        ) : contacts.isError ? (
-          <div className="mt-4">
-            <ErrorState
-              title="Couldn't load contacts"
-              description={errorMessage(contacts.error)}
-              onRetry={() => void contacts.refetch()}
+        <AsyncList
+          query={contacts}
+          items={rows}
+          skeletonRows={6}
+          className="mt-4"
+          errorTitle="Couldn't load contacts"
+          empty={
+            <Empty
+              icon={Users}
+              title={term ? "No matches" : "No contacts yet"}
+              description={
+                term
+                  ? "Try a different name or number."
+                  : "Add someone by hand, or sync the people already on your phone."
+              }
+              action={
+                <Button className="rounded-xl" onClick={() => setEditing("new")}>
+                  Add a contact
+                </Button>
+              }
             />
-          </div>
-        ) : rows.length === 0 ? (
-          <Empty
-            icon={Users}
-            title={term ? "No matches" : "No contacts yet"}
-            description={
-              term
-                ? "Try a different name or number."
-                : "Add someone by hand, or sync the people already on your phone."
-            }
-            action={
-              <Button className="rounded-xl" onClick={() => setEditing("new")}>
-                Add a contact
-              </Button>
-            }
-          />
-        ) : (
-          groups.map(([letter, list]) => (
+          }
+        >
+          {(page) =>
+            groupContacts(page).map(([letter, list]) => (
             <Section key={letter} title={letter}>
               <ListGroup>
                 {list.map((contact) => (
@@ -231,8 +227,9 @@ function ContactsScreen() {
                 ))}
               </ListGroup>
             </Section>
-          ))
-        )}
+            ))
+          }
+        </AsyncList>
       </Screen>
 
       {editing ? (
