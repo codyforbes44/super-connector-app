@@ -336,6 +336,158 @@ export function ListSkeleton({ rows = 5 }: { rows?: number }) {
 }
 
 /* -------------------------------------------------------------------------
+ * Pagination + async list — one shared implementation of loading / empty /
+ * error / "load more" behaviour used by every authenticated screen.
+ * ---------------------------------------------------------------------- */
+
+export const DEFAULT_PAGE_SIZE = 25;
+
+/** Incremental client-side pagination over an already-fetched array. */
+export function usePagedList<T>(items: T[], pageSize = DEFAULT_PAGE_SIZE) {
+  const [visible, setVisible] = useState(pageSize);
+  const total = items.length;
+
+  // Reset paging whenever the underlying collection shrinks (filter/search).
+  useEffect(() => {
+    setVisible((current) => (current > pageSize && total <= pageSize ? pageSize : current));
+  }, [total, pageSize]);
+
+  const loadMore = useCallback(() => {
+    setVisible((current) => current + pageSize);
+  }, [pageSize]);
+
+  return {
+    items: items.slice(0, visible),
+    hasMore: total > visible,
+    remaining: Math.max(0, total - visible),
+    total,
+    loadMore,
+    reset: useCallback(() => setVisible(pageSize), [pageSize]),
+  };
+}
+
+/** "Load more" affordance that also auto-loads when scrolled into view. */
+export function LoadMore({
+  hasMore,
+  remaining,
+  onLoadMore,
+  className,
+}: {
+  hasMore: boolean;
+  remaining?: number;
+  onLoadMore: () => void;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!hasMore) return;
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) onLoadMore();
+      },
+      { rootMargin: "240px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, onLoadMore]);
+
+  if (!hasMore) return null;
+  return (
+    <div ref={ref} className={cn("flex justify-center py-4", className)}>
+      <button
+        type="button"
+        onClick={() => {
+          haptic("light");
+          onLoadMore();
+        }}
+        className="inline-flex min-h-11 items-center rounded-xl bg-secondary px-4 text-sm font-medium text-foreground"
+      >
+        {remaining ? `Load ${remaining > 25 ? "25 more" : `${remaining} more`}` : "Load more"}
+      </button>
+    </div>
+  );
+}
+
+export type AsyncQuery = {
+  isLoading: boolean;
+  isError: boolean;
+  error?: unknown;
+  refetch?: () => unknown;
+};
+
+/**
+ * Renders the canonical loading / error / empty / paged-content sequence for a
+ * list-backed query so every screen behaves identically.
+ */
+export function AsyncList<T>({
+  query,
+  items,
+  children,
+  skeletonRows = 5,
+  pageSize = DEFAULT_PAGE_SIZE,
+  paginate = true,
+  empty,
+  errorTitle = "Couldn't load this list",
+  errorDescription,
+  className,
+}: {
+  query: AsyncQuery;
+  items: T[];
+  children: (items: T[]) => ReactNode;
+  skeletonRows?: number;
+  pageSize?: number;
+  paginate?: boolean;
+  empty: ReactNode;
+  errorTitle?: string;
+  errorDescription?: string;
+  className?: string;
+}) {
+  const paged = usePagedList(items, paginate ? pageSize : Number.MAX_SAFE_INTEGER);
+
+  if (query.isLoading) {
+    return (
+      <div className={className}>
+        <ListSkeleton rows={skeletonRows} />
+      </div>
+    );
+  }
+
+  if (query.isError) {
+    return (
+      <div className={className}>
+        <ErrorState
+          title={errorTitle}
+          description={errorDescription ?? asMessage(query.error)}
+          onRetry={query.refetch ? () => void query.refetch?.() : undefined}
+        />
+      </div>
+    );
+  }
+
+  if (items.length === 0) return <div className={className}>{empty}</div>;
+
+  return (
+    <div className={className}>
+      {children(paged.items)}
+      <LoadMore
+        hasMore={paged.hasMore}
+        remaining={paged.remaining}
+        onLoadMore={paged.loadMore}
+      />
+    </div>
+  );
+}
+
+function asMessage(error: unknown) {
+  if (!error) return undefined;
+  if (error instanceof Error) return error.message;
+  return typeof error === "string" ? error : undefined;
+}
+
+/* -------------------------------------------------------------------------
  * Field — labelled input with mobile keyboard hints
  * ---------------------------------------------------------------------- */
 
