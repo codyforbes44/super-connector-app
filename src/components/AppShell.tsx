@@ -91,7 +91,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {/* Mobile: edge-anchored tab bar plus a single primary action button */}
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 lg:hidden">
-          <nav className="pointer-events-auto border-t border-border bg-card px-1 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.35rem)]">
+          <nav className="pointer-events-auto border-t border-primary/25 bg-card px-1 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.35rem)]">
             <ul className="grid grid-cols-5">
               {TABS.map((tab) => {
                 const active = pathname.startsWith(tab.to);
@@ -102,13 +102,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                       to={tab.to}
                       className={cn(
                         "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[0.6rem] font-medium transition-colors",
-                        active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                        active ? "text-primary" : "text-muted-foreground hover:text-primary/80",
                       )}
                     >
                       <span
                         className={cn(
                           "flex h-8 w-11 items-center justify-center rounded-xl transition-colors",
-                          active ? "bg-secondary text-primary" : "opacity-80",
+                          active
+                            ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                            : "opacity-80",
                         )}
                       >
                         <Icon
