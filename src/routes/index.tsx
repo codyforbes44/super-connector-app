@@ -237,7 +237,7 @@ function Landing() {
               </p>
             </div>
 
-            <Reveal className="relative order-2 md:order-none">
+            <Reveal className="relative order-2 md:col-start-2 md:row-span-2 md:row-start-1">
               <LivePhoneDemo />
             </Reveal>
 
