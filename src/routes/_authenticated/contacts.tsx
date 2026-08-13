@@ -246,8 +246,23 @@ function ContactsScreen() {
   );
 }
 
+/** A–Z sections keep long lists scannable on a phone. */
+function groupContacts(list: Contact[]): [string, Contact[]][] {
+  const map = new Map<string, Contact[]>();
+  for (const contact of list) {
+    const label = (contact.name || formatPhone(contact.phone_number)).trim();
+    const first = label.charAt(0).toUpperCase();
+    const key = /[A-Z]/.test(first) ? first : "#";
+    const existing = map.get(key);
+    if (existing) existing.push(contact);
+    else map.set(key, [contact]);
+  }
+  return [...map.entries()].sort(([a], [b]) =>
+    a === "#" ? 1 : b === "#" ? -1 : a.localeCompare(b),
+  );
+}
+
 function ContactSheet({
-  contact,
   contact,
   onClose,
   onSaved,
