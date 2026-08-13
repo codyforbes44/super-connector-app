@@ -456,12 +456,13 @@ export function AsyncList<T>({
   }
 
   if (query.isError) {
+    const description = errorDescription ?? asMessage(query.error);
     return (
       <div className={className}>
         <ErrorState
           title={errorTitle}
-          description={errorDescription ?? asMessage(query.error)}
-          onRetry={query.refetch ? () => void query.refetch?.() : undefined}
+          {...(description ? { description } : {})}
+          {...(query.refetch ? { onRetry: () => void query.refetch?.() } : {})}
         />
       </div>
     );
