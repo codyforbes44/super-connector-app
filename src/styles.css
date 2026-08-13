@@ -178,6 +178,50 @@
   color-scheme: dark;
 }
 
+/* Always-graphite island (marketing hero) — holds the app's own palette even
+   when the surrounding page is in light mode. */
+.theme-dark {
+  color-scheme: dark;
+  --background: oklch(0.145 0.003 286);
+  --foreground: oklch(0.928 0.004 85);
+  --card: oklch(0.213 0.004 286);
+  --card-foreground: oklch(0.928 0.004 85);
+  --popover: oklch(0.19 0.004 286);
+  --popover-foreground: oklch(0.928 0.004 85);
+  --primary: oklch(0.802 0.157 75);
+  --primary-foreground: oklch(0.18 0.02 70);
+  --secondary: oklch(0.245 0.004 286);
+  --secondary-foreground: oklch(0.928 0.004 85);
+  --muted: oklch(0.225 0.004 286);
+  --muted-foreground: oklch(0.68 0.006 80);
+  --accent: oklch(0.265 0.006 286);
+  --accent-foreground: oklch(0.95 0.004 85);
+  --destructive: oklch(0.62 0.2 22);
+  --destructive-foreground: oklch(0.98 0.005 60);
+  --success: oklch(0.72 0.15 152);
+  --success-foreground: oklch(0.17 0.03 152);
+  --warning: oklch(0.802 0.157 75);
+  --warning-foreground: oklch(0.18 0.02 70);
+  --violet: oklch(0.7 0.13 300);
+  --border: oklch(0.93 0.004 85 / 12%);
+  --input: oklch(0.93 0.004 85 / 16%);
+  --ring: oklch(0.802 0.157 75);
+  --gradient-call: linear-gradient(180deg, oklch(0.75 0.15 152), oklch(0.68 0.14 152));
+  --gradient-end: linear-gradient(180deg, oklch(0.65 0.2 22), oklch(0.58 0.19 22));
+  --gradient-signal: linear-gradient(180deg, oklch(0.83 0.15 78), oklch(0.77 0.16 72));
+  --shadow-key: 0 1px 0 oklch(1 0 0 / 4%);
+  --shadow-float: 0 12px 30px -18px oklch(0 0 0 / 90%);
+  --panel-bg: oklch(0.213 0.004 286);
+  --panel-border: oklch(0.93 0.004 85 / 10%);
+  --row-bg: oklch(0.213 0.004 286);
+  --row-border: oklch(0.93 0.004 85 / 9%);
+  --track-bg: oklch(0.93 0.004 85 / 8%);
+  --key-raised-bg: oklch(0.245 0.004 286);
+
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
