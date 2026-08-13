@@ -211,6 +211,13 @@ const SCENE_MS: Record<SceneId, number> = {
 
 const SCENE_ORDER: SceneId[] = ["ring", "answer", "outcome", "inbox"];
 
+const CALLOUTS: Record<SceneId, { left: string; right: string }> = {
+  ring: { left: "Rings your phone, not a desk", right: "Caller history on screen" },
+  answer: { left: "AI answered in 1.2s", right: "Live transcript, your script" },
+  outcome: { left: "Handled without you", right: "Confirmation text sent" },
+  inbox: { left: "Summary in your inbox", right: "Every channel, one thread list" },
+};
+
 function useReducedMotion() {
   const [reduce, setReduce] = useState(false);
   useEffect(() => {
