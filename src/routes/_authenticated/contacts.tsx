@@ -302,7 +302,7 @@ function ContactSheet({
     <Sheet open onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="bottom"
-        className="app-gradient max-h-[85dvh] overflow-y-auto rounded-t-[2rem] border-border"
+        className="max-h-[85dvh] overflow-y-auto rounded-t-3xl border-border bg-card"
       >
         <SheetHeader className="px-0">
           <SheetTitle>{contact ? "Edit contact" : "New contact"}</SheetTitle>

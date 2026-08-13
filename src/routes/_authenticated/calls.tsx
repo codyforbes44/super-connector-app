@@ -497,7 +497,7 @@ function CallsScreen() {
       </Sheet>
 
       <Sheet open={dialing} onOpenChange={setDialing}>
-        <SheetContent side="bottom" className="app-gradient rounded-t-[2rem] border-border">
+        <SheetContent side="bottom" className="rounded-t-3xl border-border bg-card">
           <SheetHeader className="px-0">
             <SheetTitle className="font-display text-center">Dialer</SheetTitle>
           </SheetHeader>
