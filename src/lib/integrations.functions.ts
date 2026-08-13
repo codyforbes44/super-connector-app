@@ -55,6 +55,15 @@ export const sendMailMessage = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => ops.mailSend(context.userId, data));
 
+export const replyMailThread = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { threadId: string; body: string }) => input)
+  .handler(async ({ context, data }) => ops.mailReply(context.userId, data));
+
+export const getMailUnread = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => ops.mailUnread(context.userId));
+
 /* calendar */
 
 export const listCalendars = createServerFn({ method: "GET" })
