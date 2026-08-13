@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { PullToRefresh } from "@/components/screen";
 import { SettingsGroup, SettingsLink } from "@/components/settings/SettingsGroup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +61,13 @@ function SettingsScreen() {
   return (
     <div className="pb-6">
       <ScreenHeader title="Settings" subtitle={`Signed in as ${boot.profile?.email ?? ""}`} />
+
+      <PullToRefresh
+        onRefresh={async () => {
+          await queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
+          if (boot.isAdmin) await team.refetch();
+        }}
+      />
 
       <section className="space-y-3 px-4 py-4">
         <h2 className="font-display text-sm font-semibold">Your profile</h2>
