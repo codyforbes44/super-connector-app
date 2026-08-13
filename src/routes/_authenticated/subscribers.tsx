@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Gift, Loader2, ShieldCheck, UserX } from "lucide-react";
+import { Gift, ShieldCheck, UserX } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { ScreenHeader } from "@/components/AppShell";
+import { Empty, ErrorState, ListSkeleton, Screen } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorMessage } from "@/lib/format";
@@ -50,32 +51,33 @@ function SubscribersScreen() {
   );
 
   return (
-    <div className="pb-10">
+    <div className="min-w-0">
       <ScreenHeader title="Subscribers" subtitle="Super admin only" />
-      <div className="space-y-3 px-4 pt-4">
+      <Screen
+        className="space-y-3"
+        onRefresh={() => queryClient.invalidateQueries({ queryKey: ["subscribers"] })}
+      >
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by name or email"
-          className="rounded-full"
+          className="h-11 rounded-xl"
         />
 
         {query.isLoading ? (
-          <div className="glass-panel flex justify-center rounded-3xl p-8">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-          </div>
+          <ListSkeleton rows={4} />
         ) : null}
 
         {query.isError ? (
-          <EmptyState
-            icon={ShieldCheck}
+          <ErrorState
             title="Restricted"
             description="Only the super admin can view subscribers."
+            onRetry={() => void query.refetch()}
           />
         ) : null}
 
         {!query.isLoading && !query.isError && rows.length === 0 ? (
-          <EmptyState icon={ShieldCheck} title="No accounts yet" description="New signups appear here." />
+          <Empty icon={ShieldCheck} title="No accounts yet" description="New signups appear here." />
         ) : null}
 
         {rows.map((row) => {
@@ -84,7 +86,7 @@ function SubscribersScreen() {
             | null;
           const plan = planByCode(sub?.plan_code);
           return (
-            <div key={row.id} className="glass-panel rounded-3xl p-4">
+            <div key={row.id} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-display truncate text-sm font-semibold">
@@ -103,7 +105,7 @@ function SubscribersScreen() {
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="flex-1 rounded-full"
+                  className="h-10 flex-1 rounded-xl"
                   disabled={mutation.isPending}
                   onClick={() =>
                     mutation.mutate({ targetUserId: row.id, comped: !(sub?.comped ?? false) })
@@ -115,7 +117,7 @@ function SubscribersScreen() {
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="flex-1 rounded-full"
+                  className="h-10 flex-1 rounded-xl"
                   disabled={mutation.isPending}
                   onClick={() =>
                     mutation.mutate({ targetUserId: row.id, suspended: !(sub?.suspended ?? false) })
@@ -128,7 +130,7 @@ function SubscribersScreen() {
             </div>
           );
         })}
-      </div>
+      </Screen>
     </div>
   );
 }
