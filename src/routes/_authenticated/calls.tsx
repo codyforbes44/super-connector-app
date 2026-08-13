@@ -308,42 +308,41 @@ function CallsScreen() {
           </div>
         ) : null}
 
-        {calls.isLoading ? (
-          <ListSkeleton rows={6} />
-        ) : calls.isError ? (
-          <ErrorState
-            title="Couldn't load your calls"
-            description={errorMessage(calls.error)}
-            onRetry={() => void calls.refetch()}
-          />
-        ) : (calls.data ?? []).length === 0 ? (
-          <Empty
-            icon={
-              filters.q ||
-              filters.direction !== "all" ||
-              filters.range !== "all" ||
-              filters.device !== "all"
-                ? Filter
-                : PhoneCall
-            }
-            title={
-              filters.q ||
-              filters.direction !== "all" ||
-              filters.range !== "all" ||
-              filters.device !== "all"
-                ? "No matching calls"
-                : "No calls yet"
-            }
-            description="Place a call, adjust your filters, or pull your recent call history into the app."
-            action={
-              <Button variant="secondary" onClick={sync} disabled={syncing}>
-                Sync call history
-              </Button>
-            }
-          />
-        ) : (
-          <ListGroup className="min-w-0">
-            {(calls.data ?? []).map((call) => {
+        <AsyncList
+          query={calls}
+          items={calls.data ?? []}
+          skeletonRows={6}
+          errorTitle="Couldn't load your calls"
+          empty={
+            <Empty
+              icon={
+                filters.q ||
+                filters.direction !== "all" ||
+                filters.range !== "all" ||
+                filters.device !== "all"
+                  ? Filter
+                  : PhoneCall
+              }
+              title={
+                filters.q ||
+                filters.direction !== "all" ||
+                filters.range !== "all" ||
+                filters.device !== "all"
+                  ? "No matching calls"
+                  : "No calls yet"
+              }
+              description="Place a call, adjust your filters, or pull your recent call history into the app."
+              action={
+                <Button variant="secondary" onClick={sync} disabled={syncing}>
+                  Sync call history
+                </Button>
+              }
+            />
+          }
+        >
+          {(pageCalls) => (
+            <ListGroup className="min-w-0">
+              {pageCalls.map((call) => {
               const inbound = call.direction === "inbound";
               const other = inbound ? call.from_number : call.to_number;
               const redialTo = otherParty(call);
@@ -416,9 +415,10 @@ function CallsScreen() {
                   </button>
                 </div>
               );
-            })}
-          </ListGroup>
-        )}
+              })}
+            </ListGroup>
+          )}
+        </AsyncList>
       </Screen>
 
       <Sheet open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
