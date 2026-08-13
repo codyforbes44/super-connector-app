@@ -4,7 +4,15 @@ import { Loader2, Plus, Search, Smartphone, Trash2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { EmptyState, ScreenHeader } from "@/components/AppShell";
+import { ScreenHeader } from "@/components/AppShell";
+import {
+  Empty,
+  ErrorState,
+  ListGroup,
+  ListSkeleton,
+  Screen,
+  Section,
+} from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -120,8 +128,24 @@ function ContactsScreen() {
 
   const rows = (contacts.data ?? []) as Contact[];
 
+  // A–Z sections keep long lists scannable on a phone.
+  const groups = (() => {
+    const map = new Map<string, Contact[]>();
+    for (const contact of rows) {
+      const label = (contact.name || formatPhone(contact.phone_number)).trim();
+      const first = label.charAt(0).toUpperCase();
+      const key = /[A-Z]/.test(first) ? first : "#";
+      const list = map.get(key);
+      if (list) list.push(contact);
+      else map.set(key, [contact]);
+    }
+    return [...map.entries()].sort(([a], [b]) =>
+      a === "#" ? 1 : b === "#" ? -1 : a.localeCompare(b),
+    );
+  })();
+
   return (
-    <div className="pb-8">
+    <div className="min-w-0">
       <ScreenHeader
         title="Contacts"
         subtitle={rows.length ? `${rows.length} saved` : "Your people, in one place"}
@@ -133,7 +157,8 @@ function ContactsScreen() {
         }
       />
 
-      <div className="space-y-3 px-4 py-3">
+      <Screen onRefresh={refresh}>
+        <div className="space-y-3 pt-2">
         <div className="relative">
           <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -144,7 +169,7 @@ function ContactsScreen() {
           />
         </div>
 
-        <div className="glass-panel flex items-center gap-3 rounded-3xl p-4">
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/18 text-primary">
             <Smartphone className="size-[1.05rem]" />
           </span>
@@ -158,21 +183,29 @@ function ContactsScreen() {
           </div>
           <Button
             size="sm"
-            className="rounded-full"
+            className="rounded-xl"
             disabled={!deviceSupported || syncDevice.isPending}
             onClick={() => syncDevice.mutate()}
           >
             {syncDevice.isPending ? <Loader2 className="size-4 animate-spin" /> : "Sync"}
           </Button>
         </div>
-      </div>
+        </div>
 
       {contacts.isLoading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        <div className="mt-4">
+          <ListSkeleton rows={6} />
+        </div>
+      ) : contacts.isError ? (
+        <div className="mt-4">
+          <ErrorState
+            title="Couldn't load contacts"
+            description={errorMessage(contacts.error)}
+            onRetry={() => void contacts.refetch()}
+          />
         </div>
       ) : rows.length === 0 ? (
-        <EmptyState
+        <Empty
           icon={Users}
           title={term ? "No matches" : "No contacts yet"}
           description={
@@ -181,21 +214,23 @@ function ContactsScreen() {
               : "Add someone by hand, or sync the people already on your phone."
           }
           action={
-            <Button className="rounded-full" onClick={() => setEditing("new")}>
+            <Button className="rounded-xl" onClick={() => setEditing("new")}>
               Add a contact
             </Button>
           }
         />
       ) : (
-        <ul className="glass-panel mx-3 divide-y divide-border/60 overflow-hidden rounded-3xl">
-          {rows.map((contact) => (
-            <li key={contact.id} className="flex items-center gap-3 px-3.5 py-3">
+        groups.map(([letter, list]) => (
+          <Section key={letter} title={letter}>
+            <ListGroup>
+              {list.map((contact) => (
+            <div key={contact.id} className="flex min-h-14 items-center gap-3 px-4 py-3">
               <button
                 type="button"
                 className="flex min-w-0 flex-1 items-center gap-3 text-left"
                 onClick={() => setEditing(contact)}
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/18 text-sm font-semibold text-primary">
+                <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/15 text-sm font-semibold text-primary">
                   {initialsFor(contact.name || contact.phone_number)}
                 </span>
                 <span className="min-w-0">
@@ -216,10 +251,13 @@ function ContactsScreen() {
                 <Trash2 className="size-4 text-destructive" />
                 <span className="sr-only">Delete contact</span>
               </Button>
-            </li>
-          ))}
-        </ul>
+            </div>
+              ))}
+            </ListGroup>
+          </Section>
+        ))
       )}
+      </Screen>
 
       {editing ? (
         <ContactSheet
@@ -264,7 +302,7 @@ function ContactSheet({
     <Sheet open onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="bottom"
-        className="app-gradient max-h-[85dvh] overflow-y-auto rounded-t-[2rem] border-border"
+        className="max-h-[85dvh] overflow-y-auto rounded-t-3xl border-border bg-card"
       >
         <SheetHeader className="px-0">
           <SheetTitle>{contact ? "Edit contact" : "New contact"}</SheetTitle>
