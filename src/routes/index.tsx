@@ -119,6 +119,8 @@ const FEATURES = [
 const STEPS = [
   {
     n: "1",
+  {
+    n: "1",
     title: "Create your account",
     body: "Email or Google. No card, no sales call.",
     time: "20 seconds",
