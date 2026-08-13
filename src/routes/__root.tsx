@@ -42,6 +42,26 @@ const appleSplashLinks = (
   media: `(device-width: ${cssW}px) and (device-height: ${cssH}px) and (-webkit-device-pixel-ratio: ${dpr}) and (orientation: portrait)`,
 }));
 
+/** Landscape counterparts (Safari standalone rotated launch). */
+const appleSplashLandscapeLinks = (
+  [
+    [2796, 1290, 430, 932, 3],
+    [2556, 1179, 393, 852, 3],
+    [2436, 1125, 375, 812, 3],
+    [2732, 2048, 1024, 1366, 2],
+  ] as const
+).map(([w, h, cssW, cssH, dpr]) => ({
+  rel: "apple-touch-startup-image",
+  href: `/apple-splash-${w}x${h}.png`,
+  media: `(device-width: ${cssW}px) and (device-height: ${cssH}px) and (-webkit-device-pixel-ratio: ${dpr}) and (orientation: landscape)`,
+}));
+
+/** Generic launch artwork used by Chrome Android / Firefox install + offline shells. */
+const webSplashLinks = [
+  { rel: "preload", as: "image", href: "/splash-portrait.png", media: "(orientation: portrait)" },
+  { rel: "preload", as: "image", href: "/splash-landscape.png", media: "(orientation: landscape)" },
+];
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
