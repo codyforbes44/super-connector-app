@@ -49,12 +49,13 @@ export const Route = createFileRoute("/_authenticated/tools")({
 });
 
 function ToolsScreen() {
+  const queryClient = useQueryClient();
   return (
-    <div>
+    <div className="min-w-0">
       <ScreenHeader title="Tools" subtitle="Verify · Lookup · Mail · Calendar · Maps" />
-      <div className="px-4 py-3">
+      <Screen onRefresh={() => queryClient.invalidateQueries()}>
         <Tabs defaultValue="verify">
-          <TabsList className="glass-panel flex w-full gap-1 overflow-x-auto rounded-2xl p-1">
+          <TabsList className="flex w-full gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">
             <TabsTrigger value="verify" className="rounded-lg text-xs">
               Verify
             </TabsTrigger>
@@ -105,7 +106,7 @@ function ToolsScreen() {
             <EmailTemplatesPanel />
           </TabsContent>
         </Tabs>
-      </div>
+      </Screen>
     </div>
   );
 }
