@@ -3,6 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, Lightbulb } from "lucide-react";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { PullToRefresh } from "@/components/screen";
 import { getInsights } from "@/lib/intelligence.functions";
 
 const DESCRIPTION =
@@ -77,6 +78,8 @@ function InsightsScreen() {
           </Link>
         }
       />
+
+      <PullToRefresh onRefresh={() => insights.refetch()} />
 
       <div className="grid grid-cols-2 gap-2 px-4 pt-4 sm:grid-cols-3">
         <Stat label="Calls" value={data?.total ?? 0} />
