@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { webhookUrl } from "./app.server";
 import {
   ELEVENLABS_TWILIO_INBOUND_URL,
   ensureAgentPhoneNumber,
@@ -25,6 +26,20 @@ export const RING_SECONDS = 18;
  */
 export function ringbackTwiml(seconds: number = RING_SECONDS): string {
   return `<Dial timeout="${seconds}" ringTone="us"><Client>sixvox-ringback</Client></Dial>`;
+}
+
+/** Spoken notice played before a live call is recorded. Never silent. */
+export const RECORDING_CONSENT =
+  "This call may be recorded and transcribed for note taking.";
+
+/** Twilio posts finished recordings here; we transcribe them ourselves. */
+export function recordingCallbackUrl(): string {
+  return webhookUrl("recording");
+}
+
+/** `<Record>` verb used for voicemail — modern transcription happens in our callback. */
+export function recordVerb(): string {
+  return `<Record maxLength="120" playBeep="true" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed" />`;
 }
 
 export type NumberVoiceConfig = {
