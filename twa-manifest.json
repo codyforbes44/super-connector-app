@@ -47,5 +47,7 @@
   "minSdkVersion": 23,
   "targetSdkVersion": 34,
   "orientation": "portrait",
-  "navigationDividerColor": "#FFB020"
+  "navigationDividerColor": "#FFB020",
+  "monochromeIconUrl": "https://sixvox.3bi.io/icon-monochrome-512.png",
+  "splashScreenFadeOutDuration": 300
 }
