@@ -89,9 +89,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </main>
         </div>
 
-        {/* Mobile: detached tab pod plus a single primary action button */}
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex items-center justify-center gap-2 px-3 pb-[calc(env(safe-area-inset-bottom)+0.6rem)] lg:hidden">
-          <nav className="glass-panel pointer-events-auto min-w-0 flex-1 rounded-full px-1 py-1 md:max-w-lg">
+        {/* Mobile: edge-anchored tab bar plus a single primary action button */}
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 lg:hidden">
+          <nav className="pointer-events-auto border-t border-border bg-card px-1 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.35rem)]">
             <ul className="grid grid-cols-5">
               {TABS.map((tab) => {
                 const active = pathname.startsWith(tab.to);
@@ -107,8 +107,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                     >
                       <span
                         className={cn(
-                          "flex h-8 w-11 items-center justify-center rounded-full transition-all",
-                          active ? "key-signal" : "opacity-80",
+                          "flex h-8 w-11 items-center justify-center rounded-xl transition-colors",
+                          active ? "bg-secondary text-primary" : "opacity-80",
                         )}
                       >
                         <Icon
@@ -127,7 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={fab.onClick}
-              className="key-call pointer-events-auto flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95"
+              className="key-call pointer-events-auto absolute right-4 bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg transition-transform active:scale-95"
             >
               <FabIcon className="h-6 w-6" />
               <span className="sr-only">{fab.label}</span>
@@ -161,9 +161,9 @@ export function ScreenHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-30 px-3 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2 sm:px-4 lg:pt-5">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/95 px-4 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 backdrop-blur sm:px-5 lg:pt-5">
       <div className="flex items-center justify-between gap-2">
-        <div className="glass-panel min-w-0 rounded-full py-2 pr-5 pl-4">
+        <div className="min-w-0">
           <h1 className="font-display truncate text-xl leading-tight font-semibold tracking-tight sm:text-2xl">
             {title}
           </h1>
@@ -171,11 +171,7 @@ export function ScreenHeader({
             <p className="truncate text-[0.7rem] text-muted-foreground">{subtitle}</p>
           ) : null}
         </div>
-        {action ? (
-          <div className="glass-panel flex shrink-0 items-center gap-1 rounded-full p-1">
-            {action}
-          </div>
-        ) : null}
+        {action ? <div className="flex shrink-0 items-center gap-1">{action}</div> : null}
       </div>
     </header>
   );
