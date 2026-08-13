@@ -155,6 +155,21 @@ export async function mailSend(
   return { ok: true, id: sent.id, threadId: sent.threadId };
 }
 
+export async function mailReply(userId: string, input: { threadId: string; body: string }) {
+  const sent = await gmailUser.replyToThread(userId, input);
+  return { ok: true, id: sent.id, threadId: sent.threadId };
+}
+
+export async function mailUnread(userId: string) {
+  try {
+    return { connected: true, unread: await gmailUser.unreadCount(userId) };
+  } catch (error) {
+    if (error instanceof gmailUser.GmailNotConnected) return { connected: false, unread: 0 };
+    console.error("gmail unread count failed", error);
+    return { connected: true, unread: 0 };
+  }
+}
+
 /* -------------------------------------------------------------- calendar */
 
 export async function calendars() {
