@@ -215,7 +215,7 @@ function Landing() {
                 <Link
                   to="/auth"
                   search={{ mode: "signup" }}
-                  className="key-signal inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold shadow-[0_14px_34px_-18px_var(--color-primary)] transition-transform hover:scale-[1.02] active:scale-[0.98] sm:min-h-12 sm:text-sm"
+                  className="key-signal inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold shadow-[0_14px_34px_-18px_var(--primary)] transition-transform hover:scale-[1.02] active:scale-[0.98] sm:min-h-12 sm:text-sm"
                 >
                   Start free — 14 days
                   <ArrowRight className="h-4 w-4" />
