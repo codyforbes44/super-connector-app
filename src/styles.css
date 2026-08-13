@@ -372,6 +372,30 @@
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
+/* Marketing hero band: graphite slab with a single warm amber signal wash. */
+@utility hero-band {
+  position: relative;
+  isolation: isolate;
+  border-block: 1px solid var(--panel-border);
+  background-image: radial-gradient(
+      110% 70% at 78% 8%,
+      oklch(0.802 0.157 75 / 16%),
+      transparent 62%
+    ),
+    radial-gradient(90% 60% at 8% 100%, oklch(0.802 0.157 75 / 8%), transparent 60%);
+}
+
+/* Concentric "signal" rings behind the handset — pure CSS, no image weight. */
+@utility signal-rings {
+  background-image: repeating-radial-gradient(
+    circle at center,
+    oklch(0.802 0.157 75 / 12%) 0 1px,
+    transparent 1px 46px
+  );
+  -webkit-mask-image: radial-gradient(circle at center, black 20%, transparent 72%);
+  mask-image: radial-gradient(circle at center, black 20%, transparent 72%);
+}
+
 @utility pb-mobile-cta {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
   @media (width >= 48rem) {
