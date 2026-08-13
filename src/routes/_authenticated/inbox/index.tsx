@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { EmptyState, ScreenHeader, useScreenFab } from "@/components/AppShell";
 import { SwipeRow } from "@/components/SwipeRow";
+import { ListSkeleton, PullToRefresh } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -136,15 +137,19 @@ function InboxScreen() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search conversations"
-          className="h-11 rounded-full px-4"
+          type="search"
+          enterKeyHint="search"
+          className="h-11 rounded-xl px-4"
         />
       </div>
 
+      <PullToRefresh
+        onRefresh={() => queryClient.invalidateQueries({ queryKey: ["conversations"] })}
+      />
+
       {conversations.isLoading ? (
-        <div className="space-y-2 px-4">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-3xl bg-secondary" />
-          ))}
+        <div className="px-4">
+          <ListSkeleton rows={6} />
         </div>
       ) : rows.length === 0 ? (
         <EmptyState
@@ -158,7 +163,7 @@ function InboxScreen() {
           }
         />
       ) : (
-        <ul className="divide-y divide-border/60 border-y border-border/60 pb-4">
+        <ul className="hairline-list border-y border-border pb-4">
           {rows.map((c) => (
             <li key={c.id}>
               <SwipeRow
@@ -181,11 +186,11 @@ function InboxScreen() {
                 <Link
                   to="/inbox/$id"
                   params={{ id: c.id }}
-                  className="flex min-h-[4.5rem] items-center gap-3 bg-background/40 px-4 py-3 transition-colors active:bg-secondary/60"
+                  className="flex min-h-[4.5rem] items-center gap-3 bg-background px-4 py-3 transition-colors active:bg-accent"
                 >
                   <span
                     className={cn(
-                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xs font-semibold",
                       c.channel === "whatsapp"
                         ? "bg-success/15 text-success"
                         : "bg-primary/15 text-primary",
