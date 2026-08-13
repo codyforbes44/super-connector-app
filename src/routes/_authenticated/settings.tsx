@@ -103,6 +103,13 @@ function SettingsScreen() {
 
       <SettingsGroup title="Your week">
         <SettingsLink
+          to="/contacts"
+          icon={Users}
+          tone="cyan"
+          title="Contacts"
+          description="Save people and sync your device address book"
+        />
+        <SettingsLink
           to="/insights"
           icon={Sparkles}
           tone="violet"
