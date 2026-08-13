@@ -78,6 +78,73 @@ const USE_CASES = [
   },
 ];
 
+const CASE_STUDIES = [
+  {
+    title: "Solopreneurs & side businesses",
+    name: "Maya Chen Design Co.",
+    narrative:
+      "Maya ran her freelance branding business from her personal iPhone. Clients texted at 10 p.m., voicemails lived in three apps, and she never knew if a missed call was a friend or a $5,000 project. She needed a boundary without losing the personal touch.",
+    bullets: [
+      "Set up a dedicated business line in under 5 minutes",
+      "Enabled AI voicemail that summarizes every missed call",
+      "Routed all texts, calls, and voicemails into one searchable inbox",
+    ],
+    outcomes: [
+      { metric: "40%", label: "fewer after-hours interruptions" },
+      { metric: "2.1x", label: "faster client follow-up" },
+      { metric: "100%", label: "personal number kept private" },
+    ],
+  },
+  {
+    title: "Trades & service professionals",
+    name: "Atlas HVAC",
+    narrative:
+      "Atlas HVAC's two technicians were usually under a sink or on a roof when homeowners called. Missed calls meant competitors got the job, and the office admin was spending hours returning voicemails every evening.",
+    bullets: [
+      "AI receptionist answers every call and qualifies the lead",
+      "Captures address, issue type, and urgency before hanging up",
+      "Sends a summary and booking link to the dispatch team",
+    ],
+    outcomes: [
+      { metric: "6 hrs", label: "saved weekly on callbacks" },
+      { metric: "28%", label: "more estimates booked" },
+      { metric: "24/7", label: "call capture, even on weekends" },
+    ],
+  },
+  {
+    title: "Small teams & agencies",
+    name: "Pine & Co. Marketing",
+    narrative:
+      "Pine & Co. had six account managers juggling client SMS threads across personal phones. Messages got lost, replies were duplicated, and there was no record of who promised what. Onboarding new hires meant handing over a phone number.",
+    bullets: [
+      "Shared team inbox with role-based access",
+      "Internal notes and assignment for every thread",
+      "One business number used by the whole team",
+    ],
+    outcomes: [
+      { metric: "3", label: "separate phone services retired" },
+      { metric: "90%", label: "faster thread resolution" },
+      { metric: "Zero", label: "duplicated client replies" },
+    ],
+  },
+  {
+    title: "Remote & mobile workers",
+    name: "Bridge Consulting",
+    narrative:
+      "Bridge Consulting's founder split time between Nashville, Lisbon, and client sites. She wanted to keep her U.S. business number but local data abroad, and she needed calls to follow her laptop, not a desk phone.",
+    bullets: [
+      "Forwarded her existing U.S. number to SixVox",
+      "Purchased travel eSIMs inside the app before each trip",
+      "Made and received business calls from her laptop or phone",
+    ],
+    outcomes: [
+      { metric: "$180/mo", label: "saved on roaming" },
+      { metric: "1 app", label: "for calls, texts, and data" },
+      { metric: "Global", label: "coverage, local caller ID" },
+    ],
+  },
+];
+
 function UseCasesPage() {
   return (
     <MarketingLayout>
@@ -141,6 +208,69 @@ function UseCasesPage() {
           ))}
         </div>
       </Section>
+
+      <Section className="py-6 md:py-10">
+        <Reveal>
+          <h2 className="font-display text-2xl font-semibold md:text-3xl">
+            Case studies in detail.
+          </h2>
+          <p className="mt-3 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
+            Real workflows, real outcomes. See how each persona puts SixVox to work.
+          </p>
+        </Reveal>
+
+        <div className="mt-8 grid gap-5">
+          {CASE_STUDIES.map((study, index) => (
+            <Reveal
+              key={study.name}
+              as="article"
+              delay={index * 60}
+              className="surface-row rounded-3xl p-5 md:p-7"
+            >
+              <div className="flex flex-col gap-6 md:flex-row md:gap-10">
+                <div className="flex-1">
+                  <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-primary">
+                    {study.title}
+                  </span>
+                  <h3 className="font-display mt-1.5 text-lg font-semibold md:text-xl">
+                    {study.name}
+                  </h3>
+                  <p className="mt-3 text-[0.9rem] leading-relaxed text-muted-foreground">
+                    {study.narrative}
+                  </p>
+                  <ul className="mt-4 space-y-2">
+                    {study.bullets.map((bullet) => (
+                      <li
+                        key={bullet}
+                        className="flex items-start gap-2 text-[0.85rem] leading-relaxed text-foreground"
+                      >
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                        {bullet}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex flex-col justify-between gap-3 md:w-56">
+                  {study.outcomes.map((outcome) => (
+                    <div
+                      key={outcome.label}
+                      className="glass-panel flex flex-col rounded-2xl px-4 py-3"
+                    >
+                      <span className="font-display text-2xl font-semibold text-primary">
+                        {outcome.metric}
+                      </span>
+                      <span className="text-[0.75rem] leading-snug text-muted-foreground">
+                        {outcome.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
 
       <Section className="py-9 md:py-14">
         <Reveal>
