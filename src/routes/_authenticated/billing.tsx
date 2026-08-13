@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { Screen, Skeleton } from "@/components/screen";
 import { BillingHistory } from "@/components/BillingHistory";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
@@ -99,7 +100,7 @@ function BillingScreen() {
   };
 
   return (
-    <div className="pb-10">
+    <div className="min-w-0">
       <ScreenHeader
         title="Billing"
         subtitle={
@@ -112,9 +113,9 @@ function BillingScreen() {
       />
       <PaymentTestModeBanner />
 
-      <div className="space-y-4 px-4 pt-4">
+      <Screen className="space-y-4" onRefresh={() => refetch()}>
         {activating ? (
-          <div className="glass-panel flex items-center gap-3 rounded-3xl p-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
             <p className="text-xs text-muted-foreground">
               Payment received — we&apos;re activating your workspace. This usually takes a few
@@ -124,7 +125,7 @@ function BillingScreen() {
         ) : null}
 
         {subscription?.status === "past_due" && !subscription.comped ? (
-          <div className="glass-panel flex items-start gap-3 rounded-3xl border-destructive/40 p-4">
+          <div className="flex items-start gap-3 rounded-2xl border border-destructive/40 bg-card p-4">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
             <div>
               <p className="text-sm font-semibold">We couldn&apos;t take your last payment</p>
@@ -137,13 +138,15 @@ function BillingScreen() {
         ) : null}
 
         {loading ? (
-          <div className="glass-panel flex items-center justify-center rounded-3xl p-8">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="mt-3 h-3 w-2/3" />
+            <Skeleton className="mt-5 h-11 w-full rounded-xl" />
           </div>
         ) : null}
 
         {subscription && isActive ? (
-          <div className="glass-panel rounded-3xl p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
               <span className="key-signal flex h-11 w-11 items-center justify-center rounded-xl">
                 <Sparkles className="h-[1.05rem] w-[1.05rem] text-primary" />
@@ -170,7 +173,7 @@ function BillingScreen() {
             {subscription.stripe_customer_id ? (
               <Button
                 variant="secondary"
-                className="mt-4 w-full rounded-full"
+                className="mt-4 h-11 w-full rounded-xl"
                 onClick={openPortal}
                 disabled={portalBusy}
               >
@@ -183,7 +186,7 @@ function BillingScreen() {
               </Button>
             ) : null}
             <Button
-              className="key-call mt-2 w-full rounded-full"
+              className="key-call mt-2 h-11 w-full rounded-xl"
               onClick={() => navigate({ to: "/inbox" })}
             >
               Go to the command center
@@ -201,7 +204,7 @@ function BillingScreen() {
             />
             <Button
               variant="ghost"
-              className="w-full rounded-full"
+              className="h-11 w-full rounded-xl"
               onClick={() => {
                 setCheckoutPrice(null);
                 void refetch();
@@ -212,14 +215,14 @@ function BillingScreen() {
           </div>
         ) : (
           <>
-            <div className="glass-panel flex rounded-full p-1">
+            <div className="flex rounded-xl border border-border bg-card p-1">
               {(["month", "year"] as BillingInterval[]).map((option) => (
                 <button
                   key={option}
                   type="button"
                   onClick={() => setInterval(option)}
                   className={cn(
-                    "flex-1 rounded-full py-2 text-xs font-semibold transition-all",
+                    "flex-1 rounded-lg py-2 text-xs font-semibold transition-all",
                     interval === option
                       ? "key-signal text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground",
@@ -234,7 +237,7 @@ function BillingScreen() {
               <div
                 key={item.code}
                 className={cn(
-                  "glass-panel rounded-3xl p-4",
+                  "rounded-2xl border border-border bg-card p-4",
                   item.highlighted && "border-primary/45",
                 )}
               >
@@ -259,7 +262,7 @@ function BillingScreen() {
                   ))}
                 </ul>
                 <Button
-                  className={cn("mt-4 w-full rounded-full", item.highlighted && "key-call")}
+                  className={cn("mt-4 h-11 w-full rounded-xl", item.highlighted && "key-call")}
                   variant={item.highlighted ? "default" : "secondary"}
                   disabled={!paymentsConfigured()}
                   onClick={() => setCheckoutPrice(priceIdFor(item.code, interval))}
@@ -283,7 +286,7 @@ function BillingScreen() {
             </p>
           </>
         )}
-      </div>
+      </Screen>
     </div>
   );
 }
