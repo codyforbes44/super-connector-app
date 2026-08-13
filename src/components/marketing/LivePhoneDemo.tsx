@@ -503,14 +503,21 @@ function TabPod({ active = "Inbox", fab = SquarePen }: { active?: string; fab?: 
 function RingScene({ scenario }: { scenario: Scenario }) {
   return (
     <SceneShell>
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3.5 text-center">
+        <span className="surface-row inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.65rem] font-semibold text-primary">
+          <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" />
+          SixVox is answering
+        </span>
         <span className="ring-glow grid size-24 place-items-center rounded-full text-2xl font-semibold motion-safe:animate-pulse">
           {scenario.caller.initials}
         </span>
         <div>
           <p className="font-display text-lg font-semibold">{scenario.caller.name}</p>
-          <p className="text-xs text-muted-foreground">{scenario.caller.number} · Incoming</p>
+          <p className="tabular text-xs text-muted-foreground">
+            {scenario.caller.number} · Incoming · 00:03
+          </p>
         </div>
+        <Waveform />
         <p className="glass-panel rounded-2xl px-3 py-2 text-[0.7rem] text-muted-foreground">
           {scenario.caller.context}
         </p>
@@ -524,6 +531,27 @@ function RingScene({ scenario }: { scenario: Scenario }) {
         </span>
       </div>
     </SceneShell>
+  );
+}
+
+const WAVE_BARS = [40, 72, 96, 58, 82, 100, 64, 44, 88, 56, 76, 92, 48, 68, 36];
+
+/** Purely decorative live-audio bars so the ring frame never reads as idle. */
+function Waveform() {
+  return (
+    <div aria-hidden className="flex h-6 items-center justify-center gap-[3px]">
+      {WAVE_BARS.map((height, barIndex) => (
+        <span
+          key={barIndex}
+          className="w-[3px] rounded-full bg-primary/70 motion-safe:animate-pulse"
+          style={{
+            height: `${height}%`,
+            animationDelay: `${barIndex * 80}ms`,
+            animationDuration: "1100ms",
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
