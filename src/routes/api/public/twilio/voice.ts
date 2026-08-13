@@ -121,7 +121,7 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
             // never block the fallback
           }
           return xml(
-            `<Say voice="alice">Thanks for calling. Please leave a message after the tone.</Say><Record maxLength="120" playBeep="true" transcribe="true" /><Say voice="alice">We did not receive a recording. Goodbye.</Say>`,
+            `<Say voice="alice">Thanks for calling. Please leave a message after the tone.</Say><Record maxLength="120" playBeep="true" /><Say voice="alice">We did not receive a recording. Goodbye.</Say>`,
           );
         }
       },
