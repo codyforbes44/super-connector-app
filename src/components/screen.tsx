@@ -12,7 +12,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
-import { tapFeedback } from "@/lib/haptics";
+import { haptic } from "@/lib/haptics";
 
 /* -------------------------------------------------------------------------
  * Screen — safe-area aware page body with optional pull-to-refresh.
@@ -57,7 +57,7 @@ export function PullToRefresh({ onRefresh }: { onRefresh: () => Promise<unknown>
       setPull(0);
       if (distance < 56 || busy) return;
       setBusy(true);
-      tapFeedback();
+      haptic("light");
       try {
         await onRefresh();
       } finally {
@@ -229,7 +229,7 @@ export function Row({
     <button
       type="button"
       onClick={() => {
-        tapFeedback();
+        haptic("light");
         onClick();
       }}
       className={cn(rowClasses, "hover:bg-accent active:bg-accent", props.className)}
