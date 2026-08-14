@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 
+import receptionistAvifSrcSet from "@/assets/ai-receptionist.jpg?w=420;640;900&format=avif&as=srcset";
 import receptionistSrcSet from "@/assets/ai-receptionist.jpg?w=420;640;900&format=webp&as=srcset";
 import receptionistShot from "@/assets/ai-receptionist.jpg?w=640&format=webp";
 import {
@@ -399,17 +400,29 @@ function Landing() {
               ))}
             </ul>
           </div>
-          <img
-            src={receptionistShot}
-            srcSet={receptionistSrcSet}
-            sizes="(min-width: 768px) 30rem, 100vw"
-            width={1024}
-            height={1024}
-            loading="lazy"
-            decoding="async"
-            alt="The SixVox AI receptionist answering a call, with a live transcript below the call controls"
-            className="aspect-square w-full rounded-[1.5rem] object-cover"
-          />
+          <picture>
+            <source
+              type="image/avif"
+              srcSet={receptionistAvifSrcSet}
+              sizes="(min-width: 768px) 30rem, 100vw"
+            />
+            <source
+              type="image/webp"
+              srcSet={receptionistSrcSet}
+              sizes="(min-width: 768px) 30rem, 100vw"
+            />
+            <img
+              src={receptionistShot}
+              srcSet={receptionistSrcSet}
+              sizes="(min-width: 768px) 30rem, 100vw"
+              width={1024}
+              height={1024}
+              loading="lazy"
+              decoding="async"
+              alt="The SixVox AI receptionist answering a call, with a live transcript below the call controls"
+              className="aspect-square w-full rounded-[1.5rem] object-cover"
+            />
+          </picture>
         </Reveal>
       </Section>
 

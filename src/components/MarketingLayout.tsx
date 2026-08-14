@@ -2,7 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import logoMark from "@/assets/sixvox-logo.png";
+import logoMark from "@/assets/sixvox-logo.png?w=72&format=webp";
+import logoMarkSrcSet from "@/assets/sixvox-logo.png?w=36;72;108&format=webp&as=srcset";
 import { cn } from "@/lib/utils";
 import { AccountActions } from "@/components/AccountMenu";
 import { useSession } from "@/hooks/useSession";
@@ -131,6 +132,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           <Link to="/" aria-label="SixVox home" className="flex min-h-11 items-center gap-2">
             <img
               src={logoMark}
+              srcSet={logoMarkSrcSet}
+              sizes="36px"
               alt="SixVox logo"
               width={36}
               height={36}
@@ -267,6 +270,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <div className="flex items-center gap-2">
               <img
                 src={logoMark}
+                srcSet={logoMarkSrcSet}
+                sizes="32px"
                 alt="SixVox logo"
                 width={32}
                 height={32}
