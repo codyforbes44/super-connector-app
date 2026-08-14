@@ -142,6 +142,7 @@ export function VoxConcierge() {
         await conversation.startSession({
           conversationToken: data.token,
           connectionType: "webrtc",
+          textOnly: !asVoice,
           dynamicVariables: data.variables,
         });
         return true;

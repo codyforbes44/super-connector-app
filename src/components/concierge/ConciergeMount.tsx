@@ -1,5 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 
+import { ConversationProvider } from "@elevenlabs/react";
+
 const VoxConcierge = lazy(() =>
   import("./VoxConcierge").then((module) => ({ default: module.VoxConcierge })),
 );
@@ -28,7 +30,9 @@ export function ConciergeMount() {
   if (!ready) return null;
   return (
     <Suspense fallback={null}>
-      <VoxConcierge />
+      <ConversationProvider>
+        <VoxConcierge />
+      </ConversationProvider>
     </Suspense>
   );
 }
