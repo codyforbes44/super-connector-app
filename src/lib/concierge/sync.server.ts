@@ -178,7 +178,7 @@ export async function syncConciergeAgent(): Promise<SyncResult> {
         },
         tts: {
           voice_id: CONCIERGE_VOICE_ID,
-          model_id: "eleven_flash_v2_5",
+          model_id: "eleven_flash_v2",
           stability: 0.45,
           similarity_boost: 0.75,
           speed: 1.0,
@@ -215,12 +215,6 @@ export async function syncConciergeAgent(): Promise<SyncResult> {
                 "Did the conversation end with a clear next step, such as a captured lead, a booked callback, a navigation, or a handoff?",
             },
           ],
-        },
-        workspace_overrides: {
-          conversation_initiation_client_data_webhook: {
-            url: postCallUrl(),
-            request_headers: {},
-          },
         },
         overrides: {
           conversation_config_override: {
