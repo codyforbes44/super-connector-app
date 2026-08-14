@@ -23,9 +23,9 @@ export function applyTheme(theme: Theme) {
     ?.setAttribute("content", THEME_COLOR[theme]);
 }
 
+/** Dark is the product default; the system preference never flips it on its own. */
 export function getSystemTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  return "dark";
 }
 
 export function readStoredTheme(): Theme | null {
@@ -42,9 +42,9 @@ export function readTheme(): Theme {
 }
 
 /** Inlined in the document head so the first paint already has the right theme. */
-export const THEME_BOOTSTRAP_SCRIPT = `(function(){try{var t=localStorage.getItem(${JSON.stringify(
+export const THEME_BOOTSTRAP_SCRIPT = `(function(){var t="dark";try{var s=localStorage.getItem(${JSON.stringify(
   THEME_STORAGE_KEY,
-)});if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}var r=document.documentElement;r.classList.toggle("dark",t==="dark");r.classList.toggle("light",t==="light");}catch(e){}})();`;
+)});if(s==="light"||s==="dark"){t=s;}}catch(e){}var r=document.documentElement;r.classList.toggle("dark",t==="dark");r.classList.toggle("light",t==="light");})();`;
 
 /** Theme state for the public site. Reads the class the bootstrap script set. */
 export function useTheme() {
@@ -55,15 +55,6 @@ export function useTheme() {
     const initial = stored ?? getSystemTheme();
     setThemeState(initial);
     applyTheme(initial);
-
-    // If the user has not set an explicit preference, follow the system.
-    const mql = window.matchMedia("(prefers-color-scheme: light)");
-    const listener = (e: MediaQueryListEvent) => {
-      if (readStoredTheme()) return;
-      applyTheme(e.matches ? "light" : "dark");
-    };
-    mql.addEventListener("change", listener);
-    return () => mql.removeEventListener("change", listener);
   }, []);
 
   const setTheme = useCallback((next: Theme) => {
