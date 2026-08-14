@@ -20,6 +20,8 @@ export function VoxConcierge() {
   const [input, setInput] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const startedRef = useRef(false);
+  const sessionRef = useRef<{ key: string; startedAt: number } | null>(null);
+  const turnsRef = useRef<Turn[]>([]);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -32,11 +34,37 @@ export function VoxConcierge() {
     setTurns((prev) => [...prev, { id: `${Date.now()}-${prev.length}`, role, text: text.trim() }]);
   }, []);
 
+  /** Store what was said so the team can read it back in the app. */
+  const persist = useCallback(() => {
+    const session = sessionRef.current;
+    if (!session || !turnsRef.current.length) return;
+    const payload = JSON.stringify({
+      sessionKey: session.key,
+      durationSeconds: (Date.now() - session.startedAt) / 1000,
+      turns: turnsRef.current.map((turn) => ({
+        role: turn.role === "you" ? "user" : "assistant",
+        content: turn.text,
+      })),
+    });
+    const url = "/api/public/agent/transcript";
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, new Blob([payload], { type: "application/json" }));
+      return;
+    }
+    void fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      keepalive: true,
+    }).catch(() => {});
+  }, []);
+
   const conversation = useConversation({
     textOnly: !voice,
     onConnect: () => setError(null),
     onDisconnect: () => {
       startedRef.current = false;
+      persist();
     },
     onError: (event: unknown) => {
       setError(typeof event === "string" ? event : "The concierge dropped out. Try again.");
@@ -106,8 +134,10 @@ export function VoxConcierge() {
         if (!response.ok) throw new Error("unavailable");
         const data = (await response.json()) as {
           token: string;
+          sessionKey: string;
           variables: Record<string, string>;
         };
+        sessionRef.current = { key: data.sessionKey, startedAt: Date.now() };
 
         await conversation.startSession({
           conversationToken: data.token,
@@ -174,7 +204,11 @@ export function VoxConcierge() {
   }, [open]);
 
   useEffect(() => {
+    const onHide = () => persist();
+    window.addEventListener("pagehide", onHide);
     return () => {
+      window.removeEventListener("pagehide", onHide);
+      persist();
       void Promise.resolve(conversation.endSession()).catch(() => {});
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
