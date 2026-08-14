@@ -27,7 +27,7 @@ import {
   submitCampaign,
 } from "@/lib/a2p.functions";
 import { errorMessage } from "@/lib/format";
-import { listMessagingServices } from "@/lib/twilio.functions";
+import { listMessagingServices, refreshMessagingReadiness } from "@/lib/twilio.functions";
 
 const TITLE = "US texting registration — SixVox";
 const DESCRIPTION =
@@ -145,6 +145,13 @@ function A2pScreen() {
     enabled: boot.isOwner,
     retry: false,
   });
+  // Per-number texting readiness, refreshed straight from the carrier campaign.
+  const readiness = useQuery({
+    queryKey: ["messaging-readiness"],
+    queryFn: () => refreshMessagingReadiness(),
+    enabled: boot.isOwner,
+    retry: false,
+  });
 
   const [biz, setBiz] = useState({
     legalName: "",
@@ -239,9 +246,58 @@ function A2pScreen() {
 
       <PullToRefresh
         onRefresh={async () => {
-          await Promise.all([status.refetch(), services.refetch()]);
+          await Promise.all([status.refetch(), services.refetch(), readiness.refetch()]);
         }}
       />
+
+      <section className="px-4 pt-4">
+        <div className="glass-panel space-y-2 rounded-2xl p-4">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold">Numbers cleared to text</h2>
+            <button
+              type="button"
+              onClick={() => void readiness.refetch()}
+              className="key-raised rounded-full px-3 py-1 text-[0.7rem] text-muted-foreground"
+            >
+              {readiness.isFetching ? "Checking…" : "Recheck"}
+            </button>
+          </div>
+          {(readiness.data as unknown as Array<{
+            phoneNumber: string;
+            campaignStatus: string | null;
+            ready: boolean;
+          }> | undefined)?.length ? (
+            <ul className="divide-y divide-border/60">
+              {(
+                readiness.data as unknown as Array<{
+                  phoneNumber: string;
+                  campaignStatus: string | null;
+                  ready: boolean;
+                }>
+              ).map((n) => (
+                <li key={n.phoneNumber} className="flex items-center justify-between py-2 text-sm">
+                  <span className="tabular">{n.phoneNumber}</span>
+                  <span
+                    className={
+                      n.ready
+                        ? "text-[0.7rem] font-medium text-primary"
+                        : "text-[0.7rem] text-muted-foreground"
+                    }
+                  >
+                    {n.ready ? "Approved" : (n.campaignStatus ?? "Not registered")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {readiness.isError
+                ? errorMessage(readiness.error)
+                : "No numbers checked yet."}
+            </p>
+          )}
+        </div>
+      </section>
 
       <section className="space-y-3 px-4 py-4">
         <p className="text-xs text-muted-foreground">
