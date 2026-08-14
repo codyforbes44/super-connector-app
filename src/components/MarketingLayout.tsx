@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { AccountActions } from "@/components/AccountMenu";
 import { useSession } from "@/hooks/useSession";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ConciergeMount } from "@/components/concierge/ConciergeMount";
 
 const NAV = [
   { to: "/features", label: "Features" },
@@ -211,6 +212,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       <main id="main" className="pb-mobile-cta relative">
         {children}
       </main>
+
+      <ConciergeMount />
 
       {/* Thumb-reach conversion bar: phones only, once the hero has scrolled away. */}
       <div

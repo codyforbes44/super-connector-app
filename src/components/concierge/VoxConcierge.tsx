@@ -195,7 +195,7 @@ export function VoxConcierge() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Chat with Vox, the SixVox concierge"
-        className="key-signal fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 flex h-14 items-center gap-2 rounded-full px-5 text-sm font-semibold shadow-lg"
+        className="key-signal fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-40 flex h-14 md:bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] items-center gap-2 rounded-full px-5 text-sm font-semibold shadow-lg"
       >
         <MessageCircle className="h-5 w-5" />
         <span className="hidden sm:inline">Ask Vox</span>
