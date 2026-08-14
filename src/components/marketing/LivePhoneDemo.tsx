@@ -715,7 +715,7 @@ function OutcomeScene({ scenario }: { scenario: Scenario }) {
 
 function InboxScene({ scenario }: { scenario: Scenario }) {
   return (
-    <div className="animate-fade-in flex min-h-0 flex-1 flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <PillHeader
         title="Inbox"
         subtitle="6 numbers · SMS, MMS & WhatsApp"
