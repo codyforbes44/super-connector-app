@@ -31,7 +31,6 @@ import {
 import { LivePhoneDemo } from "@/components/marketing/LivePhoneDemo";
 import { FeatureGroup, IconTile, TONES } from "@/components/marketing/FeatureList";
 import { Reveal } from "@/components/marketing/Reveal";
-import { StickySignupBar } from "@/components/marketing/StickySignupBar";
 import { PLANS } from "@/lib/plans";
 import { SITE_URL, pageHead } from "@/lib/seo";
 import { cn } from "@/lib/utils";
@@ -508,10 +507,8 @@ function Landing() {
             body="Create your workspace, claim a number and take your first call in about a minute."
             note="14 days free · no card · cancel any time"
           />
-        </Reveal>
+      </Reveal>
       </Section>
-
-      <StickySignupBar />
     </MarketingLayout>
   );
 }
