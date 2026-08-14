@@ -211,6 +211,26 @@ const SCENE_MS: Record<SceneId, number> = {
 
 const SCENE_ORDER: SceneId[] = ["ring", "answer", "outcome", "inbox"];
 
+/** Cumulative start time of each scene, plus the full loop length. */
+const SCENE_STARTS = SCENE_ORDER.reduce<number[]>((acc, id, i) => {
+  acc.push(i === 0 ? 0 : acc[i - 1]! + SCENE_MS[SCENE_ORDER[i - 1]!]);
+  return acc;
+}, []);
+const TOTAL_MS = SCENE_STARTS[SCENE_STARTS.length - 1]! + SCENE_MS[SCENE_ORDER[3]!];
+
+const TURN_DELAY = 500;
+const TURN_GAP = 1150;
+
+function sceneIndexAt(elapsed: number) {
+  let index = 0;
+  for (let i = 0; i < SCENE_ORDER.length; i += 1) {
+    if (elapsed >= SCENE_STARTS[i]!) index = i;
+  }
+  return index;
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
 const CALLOUTS: Record<SceneId, { left: string; right: string }> = {
   ring: { left: "Rings your phone, not a desk", right: "Caller history on screen" },
   answer: { left: "AI answered in 1.2s", right: "Live transcript, your script" },
@@ -233,15 +253,17 @@ function useReducedMotion() {
 export function LivePhoneDemo() {
   const reduce = useReducedMotion();
   const [scenarioId, setScenarioId] = useState(SCENARIOS[0]!.id);
-  const [index, setIndex] = useState(0);
-  const [turns, setTurns] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
   const [visible, setVisible] = useState(true);
   const [playing, setPlaying] = useState(true);
+  const [scrubbing, setScrubbing] = useState(false);
   const frame = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
 
   const scenario = SCENARIOS.find((item) => item.id === scenarioId) ?? SCENARIOS[0]!;
-  const scene = SCENE_ORDER[reduce ? 3 : index]!;
-  const running = playing && visible && !reduce;
+  const index = reduce ? 3 : sceneIndexAt(elapsed);
+  const scene = SCENE_ORDER[index]!;
+  const running = playing && visible && !reduce && !scrubbing;
 
   const sceneLabels: Record<SceneId, string> = {
     ring: "A call comes in",
@@ -250,15 +272,11 @@ export function LivePhoneDemo() {
     inbox: "You get the summary",
   };
 
-  const goTo = (next: number) => {
-    setIndex(next);
-    setTurns(next > SCENE_ORDER.indexOf("answer") ? scenario.transcript.length : 0);
-  };
+  const goTo = (next: number) => setElapsed(SCENE_STARTS[clamp(next, 0, 3)]!);
 
   const pickScenario = (id: string) => {
     setScenarioId(id);
-    setIndex(0);
-    setTurns(0);
+    setElapsed(0);
     setPlaying(true);
   };
 
@@ -276,25 +294,41 @@ export function LivePhoneDemo() {
 
   useEffect(() => {
     if (!running) return;
-    const timer = window.setTimeout(() => {
-      setIndex((value) => (value + 1) % SCENE_ORDER.length);
-      setTurns(0);
-    }, SCENE_MS[scene]);
-    return () => window.clearTimeout(timer);
-  }, [running, index, scene]);
+    let raf = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const delta = now - last;
+      last = now;
+      setElapsed((value) => (value + delta) % TOTAL_MS);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [running]);
 
-  // Transcript lines land one at a time while the assistant is talking.
-  useEffect(() => {
-    if (!running || scene !== "answer") return;
-    if (turns >= scenario.transcript.length) return;
-    const timer = window.setTimeout(() => setTurns((value) => value + 1), turns === 0 ? 500 : 1150);
-    return () => window.clearTimeout(timer);
-  }, [running, scene, turns, scenario.transcript.length]);
+  // Transcript lines land one at a time, derived from the timeline position.
+  const sceneElapsed = elapsed - SCENE_STARTS[index]!;
+  const shownTurns = useMemo(() => {
+    if (reduce || scene !== "answer") {
+      return index >= SCENE_ORDER.indexOf("answer") ? scenario.transcript : [];
+    }
+    const count = clamp(
+      Math.floor((sceneElapsed - TURN_DELAY) / TURN_GAP) + 1,
+      0,
+      scenario.transcript.length,
+    );
+    return scenario.transcript.slice(0, count);
+  }, [reduce, scene, index, sceneElapsed, scenario.transcript]);
 
-  const shownTurns = useMemo(
-    () => (reduce ? scenario.transcript : scenario.transcript.slice(0, turns)),
-    [reduce, scenario.transcript, turns],
-  );
+  const seekFromPointer = (clientX: number) => {
+    const node = track.current;
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
+    const ratio = clamp((clientX - rect.left) / rect.width, 0, 1);
+    setElapsed(clamp(ratio * TOTAL_MS, 0, TOTAL_MS - 1));
+  };
+
+  const progress = reduce ? 1 : elapsed / TOTAL_MS;
 
   return (
     <div ref={frame} className="relative mx-auto w-full max-w-[19.5rem]">
@@ -335,10 +369,21 @@ export function LivePhoneDemo() {
 
         <div className="app-gradient relative flex h-[28.5rem] flex-col overflow-hidden rounded-[1.9rem] pt-2.5 pb-2.5">
           <StatusBar />
-          {scene === "ring" ? <RingScene scenario={scenario} /> : null}
-          {scene === "answer" ? <AnswerScene scenario={scenario} turns={shownTurns} /> : null}
-          {scene === "outcome" ? <OutcomeScene scenario={scenario} /> : null}
-          {scene === "inbox" ? <InboxScene scenario={scenario} /> : null}
+          {/* Scenes are stacked so switching cross-fades instead of cutting. */}
+          <div className="relative min-h-0 flex-1">
+            <SceneLayer active={scene === "ring"}>
+              <RingScene scenario={scenario} />
+            </SceneLayer>
+            <SceneLayer active={scene === "answer"}>
+              <AnswerScene scenario={scenario} turns={shownTurns} />
+            </SceneLayer>
+            <SceneLayer active={scene === "outcome"}>
+              <OutcomeScene scenario={scenario} />
+            </SceneLayer>
+            <SceneLayer active={scene === "inbox"}>
+              <InboxScene scenario={scenario} />
+            </SceneLayer>
+          </div>
         </div>
 
         {/* Slim transport bar docked to the device */}
@@ -352,31 +397,70 @@ export function LivePhoneDemo() {
           >
             {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
           </button>
-          <div className="flex items-center gap-1.5">
-            {SCENE_ORDER.map((item, itemIndex) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => {
-                  setPlaying(false);
-                  goTo(itemIndex);
-                }}
-                aria-label={sceneLabels[item]}
-                aria-current={item === scene}
-                className="grid h-6 place-items-center px-0.5"
-              >
+
+          {/* Segmented scrubber: click or drag anywhere to jump through the story. */}
+          <div
+            ref={track}
+            role="slider"
+            tabIndex={0}
+            aria-label="Demo progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress * 100)}
+            aria-valuetext={sceneLabels[scene]}
+            onPointerDown={(event) => {
+              if (reduce) return;
+              event.currentTarget.setPointerCapture(event.pointerId);
+              setScrubbing(true);
+              setPlaying(false);
+              seekFromPointer(event.clientX);
+            }}
+            onPointerMove={(event) => {
+              if (scrubbing) seekFromPointer(event.clientX);
+            }}
+            onPointerUp={() => setScrubbing(false)}
+            onPointerCancel={() => setScrubbing(false)}
+            onKeyDown={(event) => {
+              if (reduce) return;
+              if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+                event.preventDefault();
+                setPlaying(false);
+                const step = event.key === "ArrowRight" ? 1000 : -1000;
+                setElapsed((value) => clamp(value + step, 0, TOTAL_MS - 1));
+              }
+              if (event.key === "Home") goTo(0);
+              if (event.key === "End") goTo(3);
+            }}
+            className="flex min-w-0 flex-1 cursor-pointer touch-none items-center gap-1 py-2 focus-visible:outline-none"
+          >
+            {SCENE_ORDER.map((item, itemIndex) => {
+              const fill = clamp(
+                (elapsed - SCENE_STARTS[itemIndex]!) / SCENE_MS[item],
+                0,
+                1,
+              );
+              return (
                 <span
-                  className={cn(
-                    "h-1.5 rounded-full transition-all duration-500",
-                    item === scene ? "w-6 bg-primary" : "w-1.5 bg-foreground/25",
-                  )}
-                />
-              </button>
-            ))}
+                  key={item}
+                  title={sceneLabels[item]}
+                  style={{ flexGrow: SCENE_MS[item] }}
+                  className="h-1.5 overflow-hidden rounded-full bg-foreground/20"
+                >
+                  <span
+                    className={cn(
+                      "block h-full rounded-full bg-primary",
+                      scrubbing ? "" : "transition-[width] duration-150 ease-linear",
+                    )}
+                    style={{ width: `${(reduce ? 1 : fill) * 100}%` }}
+                  />
+                </span>
+              );
+            })}
           </div>
+
           <p
             aria-live="polite"
-            className="ml-auto truncate text-right text-[0.7rem] font-medium text-muted-foreground"
+            className="w-[6.6rem] shrink-0 truncate text-right text-[0.7rem] font-medium text-muted-foreground"
           >
             {sceneLabels[scene]}
           </p>
@@ -405,7 +489,24 @@ export function LivePhoneDemo() {
 }
 
 function SceneShell({ children }: { children: React.ReactNode }) {
-  return <div className="animate-fade-in flex min-h-0 flex-1 flex-col px-3">{children}</div>;
+  return <div className="flex h-full min-h-0 flex-col px-3">{children}</div>;
+}
+
+/** Stacked scene layer: cross-fades and lifts slightly as it becomes active. */
+function SceneLayer({ active, children }: { active: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      aria-hidden={!active}
+      className={cn(
+        "absolute inset-0 transition-all duration-500 ease-out motion-reduce:transition-none",
+        active
+          ? "translate-y-0 scale-100 opacity-100"
+          : "pointer-events-none translate-y-1.5 scale-[0.985] opacity-0",
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 /** Thin iOS-style status strip so the frame reads as the real installed app. */
