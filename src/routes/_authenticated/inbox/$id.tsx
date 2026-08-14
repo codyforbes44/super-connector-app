@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
+  AlertTriangle,
   ArrowDownLeft,
   ArrowLeft,
   ArrowUpRight,
@@ -17,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { clockTime, duration as formatDuration, errorMessage, formatPhone } from "@/lib/format";
+import { describeMessageError } from "@/lib/message-status";
 import {
   addInternalNote,
   markConversationRead,
