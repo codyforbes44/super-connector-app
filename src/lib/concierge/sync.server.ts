@@ -40,7 +40,6 @@ function serverToolConfigs(): ToolConfig[] {
     // without trusting anything the model says.
     properties["session_key"] = {
       type: "string",
-      description: "Session key for this conversation.",
       dynamic_variable: "session_key",
       value_type: "dynamic_variable",
     };
