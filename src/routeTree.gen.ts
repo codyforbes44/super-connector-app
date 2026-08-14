@@ -41,6 +41,7 @@ import { Route as AuthenticatedAssistantSidRouteImport } from './routes/_authent
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
+import { Route as ApiPublicAgentPostCallRouteImport } from './routes/api/public/agent/post-call'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent/token'
 import { Route as ApiPublicDigestRunRouteImport } from './routes/api/public/digest/run'
 import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/public/elevenlabs/post-call'
@@ -218,6 +219,11 @@ const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
   path: '/oauth/google/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAgentPostCallRoute = ApiPublicAgentPostCallRouteImport.update({
+  id: '/api/public/agent/post-call',
+  path: '/api/public/agent/post-call',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAgentTokenRoute = ApiPublicAgentTokenRouteImport.update({
   id: '/api/public/agent/token',
   path: '/api/public/agent/token',
@@ -320,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
@@ -366,6 +373,7 @@ export interface FileRoutesByTo {
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/inbox': typeof AuthenticatedInboxIndexRoute
+  '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
@@ -414,6 +422,7 @@ export interface FileRoutesById {
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
@@ -462,6 +471,7 @@ export interface FileRouteTypes {
     | '/inbox/$id'
     | '/oauth/google/return'
     | '/inbox/'
+    | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
@@ -508,6 +518,7 @@ export interface FileRouteTypes {
     | '/inbox/$id'
     | '/oauth/google/return'
     | '/inbox'
+    | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
@@ -555,6 +566,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inbox/$id'
     | '/oauth/google/return'
     | '/_authenticated/inbox/'
+    | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
@@ -584,6 +596,7 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
+  ApiPublicAgentPostCallRoute: typeof ApiPublicAgentPostCallRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicDigestRunRoute: typeof ApiPublicDigestRunRoute
   ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
@@ -825,6 +838,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthGoogleReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/agent/post-call': {
+      id: '/api/public/agent/post-call'
+      path: '/api/public/agent/post-call'
+      fullPath: '/api/public/agent/post-call'
+      preLoaderRoute: typeof ApiPublicAgentPostCallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/agent/token': {
       id: '/api/public/agent/token'
       path: '/api/public/agent/token'
@@ -980,6 +1000,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
+  ApiPublicAgentPostCallRoute: ApiPublicAgentPostCallRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicDigestRunRoute: ApiPublicDigestRunRoute,
   ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
