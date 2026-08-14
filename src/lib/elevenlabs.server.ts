@@ -16,7 +16,7 @@ export function hasElevenLabs(): boolean {
   return Boolean(process.env["ELEVENLABS_API_KEY"]);
 }
 
-async function el<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function el<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${BASE}${path}`, {
     ...init,
     headers: { "xi-api-key": elevenLabsKey(), ...(init.headers ?? {}) },

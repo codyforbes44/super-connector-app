@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { TrialBanner } from "@/components/TrialBanner";
 import { useForcedDarkTheme } from "@/lib/theme";
+import { ConciergeMount } from "@/components/concierge/ConciergeMount";
 
 const TABS = [
   { to: "/inbox", label: "Inbox", icon: Inbox },
@@ -87,6 +88,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <main className="mx-auto w-full max-w-lg min-w-0 flex-1 overflow-x-clip pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:max-w-2xl lg:max-w-4xl lg:pb-10 xl:max-w-5xl">
             {children}
           </main>
+          <ConciergeMount />
         </div>
 
         {/* Mobile: edge-anchored tab bar plus a single primary action button */}
