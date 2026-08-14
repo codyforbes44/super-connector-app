@@ -1551,3 +1551,27 @@ export async function refreshMessagingReadiness(supabase: SB, userId: string) {
   await audit(admin, userId, "messaging.readiness", { count: states.length });
   return asJson(states) as Json;
 }
+
+/**
+ * Cached texting readiness for the numbers this user can send from, so the
+ * composer can warn before a send burns a message. Read-only, no admin needed.
+ */
+export async function textingReadiness(supabase: SB, userId: string) {
+  const { numbers } = await allowedNumbers(supabase, userId);
+  if (!numbers.length) return asJson([]) as Json;
+  const admin = await adminClient();
+  const { campaignApproved } = await import("./messaging.server");
+  const { data } = await admin
+    .from("phone_numbers")
+    .select("phone_number, messaging_service_sid, campaign_status")
+    .in("phone_number", numbers);
+  const states = (data ?? []).map((row) => ({
+    phoneNumber: row["phone_number"] as string,
+    messagingServiceSid: (row["messaging_service_sid"] as string | null) ?? null,
+    campaignStatus: (row["campaign_status"] as string | null) ?? null,
+    ready:
+      Boolean(row["messaging_service_sid"]) &&
+      campaignApproved(row["campaign_status"] as string | null),
+  }));
+  return asJson(states) as Json;
+}
