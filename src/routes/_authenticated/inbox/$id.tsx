@@ -23,6 +23,7 @@ import {
   addInternalNote,
   markConversationRead,
   sendMessage,
+  textingReadiness,
   startCall,
 } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
