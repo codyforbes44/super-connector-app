@@ -301,6 +301,12 @@ function ThreadScreen() {
                   {clockTime(m.created_at)}
                   {m.status && mine && !m.is_internal_note ? ` · ${m.status}` : ""}
                 </p>
+                {mine && !m.is_internal_note && describeMessageError(m.error_code) ? (
+                  <p className="mt-1 flex items-start gap-1 rounded-xl bg-destructive/15 px-2 py-1 text-[0.65rem] text-destructive">
+                    <AlertTriangle className="mt-0.5 size-3 shrink-0" />
+                    <span>{describeMessageError(m.error_code)}</span>
+                  </p>
+                ) : null}
               </div>
             </div>
           );
@@ -308,6 +314,12 @@ function ThreadScreen() {
         <div ref={bottomRef} />
       </div>
 
+      {convo?.opted_out ? (
+        <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/80 px-4 py-3 text-center text-xs text-muted-foreground backdrop-blur-xl">
+          <AlertTriangle className="mr-1 inline size-3.5 text-destructive" />
+          This contact replied STOP. Texting is blocked until they reply START.
+        </div>
+      ) : (
       <form
         onSubmit={submit}
         className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/60 px-3 py-2 backdrop-blur-xl"
@@ -342,6 +354,7 @@ function ThreadScreen() {
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 }
