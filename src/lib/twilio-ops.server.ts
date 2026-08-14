@@ -615,6 +615,17 @@ export async function sendMessage(
     contactNumber: to,
   });
 
+  const { data: convoState } = await admin
+    .from("conversations")
+    .select("opted_out")
+    .eq("id", conversationId)
+    .maybeSingle();
+  if (convoState?.["opted_out"]) {
+    throw new Error(
+      "This person replied STOP. They have to text START before you can message them again.",
+    );
+  }
+
   const prefix = data.channel === "whatsapp" ? "whatsapp:" : "";
   const params: Record<string, unknown> = {
     To: `${prefix}${to}`,
