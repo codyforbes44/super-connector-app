@@ -41,6 +41,7 @@ import { Route as AuthenticatedAssistantSidRouteImport } from './routes/_authent
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
+import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent/token'
 import { Route as ApiPublicDigestRunRouteImport } from './routes/api/public/digest/run'
 import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/public/elevenlabs/post-call'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -52,6 +53,7 @@ import { Route as ApiPublicTwilioSmsRouteImport } from './routes/api/public/twil
 import { Route as ApiPublicTwilioStatusRouteImport } from './routes/api/public/twilio/status'
 import { Route as ApiPublicTwilioVoiceRouteImport } from './routes/api/public/twilio/voice'
 import { Route as ApiPublicTwilioVoiceFallbackRouteImport } from './routes/api/public/twilio/voice-fallback'
+import { Route as ApiPublicAgentToolNameRouteImport } from './routes/api/public/agent/tool/$name'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -216,6 +218,11 @@ const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
   path: '/oauth/google/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAgentTokenRoute = ApiPublicAgentTokenRouteImport.update({
+  id: '/api/public/agent/token',
+  path: '/api/public/agent/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDigestRunRoute = ApiPublicDigestRunRouteImport.update({
   id: '/api/public/digest/run',
   path: '/api/public/digest/run',
@@ -275,6 +282,11 @@ const ApiPublicTwilioVoiceFallbackRoute =
     path: '/api/public/twilio/voice-fallback',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicAgentToolNameRoute = ApiPublicAgentToolNameRouteImport.update({
+  id: '/api/public/agent/tool/$name',
+  path: '/api/public/agent/tool/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -308,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -319,6 +332,7 @@ export interface FileRoutesByFullPath {
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
+  '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -352,6 +366,7 @@ export interface FileRoutesByTo {
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/inbox': typeof AuthenticatedInboxIndexRoute
+  '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -363,6 +378,7 @@ export interface FileRoutesByTo {
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
+  '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -398,6 +414,7 @@ export interface FileRoutesById {
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -409,6 +426,7 @@ export interface FileRoutesById {
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
+  '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -444,6 +462,7 @@ export interface FileRouteTypes {
     | '/inbox/$id'
     | '/oauth/google/return'
     | '/inbox/'
+    | '/api/public/agent/token'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
@@ -455,6 +474,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
+    | '/api/public/agent/tool/$name'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -488,6 +508,7 @@ export interface FileRouteTypes {
     | '/inbox/$id'
     | '/oauth/google/return'
     | '/inbox'
+    | '/api/public/agent/token'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
@@ -499,6 +520,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
+    | '/api/public/agent/tool/$name'
   id:
     | '__root__'
     | '/'
@@ -533,6 +555,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inbox/$id'
     | '/oauth/google/return'
     | '/_authenticated/inbox/'
+    | '/api/public/agent/token'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
@@ -544,6 +567,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
+    | '/api/public/agent/tool/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -560,6 +584,7 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
+  ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicDigestRunRoute: typeof ApiPublicDigestRunRoute
   ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -571,6 +596,7 @@ export interface RootRouteChildren {
   ApiPublicTwilioStatusRoute: typeof ApiPublicTwilioStatusRoute
   ApiPublicTwilioVoiceRoute: typeof ApiPublicTwilioVoiceRoute
   ApiPublicTwilioVoiceFallbackRoute: typeof ApiPublicTwilioVoiceFallbackRoute
+  ApiPublicAgentToolNameRoute: typeof ApiPublicAgentToolNameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -799,6 +825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthGoogleReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/agent/token': {
+      id: '/api/public/agent/token'
+      path: '/api/public/agent/token'
+      fullPath: '/api/public/agent/token'
+      preLoaderRoute: typeof ApiPublicAgentTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/digest/run': {
       id: '/api/public/digest/run'
       path: '/api/public/digest/run'
@@ -876,6 +909,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTwilioVoiceFallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/agent/tool/$name': {
+      id: '/api/public/agent/tool/$name'
+      path: '/api/public/agent/tool/$name'
+      fullPath: '/api/public/agent/tool/$name'
+      preLoaderRoute: typeof ApiPublicAgentToolNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -940,6 +980,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
+  ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicDigestRunRoute: ApiPublicDigestRunRoute,
   ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -951,6 +992,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTwilioStatusRoute: ApiPublicTwilioStatusRoute,
   ApiPublicTwilioVoiceRoute: ApiPublicTwilioVoiceRoute,
   ApiPublicTwilioVoiceFallbackRoute: ApiPublicTwilioVoiceFallbackRoute,
+  ApiPublicAgentToolNameRoute: ApiPublicAgentToolNameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
