@@ -12,13 +12,16 @@ export function ConciergeMount() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const idle =
-      "requestIdleCallback" in window
-        ? window.requestIdleCallback(() => setReady(true), { timeout: 2500 })
-        : window.setTimeout(() => setReady(true), 1200);
+    const scope = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const idle = scope.requestIdleCallback
+      ? scope.requestIdleCallback(() => setReady(true), { timeout: 2500 })
+      : window.setTimeout(() => setReady(true), 1200);
     return () => {
-      if ("cancelIdleCallback" in window) window.cancelIdleCallback(idle as number);
-      else window.clearTimeout(idle as number);
+      if (scope.cancelIdleCallback) scope.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
     };
   }, []);
 

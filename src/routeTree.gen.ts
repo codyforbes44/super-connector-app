@@ -23,6 +23,7 @@ import { Route as AuthenticatedA2pRouteImport } from './routes/_authenticated/a2
 import { Route as AuthenticatedAdvancedRouteImport } from './routes/_authenticated/advanced'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedCallsRouteImport } from './routes/_authenticated/calls'
+import { Route as AuthenticatedConciergeRouteImport } from './routes/_authenticated/concierge'
 import { Route as AuthenticatedConnectorsRouteImport } from './routes/_authenticated/connectors'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
@@ -123,6 +124,11 @@ const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
 const AuthenticatedCallsRoute = AuthenticatedCallsRouteImport.update({
   id: '/calls',
   path: '/calls',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConciergeRoute = AuthenticatedConciergeRouteImport.update({
+  id: '/concierge',
+  path: '/concierge',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedConnectorsRoute = AuthenticatedConnectorsRouteImport.update({
@@ -308,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/advanced': typeof AuthenticatedAdvancedRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/calls': typeof AuthenticatedCallsRoute
+  '/concierge': typeof AuthenticatedConciergeRoute
   '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -355,6 +362,7 @@ export interface FileRoutesByTo {
   '/advanced': typeof AuthenticatedAdvancedRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/calls': typeof AuthenticatedCallsRoute
+  '/concierge': typeof AuthenticatedConciergeRoute
   '/connectors': typeof AuthenticatedConnectorsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -404,6 +412,7 @@ export interface FileRoutesById {
   '/_authenticated/advanced': typeof AuthenticatedAdvancedRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/calls': typeof AuthenticatedCallsRoute
+  '/_authenticated/concierge': typeof AuthenticatedConciergeRoute
   '/_authenticated/connectors': typeof AuthenticatedConnectorsRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
@@ -453,6 +462,7 @@ export interface FileRouteTypes {
     | '/advanced'
     | '/billing'
     | '/calls'
+    | '/concierge'
     | '/connectors'
     | '/console'
     | '/contacts'
@@ -500,6 +510,7 @@ export interface FileRouteTypes {
     | '/advanced'
     | '/billing'
     | '/calls'
+    | '/concierge'
     | '/connectors'
     | '/console'
     | '/contacts'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/_authenticated/advanced'
     | '/_authenticated/billing'
     | '/_authenticated/calls'
+    | '/_authenticated/concierge'
     | '/_authenticated/connectors'
     | '/_authenticated/console'
     | '/_authenticated/contacts'
@@ -710,6 +722,13 @@ declare module '@tanstack/react-router' {
       path: '/calls'
       fullPath: '/calls'
       preLoaderRoute: typeof AuthenticatedCallsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/concierge': {
+      id: '/_authenticated/concierge'
+      path: '/concierge'
+      fullPath: '/concierge'
+      preLoaderRoute: typeof AuthenticatedConciergeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/connectors': {
@@ -944,6 +963,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdvancedRoute: typeof AuthenticatedAdvancedRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedCallsRoute: typeof AuthenticatedCallsRoute
+  AuthenticatedConciergeRoute: typeof AuthenticatedConciergeRoute
   AuthenticatedConnectorsRoute: typeof AuthenticatedConnectorsRoute
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
@@ -966,6 +986,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdvancedRoute: AuthenticatedAdvancedRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedCallsRoute: AuthenticatedCallsRoute,
+  AuthenticatedConciergeRoute: AuthenticatedConciergeRoute,
   AuthenticatedConnectorsRoute: AuthenticatedConnectorsRoute,
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
