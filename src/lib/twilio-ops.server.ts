@@ -1542,3 +1542,13 @@ export async function webhookDiagnostics(supabase: SB, userId: string) {
   ]);
   return asJson({ logged: logged ?? [], alerts, health });
 }
+
+/** Refresh A2P campaign state for every SixVox number. */
+export async function refreshMessagingReadiness(supabase: SB, userId: string) {
+  await requireAdmin(supabase, userId);
+  const admin = await adminClient();
+  const { syncMessagingReadiness } = await import("./messaging.server");
+  const states = await syncMessagingReadiness(admin);
+  await audit(admin, userId, "messaging.readiness", { count: states.length });
+  return asJson(states) as Json;
+}
