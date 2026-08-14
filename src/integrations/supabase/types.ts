@@ -926,6 +926,8 @@ export type Database = {
           id: string
           last_message_at: string
           last_message_preview: string | null
+          opted_out: boolean
+          opted_out_at: string | null
           unread_count: number
         }
         Insert: {
@@ -939,6 +941,8 @@ export type Database = {
           id?: string
           last_message_at?: string
           last_message_preview?: string | null
+          opted_out?: boolean
+          opted_out_at?: string | null
           unread_count?: number
         }
         Update: {
@@ -952,6 +956,8 @@ export type Database = {
           id?: string
           last_message_at?: string
           last_message_preview?: string | null
+          opted_out?: boolean
+          opted_out_at?: string | null
           unread_count?: number
         }
         Relationships: [
@@ -1416,6 +1422,8 @@ export type Database = {
           booking_slot_minutes: number
           booking_timezone: string
           calendar_id: string | null
+          campaign_id: string | null
+          campaign_status: string | null
           capabilities: Json
           channel_whatsapp: boolean
           created_at: string
@@ -1426,6 +1434,8 @@ export type Database = {
           friendly_name: string | null
           greeting_audio_path: string | null
           id: string
+          messaging_checked_at: string | null
+          messaging_service_sid: string | null
           outbound_caller_id: string | null
           phone_number: string
           sid: string
@@ -1448,6 +1458,8 @@ export type Database = {
           booking_slot_minutes?: number
           booking_timezone?: string
           calendar_id?: string | null
+          campaign_id?: string | null
+          campaign_status?: string | null
           capabilities?: Json
           channel_whatsapp?: boolean
           created_at?: string
@@ -1458,6 +1470,8 @@ export type Database = {
           friendly_name?: string | null
           greeting_audio_path?: string | null
           id?: string
+          messaging_checked_at?: string | null
+          messaging_service_sid?: string | null
           outbound_caller_id?: string | null
           phone_number: string
           sid: string
@@ -1480,6 +1494,8 @@ export type Database = {
           booking_slot_minutes?: number
           booking_timezone?: string
           calendar_id?: string | null
+          campaign_id?: string | null
+          campaign_status?: string | null
           capabilities?: Json
           channel_whatsapp?: boolean
           created_at?: string
@@ -1490,6 +1506,8 @@ export type Database = {
           friendly_name?: string | null
           greeting_audio_path?: string | null
           id?: string
+          messaging_checked_at?: string | null
+          messaging_service_sid?: string | null
           outbound_caller_id?: string | null
           phone_number?: string
           sid?: string
