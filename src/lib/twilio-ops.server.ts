@@ -657,7 +657,6 @@ export async function sendMessage(
   if (data.sendAt) {
     params["SendAt"] = new Date(data.sendAt).toISOString();
     params["ScheduleType"] = "fixed";
-    delete params["StatusCallback"];
   }
 
   let sent: { sid: string; status: string };
