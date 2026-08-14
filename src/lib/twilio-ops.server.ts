@@ -621,10 +621,26 @@ export async function sendMessage(
     Body: data.body,
     StatusCallback: webhookUrl("status"),
   };
-  if (data.messagingServiceSid && data.channel === "sms") {
-    params["MessagingServiceSid"] = data.messagingServiceSid;
-  } else {
+  if (data.channel === "whatsapp") {
     params["From"] = `${prefix}${appNumber}`;
+  } else {
+    const { messagingStateFor } = await import("./messaging.server");
+    const state = await messagingStateFor(admin, appNumber);
+    const serviceSid = data.messagingServiceSid ?? state.messagingServiceSid;
+
+    // A US long code only delivers through a registered campaign; sending from
+    // the bare number is what produced the 30034 failures.
+    if (!serviceSid) {
+      throw new Error(
+        "This number isn't approved for texting yet. Register it for A2P messaging, then try again.",
+      );
+    }
+    if (!data.messagingServiceSid && !state.ready) {
+      throw new Error(
+        `Texting from ${appNumber} is not approved yet (campaign status: ${state.campaignStatus ?? "not registered"}). Use an approved number.`,
+      );
+    }
+    params["MessagingServiceSid"] = serviceSid;
   }
   if (data.mediaUrls?.length) params["MediaUrl"] = data.mediaUrls;
   if (data.sendAt) {
@@ -633,11 +649,19 @@ export async function sendMessage(
     delete params["StatusCallback"];
   }
 
-  const sent = await twilioRequest<{ sid: string; status: string }>({
-    method: "POST",
-    path: "/Messages.json",
-    params,
-  });
+  let sent: { sid: string; status: string };
+  try {
+    sent = await twilioRequest<{ sid: string; status: string }>({
+      method: "POST",
+      path: "/Messages.json",
+      params,
+    });
+  } catch (error) {
+    const { friendlySendError } = await import("./messaging.server");
+    const body = (error as { body?: string }).body ?? "";
+    const friendly = body ? friendlySendError(body) : null;
+    throw friendly ? new Error(friendly) : (error as Error);
+  }
 
   await admin.from("messages").insert({
     conversation_id: conversationId,
