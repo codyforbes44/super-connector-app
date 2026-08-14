@@ -227,6 +227,10 @@ export const listMessagingServices = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => ops.listMessagingServices(context.supabase, context.userId));
 
+export const textingReadiness = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => ops.textingReadiness(context.supabase, context.userId));
+
 export const messagingServiceDetail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { serviceSid: string }) => input)

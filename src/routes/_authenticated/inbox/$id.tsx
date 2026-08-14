@@ -23,6 +23,7 @@ import {
   addInternalNote,
   markConversationRead,
   sendMessage,
+  textingReadiness,
   startCall,
 } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
@@ -103,6 +104,21 @@ function ThreadScreen() {
   }, [messages.data]);
 
   const convo = conversation.data;
+
+  // Warn before typing when the sending number can't legally text in the US.
+  const readiness = useQuery({
+    queryKey: ["texting-readiness"],
+    queryFn: () => textingReadiness(),
+    retry: false,
+  });
+  const senderState =
+    ((readiness.data ?? []) as unknown as Array<{
+      phoneNumber: string;
+      campaignStatus: string | null;
+      ready: boolean;
+    }>).find((s) => s.phoneNumber === convo?.app_number) ?? null;
+  const smsBlocked =
+    convo?.channel !== "whatsapp" && Boolean(senderState) && !senderState?.ready;
 
   // Calls with the same contact are folded into the thread so the history of a
   // relationship reads as one timeline instead of two disconnected screens.
@@ -320,6 +336,13 @@ function ThreadScreen() {
         <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/80 px-4 py-3 text-center text-xs text-muted-foreground backdrop-blur-xl">
           <AlertTriangle className="mr-1 inline size-3.5 text-destructive" />
           This contact replied STOP. Texting is blocked until they reply START.
+        </div>
+      ) : smsBlocked ? (
+        <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/80 px-4 py-3 text-center text-xs text-muted-foreground backdrop-blur-xl">
+          <AlertTriangle className="mr-1 inline size-3.5 text-destructive" />
+          {formatPhone(convo?.app_number ?? "")} isn&apos;t approved for US texting yet
+          {senderState?.campaignStatus ? ` (campaign ${senderState.campaignStatus.toLowerCase()})` : ""}.
+          Finish registration to reply from this number.
         </div>
       ) : (
       <form

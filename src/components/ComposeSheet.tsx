@@ -16,7 +16,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage, formatPhone } from "@/lib/format";
-import { listMessagingServices, sendMessage } from "@/lib/twilio.functions";
+import { listMessagingServices, sendMessage, textingReadiness } from "@/lib/twilio.functions";
 
 export type AppNumber = { sid: string; phone_number: string; friendly_name: string | null };
 
@@ -43,6 +43,19 @@ export function ComposeSheet({
     queryFn: () => listMessagingServices(),
     retry: false,
   });
+  const readiness = useQuery({
+    queryKey: ["texting-readiness"],
+    queryFn: () => textingReadiness(),
+    retry: false,
+  });
+  const readinessList = (readiness.data ?? []) as unknown as Array<{
+    phoneNumber: string;
+    campaignStatus: string | null;
+    ready: boolean;
+  }>;
+  const fromState = readinessList.find((s) => s.phoneNumber === from) ?? null;
+  const blocked =
+    channel === "sms" && sender === "number" && Boolean(fromState) && !fromState?.ready;
   const serviceList = (services.data ?? []) as unknown as Array<{
     sid: string;
     friendly_name: string;
@@ -114,6 +127,14 @@ export function ComposeSheet({
             </div>
           </div>
 
+          {blocked ? (
+            <p className="rounded-xl bg-destructive/15 px-3 py-2 text-xs text-destructive">
+              {formatPhone(from)} isn&apos;t approved for US texting yet
+              {fromState?.campaignStatus ? ` (campaign ${fromState.campaignStatus.toLowerCase()})` : ""}.
+              Register it under US texting registration, or pick an approved number.
+            </p>
+          ) : null}
+
           <div className="space-y-1.5">
             <Label htmlFor="to">To</Label>
             <Input
@@ -159,7 +180,7 @@ export function ComposeSheet({
             />
           </div>
 
-          <Button type="submit" className="h-12 w-full font-semibold" disabled={busy}>
+          <Button type="submit" className="h-12 w-full font-semibold" disabled={busy || blocked}>
             {busy ? "Sending…" : "Send message"}
           </Button>
         </form>
