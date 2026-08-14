@@ -65,16 +65,16 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshot-mobile.png",
+      "src": "/screenshot-mobile.webp",
       "sizes": "1080x1920",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "narrow",
       "label": "SixVox on mobile"
     },
     {
-      "src": "/screenshot-wide.png",
+      "src": "/screenshot-wide.webp",
       "sizes": "1920x1080",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "wide",
       "label": "SixVox on desktop"
     }
