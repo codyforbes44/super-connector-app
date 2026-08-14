@@ -44,6 +44,7 @@ import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticate
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as ApiPublicAgentPostCallRouteImport } from './routes/api/public/agent/post-call'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent/token'
+import { Route as ApiPublicAgentTranscriptRouteImport } from './routes/api/public/agent/transcript'
 import { Route as ApiPublicDigestRunRouteImport } from './routes/api/public/digest/run'
 import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/public/elevenlabs/post-call'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -235,6 +236,12 @@ const ApiPublicAgentTokenRoute = ApiPublicAgentTokenRouteImport.update({
   path: '/api/public/agent/token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAgentTranscriptRoute =
+  ApiPublicAgentTranscriptRouteImport.update({
+    id: '/api/public/agent/transcript',
+    path: '/api/public/agent/transcript',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicDigestRunRoute = ApiPublicDigestRunRouteImport.update({
   id: '/api/public/digest/run',
   path: '/api/public/digest/run',
@@ -335,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/inbox/': typeof AuthenticatedInboxIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
+  '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -383,6 +391,7 @@ export interface FileRoutesByTo {
   '/inbox': typeof AuthenticatedInboxIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
+  '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -433,6 +442,7 @@ export interface FileRoutesById {
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
+  '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -483,6 +493,7 @@ export interface FileRouteTypes {
     | '/inbox/'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
+    | '/api/public/agent/transcript'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
@@ -531,6 +542,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
+    | '/api/public/agent/transcript'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
@@ -580,6 +592,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inbox/'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
+    | '/api/public/agent/transcript'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/webhook'
@@ -610,6 +623,7 @@ export interface RootRouteChildren {
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
   ApiPublicAgentPostCallRoute: typeof ApiPublicAgentPostCallRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
+  ApiPublicAgentTranscriptRoute: typeof ApiPublicAgentTranscriptRoute
   ApiPublicDigestRunRoute: typeof ApiPublicDigestRunRoute
   ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -871,6 +885,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAgentTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/agent/transcript': {
+      id: '/api/public/agent/transcript'
+      path: '/api/public/agent/transcript'
+      fullPath: '/api/public/agent/transcript'
+      preLoaderRoute: typeof ApiPublicAgentTranscriptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/digest/run': {
       id: '/api/public/digest/run'
       path: '/api/public/digest/run'
@@ -1023,6 +1044,7 @@ const rootRouteChildren: RootRouteChildren = {
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
   ApiPublicAgentPostCallRoute: ApiPublicAgentPostCallRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
+  ApiPublicAgentTranscriptRoute: ApiPublicAgentTranscriptRoute,
   ApiPublicDigestRunRoute: ApiPublicDigestRunRoute,
   ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
