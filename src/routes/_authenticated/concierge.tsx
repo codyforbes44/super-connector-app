@@ -87,12 +87,7 @@ function ConciergeScreen() {
         title="Concierge"
         subtitle="Vox on sixvox.3bi.io"
         action={
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={sync.isPending}
-            onClick={() => sync.mutate()}
-          >
+          <Button variant="ghost" size="sm" disabled={sync.isPending} onClick={() => sync.mutate()}>
             <RefreshCw className={sync.isPending ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
             Sync
           </Button>
@@ -275,15 +270,7 @@ function ConciergeScreen() {
   );
 }
 
-function Stat({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof Bot;
-  label: string;
-  value: number;
-}) {
+function Stat({ icon: Icon, label, value }: { icon: typeof Bot; label: string; value: number }) {
   return (
     <div className="rounded-2xl border border-border px-3 py-3">
       <Icon className="h-4 w-4 text-primary" />

@@ -24,7 +24,8 @@ export const DYNAMIC_VARIABLES = [
 
 export function systemPrompt(): string {
   const priceLine = PLANS.map(
-    (p) => `${p.name} $${p.monthly}/mo ($${p.yearly}/yr, ${p.numbers} number${p.numbers > 1 ? "s" : ""})`,
+    (p) =>
+      `${p.name} $${p.monthly}/mo ($${p.yearly}/yr, ${p.numbers} number${p.numbers > 1 ? "s" : ""})`,
   ).join(", ");
 
   return `# Personality

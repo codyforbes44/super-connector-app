@@ -7,11 +7,7 @@
 import { PUBLIC_BASE_URL } from "@/lib/app.server";
 import { el } from "@/lib/elevenlabs.server";
 import { knowledgeDocs } from "./knowledge";
-import {
-  CLIENT_TOOLS,
-  SERVER_TOOLS,
-  jsonSchemaFor,
-} from "./tool-defs";
+import { CLIENT_TOOLS, SERVER_TOOLS, jsonSchemaFor } from "./tool-defs";
 import {
   CONCIERGE_AGENT_ID,
   CONCIERGE_AGENT_NAME,

@@ -76,11 +76,7 @@ export async function overview(
       .order("created_at", { ascending: false })
       .limit(100),
     supabase.from("chat_leads").select("*").order("created_at", { ascending: false }).limit(100),
-    supabase
-      .from("chat_callbacks")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(50),
+    supabase.from("chat_callbacks").select("*").order("created_at", { ascending: false }).limit(50),
   ]);
 
   const rows = (conversations ?? []).map((row) => ({

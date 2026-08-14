@@ -28,9 +28,7 @@ export const Route = createFileRoute("/api/public/agent/post-call")({
         if (!sessionKey) return new Response("ok (not a concierge session)");
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { conversationForKey, saveTranscript } = await import(
-          "@/lib/concierge/store.server"
-        );
+        const { conversationForKey, saveTranscript } = await import("@/lib/concierge/store.server");
         const conversation = await conversationForKey(supabaseAdmin as never, sessionKey);
         if (!conversation) return new Response("ok (unknown session)");
 

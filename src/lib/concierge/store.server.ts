@@ -78,7 +78,11 @@ export async function saveTranscript(
   conversationId: string,
   turns: Array<{ role: string; content: string; at?: number }>,
 ): Promise<void> {
-  await admin.from("chat_messages").delete().eq("conversation_id", conversationId).neq("role", "tool");
+  await admin
+    .from("chat_messages")
+    .delete()
+    .eq("conversation_id", conversationId)
+    .neq("role", "tool");
   if (!turns.length) return;
   const { error } = await admin.from("chat_messages").insert(
     turns.map((turn) => ({
@@ -126,7 +130,9 @@ export async function alertTeam(admin: SupabaseClient, alert: Alert): Promise<vo
     metaTable(alert.rows) +
     (alert.cta
       ? button(alert.cta.label, `${PUBLIC_BASE_URL}${alert.cta.path}`)
-      : paragraph(`<span style="color:${BRAND.muted};font-size:13px;">From the website concierge.</span>`));
+      : paragraph(
+          `<span style="color:${BRAND.muted};font-size:13px;">From the website concierge.</span>`,
+        ));
 
   await sendEmail(admin, {
     to: recipients,

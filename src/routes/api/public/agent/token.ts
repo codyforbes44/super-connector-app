@@ -24,10 +24,11 @@ export const Route = createFileRoute("/api/public/agent/token")({
           const { data } = await supabaseAdmin.auth.getUser(auth.slice(7));
           userId = data.user?.id ?? null;
           firstName =
-            ((data.user?.user_metadata?.["display_name"] as string | undefined) ??
+            (
+              (data.user?.user_metadata?.["display_name"] as string | undefined) ??
               data.user?.email ??
-              "")
-              .split(/[@\s]/)[0] ?? "";
+              ""
+            ).split(/[@\s]/)[0] ?? "";
         }
 
         let planName = "none";

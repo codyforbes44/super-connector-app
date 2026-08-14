@@ -27,7 +27,8 @@ export const SERVER_TOOLS: ServerToolDef[] = [
     properties: {
       plan: {
         type: "string",
-        description: "Optional plan code to focus on: solo, team or scale. Leave empty for all plans.",
+        description:
+          "Optional plan code to focus on: solo, team or scale. Leave empty for all plans.",
       },
     },
   },
@@ -63,7 +64,8 @@ export const SERVER_TOOLS: ServerToolDef[] = [
       },
       next_step: {
         type: "string",
-        description: "The single action you want them to take, for example 'start your free trial'.",
+        description:
+          "The single action you want them to take, for example 'start your free trial'.",
       },
     },
   },

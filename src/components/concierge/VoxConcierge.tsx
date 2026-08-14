@@ -10,11 +10,7 @@ type Turn = { id: string; role: "you" | "vox"; text: string };
 
 const OPENER = "Hey, I'm Vox. Ask me anything about SixVox — pricing, setup, or what it does.";
 
-const PROMPTS = [
-  "What does SixVox cost?",
-  "Can it answer calls for me?",
-  "Can I keep my number?",
-];
+const PROMPTS = ["What does SixVox cost?", "Can it answer calls for me?", "Can I keep my number?"];
 
 export function VoxConcierge() {
   const [open, setOpen] = useState(false);
@@ -33,10 +29,7 @@ export function VoxConcierge() {
 
   const push = useCallback((role: Turn["role"], text: string) => {
     if (!text.trim()) return;
-    setTurns((prev) => [
-      ...prev,
-      { id: `${Date.now()}-${prev.length}`, role, text: text.trim() },
-    ]);
+    setTurns((prev) => [...prev, { id: `${Date.now()}-${prev.length}`, role, text: text.trim() }]);
   }, []);
 
   const conversation = useConversation({
@@ -98,9 +91,7 @@ export function VoxConcierge() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(session?.access_token
-              ? { Authorization: `Bearer ${session.access_token}` }
-              : {}),
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
           },
           body: JSON.stringify({
             mode: asVoice ? "voice" : "text",

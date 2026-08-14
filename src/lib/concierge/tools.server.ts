@@ -220,7 +220,10 @@ async function handoff(
   };
 }
 
-async function myAccount(admin: SupabaseClient, conversation: ConversationRow): Promise<ToolResult> {
+async function myAccount(
+  admin: SupabaseClient,
+  conversation: ConversationRow,
+): Promise<ToolResult> {
   if (!conversation.user_id) {
     return { ok: false, signed_in: false, message: "They're not signed in. Offer to open /auth." };
   }
@@ -229,7 +232,9 @@ async function myAccount(admin: SupabaseClient, conversation: ConversationRow): 
   const [{ data: subscription }, { data: numbers }, { data: profile }] = await Promise.all([
     admin
       .from("subscriptions")
-      .select("plan_code, status, billing_interval, seats, trial_ends_at, current_period_end, cancel_at_period_end")
+      .select(
+        "plan_code, status, billing_interval, seats, trial_ends_at, current_period_end, cancel_at_period_end",
+      )
       .eq("user_id", userId)
       .maybeSingle(),
     admin
