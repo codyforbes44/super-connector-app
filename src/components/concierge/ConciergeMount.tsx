@@ -10,7 +10,7 @@ const VoxConcierge = lazy(() =>
  * Client-only, lazily loaded mount for the Vox concierge so the voice SDK never
  * runs during SSR and never lands in the first paint bundle.
  */
-export function ConciergeMount() {
+export function ConciergeMount({ placement = "right" }: { placement?: "right" | "left" } = {}) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export function ConciergeMount() {
   return (
     <Suspense fallback={null}>
       <ConversationProvider>
-        <VoxConcierge />
+        <VoxConcierge placement={placement} />
       </ConversationProvider>
     </Suspense>
   );
