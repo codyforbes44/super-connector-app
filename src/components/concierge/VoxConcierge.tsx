@@ -65,7 +65,12 @@ export function VoxConcierge() {
       start_signup: (params: { plan?: string }) => {
         void navigate({
           to: "/auth",
-          search: { mode: "signup", ...(params?.plan ? { plan: params.plan } : {}) },
+          search: {
+            mode: "signup" as const,
+            ...(params?.plan === "solo" || params?.plan === "team" || params?.plan === "scale"
+              ? { plan: params.plan }
+              : {}),
+          },
         });
         return "Opened the signup page.";
       },
@@ -179,7 +184,7 @@ export function VoxConcierge() {
 
   useEffect(() => {
     return () => {
-      void conversation.endSession().catch(() => {});
+      void Promise.resolve(conversation.endSession()).catch(() => {});
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -238,7 +243,7 @@ export function VoxConcierge() {
           <button
             type="button"
             onClick={() => {
-              void conversation.endSession().catch(() => {});
+              void Promise.resolve(conversation.endSession()).catch(() => {});
               startedRef.current = false;
               setVoice(false);
               setOpen(false);
