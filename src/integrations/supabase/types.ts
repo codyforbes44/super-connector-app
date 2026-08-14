@@ -595,6 +595,247 @@ export type Database = {
           },
         ]
       }
+      chat_callbacks: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          email: string | null
+          id: string
+          lead_id: string | null
+          name: string | null
+          phone: string
+          status: string
+          timezone: string | null
+          topic: string | null
+          updated_at: string
+          window_label: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          lead_id?: string | null
+          name?: string | null
+          phone: string
+          status?: string
+          timezone?: string | null
+          topic?: string | null
+          updated_at?: string
+          window_label: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          lead_id?: string | null
+          name?: string | null
+          phone?: string
+          status?: string
+          timezone?: string | null
+          topic?: string | null
+          updated_at?: string
+          window_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_callbacks_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_callbacks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "chat_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_conversations: {
+        Row: {
+          answered: boolean | null
+          conversation_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          dynamic_variables: Json
+          handoff_requested: boolean
+          id: string
+          intent: string | null
+          lead_quality: string | null
+          mode: string
+          outcome: string | null
+          page: string | null
+          referrer: string | null
+          session_id: string
+          status: string
+          summary: string | null
+          topics: string[]
+          turn_count: number
+          unanswered_questions: Json
+          updated_at: string
+          urgency: string | null
+          user_id: string | null
+        }
+        Insert: {
+          answered?: boolean | null
+          conversation_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          dynamic_variables?: Json
+          handoff_requested?: boolean
+          id?: string
+          intent?: string | null
+          lead_quality?: string | null
+          mode?: string
+          outcome?: string | null
+          page?: string | null
+          referrer?: string | null
+          session_id: string
+          status?: string
+          summary?: string | null
+          topics?: string[]
+          turn_count?: number
+          unanswered_questions?: Json
+          updated_at?: string
+          urgency?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          answered?: boolean | null
+          conversation_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          dynamic_variables?: Json
+          handoff_requested?: boolean
+          id?: string
+          intent?: string | null
+          lead_quality?: string | null
+          mode?: string
+          outcome?: string | null
+          page?: string | null
+          referrer?: string | null
+          session_id?: string
+          status?: string
+          summary?: string | null
+          topics?: string[]
+          turn_count?: number
+          unanswered_questions?: Json
+          updated_at?: string
+          urgency?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      chat_leads: {
+        Row: {
+          company: string | null
+          conversation_id: string | null
+          created_at: string
+          email: string | null
+          handled: boolean
+          id: string
+          name: string | null
+          need: string | null
+          notified_at: string | null
+          page: string | null
+          phone: string | null
+          plan_interest: string | null
+          quality: string | null
+          source: string
+          updated_at: string
+          urgency: string | null
+        }
+        Insert: {
+          company?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          email?: string | null
+          handled?: boolean
+          id?: string
+          name?: string | null
+          need?: string | null
+          notified_at?: string | null
+          page?: string | null
+          phone?: string | null
+          plan_interest?: string | null
+          quality?: string | null
+          source?: string
+          updated_at?: string
+          urgency?: string | null
+        }
+        Update: {
+          company?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          email?: string | null
+          handled?: boolean
+          id?: string
+          name?: string | null
+          need?: string | null
+          notified_at?: string | null
+          page?: string | null
+          phone?: string | null
+          plan_interest?: string | null
+          quality?: string | null
+          source?: string
+          updated_at?: string
+          urgency?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_leads_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          at_seconds: number | null
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+          tool_name: string | null
+          tool_payload: Json | null
+        }
+        Insert: {
+          at_seconds?: number | null
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+          tool_name?: string | null
+          tool_payload?: Json | null
+        }
+        Update: {
+          at_seconds?: number | null
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          tool_name?: string | null
+          tool_payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_memory: {
         Row: {
           call_count: number
