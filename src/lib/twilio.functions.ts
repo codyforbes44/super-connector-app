@@ -330,3 +330,9 @@ export const signMediaUrl = createServerFn({ method: "POST" })
 export const webhookDiagnostics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => ops.webhookDiagnostics(context.supabase, context.userId));
+
+export const refreshMessagingReadiness = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) =>
+    ops.refreshMessagingReadiness(context.supabase, context.userId),
+  );
