@@ -48,6 +48,19 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           status: "received",
         });
 
+        // Carrier-standard STOP/START keywords gate every future send.
+        const { optOutSignal } = await import("@/lib/messaging.server");
+        const signal = optOutSignal(body ?? "");
+        if (signal) {
+          await supabaseAdmin
+            .from("conversations")
+            .update({
+              opted_out: signal === "stop",
+              opted_out_at: signal === "stop" ? new Date().toISOString() : null,
+            })
+            .eq("id", conversationId);
+        }
+
         const { data: convo } = await supabaseAdmin
           .from("conversations")
           .select("unread_count")
