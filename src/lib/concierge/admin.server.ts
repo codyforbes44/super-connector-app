@@ -141,7 +141,7 @@ export type TranscriptTurn = {
   role: string;
   content: string;
   toolName: string | null;
-  toolPayload: Record<string, unknown> | null;
+  toolPayload: string | null;
   at: number | null;
 };
 
@@ -161,7 +161,7 @@ export async function transcript(
     role: row["role"] as string,
     content: (row["content"] as string | null) ?? "",
     toolName: (row["tool_name"] as string | null) ?? null,
-    toolPayload: (row["tool_payload"] as Record<string, unknown> | null) ?? null,
+    toolPayload: row["tool_payload"] ? JSON.stringify(row["tool_payload"], null, 2) : null,
     at: (row["at_seconds"] as number | null) ?? null,
   }));
 }
