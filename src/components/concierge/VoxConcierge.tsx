@@ -12,7 +12,7 @@ const OPENER = "Hey, I'm Vox. Ask me anything about SixVox — pricing, setup, o
 
 const PROMPTS = ["What does SixVox cost?", "Can it answer calls for me?", "Can I keep my number?"];
 
-export function VoxConcierge() {
+export function VoxConcierge({ placement = "right" }: { placement?: "right" | "left" } = {}) {
   const [open, setOpen] = useState(false);
   const [voice, setVoice] = useState(false);
   const [starting, setStarting] = useState(false);
@@ -221,7 +221,12 @@ export function VoxConcierge() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Chat with Vox, the SixVox concierge"
-        className="key-signal fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-40 flex h-14 md:bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] items-center gap-2 rounded-full px-5 text-sm font-semibold shadow-lg"
+        className={cn(
+          "key-signal fixed z-40 flex h-14 items-center gap-2 rounded-full px-5 text-sm font-semibold shadow-lg",
+          placement === "left"
+            ? "left-4 bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] lg:left-8 lg:bottom-8"
+            : "right-4 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] md:bottom-[calc(env(safe-area-inset-bottom)+1.5rem)]",
+        )}
       >
         <MessageCircle className="h-5 w-5" />
         <span className="hidden sm:inline">Ask Vox</span>
@@ -230,7 +235,12 @@ export function VoxConcierge() {
   }
 
   return (
-    <div className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[23rem]">
+    <div
+      className={cn(
+        "fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 sm:inset-x-auto sm:bottom-5 sm:w-[23rem]",
+        placement === "left" ? "sm:left-5" : "sm:right-5",
+      )}
+    >
       <div className="glass-panel flex max-h-[75vh] flex-col overflow-hidden rounded-[1.75rem]">
         <header className="flex items-center gap-3 border-b border-border px-4 py-3">
           <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-primary/15">
