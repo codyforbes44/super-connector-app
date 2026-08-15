@@ -41,6 +41,23 @@ export async function bootstrap(supabase: SB, userId: string) {
     .from("phone_numbers")
     .select("*")
     .order("phone_number");
+
+  // Inbound texts break silently when a Messaging Service webhook drifts, so
+  // re-verify (and repair) it in the background whenever the cache goes stale.
+  const stale = (numbers ?? []).some((row) => {
+    const checked = (row as { messaging_checked_at?: string | null }).messaging_checked_at;
+    return !checked || Date.now() - new Date(checked).getTime() > 6 * 60 * 60 * 1000;
+  });
+  if (stale && isAdminRole(role)) {
+    try {
+      const admin = await adminClient();
+      const { syncMessagingReadiness } = await import("./messaging.server");
+      await syncMessagingReadiness(admin);
+    } catch (error) {
+      console.error("messaging readiness bootstrap sync failed", error);
+    }
+  }
+
   return {
     profile,
     role,
@@ -516,6 +533,20 @@ export async function wireNumber(
       voice_url: appSid ? webhookUrl("app-voice") : webhookUrl("voice"),
     })
     .eq("sid", data.sid);
+  // Numbers inside a Messaging Service take inbound from the service, so the
+  // number-level SmsUrl above is not enough — repair the service too.
+  {
+    const { data: row } = await admin
+      .from("phone_numbers")
+      .select("messaging_service_sid")
+      .eq("sid", data.sid)
+      .maybeSingle();
+    const serviceSid = (row?.["messaging_service_sid"] as string | null) ?? null;
+    if (serviceSid) {
+      const { ensureServiceInbound } = await import("./messaging.server");
+      await ensureServiceInbound(serviceSid);
+    }
+  }
   await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid ?? null });
   return { ok: true, applicationSid: appSid ?? null };
 }

@@ -10,6 +10,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { twilioRequest } from "./twilio.server";
+import { webhookUrl } from "./app.server";
 
 type SB = SupabaseClient;
 
@@ -29,6 +30,48 @@ export function campaignApproved(status: string | null | undefined): boolean {
 
 type ServiceRow = { sid: string; friendly_name?: string };
 
+type ServiceConfig = ServiceRow & {
+  inbound_request_url?: string | null;
+  use_inbound_webhook_on_number?: boolean | null;
+};
+
+/**
+ * A number inside a Messaging Service takes its inbound webhook from the
+ * service, not from the number. If that URL drifts (another app, a console
+ * edit), inbound texts silently 404 elsewhere and never reach the inbox — so
+ * repoint any service that carries one of our numbers back at our endpoint.
+ */
+export async function ensureServiceInbound(serviceSid: string): Promise<boolean> {
+  const target = webhookUrl("sms");
+  try {
+    const service = await twilioRequest<ServiceConfig>({
+      host: "messaging",
+      path: `/v1/Services/${serviceSid}`,
+    });
+    const drifted =
+      service.use_inbound_webhook_on_number === true ||
+      (service.inbound_request_url ?? "") !== target;
+    if (!drifted) return false;
+    await twilioRequest({
+      host: "messaging",
+      method: "POST",
+      path: `/v1/Services/${serviceSid}`,
+      params: {
+        InboundRequestUrl: target,
+        InboundMethod: "POST",
+        FallbackUrl: target,
+        FallbackMethod: "POST",
+        StatusCallback: webhookUrl("status"),
+        UseInboundWebhookOnNumber: false,
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error(`failed to repair inbound webhook for ${serviceSid}`, error);
+    return false;
+  }
+}
+
 /**
  * Walk every Messaging Service, map its sender pool, and record the campaign
  * status against each local number. Returns the resulting state per number.
@@ -39,6 +82,9 @@ export async function syncMessagingReadiness(admin: SB): Promise<NumberMessaging
     path: "/v1/Services",
     params: { PageSize: 50 },
   });
+
+  const { data: ownRows } = await admin.from("phone_numbers").select("phone_number");
+  const ownNumbers = new Set((ownRows ?? []).map((row) => row["phone_number"] as string));
 
   // phone number -> best known state (an approved campaign always wins)
   const byNumber = new Map<string, { sid: string; campaignId: string | null; status: string | null }>();
@@ -69,9 +115,13 @@ export async function syncMessagingReadiness(admin: SB): Promise<NumberMessaging
         status,
       });
     }
+
+    // A service holding one of our numbers must deliver inbound here.
+    const mine = (pool.phone_numbers ?? []).some((entry) => ownNumbers.has(entry.phone_number));
+    if (mine) await ensureServiceInbound(service.sid);
   }
 
-  const { data: rows } = await admin.from("phone_numbers").select("phone_number");
+  const rows = ownRows;
   const checkedAt = new Date().toISOString();
   const states: NumberMessagingState[] = [];
 

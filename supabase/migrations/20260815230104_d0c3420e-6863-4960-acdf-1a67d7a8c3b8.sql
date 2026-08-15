@@ -1,0 +1,1 @@
+UPDATE public.phone_numbers SET messaging_checked_at = NULL;
