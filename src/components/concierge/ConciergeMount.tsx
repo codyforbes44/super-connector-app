@@ -2,19 +2,19 @@ import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from "
 
 import { ConversationProvider } from "@elevenlabs/react";
 
-const VoxConcierge = lazy(() =>
+const VoxConcierge = lazy((): Promise<{ default: typeof import("./VoxConcierge").VoxConcierge }> =>
   import("./VoxConcierge")
     .then((module) => ({ default: module.VoxConcierge }))
     // A dropped chunk (deploy swap, offline, dev restart) must never blank the app.
-    .catch(() => ({ default: () => null })),
+    .catch(() => ({ default: (() => <></>) as typeof import("./VoxConcierge").VoxConcierge })),
 );
 
 class ConciergeBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
+  override state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
-  render() {
+  override render() {
     return this.state.failed ? null : this.props.children;
   }
 }
