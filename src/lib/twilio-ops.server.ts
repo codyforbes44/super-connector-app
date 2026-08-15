@@ -516,6 +516,20 @@ export async function wireNumber(
       voice_url: appSid ? webhookUrl("app-voice") : webhookUrl("voice"),
     })
     .eq("sid", data.sid);
+  // Numbers inside a Messaging Service take inbound from the service, so the
+  // number-level SmsUrl above is not enough — repair the service too.
+  {
+    const { data: row } = await admin
+      .from("phone_numbers")
+      .select("messaging_service_sid")
+      .eq("sid", data.sid)
+      .maybeSingle();
+    const serviceSid = (row?.["messaging_service_sid"] as string | null) ?? null;
+    if (serviceSid) {
+      const { ensureServiceInbound } = await import("./messaging.server");
+      await ensureServiceInbound(serviceSid);
+    }
+  }
   await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid ?? null });
   return { ok: true, applicationSid: appSid ?? null };
 }
