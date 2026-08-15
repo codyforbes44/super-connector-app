@@ -83,6 +83,9 @@ export async function syncMessagingReadiness(admin: SB): Promise<NumberMessaging
     params: { PageSize: 50 },
   });
 
+  const { data: ownRows } = await admin.from("phone_numbers").select("phone_number");
+  const ownNumbers = new Set((ownRows ?? []).map((row) => row["phone_number"] as string));
+
   // phone number -> best known state (an approved campaign always wins)
   const byNumber = new Map<string, { sid: string; campaignId: string | null; status: string | null }>();
 
@@ -113,11 +116,12 @@ export async function syncMessagingReadiness(admin: SB): Promise<NumberMessaging
       });
     }
 
-    // Any service holding at least one of our numbers must deliver inbound here.
-    if ((pool.phone_numbers ?? []).length) await ensureServiceInbound(service.sid);
+    // A service holding one of our numbers must deliver inbound here.
+    const mine = (pool.phone_numbers ?? []).some((entry) => ownNumbers.has(entry.phone_number));
+    if (mine) await ensureServiceInbound(service.sid);
   }
 
-  const { data: rows } = await admin.from("phone_numbers").select("phone_number");
+  const rows = ownRows;
   const checkedAt = new Date().toISOString();
   const states: NumberMessagingState[] = [];
 
