@@ -1,10 +1,23 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 
 import { ConversationProvider } from "@elevenlabs/react";
 
 const VoxConcierge = lazy(() =>
-  import("./VoxConcierge").then((module) => ({ default: module.VoxConcierge })),
+  import("./VoxConcierge")
+    .then((module) => ({ default: module.VoxConcierge }))
+    // A dropped chunk (deploy swap, offline, dev restart) must never blank the app.
+    .catch(() => ({ default: () => null })),
 );
+
+class ConciergeBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 /**
  * Client-only, lazily loaded mount for the Vox concierge so the voice SDK never
@@ -29,10 +42,12 @@ export function ConciergeMount({ placement = "right" }: { placement?: "right" | 
 
   if (!ready) return null;
   return (
-    <Suspense fallback={null}>
-      <ConversationProvider>
-        <VoxConcierge placement={placement} />
-      </ConversationProvider>
-    </Suspense>
+    <ConciergeBoundary>
+      <Suspense fallback={null}>
+        <ConversationProvider>
+          <VoxConcierge placement={placement} />
+        </ConversationProvider>
+      </Suspense>
+    </ConciergeBoundary>
   );
 }
