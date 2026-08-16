@@ -16,8 +16,8 @@ export function escapeXml(value: string): string {
   );
 }
 
-/** Three US ring cycles (~6s each) before anything answers the call. */
-export const RING_SECONDS = 18;
+/** Four US ring cycles (~6s each) before anything answers the call. */
+export const RING_SECONDS = 24;
 
 /**
  * Rings the caller without answering. Dialing an identity that is never
