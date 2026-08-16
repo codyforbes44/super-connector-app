@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from "react";
 
 import { formatPhone } from "@/lib/format";
 import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
+import { consumeAnswerIntent, clearAnswerIntent } from "@/lib/call-answer-intent";
 import { haptic } from "@/lib/haptics";
+import { clearCallNotifications } from "@/lib/push";
 import { useVoice } from "@/lib/voice-device";
 import { startRingtone, stopRingtone } from "@/lib/ringtone";
 import { cn } from "@/lib/utils";
@@ -44,12 +46,20 @@ export function InCallScreen() {
       setKeypad(false);
       setTyped("");
       setOutputSheet(false);
+      clearAnswerIntent();
     }
     // Drop any "Incoming call" push notification once the call is in the app.
-    if (typeof navigator !== "undefined" && navigator.serviceWorker?.controller) {
-      navigator.serviceWorker.controller.postMessage({ type: "clear-call-notifications" });
-    }
+    void clearCallNotifications();
   }, [voice.callState]);
+
+  // The user already tapped "Answer" on the notification: pick up as soon as
+  // Twilio hands the ringing call to this device.
+  useEffect(() => {
+    if (voice.callState !== "ringing" || voice.direction !== "inbound") return;
+    if (!consumeAnswerIntent()) return;
+    void voice.accept();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voice.callState, voice.direction]);
 
   if (voice.callState === "idle") return null;
 
