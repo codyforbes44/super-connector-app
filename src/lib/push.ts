@@ -80,3 +80,28 @@ export async function disablePush(): Promise<string | null> {
   await sub.unsubscribe();
   return endpoint;
 }
+
+/**
+ * Close any sticky "Incoming call" notification. The page can close
+ * notifications on a registration directly, which works whether the push
+ * handler lives in the controlling worker (production) or in the standalone
+ * push worker (dev/preview).
+ */
+export async function clearCallNotifications(): Promise<void> {
+  if (!pushSupported()) return;
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(
+      regs.map(async (reg) => {
+        const open = await reg.getNotifications();
+        for (const notification of open) {
+          const kind = (notification.data as { type?: string } | undefined)?.type;
+          if (kind === "call") notification.close();
+        }
+        reg.active?.postMessage({ type: "clear-call-notifications" });
+      }),
+    );
+  } catch {
+    /* clearing notifications is best-effort */
+  }
+}
