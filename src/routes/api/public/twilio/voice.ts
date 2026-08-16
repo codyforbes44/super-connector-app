@@ -114,10 +114,10 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
             appNumber,
           });
 
-          // The AI hand-off is a <Redirect>; anything queued before it (the
-          // ring-back <Dial>) delays the answer, so only ring for human/voicemail.
+          // Callers always hear four rings first — including before the AI
+          // hand-off, which would otherwise pick up instantly.
           const handOff = answer.startsWith("<Redirect");
-          const twiml = handOff ? answer : consent + ringbackTwiml() + answer;
+          const twiml = consent + ringbackTwiml() + answer;
 
           try {
             await supabaseAdmin
