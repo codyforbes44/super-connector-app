@@ -16,6 +16,11 @@ self.addEventListener("push", (event) => {
       (async () => {
         const open = await self.registration.getNotifications({ tag: payload.tag });
         for (const notification of open) notification.close();
+        // Backstop: never leave a stale sticky ring behind.
+        const rest = await self.registration.getNotifications();
+        for (const notification of rest) {
+          if (notification.data && notification.data.type === "call") notification.close();
+        }
       })(),
     );
     return;
@@ -47,16 +52,25 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   if (event.action === "dismiss") return;
-  const target = (event.notification.data && event.notification.data.url) || "/inbox";
+  const data = event.notification.data || {};
+  const base = data.url || "/inbox";
+  const answering = data.type === "call" && event.action === "answer";
+  const target = answering ? `${base}${base.includes("?") ? "&" : "?"}answer=1` : base;
   event.waitUntil(
     (async () => {
       const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-      for (const client of all) {
-        if (client.url.includes(self.location.origin)) {
-          await client.focus();
-          if ("navigate" in client) await client.navigate(target);
-          return;
-        }
+      const client = all.find((entry) => entry.url.startsWith(self.location.origin));
+      if (client) {
+        await client.focus();
+        // Route client-side: a document navigation would reload the page and
+        // destroy the Twilio device holding the ringing call.
+        client.postMessage({
+          type: "open-url",
+          url: target,
+          kind: data.type || "message",
+          answer: answering,
+        });
+        return;
       }
       await self.clients.openWindow(target);
     })(),

@@ -1,8 +1,9 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import { Suspense, useEffect } from "react";
 
 import { AppShell } from "@/components/AppShell";
 import { InCallScreen } from "@/components/InCallScreen";
+import { markAnswerIntent } from "@/lib/call-answer-intent";
 import { VoiceProvider } from "@/lib/voice-device";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -82,6 +83,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedLayout() {
+  useNotificationRouting();
   return (
     <VoiceProvider>
       <AppShell>
@@ -98,4 +100,28 @@ function AuthenticatedLayout() {
       <InCallScreen />
     </VoiceProvider>
   );
+}
+
+/**
+ * Tapping a notification focuses this window and the worker posts the target
+ * here, so we route client-side instead of reloading the document (which would
+ * drop a ringing call).
+ */
+function useNotificationRouting() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { type?: string; url?: string; answer?: boolean } | null;
+      if (!data || data.type !== "open-url" || !data.url) return;
+      if (data.answer) markAnswerIntent();
+      const target = new URL(data.url, window.location.origin);
+      void navigate({
+        to: target.pathname,
+        search: Object.fromEntries(target.searchParams.entries()) as never,
+      });
+    };
+    navigator.serviceWorker.addEventListener("message", onMessage);
+    return () => navigator.serviceWorker.removeEventListener("message", onMessage);
+  }, [navigate]);
 }
