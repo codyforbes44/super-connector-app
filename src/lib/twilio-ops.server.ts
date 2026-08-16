@@ -510,6 +510,11 @@ export async function wireNumber(
   const voiceParams = appSid
     ? {
         VoiceApplicationSid: appSid,
+        // Keep the number-level URL pointed at us too. A third party (e.g. an
+        // ElevenLabs number import) can rewrite VoiceUrl; the app SID wins
+        // today, but a stale foreign URL becomes live the moment it is cleared.
+        VoiceUrl: webhookUrl("app-voice"),
+        VoiceMethod: "POST",
         VoiceFallbackUrl: webhookUrl("voice-fallback"),
         VoiceFallbackMethod: "POST",
       }
