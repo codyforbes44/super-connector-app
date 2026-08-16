@@ -172,6 +172,24 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
 
         // Let the caller hear four rings before voicemail or the AI answers.
         // Forwarding to another phone rings on its own, so it goes straight out.
+        const handOff = unanswered.startsWith("<Redirect");
+        try {
+          await supabaseAdmin
+            .from("calls")
+            .update({
+              answer_path: identities.length
+                ? "in_app"
+                : number?.forward_to && !aiAnswering
+                  ? "forward"
+                  : handOff
+                    ? "ai_agent"
+                    : (number?.answer_mode ?? "voicemail"),
+            })
+            .eq("sid", callSid);
+        } catch {
+          // bookkeeping only
+        }
+
         if (identities.length === 0) {
           const forwarding = Boolean(number?.forward_to) && !aiAnswering;
           return xml(forwarding ? fallback : ringbackTwiml() + fallback);
