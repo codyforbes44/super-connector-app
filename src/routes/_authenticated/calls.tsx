@@ -22,6 +22,7 @@ import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { CallReadiness } from "@/components/CallReadiness";
 import { Dialpad } from "@/components/Dialpad";
+import { markAnswerIntent } from "@/lib/call-answer-intent";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -47,7 +48,7 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type CallRow = Tables<"calls">;
 
-type CallSearch = CallFilterState & { incoming?: string };
+type CallSearch = CallFilterState & { incoming?: string; answer?: string };
 
 /** The other party on a call row, or "" when the number is unusable. */
 function otherParty(call: CallRow): string {
@@ -92,6 +93,7 @@ export const Route = createFileRoute("/_authenticated/calls")({
       ...(typeof search["incoming"] === "string" && search["incoming"]
         ? { incoming: search["incoming"] }
         : {}),
+      ...(search["answer"] === "1" || search["answer"] === true ? { answer: "1" } : {}),
     };
   },
   head: () => ({
@@ -140,14 +142,18 @@ function CallsScreen() {
   // Opened from an "Incoming call" notification: make sure the mic is ready so
   // the in-call screen can answer as soon as the device receives the call.
   const incoming = search.incoming;
+  const answerIntent = search.answer === "1";
   const [ringHint, setRingHint] = useState(false);
   useEffect(() => {
-    if (!incoming) return;
+    if (!incoming && !answerIntent) return;
     setRingHint(true);
+    // Came from the notification's "Answer" action: pick up automatically the
+    // moment Twilio rings this device.
+    if (answerIntent) markAnswerIntent();
     void voice.requestMic();
     void navigate({
       search: (prev: CallSearch) => {
-        const { incoming: _drop, ...rest } = prev;
+        const { incoming: _drop, answer: _dropAnswer, ...rest } = prev;
         return rest;
       },
       replace: true,
@@ -155,7 +161,7 @@ function CallsScreen() {
     const id = setTimeout(() => setRingHint(false), 25_000);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [incoming]);
+  }, [incoming, answerIntent]);
 
   useEffect(() => {
     if (voice.callState !== "idle") setRingHint(false);
