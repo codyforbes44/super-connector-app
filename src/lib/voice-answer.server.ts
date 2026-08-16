@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { webhookUrl } from "./app.server";
+import { PUBLIC_BASE_URL, webhookUrl } from "./app.server";
 import {
   ELEVENLABS_TWILIO_INBOUND_URL,
   ensureAgentPhoneNumber,
@@ -19,13 +19,18 @@ export function escapeXml(value: string): string {
 /** Four US ring cycles (~6s each) before anything answers the call. */
 export const RING_SECONDS = 24;
 
+/** One full US ring cadence: 2s of 440+480Hz tone, 4s of silence. */
+export const RINGBACK_AUDIO_URL = `${PUBLIC_BASE_URL}/ringback.mp3`;
+export const RINGBACK_CYCLE_SECONDS = 6;
+
 /**
- * Rings the caller without answering. Dialing an identity that is never
- * registered keeps the call in a ringing state for the full timeout, and
- * ringTone gives the caller audible ringing instead of silence.
+ * Audible ring-back for the caller. Dialing an unregistered client identity
+ * does NOT ring — Twilio fails that leg instantly and moves on — so the ring
+ * is played as real audio instead, which reliably lasts the full window.
  */
 export function ringbackTwiml(seconds: number = RING_SECONDS): string {
-  return `<Dial timeout="${seconds}" ringTone="us"><Client>sixvox-ringback</Client></Dial>`;
+  const loops = Math.max(1, Math.round(seconds / RINGBACK_CYCLE_SECONDS));
+  return `<Play loop="${loops}">${escapeXml(RINGBACK_AUDIO_URL)}</Play>`;
 }
 
 /** Spoken notice played before a live call is recorded. Never silent. */
