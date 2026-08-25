@@ -67,7 +67,9 @@ export function WelcomeDialog() {
         </DialogDescription>
         <div className="mt-2 grid gap-2">
           <Button asChild onClick={() => void dismiss()}>
-            <Link to="/calls">Open the dialer</Link>
+            <Link to="/calls" search={{}}>
+              Open the dialer
+            </Link>
           </Button>
           <Button asChild variant="secondary" onClick={() => void dismiss()}>
             <Link to="/inbox">Go to inbox</Link>
