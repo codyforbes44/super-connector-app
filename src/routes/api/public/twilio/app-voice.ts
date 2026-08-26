@@ -129,18 +129,10 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           }
         }
 
-        // Only ring devices that checked in recently. Dialing a client that is
-        // not registered burns the full timeout in silence before voicemail.
-        if (identities.length) {
-          const since = new Date(Date.now() - 150_000).toISOString();
-          const { data: present } = await supabaseAdmin
-            .from("voice_presence")
-            .select("identity")
-            .in("identity", identities)
-            .gt("last_seen_at", since);
-          const online = new Set((present ?? []).map((row) => row.identity as string));
-          identities = identities.filter((identity) => online.has(identity));
-        }
+        // Always include assigned devices. Mobile browsers throttle heartbeat
+        // timers in the background, so presence is advisory and must never
+        // suppress the actual Twilio call invite. The Dial timeout already
+        // provides the bounded four-ring fallback to voicemail or the agent.
 
         // Wake backgrounded devices so the incoming call can be answered in-app.
         if (ringUserIds.length) {

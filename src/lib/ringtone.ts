@@ -22,6 +22,7 @@ let elPlaying = false;
 let ctx: AudioContext | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
 let gain: GainNode | null = null;
+let vibrationTimer: ReturnType<typeof setInterval> | null = null;
 
 function element(): HTMLAudioElement | null {
   if (typeof window === "undefined") return null;
@@ -68,7 +69,35 @@ export function primeRingtone(): void {
       });
   }
   const c = context();
-  if (c && c.state === "suspended") void c.resume().catch(() => {});
+  if (c) {
+    void c
+      .resume()
+      .then(() => {
+        // A zero-gain source started inside the gesture is the reliable iOS
+        // audio unlock. Merely resuming a context is not enough on every build.
+        const oscillator = c.createOscillator();
+        const silent = c.createGain();
+        silent.gain.value = 0;
+        oscillator.connect(silent);
+        silent.connect(c.destination);
+        oscillator.start();
+        oscillator.stop(c.currentTime + 0.01);
+      })
+      .catch(() => {});
+  }
+}
+
+function startVibration() {
+  if (typeof navigator === "undefined" || !("vibrate" in navigator) || vibrationTimer) return;
+  const pulse = () => navigator.vibrate([500, 250, 500, 1750]);
+  pulse();
+  vibrationTimer = setInterval(pulse, 3000);
+}
+
+function stopVibration() {
+  if (vibrationTimer) clearInterval(vibrationTimer);
+  vibrationTimer = null;
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(0);
 }
 
 function burst() {
@@ -109,6 +138,7 @@ function stopTones() {
 
 /** Start the ring loop. Safe to call repeatedly. */
 export function startRingtone(): void {
+  startVibration();
   const audio = element();
   if (audio) {
     audio.currentTime = 0;
@@ -130,6 +160,7 @@ export function startRingtone(): void {
 
 /** Stop every ring layer. */
 export function stopRingtone(): void {
+  stopVibration();
   if (el) {
     try {
       el.pause();
