@@ -119,7 +119,7 @@ function startTones() {
   if (!audio || timer) return;
   void audio.resume().catch(() => {});
   gain = audio.createGain();
-  gain.gain.value = 0.08;
+  gain.gain.value = 0.5;
   gain.connect(audio.destination);
   burst();
   timer = setInterval(burst, 3400);
@@ -139,6 +139,8 @@ function stopTones() {
 /** Start the ring loop. Safe to call repeatedly. */
 export function startRingtone(): void {
   startVibration();
+  const audioContext = context();
+  if (audioContext?.state === "suspended") void audioContext.resume().catch(() => {});
   const audio = element();
   if (audio) {
     audio.currentTime = 0;
