@@ -202,8 +202,22 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
           };
           beat();
           if (presenceRef.current) clearInterval(presenceRef.current);
-          presenceRef.current = setInterval(beat, 45_000);
+          presenceRef.current = setInterval(beat, 30_000);
+          // Background tabs get their timers throttled, so check in again the
+          // moment the app comes back to the foreground.
+          if (!visibilityBeatRef.current) {
+            const onVisible = () => {
+              if (document.visibilityState === "visible") beat();
+            };
+            document.addEventListener("visibilitychange", onVisible);
+            window.addEventListener("focus", onVisible);
+            visibilityBeatRef.current = () => {
+              document.removeEventListener("visibilitychange", onVisible);
+              window.removeEventListener("focus", onVisible);
+            };
+          }
         });
+
         device.on("error", (err: { message?: string }) => {
           setError(err?.message ?? "Voice device error");
           setStatus("unavailable");
