@@ -37,6 +37,7 @@ self.addEventListener("push", (event) => {
     renotify: Boolean(payload.tag),
     data: { url: payload.url || "/inbox", type: payload.type || "message" },
     requireInteraction: Boolean(payload.requireInteraction),
+    silent: false,
     vibrate: isCall ? [400, 200, 400, 200, 400] : [80, 40, 80],
     actions: isCall
       ? [

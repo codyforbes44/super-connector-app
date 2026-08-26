@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 import { getVoiceToken, setVoicePresence } from "@/lib/twilio.functions";
 import { errorMessage } from "@/lib/format";
-import { primeRingtone } from "@/lib/ringtone";
+import { primeRingtone, startRingtone, stopRingtone } from "@/lib/ringtone";
 import {
   startCallKeepalive,
   reviveCallAudio,
@@ -159,12 +159,22 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       setRemoteParty(party);
       setCallState(dir === "inbound" ? "ringing" : "connecting");
       call.on("accept", () => {
+        stopRingtone();
         setCallState("active");
         setStartedAt(Date.now());
       });
-      call.on("disconnect", resetCall);
-      call.on("cancel", resetCall);
-      call.on("reject", resetCall);
+      call.on("disconnect", () => {
+        stopRingtone();
+        resetCall();
+      });
+      call.on("cancel", () => {
+        stopRingtone();
+        resetCall();
+      });
+      call.on("reject", () => {
+        stopRingtone();
+        resetCall();
+      });
       call.on("error", (...args: unknown[]) => {
         const err = args[0] as { message?: string } | undefined;
         toast.error(err?.message ?? "Call failed");
@@ -233,6 +243,9 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
             incoming.reject();
             return;
           }
+          // Start synchronously with the SDK event. Waiting for React to render
+          // the call screen can miss the mobile browser's short audio window.
+          startRingtone();
           bindCall(incoming, "inbound", incoming.parameters["From"] ?? "Unknown");
         });
 
@@ -266,6 +279,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       visibilityBeatRef.current?.();
       visibilityBeatRef.current = null;
       void setVoicePresence({ data: { online: false } }).catch(() => {});
+      stopRingtone();
       deviceRef.current?.destroy();
       deviceRef.current = null;
     };
