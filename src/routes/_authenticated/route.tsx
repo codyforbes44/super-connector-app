@@ -4,6 +4,7 @@ import { Suspense, useEffect } from "react";
 import { AppShell } from "@/components/AppShell";
 import { InCallScreen } from "@/components/InCallScreen";
 import { WelcomeDialog } from "@/components/WelcomeDialog";
+import { EnableNotificationsPrompt } from "@/components/EnableNotificationsPrompt";
 import { markAnswerIntent } from "@/lib/call-answer-intent";
 import { VoiceProvider } from "@/lib/voice-device";
 import { supabase } from "@/integrations/supabase/client";
