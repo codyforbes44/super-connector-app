@@ -114,6 +114,18 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     return () => dispose?.();
   }, []);
 
+  // Satisfy the autoplay policy from the first tap so an incoming call can
+  // ring out loud without waiting for the user to touch the screen.
+  useEffect(() => {
+    const prime = () => primeRingtone();
+    const events = ["pointerdown", "keydown", "touchstart"] as const;
+    for (const evt of events) window.addEventListener(evt, prime, { passive: true });
+    return () => {
+      for (const evt of events) window.removeEventListener(evt, prime);
+    };
+  }, []);
+
+
   const requestMic = useCallback(async () => {
     try {
       await ensureMicrophone();
