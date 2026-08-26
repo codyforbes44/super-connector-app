@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { getVoiceToken, setVoicePresence } from "@/lib/twilio.functions";
 import { errorMessage } from "@/lib/format";
+import { primeRingtone } from "@/lib/ringtone";
 import {
   startCallKeepalive,
   reviveCallAudio,
@@ -89,6 +90,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   const callRef = useRef<Call | null>(null);
   const refreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const presenceRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const visibilityBeatRef = useRef<(() => void) | null>(null);
 
   const [status, setStatus] = useState<DeviceStatus>("idle");
   const [callState, setCallState] = useState<CallState>("idle");
@@ -261,6 +263,8 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       if (refreshRef.current) clearTimeout(refreshRef.current);
       if (presenceRef.current) clearInterval(presenceRef.current);
       presenceRef.current = null;
+      visibilityBeatRef.current?.();
+      visibilityBeatRef.current = null;
       void setVoicePresence({ data: { online: false } }).catch(() => {});
       deviceRef.current?.destroy();
       deviceRef.current = null;

@@ -132,7 +132,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         // Only ring devices that checked in recently. Dialing a client that is
         // not registered burns the full timeout in silence before voicemail.
         if (identities.length) {
-          const since = new Date(Date.now() - 90_000).toISOString();
+          const since = new Date(Date.now() - 150_000).toISOString();
           const { data: present } = await supabaseAdmin
             .from("voice_presence")
             .select("identity")
