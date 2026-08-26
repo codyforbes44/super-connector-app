@@ -101,6 +101,7 @@ function AuthenticatedLayout() {
       </AppShell>
       <InCallScreen />
       <WelcomeDialog />
+      <EnableNotificationsPrompt />
     </VoiceProvider>
   );
 }
