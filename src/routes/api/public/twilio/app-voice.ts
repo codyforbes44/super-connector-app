@@ -110,24 +110,25 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           .maybeSingle();
 
         const { voiceIdentityFor } = await import("@/lib/voice-token.server");
-        let identities: string[] = [];
         const ringUserIds: string[] = [];
         if (number?.assigned_to) {
-          identities.push(voiceIdentityFor(number.assigned_to as string));
           ringUserIds.push(number.assigned_to as string);
-        } else {
-          const { data: admins } = await supabaseAdmin
-            .from("user_roles")
-            .select("user_id")
-            .in("role", ["owner", "admin"]);
-          for (const row of admins ?? []) {
-            const identity = voiceIdentityFor(row.user_id as string);
-            if (!identities.includes(identity)) {
-              identities.push(identity);
-              ringUserIds.push(row.user_id as string);
-            }
+        }
+
+        // Owners and admins can access every workspace number in the app, so
+        // they must remain eligible to answer even when a number is assigned
+        // to one specific teammate.
+        const { data: admins } = await supabaseAdmin
+          .from("user_roles")
+          .select("user_id")
+          .in("role", ["owner", "admin"]);
+        for (const row of admins ?? []) {
+          const userId = row.user_id as string;
+          if (!ringUserIds.includes(userId)) {
+            ringUserIds.push(userId);
           }
         }
+        const identities = ringUserIds.map(voiceIdentityFor);
 
         // Always include assigned devices. Mobile browsers throttle heartbeat
         // timers in the background, so presence is advisory and must never
