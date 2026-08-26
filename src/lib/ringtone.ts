@@ -1,13 +1,38 @@
 /**
- * A simple WebAudio ringtone so an incoming call is audible while the app is
- * open. No asset download — two alternating tones in a repeating cadence.
+ * Audible ring for an incoming call while the app is open.
+ *
+ * Two layers, because mobile browsers are fussy about unattended audio:
+ *  1. A looping <audio> element on the bundled ring-back tone — this is what
+ *     actually gets heard on iOS/Android, and it keeps playing when the tab is
+ *     hidden.
+ *  2. A WebAudio cadence as a fallback if the element is blocked or the file
+ *     can't load.
+ *
+ * `primeRingtone()` is called from the first user gesture in the app so the
+ * autoplay policy is already satisfied when a call lands.
  */
 
 import { registerAudioContext } from "@/lib/call-keepalive";
 
+const RING_SRC = "/ringback.mp3";
+
+let el: HTMLAudioElement | null = null;
+let elPlaying = false;
+
 let ctx: AudioContext | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
 let gain: GainNode | null = null;
+
+function element(): HTMLAudioElement | null {
+  if (typeof window === "undefined") return null;
+  if (!el) {
+    el = new Audio(RING_SRC);
+    el.loop = true;
+    el.preload = "auto";
+    el.volume = 1;
+  }
+  return el;
+}
 
 function context(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -22,25 +47,45 @@ function context(): AudioContext | null {
   return ctx;
 }
 
+/**
+ * Unlock audio playback from a user gesture. Safe and cheap to call often —
+ * it plays the ring muted for a moment so the browser marks it as allowed.
+ */
+export function primeRingtone(): void {
+  const audio = element();
+  if (audio && audio.paused) {
+    const wasMuted = audio.muted;
+    audio.muted = true;
+    void audio
+      .play()
+      .then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = wasMuted;
+      })
+      .catch(() => {
+        audio.muted = wasMuted;
+      });
+  }
+  const c = context();
+  if (c && c.state === "suspended") void c.resume().catch(() => {});
+}
+
 function burst() {
   const audio = context();
   if (!audio || !gain) return;
   const now = audio.currentTime;
-  for (const [offset, freq] of [
-    [0, 440],
-    [0, 480],
-  ] as const) {
+  for (const freq of [440, 480]) {
     const osc = audio.createOscillator();
     osc.type = "sine";
     osc.frequency.value = freq;
     osc.connect(gain);
-    osc.start(now + offset);
-    osc.stop(now + offset + 1.4);
+    osc.start(now);
+    osc.stop(now + 1.4);
   }
 }
 
-/** Start the ring loop. Safe to call repeatedly. */
-export function startRingtone(): void {
+function startTones() {
   const audio = context();
   if (!audio || timer) return;
   void audio.resume().catch(() => {});
@@ -51,8 +96,7 @@ export function startRingtone(): void {
   timer = setInterval(burst, 3400);
 }
 
-/** Stop the ring loop and release the gain node. */
-export function stopRingtone(): void {
+function stopTones() {
   if (timer) clearInterval(timer);
   timer = null;
   try {
@@ -61,4 +105,44 @@ export function stopRingtone(): void {
     /* already torn down */
   }
   gain = null;
+}
+
+/** Start the ring loop. Safe to call repeatedly. */
+export function startRingtone(): void {
+  const audio = element();
+  if (audio) {
+    audio.currentTime = 0;
+    audio.muted = false;
+    void audio
+      .play()
+      .then(() => {
+        elPlaying = true;
+      })
+      .catch(() => {
+        // Blocked or missing asset — fall back to synthesised ringing.
+        elPlaying = false;
+        startTones();
+      });
+  } else {
+    startTones();
+  }
+}
+
+/** Stop every ring layer. */
+export function stopRingtone(): void {
+  if (el) {
+    try {
+      el.pause();
+      el.currentTime = 0;
+    } catch {
+      /* nothing playing */
+    }
+  }
+  elPlaying = false;
+  stopTones();
+}
+
+/** True while the app is audibly ringing through the audio element. */
+export function isRingtonePlaying(): boolean {
+  return elPlaying || timer !== null;
 }
