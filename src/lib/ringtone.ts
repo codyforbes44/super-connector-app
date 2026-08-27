@@ -23,6 +23,8 @@ let ctx: AudioContext | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
 let gain: GainNode | null = null;
 let vibrationTimer: ReturnType<typeof setInterval> | null = null;
+let ringGeneration = 0;
+let ringing = false;
 
 function element(): HTMLAudioElement | null {
   if (typeof window === "undefined") return null;
@@ -138,6 +140,8 @@ function stopTones() {
 
 /** Start the ring loop. Safe to call repeatedly. */
 export function startRingtone(): void {
+  const generation = ++ringGeneration;
+  ringing = true;
   startVibration();
   const audioContext = context();
   if (audioContext?.state === "suspended") void audioContext.resume().catch(() => {});
@@ -148,12 +152,17 @@ export function startRingtone(): void {
     void audio
       .play()
       .then(() => {
+        if (generation !== ringGeneration || !ringing) {
+          audio.pause();
+          return;
+        }
         elPlaying = true;
       })
       .catch(() => {
-        // Blocked or missing asset — fall back to synthesised ringing.
+        // Blocked or missing asset — fall back to synthesised ringing,
+        // but only if this ring is still the current one.
         elPlaying = false;
-        startTones();
+        if (generation === ringGeneration && ringing) startTones();
       });
   } else {
     startTones();
@@ -162,6 +171,8 @@ export function startRingtone(): void {
 
 /** Stop every ring layer. */
 export function stopRingtone(): void {
+  ringGeneration++;
+  ringing = false;
   stopVibration();
   if (el) {
     try {

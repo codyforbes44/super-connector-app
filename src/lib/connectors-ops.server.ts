@@ -36,8 +36,7 @@ async function safe<T>(run: () => Promise<T>, fallback: T): Promise<T> {
 type NumberRow = {
   sid: string;
   phone_number: string;
-  sms_url: string | null;
-  voice_url: string | null;
+  webhook_wired: boolean | null;
 };
 
 export async function connectorsOverview(supabase: SupabaseClient, userId: string) {
@@ -49,7 +48,7 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
     await Promise.all([
     safe(
       async () =>
-        ((await supabase.from("phone_numbers").select("sid, phone_number, sms_url, voice_url"))
+        ((await supabase.from("phone_numbers").select("sid, phone_number, webhook_wired"))
           .data ?? []) as NumberRow[],
       [] as NumberRow[],
     ),
@@ -91,7 +90,7 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       }),
     ]);
 
-  const wired = numbers.filter((n) => n.sms_url && n.voice_url).length;
+  const wired = numbers.filter((n) => n.webhook_wired).length;
   const hasVoiceKeys = Boolean(
     process.env["TWILIO_API_KEY_SID"] && process.env["TWILIO_API_KEY_SECRET"],
   );
