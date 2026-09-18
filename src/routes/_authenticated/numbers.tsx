@@ -455,13 +455,14 @@ function NumberSheet({
               className="flex-1 rounded-full"
               onClick={async () => {
                 try {
-                  await wireNumber({ data: { sid: number.sid } });
+                  const result = await wireNumber({ data: { sid: number.sid } });
                   await onChanged();
-                  toast.success("Webhooks pointed at SixVox.");
+                  toast.success(result?.skipped ?? "Webhooks pointed at SixVox.");
                 } catch (error) {
                   toast.error(errorMessage(error));
                 }
               }}
+
             >
               <Link2 className="mr-2 h-4 w-4" />
               Wire webhooks
