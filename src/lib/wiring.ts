@@ -47,7 +47,28 @@ export function pointsAtElevenLabsInbound(url: string | null | undefined): boole
   );
 }
 
+/**
+ * Numbers that answer on ElevenLabs directly, on purpose. Repair and sync must
+ * never rewrite their Voice/SMS/Status URLs — the Concierge line lives here.
+ */
+const EL_PRIMARY_NUMBERS = ["+18175338844"];
+
+/** Digits-only E.164 normalisation so "(817) 533-8844" matches the allowlist. */
+export function normalizeE164(value: string | null | undefined): string {
+  if (!value) return "";
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return "";
+  return `+${digits.length === 10 ? `1${digits}` : digits}`;
+}
+
+/** True for a DID whose carrier webhooks are owned by ElevenLabs on purpose. */
+export function isElPrimaryNumber(value: string | null | undefined): boolean {
+  return EL_PRIMARY_NUMBERS.includes(normalizeE164(value));
+}
+
 export type WiringPayload = {
+  /** The DID in any format; used for the ElevenLabs-primary carve-out. */
+  phone_number?: string | null;
   /** Number-level VoiceUrl from Twilio. */
   voice_url?: string | null;
   /** Number-level SmsUrl from Twilio. */
@@ -64,6 +85,7 @@ export type WiringPayload = {
   external_sms?: boolean | null;
 };
 
+
 export type WiringReport = {
   voice: boolean;
   sms: boolean;
@@ -78,8 +100,10 @@ export type WiringReport = {
 };
 
 export function wiringReport(n: WiringPayload): WiringReport {
-  const aiPrimary = (n.answer_mode ?? "") === "ai_agent";
+  const elPrimary = isElPrimaryNumber(n.phone_number);
+  const aiPrimary = (n.answer_mode ?? "") === "ai_agent" || elPrimary;
   const voiceElevenLabs = aiPrimary && pointsAtElevenLabsInbound(n.voice_url);
+
   const voice =
     pointsAtSixVox(n.voice_url, ["/api/public/twilio/voice", "/api/public/twilio/app-voice"]) ||
     voiceElevenLabs;

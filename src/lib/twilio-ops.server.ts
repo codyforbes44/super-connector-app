@@ -117,6 +117,7 @@ export async function syncNumbers(supabase: SB, userId: string) {
         sms_url: n.sms_url ?? null,
         voice_url: n.voice_url ?? null,
         webhook_wired: isFullyWired({
+          phone_number: n.phone_number,
           voice_url: n.voice_url ?? null,
           sms_url: n.sms_url ?? null,
           sms_application_sid: n.sms_application_sid ?? null,
@@ -506,7 +507,29 @@ export async function wireNumber(
 ) {
   await requireAdmin(supabase, userId);
   const admin = await adminClient();
+  // Hard carve-out: ElevenLabs-primary lines (the Concierge DID) answer on
+  // ElevenLabs by design. Repair must never rewrite their carrier webhooks.
+  {
+    const { isElPrimaryNumber } = await import("./wiring");
+    const { data: row } = await admin
+      .from("phone_numbers")
+      .select("phone_number")
+      .eq("sid", data.sid)
+      .maybeSingle();
+    if (isElPrimaryNumber((row?.["phone_number"] as string | null) ?? null)) {
+      await audit(admin, userId, "numbers.wire.skipped", {
+        sid: data.sid,
+        reason: "elevenlabs_primary",
+      });
+      return {
+        ok: true,
+        applicationSid: null,
+        skipped: "This line answers on the AI voice service directly and was left untouched.",
+      };
+    }
+  }
   const appSid = data.applicationSid ?? (await defaultTwimlAppSid(admin));
+
   // Messaging always points straight at our own SMS webhook. An SmsApplicationSid
   // silently overrides SmsUrl on the number, so it must stay cleared — otherwise
   // inbound texts follow whatever URL that TwiML App happens to hold.
@@ -579,6 +602,7 @@ export async function wireNumber(
       .maybeSingle();
     const wired = fresh
       ? isFullyWired({
+          phone_number: fresh.phone_number,
           voice_url: fresh.voice_url ?? null,
           sms_url: fresh.sms_url ?? null,
           sms_application_sid: fresh.sms_application_sid ?? null,
@@ -620,6 +644,7 @@ export async function purchaseNumber(
 ) {
   await requireOwner(supabase, userId);
   const admin = await adminClient();
+  const { isFullyWired: isFullyWiredNumber } = await import("./wiring");
   const bought = await twilioRequest<TwilioNumber>({
     method: "POST",
     path: "/IncomingPhoneNumbers.json",
@@ -643,9 +668,15 @@ export async function purchaseNumber(
       phone_number: bought.phone_number,
       friendly_name: bought.friendly_name,
       capabilities: bought.capabilities ?? {},
-      sms_url: webhookUrl("sms"),
-      voice_url: webhookUrl("voice"),
-      webhook_wired: true,
+      sms_url: bought.sms_url ?? webhookUrl("sms"),
+      voice_url: bought.voice_url ?? webhookUrl("voice"),
+      webhook_wired: isFullyWiredNumber({
+        phone_number: bought.phone_number,
+        voice_url: bought.voice_url ?? null,
+        sms_url: bought.sms_url ?? null,
+        sms_application_sid: bought.sms_application_sid ?? null,
+        status_callback: bought.status_callback ?? null,
+      }),
     },
     { onConflict: "sid" },
   );

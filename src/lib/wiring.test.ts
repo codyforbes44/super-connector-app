@@ -45,3 +45,16 @@ describe("isFullyWired", () => {
     expect(isFullyWired({ ...base, status_callback: null })).toBe(false);
   });
 });
+
+describe("ElevenLabs-primary carve-out", () => {
+  it("counts the Concierge DID as wired on ElevenLabs inbound", () => {
+    expect(
+      isFullyWired({
+        phone_number: "(817) 533-8844",
+        voice_url: "https://api.us.elevenlabs.io/twilio/inbound_call",
+        sms_url: "https://sixvox.3bi.io/api/public/twilio/sms",
+        status_callback: "https://api.us.elevenlabs.io/twilio/status",
+      }),
+    ).toBe(true);
+  });
+});
