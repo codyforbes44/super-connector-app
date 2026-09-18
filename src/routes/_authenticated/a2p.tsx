@@ -223,6 +223,23 @@ function A2pScreen() {
   }
 
   const s = status.data;
+  const numberRows = ((readiness.data ?? []) as unknown as Array<{
+    phoneNumber: string;
+    campaignStatus: string | null;
+    ready: boolean;
+  }>);
+
+  /** Plain-English reason a number still can't send US texts. */
+  function readinessReason(n: { campaignStatus: string | null }): string {
+    if (!s || s.overall === "not_started") {
+      return "US texting approval hasn't been started for this account yet.";
+    }
+    if (s.overall === "blocked") return s.nextStep ?? "Approval needs attention.";
+    if (!n.campaignStatus) return "This number hasn't been added to your approved texting group.";
+    if (s.overall === "in_review") return "Waiting on approval \u2014 usually a day or two.";
+    return "Not approved for US texting yet.";
+  }
+
   const serviceList = (services.data ?? []) as unknown as Array<{
     sid: string;
     friendly_name: string;
@@ -250,50 +267,74 @@ function A2pScreen() {
         }}
       />
 
+      {s ? (
+        <section className="px-4 pt-4">
+          <div
+            className={
+              "glass-panel space-y-1 rounded-2xl border-l-4 p-4 " +
+              (s.overall === "approved"
+                ? "border-l-success"
+                : s.overall === "blocked"
+                  ? "border-l-destructive"
+                  : "border-l-primary")
+            }
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold">{s.headline}</p>
+              <StepBadge
+                state={
+                  s.overall === "approved"
+                    ? "approved"
+                    : s.overall === "blocked"
+                      ? "failed"
+                      : s.overall === "in_review"
+                        ? "pending"
+                        : "todo"
+                }
+              />
+            </div>
+            {s.nextStep ? <p className="text-xs text-muted-foreground">{s.nextStep}</p> : null}
+          </div>
+        </section>
+      ) : null}
+
       <section className="px-4 pt-4">
         <div className="glass-panel space-y-2 rounded-2xl p-4">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold">Numbers cleared to text</h2>
+            <h2 className="text-sm font-semibold">Your numbers</h2>
             <button
               type="button"
               onClick={() => void readiness.refetch()}
               className="key-raised rounded-full px-3 py-1 text-[0.7rem] text-muted-foreground"
             >
-              {readiness.isFetching ? "Checking…" : "Recheck"}
+              {readiness.isFetching ? "Checking\u2026" : "Recheck"}
             </button>
           </div>
-          {(readiness.data as unknown as Array<{
-            phoneNumber: string;
-            campaignStatus: string | null;
-            ready: boolean;
-          }> | undefined)?.length ? (
+          {numberRows.length ? (
             <ul className="divide-y divide-border/60">
-              {(
-                readiness.data as unknown as Array<{
-                  phoneNumber: string;
-                  campaignStatus: string | null;
-                  ready: boolean;
-                }>
-              ).map((n) => (
-                <li key={n.phoneNumber} className="flex items-center justify-between py-2 text-sm">
-                  <span className="tabular">{n.phoneNumber}</span>
-                  <span
-                    className={
-                      n.ready
-                        ? "text-[0.7rem] font-medium text-primary"
-                        : "text-[0.7rem] text-muted-foreground"
-                    }
-                  >
-                    {n.ready ? "Approved" : (n.campaignStatus ?? "Not registered")}
-                  </span>
+              {numberRows.map((n) => (
+                <li key={n.phoneNumber} className="space-y-0.5 py-2 text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="tabular">{n.phoneNumber}</span>
+                    <span
+                      className={
+                        n.ready
+                          ? "text-[0.7rem] font-medium text-success"
+                          : "text-[0.7rem] text-muted-foreground"
+                      }
+                    >
+                      {n.ready ? "Can text" : "Can't text yet"}
+                    </span>
+                  </div>
+                  {n.ready ? null : (
+                    <p className="text-[0.7rem] text-muted-foreground">{readinessReason(n)}</p>
+                  )}
                 </li>
               ))}
             </ul>
           ) : (
             <p className="text-xs text-muted-foreground">
-              {readiness.isError
-                ? errorMessage(readiness.error)
-                : "No numbers checked yet."}
+              {readiness.isError ? errorMessage(readiness.error) : "No numbers checked yet."}
             </p>
           )}
         </div>
@@ -301,9 +342,9 @@ function A2pScreen() {
 
       <section className="space-y-3 px-4 py-4">
         <p className="text-xs text-muted-foreground">
-          US carriers block business texts from a 10-digit number until it belongs to an approved
-          campaign. Three steps: describe the business, register the brand, then register the
-          campaign the number sends under.
+          US phone companies only deliver business texts from numbers that have been approved.
+          Three short steps: tell us about the business, register the business name, then describe
+          the kind of texts you send.
         </p>
         {s?.blocked ? (
           <p className="glass-panel rounded-2xl p-3 text-xs text-destructive">{s.blocked}</p>
@@ -315,8 +356,8 @@ function A2pScreen() {
         ) : null}
         {s?.ready ? (
           <p className="glass-panel rounded-2xl p-3 text-xs text-success">
-            Registration is approved and {s.numbersInPool} number
-            {s.numbersInPool === 1 ? "" : "s"} can send to US recipients.
+            Approved \u2014 {s.numbersInPool} number{s.numbersInPool === 1 ? "" : "s"} can text US
+            phones.
           </p>
         ) : null}
       </section>

@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ArrowDownLeft,
@@ -340,9 +340,11 @@ function ThreadScreen() {
       ) : smsBlocked ? (
         <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/80 px-4 py-3 text-center text-xs text-muted-foreground backdrop-blur-xl">
           <AlertTriangle className="mr-1 inline size-3.5 text-destructive" />
-          {formatPhone(convo?.app_number ?? "")} isn&apos;t approved for US texting yet
-          {senderState?.campaignStatus ? ` (campaign ${senderState.campaignStatus.toLowerCase()})` : ""}.
-          Finish registration to reply from this number.
+          {formatPhone(convo?.app_number ?? "")} isn&apos;t approved for US texting yet.{" "}
+          <Link to="/a2p" className="font-medium text-primary underline underline-offset-2">
+            Finish US texting approval
+          </Link>{" "}
+          to reply from this number.
         </div>
       ) : (
       <form

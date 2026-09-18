@@ -377,7 +377,64 @@ export type A2pStatus = {
   numbersInPool: number;
   ready: boolean;
   blocked: string | null;
+  /** One-glance verdict for the status strip. */
+  overall: "approved" | "in_review" | "blocked" | "not_started";
+  /** Plain-English sentence explaining that verdict. */
+  headline: string;
+  /** What the owner should do next, or null when nothing is needed. */
+  nextStep: string | null;
 };
+
+/** Trades-owner English for the three-step state machine. */
+function summarize(
+  business: string,
+  brand: string,
+  campaign: string,
+  poolCount: number,
+  blocked: string | null,
+): Pick<A2pStatus, "overall" | "headline" | "nextStep"> {
+  const states = [business, brand, campaign];
+  if (blocked) {
+    return {
+      overall: "blocked",
+      headline: "We couldn't reach the texting approval service just now.",
+      nextStep: "Try again in a few minutes. Nothing you submitted was lost.",
+    };
+  }
+  if (states.includes("failed")) {
+    return {
+      overall: "blocked",
+      headline: "Your US texting approval was turned down and needs a fix.",
+      nextStep: "Correct the step marked \u201cNeeds fixing\u201d below and send it again.",
+    };
+  }
+  if (campaign === "approved") {
+    if (poolCount === 0) {
+      return {
+        overall: "blocked",
+        headline: "You're approved to text, but no number is attached yet.",
+        nextStep: "Add one of your numbers to the approved texting group below.",
+      };
+    }
+    return {
+      overall: "approved",
+      headline: "You're approved. Texts from your numbers reach US phones.",
+      nextStep: null,
+    };
+  }
+  if (states.every((x) => x === "todo")) {
+    return {
+      overall: "not_started",
+      headline: "US phone companies block business texts until you're approved.",
+      nextStep: "Start with step 1 below \u2014 it takes about five minutes.",
+    };
+  }
+  return {
+    overall: "in_review",
+    headline: "Your US texting approval is being reviewed.",
+    nextStep: "Nothing to do right now. Reviews usually finish in a day or two.",
+  };
+}
 
 function stateOf(status: string | null | undefined, fallback: string): string {
   if (!status) return fallback;
@@ -439,15 +496,19 @@ export async function a2pStatus(supabase: SB, userId: string): Promise<A2pStatus
   }
 
   const campaignState = stateOf(campaignStatus, row?.campaign_sid ? "pending" : "todo");
+  const businessState = row?.customer_profile_sid ? stateOf(profileStatus, "pending") : "todo";
+  const brandState = row?.brand_sid ? stateOf(brandStatus, "pending") : "todo";
+  const blockedMessage = blocked ?? row?.last_error ?? null;
 
   return {
+    ...summarize(businessState, brandState, campaignState, poolCount, blockedMessage),
     business: {
-      state: row?.customer_profile_sid ? stateOf(profileStatus, "pending") : "todo",
+      state: businessState,
       detail: profileStatus,
       input: row?.business ?? {},
     },
     brand: {
-      state: row?.brand_sid ? stateOf(brandStatus, "pending") : "todo",
+      state: brandState,
       detail: brandDetail ?? brandStatus,
       sid: row?.brand_sid ?? null,
     },
@@ -460,6 +521,6 @@ export async function a2pStatus(supabase: SB, userId: string): Promise<A2pStatus
     },
     numbersInPool: poolCount,
     ready: campaignState === "approved" && poolCount > 0,
-    blocked: blocked ?? row?.last_error ?? null,
+    blocked: blockedMessage,
   };
 }
