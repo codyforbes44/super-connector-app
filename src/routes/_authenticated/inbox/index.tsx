@@ -156,12 +156,17 @@ function InboxScreen() {
         empty={
           <Empty
             icon={Inbox}
-            title="No conversations yet"
-            description="Send your first message, or import recent history straight from your carrier."
+            title="No messages yet — share your SixVox number"
+            description="Give customers your SixVox number and their texts land here. You can also pull in recent history from your carrier."
             action={
-              <Button onClick={runImport} variant="secondary" disabled={importing}>
-                Import history
-              </Button>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button asChild>
+                  <Link to="/numbers">See my numbers</Link>
+                </Button>
+                <Button onClick={runImport} variant="secondary" disabled={importing}>
+                  Import history
+                </Button>
+              </div>
             }
           />
         }

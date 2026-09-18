@@ -36,20 +36,20 @@ export type AnswerMode = "classic" | "ai_greeting" | "ai_agent";
 const MODES: Array<{ value: AnswerMode; label: string; hint: string; icon: typeof Bot }> = [
   {
     value: "ai_agent",
-    label: "AI receptionist",
-    hint: "Live two-way conversation, then a transcript",
+    label: "AI receptionist answers",
+    hint: "Picks up and talks with the caller, books work and writes it all down for you.",
     icon: Bot,
   },
   {
     value: "ai_greeting",
-    label: "AI-voiced greeting",
-    hint: "Lifelike greeting, then record a message",
+    label: "AI greets, then voicemail",
+    hint: "A lifelike greeting in your words, then the caller leaves a message.",
     icon: Sparkles,
   },
   {
     value: "classic",
-    label: "Classic voicemail",
-    hint: "Standard greeting, then record a message",
+    label: "Rings you, then voicemail",
+    hint: "Your phone rings first; if you can't grab it, they leave a message.",
     icon: Voicemail,
   },
 ];
@@ -119,7 +119,16 @@ export function AnswerModeCard({
     }
   }
 
+  const allowedAgents = agents.data ?? [];
+  // Only allowlisted SixVox agents ever reach this list (server-side filter).
+  const agentPicked = allowedAgents.some((a) => a.agent_id === agentId);
+  const needsAgent = mode === "ai_agent" && !agentPicked;
+
   async function save() {
+    if (needsAgent) {
+      toast.error("Pick a SixVox agent before saving.");
+      return;
+    }
     setBusy("save");
     try {
       await saveVoiceAssistant({
@@ -193,21 +202,27 @@ export function AnswerModeCard({
               <SelectValue placeholder={agents.isLoading ? "Loading agents…" : "Pick an agent"} />
             </SelectTrigger>
             <SelectContent>
-              {(agents.data ?? []).length === 0 ? (
+              {allowedAgents.length === 0 ? (
                 <div className="px-3 py-2 text-xs text-muted-foreground">
                   No SixVox agents configured — contact admin.
                 </div>
               ) : null}
-              {(agents.data ?? []).map((a) => (
+              {allowedAgents.map((a) => (
                 <SelectItem key={a.agent_id} value={a.agent_id}>
                   {a.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">
-            Callers talk to this agent live. Transcripts and summaries land on the call record.
-          </p>
+          {needsAgent && !agents.isLoading ? (
+            <p className="text-xs font-medium text-destructive">
+              Pick a SixVox agent — this number won't answer with AI until you do.
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Callers talk to this agent live. Transcripts and summaries land on the call record.
+            </p>
+          )}
         </div>
       ) : (
         <div className="space-y-1.5">
@@ -254,10 +269,10 @@ export function AnswerModeCard({
         <Button
           className="key-signal h-11 w-full rounded-xl font-semibold"
           onClick={save}
-          disabled={busy !== null}
+          disabled={busy !== null || needsAgent}
         >
           {busy === "save" ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          Save answering mode
+          {needsAgent ? "Pick a SixVox agent" : "Save answering mode"}
         </Button>
       ) : null}
     </div>

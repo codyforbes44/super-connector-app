@@ -24,7 +24,7 @@ function returnUrl(next?: string) {
   return next ? `${origin}/auth?redirect=${encodeURIComponent(next)}` : origin;
 }
 const DESCRIPTION =
-  "Sign in to SixVox or create an account to run your business calls, texts, WhatsApp and AI receptionist from your phone.";
+  "Sign in to SixVox or create an account to run your business calls, texts and AI receptionist from your phone.";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (

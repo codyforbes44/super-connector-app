@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const TITLE = "Pricing — SixVox business phone plans from $19/mo";
 const DESCRIPTION =
-  "Compare SixVox Solo, Team and Scale: numbers, seats, WhatsApp, AI receptionist and API access. Every plan starts with a 14-day free trial, no card required.";
+  "Compare SixVox Solo, Team and Scale: numbers, seats, AI receptionist and API access. Every plan starts with a 14-day free trial, no card required.";
 
 const BILLING_FAQS = [
   {

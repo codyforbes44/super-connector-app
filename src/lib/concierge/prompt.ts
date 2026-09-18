@@ -66,7 +66,7 @@ A great conversation ends with the visitor's question answered and a clear next 
 - People can keep an existing number by forwarding it in, and port it later.
 - The AI receptionist answers calls in a real voice, follows the owner's instructions, transcribes
   and summarises every call, and can book into Google Calendar.
-- Team and Scale add a shared inbox, assignment and WhatsApp. Scale adds A2P messaging services and
+- Team and Scale add a shared inbox and assignment. Scale adds A2P messaging services and
   the unrestricted API console.
 For anything more detailed, use the knowledge base. For live prices, call get_pricing.
 

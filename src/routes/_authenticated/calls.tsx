@@ -394,8 +394,19 @@ function CallsScreen() {
                           {relativeTime(call.started_at)}
                         </span>
                       </p>
-                      <p className="truncate text-[0.78rem] text-muted-foreground">
-                        <span className={cn(missed && "text-destructive")}>{callStory(call)}</span>
+                      <p className="flex min-w-0 items-center gap-1.5 truncate text-[0.78rem] text-muted-foreground">
+                        {missed ? (
+                          <span className="shrink-0 rounded-full bg-destructive/15 px-2 py-0.5 text-[0.65rem] font-semibold text-destructive">
+                            Missed
+                          </span>
+                        ) : call.recording_url ? (
+                          <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[0.65rem] font-semibold text-primary">
+                            Voicemail
+                          </span>
+                        ) : null}
+                        <span className={cn("truncate", missed && "text-destructive")}>
+                          {callStory(call)}
+                        </span>
                         {call.duration ? (
                           <span className="tabular"> · {duration(call.duration)}</span>
                         ) : null}
@@ -405,7 +416,7 @@ function CallsScreen() {
                   <button
                     type="button"
                     onClick={() => playVoicemail(call.sid)}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
                   >
                     <Play className="h-4 w-4" />
                     <span className="sr-only">Play voicemail</span>
@@ -414,7 +425,7 @@ function CallsScreen() {
                     type="button"
                     disabled={!redialTo}
                     onClick={() => void callBack(call)}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
                   >
                     <PhoneCall className="h-4 w-4" />
                     <span className="sr-only">Call back {redialTo || "unavailable"}</span>
