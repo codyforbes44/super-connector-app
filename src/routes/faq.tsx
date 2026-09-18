@@ -11,7 +11,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "FAQ — SixVox questions answered";
 const DESCRIPTION =
-  "Answers on trials, pricing, numbers, WhatsApp, the AI receptionist, data ownership and how SixVox compares to other business phone apps.";
+  "Answers on trials, pricing, numbers, the AI receptionist, data ownership and how SixVox compares to other business phone apps.";
 
 const GROUPS = [
   {
@@ -66,10 +66,6 @@ const GROUPS = [
       {
         q: "What if I don't want to port?",
         a: "Leave the number with your carrier and forward calls to SixVox. Callers keep dialling the same digits, and SixVox handles answering, voicemail and transcription.",
-      },
-      {
-        q: "Is WhatsApp supported?",
-        a: "Yes, on Team and Scale. WhatsApp threads sit in the same inbox as SMS and MMS.",
       },
       {
         q: "Do I need A2P registration to text US numbers?",

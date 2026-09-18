@@ -37,7 +37,7 @@ import { cn } from "@/lib/utils";
 
 const TITLE = "SixVox — business phone, shared inbox and AI receptionist";
 const DESCRIPTION =
-  "Run your business line from your phone: calls, texts, WhatsApp, voicemail and an AI receptionist in one app. 14-day free trial, no card required.";
+  "Run your business line from your phone: calls, texts, voicemail and an AI receptionist in one app. 14-day free trial, no card required.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,7 +86,7 @@ const FEATURES = [
   {
     icon: Inbox,
     title: "One live inbox",
-    body: "Texts, picture messages and WhatsApp across every number, updating in real time with teammate assignment and internal notes.",
+    body: "Texts and picture messages across every number, updating in real time with teammate assignment and internal notes.",
   },
   {
     icon: PhoneCall,
@@ -124,7 +124,6 @@ const CHANNELS = [
   { icon: PhoneCall, label: "Calls" },
   { icon: MessageSquare, label: "SMS" },
   { icon: ImageIcon, label: "MMS" },
-  { icon: MessageCircle, label: "WhatsApp" },
   { icon: Voicemail, label: "Voicemail" },
   { icon: Bot, label: "AI receptionist" },
 ] as const;
@@ -204,7 +203,7 @@ function Landing() {
                 <span className="text-primary"> that pays for the week.</span>
               </h1>
               <p className="mt-5 max-w-xl text-[0.98rem] leading-relaxed text-pretty text-muted-foreground md:text-[1.05rem]">
-                SixVox is a second line that answers for you — calls, texts, WhatsApp and voicemail
+                SixVox is a second line that answers for you — calls, texts and voicemail
                 in one app.
                 <span className="block text-foreground/90">
                   When you can't pick up, the AI receptionist books the job and drops the summary in
@@ -274,7 +273,7 @@ function Landing() {
               stats={[
                 { value: "14 days", label: "Free trial, no card required" },
                 { value: "< 1 min", label: "From signup to your first message" },
-                { value: "3 channels", label: "Calls, SMS/MMS and WhatsApp in one thread list" },
+                { value: "3 channels", label: "Calls, SMS and MMS in one thread list" },
                 { value: "24/7", label: "AI receptionist answering when you can't" },
               ]}
             />

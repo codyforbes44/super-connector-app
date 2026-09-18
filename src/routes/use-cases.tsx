@@ -57,7 +57,7 @@ const USE_CASES = [
     title: "Small teams & agencies",
     problem: "Messages are scattered across personal phones and no one knows who owns the reply.",
     outcome:
-      "Share one inbox across calls, SMS and WhatsApp with role-based access, internal notes, and assignment so the whole team stays in sync.",
+      "Share one inbox across calls and texts with role-based access, internal notes, and assignment so the whole team stays in sync.",
     bullets: [
       "Real-time shared inbox",
       "Internal notes and assignment",
@@ -290,7 +290,7 @@ function UseCasesPage() {
             },
             {
               label: "Work from anywhere",
-              value: "Calls, texts, WhatsApp and eSIM data travel with you, not your desk phone.",
+              value: "Calls, texts and eSIM data travel with you, not your desk phone.",
             },
           ].map((row, index) => (
             <Reveal

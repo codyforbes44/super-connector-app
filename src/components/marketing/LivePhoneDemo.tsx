@@ -718,7 +718,7 @@ function InboxScene({ scenario }: { scenario: Scenario }) {
     <div className="flex h-full min-h-0 flex-col">
       <PillHeader
         title="Inbox"
-        subtitle="6 numbers · SMS, MMS & WhatsApp"
+        subtitle="6 numbers · SMS & MMS"
         action={RefreshCw}
       />
       <div className="px-3 pb-1">

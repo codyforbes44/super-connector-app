@@ -51,8 +51,8 @@ const GROUPS = [
     items: [
       {
         icon: Inbox,
-        title: "Live omnichannel inbox",
-        body: "SMS, MMS and WhatsApp threads across every number, streaming in over realtime with unread counts, assignment and internal notes.",
+        title: "Live shared inbox",
+        body: "SMS and MMS threads across every number, streaming in over realtime with unread counts, assignment and internal notes.",
       },
       {
         icon: Wand2,

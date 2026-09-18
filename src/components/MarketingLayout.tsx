@@ -284,7 +284,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               <span className="font-display text-sm font-semibold">SixVox</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              Business calls, texts, WhatsApp, voicemail and an AI receptionist — in one
+              Business calls, texts, voicemail and an AI receptionist — in one
               mobile app.
             </p>
           </div>
