@@ -62,7 +62,7 @@ export function AgentList({
         <p className="px-1 text-sm text-destructive">{errorMessage(agents.error)}</p>
       ) : (agents.data ?? []).length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          No agents yet. Create one to let the AI receptionist answer calls.
+          No SixVox agents configured — contact admin.
         </p>
       ) : (
         <ul className="space-y-2">

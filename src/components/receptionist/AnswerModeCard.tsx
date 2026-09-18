@@ -193,6 +193,11 @@ export function AnswerModeCard({
               <SelectValue placeholder={agents.isLoading ? "Loading agents…" : "Pick an agent"} />
             </SelectTrigger>
             <SelectContent>
+              {(agents.data ?? []).length === 0 ? (
+                <div className="px-3 py-2 text-xs text-muted-foreground">
+                  No SixVox agents configured — contact admin.
+                </div>
+              ) : null}
               {(agents.data ?? []).map((a) => (
                 <SelectItem key={a.agent_id} value={a.agent_id}>
                   {a.name}
