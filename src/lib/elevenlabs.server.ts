@@ -298,7 +298,9 @@ export async function ensureAgentPhoneNumber(
   phoneNumber: string,
   agentId: string,
 ): Promise<string | null> {
+  await assertAgentAllowed(agentId);
   const existing = (await listPhoneNumbers()).find((row) => row.phone_number === phoneNumber);
+
 
   if (existing) {
     if (existing.assigned_agent?.agent_id !== agentId) {
