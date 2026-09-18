@@ -117,6 +117,7 @@ export async function syncNumbers(supabase: SB, userId: string) {
         sms_url: n.sms_url ?? null,
         voice_url: n.voice_url ?? null,
         webhook_wired: isFullyWired({
+          phone_number: n.phone_number,
           voice_url: n.voice_url ?? null,
           sms_url: n.sms_url ?? null,
           sms_application_sid: n.sms_application_sid ?? null,
@@ -601,6 +602,7 @@ export async function wireNumber(
       .maybeSingle();
     const wired = fresh
       ? isFullyWired({
+          phone_number: fresh.phone_number,
           voice_url: fresh.voice_url ?? null,
           sms_url: fresh.sms_url ?? null,
           sms_application_sid: fresh.sms_application_sid ?? null,
@@ -642,6 +644,7 @@ export async function purchaseNumber(
 ) {
   await requireOwner(supabase, userId);
   const admin = await adminClient();
+  const { isFullyWired: isFullyWiredNumber } = await import("./wiring");
   const bought = await twilioRequest<TwilioNumber>({
     method: "POST",
     path: "/IncomingPhoneNumbers.json",
@@ -665,9 +668,15 @@ export async function purchaseNumber(
       phone_number: bought.phone_number,
       friendly_name: bought.friendly_name,
       capabilities: bought.capabilities ?? {},
-      sms_url: webhookUrl("sms"),
-      voice_url: webhookUrl("voice"),
-      webhook_wired: true,
+      sms_url: bought.sms_url ?? webhookUrl("sms"),
+      voice_url: bought.voice_url ?? webhookUrl("voice"),
+      webhook_wired: isFullyWiredNumber({
+        phone_number: bought.phone_number,
+        voice_url: bought.voice_url ?? null,
+        sms_url: bought.sms_url ?? null,
+        sms_application_sid: bought.sms_application_sid ?? null,
+        status_callback: bought.status_callback ?? null,
+      }),
     },
     { onConflict: "sid" },
   );
