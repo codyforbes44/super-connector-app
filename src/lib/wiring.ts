@@ -100,8 +100,10 @@ export type WiringReport = {
 };
 
 export function wiringReport(n: WiringPayload): WiringReport {
-  const aiPrimary = (n.answer_mode ?? "") === "ai_agent";
+  const elPrimary = isElPrimaryNumber(n.phone_number);
+  const aiPrimary = (n.answer_mode ?? "") === "ai_agent" || elPrimary;
   const voiceElevenLabs = aiPrimary && pointsAtElevenLabsInbound(n.voice_url);
+
   const voice =
     pointsAtSixVox(n.voice_url, ["/api/public/twilio/voice", "/api/public/twilio/app-voice"]) ||
     voiceElevenLabs;
