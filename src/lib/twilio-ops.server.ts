@@ -80,14 +80,9 @@ type TwilioNumber = {
   capabilities: Record<string, boolean>;
   sms_url?: string | null;
   voice_url?: string | null;
+  status_callback?: string | null;
   sms_application_sid?: string | null;
 };
-
-/** True when inbound SMS lands on our own webhook with no app SID shadowing it. */
-function smsRoutedHere(n: TwilioNumber): boolean {
-  if (n.sms_application_sid) return false;
-  return Boolean(n.sms_url && n.sms_url.includes("/api/public/twilio/sms"));
-}
 
 export async function syncNumbers(supabase: SB, userId: string) {
   await requireAdmin(supabase, userId);
@@ -103,6 +98,15 @@ export async function syncNumbers(supabase: SB, userId: string) {
     list.push(...chunk);
     if (chunk.length < 100) break;
   }
+  // Voice/SMS/status must all land somewhere we control before a number counts
+  // as wired — texting may legitimately be owned by a Messaging Service.
+  const { isFullyWired } = await import("./wiring");
+  const { serviceInboundByNumber } = await import("./messaging.server");
+  const inboundOk = await serviceInboundByNumber();
+  const { data: localRows } = await admin.from("phone_numbers").select("sid, answer_mode");
+  const answerModes = new Map(
+    (localRows ?? []).map((row) => [row["sid"] as string, row["answer_mode"] as string | null]),
+  );
   for (const n of list) {
     await admin.from("phone_numbers").upsert(
       {
@@ -112,11 +116,19 @@ export async function syncNumbers(supabase: SB, userId: string) {
         capabilities: n.capabilities ?? {},
         sms_url: n.sms_url ?? null,
         voice_url: n.voice_url ?? null,
-        webhook_wired: smsRoutedHere(n),
+        webhook_wired: isFullyWired({
+          voice_url: n.voice_url,
+          sms_url: n.sms_url,
+          sms_application_sid: n.sms_application_sid,
+          status_callback: n.status_callback,
+          answer_mode: answerModes.get(n.sid) ?? null,
+          messaging_service_inbound_ok: inboundOk.get(n.phone_number) ?? false,
+        }),
       },
       { onConflict: "sid" },
     );
   }
+
   // Drop anything released in the Twilio console (including the empty case).
   const sids = list.map((n) => n.sid);
   const prune = admin.from("phone_numbers").delete();
