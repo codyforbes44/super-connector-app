@@ -60,6 +60,9 @@ export async function saveAssistant(
   if (args.answerMode === "ai_agent" && !args.agentId) {
     throw new Error("Pick an ElevenLabs agent before switching to the AI assistant.");
   }
+  // Shared ElevenLabs account: never bind a number to an agent outside the
+  // SixVox allowlist (403 via AgentNotAllowedError).
+  if (args.agentId) await el.assertAgentAllowed(args.agentId);
   if (args.answerMode === "ai_greeting" && !args.voiceId) {
     throw new Error("Pick a voice before switching to the AI-voiced greeting.");
   }
