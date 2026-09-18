@@ -545,13 +545,13 @@ export async function wireNumber(
   await admin
     .from("phone_numbers")
     .update({
-      webhook_wired: true,
       sms_url: webhookUrl("sms"),
       voice_url: appSid ? webhookUrl("app-voice") : webhookUrl("voice"),
     })
     .eq("sid", data.sid);
   // Numbers inside a Messaging Service take inbound from the service, so the
   // number-level SmsUrl above is not enough — repair the service too.
+  let serviceInboundOk = false;
   {
     const { data: row } = await admin
       .from("phone_numbers")
@@ -562,9 +562,35 @@ export async function wireNumber(
     if (serviceSid) {
       const { ensureServiceInbound } = await import("./messaging.server");
       await ensureServiceInbound(serviceSid);
+      serviceInboundOk = true;
     }
   }
+  // Re-read the live number and judge it with the same heuristic the sync uses,
+  // so Repair never claims "wired" on a config Twilio did not actually accept.
+  {
+    const { isFullyWired } = await import("./wiring");
+    const fresh = await twilioRequest<TwilioNumber>({
+      path: `/IncomingPhoneNumbers/${data.sid}.json`,
+    }).catch(() => null);
+    const { data: row } = await admin
+      .from("phone_numbers")
+      .select("answer_mode")
+      .eq("sid", data.sid)
+      .maybeSingle();
+    const wired = fresh
+      ? isFullyWired({
+          voice_url: fresh.voice_url,
+          sms_url: fresh.sms_url,
+          sms_application_sid: fresh.sms_application_sid,
+          status_callback: fresh.status_callback,
+          answer_mode: (row?.["answer_mode"] as string | null) ?? null,
+          messaging_service_inbound_ok: serviceInboundOk,
+        })
+      : false;
+    await admin.from("phone_numbers").update({ webhook_wired: wired }).eq("sid", data.sid);
+  }
   await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid ?? null });
+
   return { ok: true, applicationSid: appSid ?? null };
 }
 
