@@ -37,6 +37,7 @@ type NumberRow = {
   sid: string;
   phone_number: string;
   webhook_wired: boolean | null;
+  campaign_status: string | null;
 };
 
 export async function connectorsOverview(supabase: SupabaseClient, userId: string) {
@@ -48,7 +49,7 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
     await Promise.all([
     safe(
       async () =>
-        ((await supabase.from("phone_numbers").select("sid, phone_number, webhook_wired"))
+        ((await supabase.from("phone_numbers").select("sid, phone_number, webhook_wired, campaign_status"))
           .data ?? []) as NumberRow[],
       [] as NumberRow[],
     ),
@@ -91,6 +92,9 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
     ]);
 
   const wired = numbers.filter((n) => n.webhook_wired).length;
+  const textReady = numbers.filter((n) =>
+    (n.campaign_status ?? "").toLowerCase().includes("approved"),
+  ).length;
   const hasVoiceKeys = Boolean(
     process.env["TWILIO_API_KEY_SID"] && process.env["TWILIO_API_KEY_SECRET"],
   );
@@ -111,6 +115,19 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
 
       href: "/numbers",
       adminOnly: false,
+    },
+    {
+      id: "us-texting",
+      name: "US texting approval",
+      category: "Phone",
+      description: "US phone companies only deliver business texts from approved numbers.",
+      state: textReady > 0 ? "connected" : "action",
+      detail:
+        textReady > 0
+          ? `${textReady} number${textReady > 1 ? "s" : ""} cleared to text US phones`
+          : "Not approved yet — texts to US phones will be blocked.",
+      href: "/a2p",
+      adminOnly: true,
     },
     {
       id: "carrier",
