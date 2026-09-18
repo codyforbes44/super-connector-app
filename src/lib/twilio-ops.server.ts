@@ -117,10 +117,10 @@ export async function syncNumbers(supabase: SB, userId: string) {
         sms_url: n.sms_url ?? null,
         voice_url: n.voice_url ?? null,
         webhook_wired: isFullyWired({
-          voice_url: n.voice_url,
-          sms_url: n.sms_url,
-          sms_application_sid: n.sms_application_sid,
-          status_callback: n.status_callback,
+          voice_url: n.voice_url ?? null,
+          sms_url: n.sms_url ?? null,
+          sms_application_sid: n.sms_application_sid ?? null,
+          status_callback: n.status_callback ?? null,
           answer_mode: answerModes.get(n.sid) ?? null,
           messaging_service_inbound_ok: inboundOk.get(n.phone_number) ?? false,
         }),
@@ -579,10 +579,10 @@ export async function wireNumber(
       .maybeSingle();
     const wired = fresh
       ? isFullyWired({
-          voice_url: fresh.voice_url,
-          sms_url: fresh.sms_url,
-          sms_application_sid: fresh.sms_application_sid,
-          status_callback: fresh.status_callback,
+          voice_url: fresh.voice_url ?? null,
+          sms_url: fresh.sms_url ?? null,
+          sms_application_sid: fresh.sms_application_sid ?? null,
+          status_callback: fresh.status_callback ?? null,
           answer_mode: (row?.["answer_mode"] as string | null) ?? null,
           messaging_service_inbound_ok: serviceInboundOk,
         })
