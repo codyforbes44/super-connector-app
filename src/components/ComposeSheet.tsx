@@ -129,9 +129,11 @@ export function ComposeSheet({
 
           {blocked ? (
             <p className="rounded-xl bg-destructive/15 px-3 py-2 text-xs text-destructive">
-              {formatPhone(from)} isn&apos;t approved for US texting yet
-              {fromState?.campaignStatus ? ` (campaign ${fromState.campaignStatus.toLowerCase()})` : ""}.
-              Register it under US texting registration, or pick an approved number.
+              {formatPhone(from)} isn&apos;t approved for US texting yet.{" "}
+              <Link to="/a2p" className="font-medium underline underline-offset-2">
+                Finish US texting approval
+              </Link>
+              , or pick an approved number.
             </p>
           ) : null}
 
