@@ -64,8 +64,9 @@ export function CallSummaryCard({
   if (!intel && turns.length === 0) {
     return (
       <div className="glass-panel mt-2 rounded-2xl p-3.5">
-        <p className="text-xs text-muted-foreground">
-          No transcript for this call. SixVox summarises voicemails and calls your AI assistant
+        <p className="text-xs font-medium">Summary unavailable</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Summaries appear after transcribed calls — voicemails and calls your AI receptionist
           answers.
         </p>
       </div>
@@ -91,7 +92,13 @@ export function CallSummaryCard({
         </Button>
       </div>
 
-      {intel?.summary ? <p className="text-sm">{intel.summary}</p> : null}
+      {intel?.summary ? (
+        <p className="text-sm">{intel.summary}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Summary unavailable — summaries appear after transcribed calls.
+        </p>
+      )}
 
       <div className="flex flex-wrap gap-1.5">
         {intel?.intent ? <Badge variant="secondary">{intel.intent}</Badge> : null}

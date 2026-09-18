@@ -32,13 +32,22 @@ export const Route = createFileRoute("/_authenticated/receptionist")({
 
 type ModeMeta = { label: string; icon: typeof Bot };
 
-const CLASSIC_META: ModeMeta = { label: "Classic voicemail", icon: Voicemail };
+const CLASSIC_META: ModeMeta = { label: "Rings you, then voicemail", icon: Voicemail };
 
 const MODE_META: Record<string, ModeMeta> = {
-  ai_agent: { label: "AI receptionist", icon: Bot },
-  ai_greeting: { label: "AI-voiced greeting", icon: Sparkles },
+  ai_agent: { label: "AI receptionist answers", icon: Bot },
+  ai_greeting: { label: "AI greets, then voicemail", icon: Sparkles },
   classic: CLASSIC_META,
 };
+
+/** Plain-English line under each number: what actually happens on a call. */
+function modeMeta(number: { answer_mode?: string | null; forward_to?: string | null }): ModeMeta {
+  const meta = MODE_META[number.answer_mode ?? "classic"] ?? CLASSIC_META;
+  if (meta === CLASSIC_META && number.forward_to) {
+    return { label: "Forwards your calls, then voicemail", icon: Voicemail };
+  }
+  return meta;
+}
 
 function ReceptionistPage() {
   const { numbers, isAdmin } = useBootstrap();
@@ -94,7 +103,7 @@ function ReceptionistPage() {
             ) : (
               <ListGroup>
                 {numbers.map((number) => {
-                  const meta = MODE_META[number.answer_mode ?? "classic"] ?? CLASSIC_META;
+                  const meta = modeMeta(number);
                   return (
                     <Row
                       key={number.sid}
