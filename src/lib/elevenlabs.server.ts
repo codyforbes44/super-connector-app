@@ -49,12 +49,98 @@ export async function listVoices(): Promise<Voice[]> {
 
 export type Agent = { agent_id: string; name: string };
 
+/* --------------------------------------------------------- agent allowlist */
+
+/**
+ * The ElevenLabs API key is shared with other products on the same account, so
+ * every agent-facing call is scoped to an allowlist. Configure it with
+ * `ELEVENLABS_ALLOWED_AGENT_IDS` (comma-separated agent ids). When the variable
+ * is unset we fall back to the SixVox Concierge/Vox agent only.
+ *
+ * Agents this app created itself (audit log) or already assigned to one of our
+ * numbers are treated as ours too, so the in-app "New agent" flow keeps working
+ * without an env change.
+ */
+export const DEFAULT_ALLOWED_AGENT_IDS = ["agent_2701kzz3f6aee48a38vw0qsehbks"];
+
+const DEV_NAME_PREFIX = "SixVox";
+
+export class AgentNotAllowedError extends Error {
+  status = 403;
+  constructor(agentId: string) {
+    super(`Agent ${agentId} is not available to this workspace.`);
+    this.name = "AgentNotAllowedError";
+  }
+}
+
+function configuredAgentIds(): { ids: string[]; explicitlyEmpty: boolean } {
+  const raw = process.env["ELEVENLABS_ALLOWED_AGENT_IDS"];
+  if (raw === undefined) return { ids: DEFAULT_ALLOWED_AGENT_IDS, explicitlyEmpty: false };
+  const ids = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return { ids, explicitlyEmpty: ids.length === 0 };
+}
+
+function isDev(): boolean {
+  return process.env["NODE_ENV"] !== "production";
+}
+
+/** Agent ids this workspace owns: configured allowlist + agents we created. */
+export async function workspaceAgentIds(): Promise<Set<string>> {
+  const set = new Set(configuredAgentIds().ids);
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: numbers }, { data: events }] = await Promise.all([
+      supabaseAdmin.from("phone_numbers").select("elevenlabs_agent_id"),
+      supabaseAdmin
+        .from("audit_log")
+        .select("detail")
+        .eq("action", "elevenlabs.agent.create")
+        .limit(500),
+    ]);
+    for (const row of numbers ?? []) {
+      const id = row["elevenlabs_agent_id"] as string | null;
+      if (id) set.add(id);
+    }
+    for (const row of events ?? []) {
+      const id = (row["detail"] as { agent_id?: string } | null)?.agent_id;
+      if (id) set.add(id);
+    }
+  } catch {
+    // Database unavailable — fall back to the configured allowlist alone.
+  }
+  return set;
+}
+
+export async function isAgentAllowed(agentId: string): Promise<boolean> {
+  return (await workspaceAgentIds()).has(agentId);
+}
+
+/** Throws a 403-flavoured error when the agent belongs to someone else. */
+export async function assertAgentAllowed(agentId: string): Promise<void> {
+  if (!(await isAgentAllowed(agentId))) throw new AgentNotAllowedError(agentId);
+}
+
 export async function listAgents(): Promise<Agent[]> {
   const data = await el<{ agents?: Array<{ agent_id: string; name?: string }> }>(
     "/v1/convai/agents?page_size=100",
   );
-  return (data.agents ?? []).map((a) => ({ agent_id: a.agent_id, name: a.name ?? a.agent_id }));
+  const all = (data.agents ?? []).map((a) => ({
+    agent_id: a.agent_id,
+    name: a.name ?? a.agent_id,
+  }));
+  const allowed = await workspaceAgentIds();
+  if (allowed.size > 0) return all.filter((a) => allowed.has(a.agent_id));
+  // Allowlist deliberately emptied: in dev show only clearly-ours agents by
+  // name prefix; in production never dump the shared account.
+  if (configuredAgentIds().explicitlyEmpty && isDev()) {
+    return all.filter((a) => a.name.startsWith(DEV_NAME_PREFIX));
+  }
+  return [];
 }
+
 
 export type AgentDetail = {
   agent_id: string;
