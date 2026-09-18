@@ -506,7 +506,29 @@ export async function wireNumber(
 ) {
   await requireAdmin(supabase, userId);
   const admin = await adminClient();
+  // Hard carve-out: ElevenLabs-primary lines (the Concierge DID) answer on
+  // ElevenLabs by design. Repair must never rewrite their carrier webhooks.
+  {
+    const { isElPrimaryNumber } = await import("./wiring");
+    const { data: row } = await admin
+      .from("phone_numbers")
+      .select("phone_number")
+      .eq("sid", data.sid)
+      .maybeSingle();
+    if (isElPrimaryNumber((row?.["phone_number"] as string | null) ?? null)) {
+      await audit(admin, userId, "numbers.wire.skipped", {
+        sid: data.sid,
+        reason: "elevenlabs_primary",
+      });
+      return {
+        ok: true,
+        applicationSid: null,
+        skipped: "This line answers on the AI voice service directly and was left untouched.",
+      };
+    }
+  }
   const appSid = data.applicationSid ?? (await defaultTwimlAppSid(admin));
+
   // Messaging always points straight at our own SMS webhook. An SmsApplicationSid
   // silently overrides SmsUrl on the number, so it must stay cleared — otherwise
   // inbound texts follow whatever URL that TwiML App happens to hold.
