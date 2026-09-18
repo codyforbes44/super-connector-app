@@ -98,6 +98,10 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
   const hasVoiceKeys = Boolean(
     process.env["TWILIO_API_KEY_SID"] && process.env["TWILIO_API_KEY_SECRET"],
   );
+  // AI can be live while the line still points somewhere else. Numbers that
+  // answer on the AI voice service directly (Concierge DID) already count as
+  // wired by isFullyWired, so they never trigger this nag.
+  const routingIncomplete = numbers.length > 0 && wired === 0;
   const assistantHref = numbers[0] ? `/assistant/${numbers[0].sid}` : "/numbers";
 
   const cards: ConnectorCard[] = [
@@ -162,10 +166,13 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       name: "AI receptionist",
       category: "AI",
       description: "Answers, screens and takes messages when you can't.",
-      state: elevenlabs?.connected ? "connected" : "action",
-      detail: elevenlabs?.connected
-        ? `Voice engine ready${elevenlabs.tier ? ` · ${elevenlabs.tier} plan` : ""}`
-        : "Voice engine not connected yet",
+      state:
+        elevenlabs?.connected && !routingIncomplete ? "connected" : "action",
+      detail: !elevenlabs?.connected
+        ? "Voice engine not connected yet"
+        : routingIncomplete
+          ? "Finish call routing — your number isn't sending calls to SixVox yet"
+          : `Voice engine ready${elevenlabs.tier ? ` · ${elevenlabs.tier} plan` : ""}`,
       href: assistantHref,
       adminOnly: false,
     },
@@ -251,8 +258,8 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       title: "Set up your AI receptionist",
       body: "Choose a voice and greeting so every call gets answered.",
       href: assistantHref,
-      cta: "Configure receptionist",
-      done: Boolean(elevenlabs?.connected) && numbers.length > 0,
+      cta: routingIncomplete ? "Finish call routing" : "Configure receptionist",
+      done: Boolean(elevenlabs?.connected) && numbers.length > 0 && !routingIncomplete,
     },
     {
       id: "gmail",

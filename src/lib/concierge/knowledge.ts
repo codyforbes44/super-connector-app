@@ -24,7 +24,7 @@ function planLines(): string {
 export const PRODUCT_DOC: KnowledgeDoc = {
   name: "SixVox — product overview",
   text: `SixVox is a mobile-first business phone app. It gives a person or a small team a real
-business number with calling, SMS, MMS and WhatsApp, a shared inbox, voicemail with transcription,
+business number with calling, SMS and MMS, a shared inbox, voicemail with transcription,
 and an AI receptionist that answers when nobody can.
 
 Who it is for: solopreneurs, trades and field service businesses, small teams that share one number,
@@ -36,7 +36,7 @@ Core capabilities
   haptics, mute, speaker and hold. Calls keep working when the app is backgrounded.
 - Bring your own number: keep an existing carrier number and forward calls into SixVox using
   carrier activation codes; SixVox answers, records, transcribes and alerts.
-- Messaging: SMS and MMS, WhatsApp on Team and above, a shared inbox with assignment,
+- Messaging: SMS and MMS, a shared inbox with assignment,
   saved templates and scheduled sends.
 - AI receptionist: an ElevenLabs voice assistant answers calls, greets in your chosen voice,
   follows your instructions, captures the reason for the call, and can book into your calendar.
@@ -100,7 +100,7 @@ Q: Is there a free trial?
 A: Yes, ${TRIAL_DAYS} days on any plan.
 
 Q: Can I text photos?
-A: Yes, MMS is supported, and WhatsApp is available on Team and Scale.
+A: Yes, MMS is supported.
 
 Q: Do you support international calling?
 A: Yes for outbound calling and messaging where the destination is permitted; availability and
@@ -128,7 +128,7 @@ Objection handling
 - "Too expensive": compare to a missed job. Point at the ${TRIAL_DAYS}-day trial and monthly billing.
 - "I already have a number": forwarding keeps it and adds the AI layer in a minute.
 - "I don't trust AI on my calls": the receptionist can be set to greeting-only, or off, per number.
-- "Will it work for my team?": Team adds a shared inbox, assignment and WhatsApp.
+- "Will it work for my team?": Team adds a shared inbox and assignment.
 Never disparage competitors by name with claims you cannot verify. Compare on SixVox's own
 capabilities. If asked for a direct competitor comparison you are unsure about, say what SixVox does
 and offer a callback with the team.`,
