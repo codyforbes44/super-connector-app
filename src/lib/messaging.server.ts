@@ -73,6 +73,41 @@ export async function ensureServiceInbound(serviceSid: string): Promise<boolean>
 }
 
 /**
+ * Map of phone number -> "its Messaging Service delivers inbound texts to us".
+ * Read-only: used by the wiring heuristic so a number whose texting is owned by
+ * a service is not reported as unwired. Never throws.
+ */
+export async function serviceInboundByNumber(): Promise<Map<string, boolean>> {
+  const map = new Map<string, boolean>();
+  try {
+    const target = webhookUrl("sms");
+    const { services } = await twilioRequest<{ services?: ServiceConfig[] }>({
+      host: "messaging",
+      path: "/v1/Services",
+      params: { PageSize: 50 },
+    });
+    for (const service of services ?? []) {
+      const ok =
+        service.use_inbound_webhook_on_number !== true &&
+        (service.inbound_request_url ?? "") === target;
+      const pool = await twilioRequest<{ phone_numbers?: Array<{ phone_number: string }> }>({
+        host: "messaging",
+        path: `/v1/Services/${service.sid}/PhoneNumbers`,
+        params: { PageSize: 100 },
+      }).catch(() => ({ phone_numbers: [] }));
+      for (const entry of pool.phone_numbers ?? []) {
+        map.set(entry.phone_number, map.get(entry.phone_number) === true || ok);
+      }
+    }
+  } catch (error) {
+    console.error("failed to read messaging service inbound map", error);
+  }
+  return map;
+}
+
+
+
+/**
  * Walk every Messaging Service, map its sender pool, and record the campaign
  * status against each local number. Returns the resulting state per number.
  */

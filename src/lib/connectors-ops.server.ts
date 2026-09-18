@@ -104,8 +104,11 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       description: "Your business line for calls and texts.",
       state: numbers.length ? "connected" : "action",
       detail: numbers.length
-        ? `${numbers.length} number${numbers.length > 1 ? "s" : ""} · ${wired} fully wired`
+        ? `${numbers.length} number${numbers.length > 1 ? "s" : ""} · ${wired} fully wired${
+            wired < numbers.length ? ` · ${numbers.length - wired} need${numbers.length - wired === 1 ? "s" : ""} attention` : ""
+          }`
         : "No number yet — claim one to start.",
+
       href: "/numbers",
       adminOnly: false,
     },

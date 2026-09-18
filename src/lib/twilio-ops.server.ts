@@ -80,14 +80,9 @@ type TwilioNumber = {
   capabilities: Record<string, boolean>;
   sms_url?: string | null;
   voice_url?: string | null;
+  status_callback?: string | null;
   sms_application_sid?: string | null;
 };
-
-/** True when inbound SMS lands on our own webhook with no app SID shadowing it. */
-function smsRoutedHere(n: TwilioNumber): boolean {
-  if (n.sms_application_sid) return false;
-  return Boolean(n.sms_url && n.sms_url.includes("/api/public/twilio/sms"));
-}
 
 export async function syncNumbers(supabase: SB, userId: string) {
   await requireAdmin(supabase, userId);
@@ -103,6 +98,15 @@ export async function syncNumbers(supabase: SB, userId: string) {
     list.push(...chunk);
     if (chunk.length < 100) break;
   }
+  // Voice/SMS/status must all land somewhere we control before a number counts
+  // as wired — texting may legitimately be owned by a Messaging Service.
+  const { isFullyWired } = await import("./wiring");
+  const { serviceInboundByNumber } = await import("./messaging.server");
+  const inboundOk = await serviceInboundByNumber();
+  const { data: localRows } = await admin.from("phone_numbers").select("sid, answer_mode");
+  const answerModes = new Map(
+    (localRows ?? []).map((row) => [row["sid"] as string, row["answer_mode"] as string | null]),
+  );
   for (const n of list) {
     await admin.from("phone_numbers").upsert(
       {
@@ -112,11 +116,19 @@ export async function syncNumbers(supabase: SB, userId: string) {
         capabilities: n.capabilities ?? {},
         sms_url: n.sms_url ?? null,
         voice_url: n.voice_url ?? null,
-        webhook_wired: smsRoutedHere(n),
+        webhook_wired: isFullyWired({
+          voice_url: n.voice_url ?? null,
+          sms_url: n.sms_url ?? null,
+          sms_application_sid: n.sms_application_sid ?? null,
+          status_callback: n.status_callback ?? null,
+          answer_mode: answerModes.get(n.sid) ?? null,
+          messaging_service_inbound_ok: inboundOk.get(n.phone_number) ?? false,
+        }),
       },
       { onConflict: "sid" },
     );
   }
+
   // Drop anything released in the Twilio console (including the empty case).
   const sids = list.map((n) => n.sid);
   const prune = admin.from("phone_numbers").delete();
@@ -533,13 +545,13 @@ export async function wireNumber(
   await admin
     .from("phone_numbers")
     .update({
-      webhook_wired: true,
       sms_url: webhookUrl("sms"),
       voice_url: appSid ? webhookUrl("app-voice") : webhookUrl("voice"),
     })
     .eq("sid", data.sid);
   // Numbers inside a Messaging Service take inbound from the service, so the
   // number-level SmsUrl above is not enough — repair the service too.
+  let serviceInboundOk = false;
   {
     const { data: row } = await admin
       .from("phone_numbers")
@@ -550,9 +562,35 @@ export async function wireNumber(
     if (serviceSid) {
       const { ensureServiceInbound } = await import("./messaging.server");
       await ensureServiceInbound(serviceSid);
+      serviceInboundOk = true;
     }
   }
+  // Re-read the live number and judge it with the same heuristic the sync uses,
+  // so Repair never claims "wired" on a config Twilio did not actually accept.
+  {
+    const { isFullyWired } = await import("./wiring");
+    const fresh = await twilioRequest<TwilioNumber>({
+      path: `/IncomingPhoneNumbers/${data.sid}.json`,
+    }).catch(() => null);
+    const { data: row } = await admin
+      .from("phone_numbers")
+      .select("answer_mode")
+      .eq("sid", data.sid)
+      .maybeSingle();
+    const wired = fresh
+      ? isFullyWired({
+          voice_url: fresh.voice_url ?? null,
+          sms_url: fresh.sms_url ?? null,
+          sms_application_sid: fresh.sms_application_sid ?? null,
+          status_callback: fresh.status_callback ?? null,
+          answer_mode: (row?.["answer_mode"] as string | null) ?? null,
+          messaging_service_inbound_ok: serviceInboundOk,
+        })
+      : false;
+    await admin.from("phone_numbers").update({ webhook_wired: wired }).eq("sid", data.sid);
+  }
   await audit(admin, userId, "numbers.wire", { sid: data.sid, applicationSid: appSid ?? null });
+
   return { ok: true, applicationSid: appSid ?? null };
 }
 
