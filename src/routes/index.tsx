@@ -6,7 +6,6 @@ import {
   Hash,
   Image as ImageIcon,
   Inbox,
-  MessageCircle,
   MessageSquare,
   PhoneCall,
   PlayCircle,
