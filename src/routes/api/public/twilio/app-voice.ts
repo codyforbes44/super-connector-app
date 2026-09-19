@@ -82,6 +82,23 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         /* --------------------------------------------------- inbound: PSTN leg */
         const appNumber = get("To").replace(/^whatsapp:/, "");
 
+        // Which pass of the in-app ring this is. Twilio comes back here through
+        // the <Dial action> once each attempt finishes.
+        const stage = url.searchParams.get("stage");
+        const stageUrl = (next: string) => {
+          const u = new URL(url.toString());
+          u.searchParams.set("stage", next);
+          return u.toString();
+        };
+
+        // Someone answered in the app and the call has since ended.
+        const dialStatus = get("DialCallStatus");
+        if (stage && (dialStatus === "completed" || dialStatus === "answered")) {
+          return xml("<Hangup />");
+        }
+
+
+
         await supabaseAdmin.from("calls").upsert(
           {
             sid: callSid,
