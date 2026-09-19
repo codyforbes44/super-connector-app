@@ -148,7 +148,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           });
         }
 
-        const { voicemailTwiml, ringbackTwiml, RING_SECONDS } = await import(
+        const { voicemailTwiml, ringbackTwiml, RING_SECONDS, RINGBACK_CYCLE_SECONDS } = await import(
           "@/lib/voice-answer.server"
         );
         const unanswered = await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
