@@ -28,7 +28,13 @@ export function Screen({
   onRefresh?: () => Promise<unknown> | void;
 }) {
   return (
-    <div className={cn("px-3 pt-1 pb-6 sm:px-4", className)}>
+    <div
+      className={cn(
+        // Keep line lengths readable on wide displays; phones are unaffected.
+        "mx-auto w-full max-w-3xl px-3 pt-1 pb-6 sm:px-4 lg:max-w-4xl",
+        className,
+      )}
+    >
       {onRefresh ? <PullToRefresh onRefresh={onRefresh} /> : null}
       {children}
     </div>

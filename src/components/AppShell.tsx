@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <TrialBanner />
-          <main className="mx-auto w-full max-w-lg min-w-0 flex-1 overflow-x-clip pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:max-w-2xl lg:max-w-4xl lg:pb-10 xl:max-w-5xl">
+          <main className="mx-auto w-full max-w-lg min-w-0 flex-1 overflow-x-clip pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:max-w-3xl lg:max-w-5xl lg:pb-10 xl:max-w-7xl">
             {children}
           </main>
           <ConciergeMount placement="left" />
@@ -166,7 +166,7 @@ export function ScreenHeader({
 }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 px-4 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 backdrop-blur sm:px-5 lg:pt-5">
-      <div className="flex items-center justify-between gap-2">
+      <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 lg:max-w-4xl">
         <div className="min-w-0">
           <h1 className="font-display truncate text-xl leading-tight font-semibold tracking-tight sm:text-2xl">
             {title}

@@ -32,7 +32,7 @@ const NONE = "__none__";
 
 const STATUS_STYLES: Record<string, { label: string; className: string }> = {
   verified: { label: "Verified", className: "text-success border-success/30 bg-success/10" },
-  pending: { label: "Pending", className: "text-amber-300 border-amber-400/30 bg-amber-400/10" },
+  pending: { label: "Pending", className: "text-warning border-warning/30 bg-warning/10" },
   failed: { label: "Failed", className: "text-rose-300 border-rose-400/30 bg-rose-400/10" },
 };
 

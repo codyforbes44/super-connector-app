@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/connectors")({
 
 const STATE_STYLES = {
   connected: { label: "Connected", className: "bg-primary/15 text-primary", Icon: Check },
-  action: { label: "Action needed", className: "bg-amber-400/15 text-amber-300", Icon: AlertTriangle },
+  action: { label: "Action needed", className: "bg-warning/15 text-warning", Icon: AlertTriangle },
   unavailable: {
     label: "Unavailable",
     className: "bg-muted text-muted-foreground",
