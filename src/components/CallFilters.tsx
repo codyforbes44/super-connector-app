@@ -49,7 +49,7 @@ export function CallFilters({
     value.q !== "" || value.direction !== "all" || value.range !== "all" || value.device !== "all";
 
   return (
-    <div className="space-y-2.5 px-4 pb-3">
+    <div className="mx-auto w-full max-w-3xl space-y-2.5 px-4 pb-3 lg:max-w-4xl">
       <div className="relative">
         <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
