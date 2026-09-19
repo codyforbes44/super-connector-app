@@ -138,8 +138,13 @@ function stopTones() {
   gain = null;
 }
 
-/** Start the ring loop. Safe to call repeatedly. */
+/**
+ * Start the ring loop. Safe to call repeatedly: a second start for a ring that
+ * is already running is a no-op, so two callers (the voice device and the
+ * in-call screen) can both ask for the ring without cancelling each other.
+ */
 export function startRingtone(): void {
+  if (ringing) return;
   const generation = ++ringGeneration;
   ringing = true;
   startVibration();
