@@ -203,8 +203,16 @@ function ThreadScreen() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-background/55 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur-xl">
-        <Button size="icon" variant="ghost" onClick={() => void navigate({ to: "/inbox" })}>
+        {/* On phones this is the way back to the list; on wider screens the
+            list is already beside us. */}
+        <Button
+          size="icon"
+          variant="ghost"
+          className="md:hidden"
+          onClick={() => void navigate({ to: "/inbox" })}
+        >
           <ArrowLeft className="h-5 w-5" />
+          <span className="sr-only">Back to inbox</span>
         </Button>
         <span
           className={cn(
