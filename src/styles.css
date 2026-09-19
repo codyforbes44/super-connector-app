@@ -66,7 +66,7 @@
   --radius: 1rem;
   color-scheme: dark;
 
-  /* Graphite canvas, warm neutral ink, amber signal. */
+  /* Slate canvas, cool ink, electric blue signal. */
   --background: oklch(0.165 0.014 258);
   --foreground: oklch(0.93 0.012 255);
   --card: oklch(0.232 0.017 253);
@@ -178,7 +178,7 @@
   color-scheme: dark;
 }
 
-/* Always-graphite island (marketing hero) — holds the app's own palette even
+/* Always-dark island (marketing hero) — holds the app's own palette even
    when the surrounding page is in light mode. */
 .theme-dark {
   color-scheme: dark;

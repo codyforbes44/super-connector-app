@@ -52,7 +52,7 @@ Core capabilities
   roles and permissions, audit log.
 
 Platform: works in any modern browser, installs as an app on iOS and Android (PWA), and is
-published to Google Play. Dark, graphite-and-amber interface designed mobile first.
+published to Google Play. Dark, slate-and-blue interface designed mobile first.
 
 Where things live in the app: Inbox, Calls, Dialer, Contacts, Insights, Receptionist,
 Numbers, Tools, Billing, Settings.`,

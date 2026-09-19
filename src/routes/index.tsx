@@ -189,7 +189,7 @@ function Landing() {
     <MarketingLayout>
       <div className="theme-dark hero-band -mt-px">
         <Section className="relative overflow-hidden pt-7 pb-10 md:pt-12 md:pb-14">
-          {/* Signal rings + amber wash anchor the hero without a heavy image download. */}
+          {/* Signal rings + blue wash anchor the hero without a heavy image download. */}
           <div
             aria-hidden
             className="signal-rings pointer-events-none absolute top-[-6rem] right-[-8rem] -z-10 hidden size-[36rem] md:block"
