@@ -166,7 +166,7 @@ export function ScreenHeader({
 }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 px-4 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 backdrop-blur sm:px-5 lg:pt-5">
-      <div className="flex items-center justify-between gap-2">
+      <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 lg:max-w-4xl">
         <div className="min-w-0">
           <h1 className="font-display truncate text-xl leading-tight font-semibold tracking-tight sm:text-2xl">
             {title}
