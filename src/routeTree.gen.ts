@@ -30,6 +30,7 @@ import { Route as AuthenticatedConnectorsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedEsimRouteImport } from './routes/_authenticated/esim'
+import { Route as AuthenticatedInboxRouteRouteImport } from './routes/_authenticated/inbox/route'
 import { Route as AuthenticatedInsightsRouteImport } from './routes/_authenticated/insights'
 import { Route as AuthenticatedNumbersRouteImport } from './routes/_authenticated/numbers'
 import { Route as AuthenticatedReceptionistRouteImport } from './routes/_authenticated/receptionist'
@@ -164,6 +165,11 @@ const AuthenticatedEsimRoute = AuthenticatedEsimRouteImport.update({
   path: '/esim',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInboxRouteRoute = AuthenticatedInboxRouteRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInsightsRoute = AuthenticatedInsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
@@ -224,14 +230,14 @@ const AuthenticatedAssistantSidRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedInboxIndexRoute = AuthenticatedInboxIndexRouteImport.update({
-  id: '/inbox/',
-  path: '/inbox/',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedInboxRouteRoute,
 } as any)
 const AuthenticatedInboxIdRoute = AuthenticatedInboxIdRouteImport.update({
-  id: '/inbox/$id',
-  path: '/inbox/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedInboxRouteRoute,
 } as any)
 const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
   id: '/oauth/google/return',
@@ -331,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRoute
+  '/inbox': typeof AuthenticatedInboxRouteRouteWithChildren
   '/a2p': typeof AuthenticatedA2pRoute
   '/advanced': typeof AuthenticatedAdvancedRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -435,6 +442,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRoute
+  '/_authenticated/inbox': typeof AuthenticatedInboxRouteRouteWithChildren
   '/_authenticated/a2p': typeof AuthenticatedA2pRoute
   '/_authenticated/advanced': typeof AuthenticatedAdvancedRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
@@ -488,6 +496,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/use-cases'
+    | '/inbox'
     | '/a2p'
     | '/advanced'
     | '/billing'
@@ -591,6 +600,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/use-cases'
+    | '/_authenticated/inbox'
     | '/_authenticated/a2p'
     | '/_authenticated/advanced'
     | '/_authenticated/billing'
@@ -813,6 +823,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEsimRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/inbox': {
+      id: '/_authenticated/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof AuthenticatedInboxRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/insights': {
       id: '/_authenticated/insights'
       path: '/insights'
@@ -892,17 +909,17 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/inbox/': {
       id: '/_authenticated/inbox/'
-      path: '/inbox'
+      path: '/'
       fullPath: '/inbox/'
       preLoaderRoute: typeof AuthenticatedInboxIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInboxRouteRoute
     }
     '/_authenticated/inbox/$id': {
       id: '/_authenticated/inbox/$id'
-      path: '/inbox/$id'
+      path: '/$id'
       fullPath: '/inbox/$id'
       preLoaderRoute: typeof AuthenticatedInboxIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInboxRouteRoute
     }
     '/oauth/google/return': {
       id: '/oauth/google/return'
@@ -1019,7 +1036,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedInboxRouteRouteChildren {
+  AuthenticatedInboxIdRoute: typeof AuthenticatedInboxIdRoute
+  AuthenticatedInboxIndexRoute: typeof AuthenticatedInboxIndexRoute
+}
+
+const AuthenticatedInboxRouteRouteChildren: AuthenticatedInboxRouteRouteChildren =
+  {
+    AuthenticatedInboxIdRoute: AuthenticatedInboxIdRoute,
+    AuthenticatedInboxIndexRoute: AuthenticatedInboxIndexRoute,
+  }
+
+const AuthenticatedInboxRouteRouteWithChildren =
+  AuthenticatedInboxRouteRoute._addFileChildren(
+    AuthenticatedInboxRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedInboxRouteRoute: typeof AuthenticatedInboxRouteRouteWithChildren
   AuthenticatedA2pRoute: typeof AuthenticatedA2pRoute
   AuthenticatedAdvancedRoute: typeof AuthenticatedAdvancedRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
@@ -1038,11 +1072,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWelcomeRoute: typeof AuthenticatedWelcomeRoute
   AuthenticatedAdminUserIdRoute: typeof AuthenticatedAdminUserIdRoute
   AuthenticatedAssistantSidRoute: typeof AuthenticatedAssistantSidRoute
-  AuthenticatedInboxIdRoute: typeof AuthenticatedInboxIdRoute
-  AuthenticatedInboxIndexRoute: typeof AuthenticatedInboxIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedInboxRouteRoute: AuthenticatedInboxRouteRouteWithChildren,
   AuthenticatedA2pRoute: AuthenticatedA2pRoute,
   AuthenticatedAdvancedRoute: AuthenticatedAdvancedRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
@@ -1061,8 +1094,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWelcomeRoute: AuthenticatedWelcomeRoute,
   AuthenticatedAdminUserIdRoute: AuthenticatedAdminUserIdRoute,
   AuthenticatedAssistantSidRoute: AuthenticatedAssistantSidRoute,
-  AuthenticatedInboxIdRoute: AuthenticatedInboxIdRoute,
-  AuthenticatedInboxIndexRoute: AuthenticatedInboxIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
