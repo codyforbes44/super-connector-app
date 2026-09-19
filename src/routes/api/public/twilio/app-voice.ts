@@ -82,6 +82,23 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         /* --------------------------------------------------- inbound: PSTN leg */
         const appNumber = get("To").replace(/^whatsapp:/, "");
 
+        // Which pass of the in-app ring this is. Twilio comes back here through
+        // the <Dial action> once each attempt finishes.
+        const stage = url.searchParams.get("stage");
+        const stageUrl = (next: string) => {
+          const u = new URL(url.toString());
+          u.searchParams.set("stage", next);
+          return u.toString();
+        };
+
+        // Someone answered in the app and the call has since ended.
+        const dialStatus = get("DialCallStatus");
+        if (stage && (dialStatus === "completed" || dialStatus === "answered")) {
+          return xml("<Hangup />");
+        }
+
+
+
         await supabaseAdmin.from("calls").upsert(
           {
             sid: callSid,
@@ -148,7 +165,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           });
         }
 
-        const { voicemailTwiml, ringbackTwiml, RING_SECONDS } = await import(
+        const { voicemailTwiml, ringbackTwiml, RING_SECONDS, RINGBACK_CYCLE_SECONDS } = await import(
           "@/lib/voice-answer.server"
         );
         const unanswered = await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
@@ -166,21 +183,23 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         // Let the caller hear four rings before voicemail or the AI answers.
         // Forwarding to another phone rings on its own, so it goes straight out.
         const handOff = unanswered.startsWith("<Redirect");
-        try {
-          await supabaseAdmin
-            .from("calls")
-            .update({
-              answer_path: identities.length
-                ? "in_app"
-                : number?.forward_to && !aiAnswering
-                  ? "forward"
-                  : handOff
-                    ? "ai_agent"
-                    : (number?.answer_mode ?? "voicemail"),
-            })
-            .eq("sid", callSid);
-        } catch {
-          // bookkeeping only
+        if (!stage) {
+          try {
+            await supabaseAdmin
+              .from("calls")
+              .update({
+                answer_path: identities.length
+                  ? "in_app"
+                  : number?.forward_to && !aiAnswering
+                    ? "forward"
+                    : handOff
+                      ? "ai_agent"
+                      : (number?.answer_mode ?? "voicemail"),
+              })
+              .eq("sid", callSid);
+          } catch {
+            // bookkeeping only
+          }
         }
 
         if (identities.length === 0) {
@@ -193,9 +212,37 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           .map((identity) => `<Client>${esc(identity)}</Client>`)
           .join("");
 
-        return xml(
-          `<Dial callerId="${esc(from)}" timeout="${RING_SECONDS}" ringTone="us" answerOnBridge="true">${clients}</Dial>${fallback}`,
-        );
+        const dialClients = (timeout: number, nextStage: string) =>
+          `<Dial callerId="${esc(from)}" timeout="${timeout}" ringTone="us" answerOnBridge="true" action="${esc(stageUrl(nextStage))}" method="POST">${clients}</Dial>`;
+
+        // First pass: ring every signed-in device.
+        if (!stage) return xml(dialClients(RING_SECONDS, "after-dial"));
+
+        // Twilio fails a call to a device that is not currently connected in a
+        // split second, so the caller would hear the AI answer instantly. When
+        // that happens, ring the caller for real while the wake-up alert brings
+        // the app online, then try the app once more before anything else.
+        if (stage === "after-dial") {
+          let elapsed = RING_SECONDS;
+          try {
+            const { data: row } = await supabaseAdmin
+              .from("calls")
+              .select("created_at")
+              .eq("sid", callSid)
+              .maybeSingle();
+            const startedAt = row?.created_at ? Date.parse(row.created_at as string) : NaN;
+            if (!Number.isNaN(startedAt)) elapsed = (Date.now() - startedAt) / 1000;
+          } catch {
+            // fall through to the normal fallback
+          }
+          if (elapsed < RING_SECONDS - 4) {
+            return xml(
+              ringbackTwiml(RINGBACK_CYCLE_SECONDS * 2) + dialClients(RING_SECONDS, "retry-done"),
+            );
+          }
+        }
+
+        return xml(fallback);
       },
     },
   },
