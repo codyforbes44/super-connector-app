@@ -1054,6 +1054,42 @@ export type Database = {
           },
         ]
       }
+      consent_log: {
+        Row: {
+          action: string
+          contact_number: string
+          created_at: string
+          detail: Json
+          id: string
+          purpose: string
+          source: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          action: string
+          contact_number: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          purpose: string
+          source: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          action?: string
+          contact_number?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          purpose?: string
+          source?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       contact_memory: {
         Row: {
           call_count: number
@@ -1164,6 +1200,8 @@ export type Database = {
           contact_number: string
           created_at: string
           id: string
+          job_done_at: string | null
+          job_status: string | null
           last_message_at: string
           last_message_preview: string | null
           opted_out: boolean
@@ -1180,6 +1218,8 @@ export type Database = {
           contact_number: string
           created_at?: string
           id?: string
+          job_done_at?: string | null
+          job_status?: string | null
           last_message_at?: string
           last_message_preview?: string | null
           opted_out?: boolean
@@ -1196,6 +1236,8 @@ export type Database = {
           contact_number?: string
           created_at?: string
           id?: string
+          job_done_at?: string | null
+          job_status?: string | null
           last_message_at?: string
           last_message_preview?: string | null
           opted_out?: boolean
@@ -1602,36 +1644,125 @@ export type Database = {
           },
         ]
       }
+      integration_connections: {
+        Row: {
+          account_label: string | null
+          created_at: string
+          external_account_id: string | null
+          id: string
+          metadata: Json
+          provider: string
+          status: string
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          account_label?: string | null
+          created_at?: string
+          external_account_id?: string | null
+          id?: string
+          metadata?: Json
+          provider: string
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          account_label?: string | null
+          created_at?: string
+          external_account_id?: string | null
+          id?: string
+          metadata?: Json
+          provider?: string
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
+      integration_secrets: {
+        Row: {
+          access_token_ciphertext: string | null
+          api_key_ciphertext: string | null
+          connection_id: string
+          refresh_token_ciphertext: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token_ciphertext?: string | null
+          api_key_ciphertext?: string | null
+          connection_id: string
+          refresh_token_ciphertext?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token_ciphertext?: string | null
+          api_key_ciphertext?: string | null
+          connection_id?: string
+          refresh_token_ciphertext?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_secrets_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: true
+            referencedRelation: "integration_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           company: string | null
+          conversation_id: string | null
           created_at: string
           email: string
           handled: boolean
           id: string
+          job_done_at: string | null
+          job_status: string | null
           message: string
           name: string
+          phone_number: string | null
           source: string
+          workspace_id: string | null
         }
         Insert: {
           company?: string | null
+          conversation_id?: string | null
           created_at?: string
           email: string
           handled?: boolean
           id?: string
+          job_done_at?: string | null
+          job_status?: string | null
           message: string
           name: string
+          phone_number?: string | null
           source?: string
+          workspace_id?: string | null
         }
         Update: {
           company?: string | null
+          conversation_id?: string | null
           created_at?: string
           email?: string
           handled?: boolean
           id?: string
+          job_done_at?: string | null
+          job_status?: string | null
           message?: string
           name?: string
+          phone_number?: string | null
           source?: string
+          workspace_id?: string | null
         }
         Relationships: []
       }
@@ -1939,6 +2070,39 @@ export type Database = {
           },
         ]
       }
+      oauth_transactions: {
+        Row: {
+          code_verifier_ciphertext: string
+          created_at: string
+          expires_at: string
+          id: string
+          provider: string
+          redirect_uri: string
+          state: string
+          user_id: string
+        }
+        Insert: {
+          code_verifier_ciphertext: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          provider: string
+          redirect_uri: string
+          state: string
+          user_id: string
+        }
+        Update: {
+          code_verifier_ciphertext?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          provider?: string
+          redirect_uri?: string
+          state?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       outbound_webhook_deliveries: {
         Row: {
           attempt_count: number
@@ -2030,6 +2194,60 @@ export type Database = {
           secret?: string
           updated_at?: string
           url?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
+      payment_links: {
+        Row: {
+          amount_cents: number
+          checkout_session_id: string | null
+          connected_account_id: string
+          conversation_id: string | null
+          created_at: string
+          currency: string
+          description: string
+          id: string
+          livemode: boolean
+          message_sid: string | null
+          status: string
+          updated_at: string
+          url: string | null
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          checkout_session_id?: string | null
+          connected_account_id: string
+          conversation_id?: string | null
+          created_at?: string
+          currency?: string
+          description: string
+          id?: string
+          livemode?: boolean
+          message_sid?: string | null
+          status?: string
+          updated_at?: string
+          url?: string | null
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          checkout_session_id?: string | null
+          connected_account_id?: string
+          conversation_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          livemode?: boolean
+          message_sid?: string | null
+          status?: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string
           workspace_id?: string | null
         }
         Relationships: []
@@ -2353,6 +2571,127 @@ export type Database = {
         }
         Relationships: []
       }
+      port_in_events: {
+        Row: {
+          created_at: string
+          detail: Json
+          id: string
+          port_in_request_id: string | null
+          status: string
+          twilio_status: string | null
+          user_id: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          port_in_request_id?: string | null
+          status: string
+          twilio_status?: string | null
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          port_in_request_id?: string | null
+          status?: string
+          twilio_status?: string | null
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "port_in_events_port_in_request_id_fkey"
+            columns: ["port_in_request_id"]
+            isOneToOne: false
+            referencedRelation: "port_in_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      port_in_private: {
+        Row: {
+          bill_ciphertext: string
+          bill_filename: string
+          bill_mime: string
+          loa_ciphertext: string
+          port_in_request_id: string
+          twilio_document_sid: string | null
+        }
+        Insert: {
+          bill_ciphertext: string
+          bill_filename: string
+          bill_mime: string
+          loa_ciphertext: string
+          port_in_request_id: string
+          twilio_document_sid?: string | null
+        }
+        Update: {
+          bill_ciphertext?: string
+          bill_filename?: string
+          bill_mime?: string
+          loa_ciphertext?: string
+          port_in_request_id?: string
+          twilio_document_sid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "port_in_private_port_in_request_id_fkey"
+            columns: ["port_in_request_id"]
+            isOneToOne: true
+            referencedRelation: "port_in_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      port_in_requests: {
+        Row: {
+          account_last4: string | null
+          created_at: string
+          customer_name: string | null
+          id: string
+          notification_email: string | null
+          phone_number: string
+          rejection_reason: string | null
+          status: string
+          twilio_port_sid: string | null
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          account_last4?: string | null
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          notification_email?: string | null
+          phone_number: string
+          rejection_reason?: string | null
+          status?: string
+          twilio_port_sid?: string | null
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          account_last4?: string | null
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          notification_email?: string | null
+          phone_number?: string
+          rejection_reason?: string | null
+          status?: string
+          twilio_port_sid?: string | null
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           agent_phone: string | null
@@ -2459,6 +2798,87 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      review_requests: {
+        Row: {
+          contact_number: string
+          conversation_id: string | null
+          created_at: string
+          id: string
+          lead_id: string | null
+          message_sid: string | null
+          reason: string | null
+          sent_at: string | null
+          status: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          contact_number: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          message_sid?: string | null
+          reason?: string | null
+          sent_at?: string | null
+          status: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          contact_number?: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          message_sid?: string | null
+          reason?: string | null
+          sent_at?: string | null
+          status?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
+      review_settings: {
+        Row: {
+          business_name: string | null
+          cooldown_days: number
+          enabled: boolean
+          google_review_url: string | null
+          quiet_end: string
+          quiet_start: string
+          timezone: string
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          cooldown_days?: number
+          enabled?: boolean
+          google_review_url?: string | null
+          quiet_end?: string
+          quiet_start?: string
+          timezone?: string
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          cooldown_days?: number
+          enabled?: boolean
+          google_review_url?: string | null
+          quiet_end?: string
+          quiet_start?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
       }
       saved_places: {
         Row: {
@@ -2621,6 +3041,24 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_connect_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          payment_link_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          payment_link_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          payment_link_id?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           billing_interval: string
@@ -2746,6 +3184,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      trade_syncs: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          external_client_id: string | null
+          external_record_id: string | null
+          id: string
+          lead_id: string | null
+          matched_existing: boolean
+          provider: string
+          summary: string | null
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          external_client_id?: string | null
+          external_record_id?: string | null
+          id?: string
+          lead_id?: string | null
+          matched_existing?: boolean
+          provider: string
+          summary?: string | null
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          external_client_id?: string | null
+          external_record_id?: string | null
+          id?: string
+          lead_id?: string | null
+          matched_existing?: boolean
+          provider?: string
+          summary?: string | null
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
       }
       trust_hub_registrations: {
         Row: {
