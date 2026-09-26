@@ -78,8 +78,62 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
 
           const aiAnswering = number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id;
 
-          const { voicemailTwiml, ringbackTwiml, RING_SECONDS, forwardedCallTwiml } =
-            await import("@/lib/voice-answer.server");
+          const {
+            voicemailTwiml,
+            classicVoicemailTwiml,
+            ringbackTwiml,
+            RING_SECONDS,
+            forwardedCallTwiml,
+          } = await import("@/lib/voice-answer.server");
+
+          // Hours are a separate read so a missing migration cannot change routing.
+          let hoursRoute: "as_today" | "after_hours_ai" | "after_hours_voicemail" = "as_today";
+          try {
+            const { routeForHours, parseWeeklySchedule, parseHolidayDates } =
+              await import("@/lib/business-hours");
+            const { data: hours, error: hoursError } = await supabaseAdmin
+              .from("phone_numbers")
+              .select(
+                "business_hours_enabled, business_timezone, business_hours, business_holidays, after_hours_route",
+              )
+              .eq("phone_number", appNumber)
+              .maybeSingle();
+            if (!hoursError && hours) {
+              hoursRoute = routeForHours({
+                enabled: Boolean(hours.business_hours_enabled),
+                timeZone: hours.business_timezone || "America/Chicago",
+                schedule: parseWeeklySchedule(hours.business_hours),
+                holidays: parseHolidayDates(hours.business_holidays),
+                afterHours: hours.after_hours_route === "voicemail" ? "voicemail" : "ai",
+                now: new Date(),
+              });
+            }
+          } catch {
+            hoursRoute = "as_today";
+          }
+
+          if (hoursRoute === "after_hours_voicemail" || hoursRoute === "after_hours_ai") {
+            const answer =
+              hoursRoute === "after_hours_voicemail"
+                ? await classicVoicemailTwiml(supabaseAdmin as never, number ?? {})
+                : await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
+                    callSid: get("CallSid"),
+                    from: get("From"),
+                    appNumber,
+                  });
+            const handOff = answer.startsWith("<Redirect");
+            try {
+              await supabaseAdmin
+                .from("calls")
+                .update({
+                  answer_path: handOff ? "ai_agent" : "voicemail",
+                })
+                .eq("sid", get("CallSid"));
+            } catch {
+              // bookkeeping only
+            }
+            return xml(ringbackTwiml() + answer);
+          }
 
           if (number?.forward_to && !aiAnswering) {
             return xml(

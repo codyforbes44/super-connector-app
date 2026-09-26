@@ -121,6 +121,17 @@ export const Route = createFileRoute("/api/public/twilio/status")({
           }
         }
 
+        try {
+          const { handleInboundCallUpdate } = await import("@/lib/call-automation.server");
+          const { drainDueDeliveries } = await import("@/lib/outbound-webhooks.server");
+          if (callSid) {
+            await handleInboundCallUpdate(supabaseAdmin as never, auth.params, "status");
+          }
+          await drainDueDeliveries(supabaseAdmin as never, 1);
+        } catch (error) {
+          console.error("call automation failed", error);
+        }
+
         return new Response("ok");
       },
     },

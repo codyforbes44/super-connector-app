@@ -40,6 +40,7 @@ describe("recording notice", () => {
     });
     expect(plain).not.toMatch(/<Record|\srecord="/);
     expect(plain).not.toContain(RECORDING_CONSENT);
+    expect(plain).toContain("/api/public/twilio/dial-action");
   });
 
   it("includes the notice on the voicemail answer path", async () => {

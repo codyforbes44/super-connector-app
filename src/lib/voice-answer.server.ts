@@ -57,6 +57,11 @@ export function fallbackVoicemailTwiml(): string {
   return `<Say voice="alice">Thanks for calling. Please leave a message after the tone.</Say>${recordVerb()}<Say voice="alice">We did not receive a recording. Goodbye.</Say>`;
 }
 
+/** Twilio posts DialCallStatus here when a forwarded dial finishes. */
+export function dialActionUrl(): string {
+  return webhookUrl("dial-action");
+}
+
 /** Forwarded two-party dial. Recording, when enabled, starts only after the notice. */
 export function forwardedCallTwiml(input: {
   record: boolean;
@@ -68,7 +73,7 @@ export function forwardedCallTwiml(input: {
   const recording = input.record
     ? ` record="record-from-answer-dual" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed"`
     : "";
-  return `${notice}<Dial callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us"${recording}><Number>${escapeXml(input.destination)}</Number></Dial>`;
+  return `${notice}<Dial action="${escapeXml(dialActionUrl())}" method="POST" callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us"${recording}><Number>${escapeXml(input.destination)}</Number></Dial>`;
 }
 
 export type NumberVoiceConfig = {
@@ -104,7 +109,7 @@ function fallbackTwiml(config: NumberVoiceConfig, classic: string): string {
     return `<Say voice="alice">Sorry, we can't take your call right now. Please try again later.</Say><Hangup />`;
   }
   if (config.ai_fallback === "forward" && config.ai_fallback_number) {
-    return `<Dial timeout="25"><Number>${escapeXml(config.ai_fallback_number)}</Number></Dial>${classic}`;
+    return `<Dial action="${escapeXml(dialActionUrl())}" method="POST" timeout="25"><Number>${escapeXml(config.ai_fallback_number)}</Number></Dial>${classic}`;
   }
   return classic;
 }
@@ -115,10 +120,10 @@ function fallbackTwiml(config: NumberVoiceConfig, classic: string): string {
  * Every ElevenLabs failure degrades to the classic greeting — a call must never
  * drop because the AI layer is unavailable.
  */
-export async function voicemailTwiml(
+/** Greeting plus a recording. Used for classic voicemail and after-hours voicemail. */
+export async function classicVoicemailTwiml(
   admin: SupabaseClient,
   config: NumberVoiceConfig,
-  ctx: { callSid: string; from: string; appNumber: string },
 ): Promise<string> {
   const greeting =
     config.voicemail_greeting || "Thanks for calling. Please leave a message after the tone.";
@@ -135,7 +140,15 @@ export async function voicemailTwiml(
     }
   }
 
-  const classic = `${intro}${recordVerb()}<Say voice="alice">We did not receive a recording. Goodbye.</Say>`;
+  return `${intro}${recordVerb()}<Say voice="alice">We did not receive a recording. Goodbye.</Say>`;
+}
+
+export async function voicemailTwiml(
+  admin: SupabaseClient,
+  config: NumberVoiceConfig,
+  ctx: { callSid: string; from: string; appNumber: string },
+): Promise<string> {
+  const classic = await classicVoicemailTwiml(admin, config);
 
   // AI-voiced greeting: the rendered ElevenLabs audio (or a spoken fallback) then a recording.
   if (config.answer_mode === "ai_greeting") return classic;

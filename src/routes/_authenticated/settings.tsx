@@ -27,6 +27,7 @@ import { CallingSettings } from "@/components/CallingSettings";
 import { AssistantSettings } from "@/components/intelligence/AssistantSettings";
 import { CallerRules } from "@/components/intelligence/CallerRules";
 import { EmailNotifications } from "@/components/EmailNotifications";
+import { OutboundWebhooks } from "@/components/settings/OutboundWebhooks";
 import { Badge } from "@/components/ui/badge";
 import { listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
 
@@ -189,6 +190,7 @@ function SettingsScreen() {
               />
             </SettingsGroup>
           ) : null}
+          <OutboundWebhooks />
         </>
       ) : null}
 

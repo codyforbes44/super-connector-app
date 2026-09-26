@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { requireAdmin } from "./app.server";
+import { publishOutboundEvent } from "./outbound-webhooks.server";
 import { appBaseUrl, emailConfigured, emailStatus, FROM_ACCOUNT, sendEmail } from "./email.server";
 import { account as accountEmail, testEmail } from "./email-templates/index";
 import * as gcal from "./gcal.server";
@@ -306,6 +307,32 @@ export async function bookSlot(
     conversation_id: input.conversationId ?? null,
     created_by: userId,
   });
+
+  try {
+    let workspaceId: string | null = null;
+    const { data: owner, error: ownerError } = await supabase
+      .from("phone_numbers")
+      .select("workspace_id")
+      .eq("phone_number", input.appNumber)
+      .maybeSingle();
+    if (!ownerError) workspaceId = (owner?.workspace_id as string | null) ?? null;
+    await publishOutboundEvent(db, {
+      type: "booking.created",
+      eventId: `booking.created:${event.id}`,
+      workspaceId,
+      data: {
+        event_id: event.id,
+        app_number: input.appNumber,
+        summary: event.summary,
+        starts_at: input.start,
+        ends_at: input.end,
+        contact_number: input.contactNumber ?? null,
+        contact_email: input.contactEmail ?? null,
+      },
+    });
+  } catch (error) {
+    console.error("booking webhook publish failed", error);
+  }
 
   return event;
 }
