@@ -173,6 +173,39 @@ export type Database = {
           },
         ]
       }
+      ai_voice_consents: {
+        Row: {
+          consented: boolean
+          detail: Json
+          id: string
+          phone_number: string
+          recorded_at: string
+          recorded_by: string | null
+          source: string
+          workspace_id: string | null
+        }
+        Insert: {
+          consented: boolean
+          detail?: Json
+          id?: string
+          phone_number: string
+          recorded_at?: string
+          recorded_by?: string | null
+          source: string
+          workspace_id?: string | null
+        }
+        Update: {
+          consented?: boolean
+          detail?: Json
+          id?: string
+          phone_number?: string
+          recorded_at?: string
+          recorded_by?: string | null
+          source?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       app_user_connections: {
         Row: {
           account_email: string | null
@@ -1222,6 +1255,30 @@ export type Database = {
           },
         ]
       }
+      e911_acknowledgments: {
+        Row: {
+          acknowledged_at: string
+          disclosure_version: string
+          id: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          acknowledged_at?: string
+          disclosure_version: string
+          id?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          acknowledged_at?: string
+          disclosure_version?: string
+          id?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       email_log: {
         Row: {
           body_html: string | null
@@ -1368,6 +1425,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      emergency_addresses: {
+        Row: {
+          city: string
+          created_at: string
+          created_by: string | null
+          customer_name: string
+          emergency_address_status: string | null
+          emergency_enabled: boolean
+          emergency_status: string | null
+          fee_acknowledged_at: string | null
+          fee_cents: number | null
+          id: string
+          iso_country: string
+          moved_from_address_sid: string | null
+          phone_number: string
+          phone_number_sid: string
+          postal_code: string
+          region: string
+          street: string
+          street_secondary: string | null
+          suggested_addresses: Json
+          twilio_address_sid: string | null
+          updated_at: string
+          validated: boolean | null
+          workspace_id: string | null
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          created_by?: string | null
+          customer_name: string
+          emergency_address_status?: string | null
+          emergency_enabled?: boolean
+          emergency_status?: string | null
+          fee_acknowledged_at?: string | null
+          fee_cents?: number | null
+          id?: string
+          iso_country?: string
+          moved_from_address_sid?: string | null
+          phone_number: string
+          phone_number_sid: string
+          postal_code: string
+          region: string
+          street: string
+          street_secondary?: string | null
+          suggested_addresses?: Json
+          twilio_address_sid?: string | null
+          updated_at?: string
+          validated?: boolean | null
+          workspace_id?: string | null
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string
+          emergency_address_status?: string | null
+          emergency_enabled?: boolean
+          emergency_status?: string | null
+          fee_acknowledged_at?: string | null
+          fee_cents?: number | null
+          id?: string
+          iso_country?: string
+          moved_from_address_sid?: string | null
+          phone_number?: string
+          phone_number_sid?: string
+          postal_code?: string
+          region?: string
+          street?: string
+          street_secondary?: string | null
+          suggested_addresses?: Json
+          twilio_address_sid?: string | null
+          updated_at?: string
+          validated?: boolean | null
+          workspace_id?: string | null
+        }
+        Relationships: []
       }
       esim_orders: {
         Row: {
@@ -1621,6 +1756,33 @@ export type Database = {
           },
         ]
       }
+      messaging_opt_out_prefs: {
+        Row: {
+          detected_opt_out_type_at: string | null
+          id: string
+          messaging_service_sid: string
+          owner_confirmed_at: string | null
+          updated_at: string
+          workspace_id: string | null
+        }
+        Insert: {
+          detected_opt_out_type_at?: string | null
+          id?: string
+          messaging_service_sid: string
+          owner_confirmed_at?: string | null
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          detected_opt_out_type_at?: string | null
+          id?: string
+          messaging_service_sid?: string
+          owner_confirmed_at?: string | null
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       notification_prefs: {
         Row: {
           created_at: string
@@ -1769,6 +1931,7 @@ export type Database = {
           messaging_service_sid: string | null
           outbound_caller_id: string | null
           phone_number: string
+          record_calls: boolean
           sid: string
           twilio_account_sid: string | null
           voicemail_greeting: string | null
@@ -1808,6 +1971,7 @@ export type Database = {
           messaging_service_sid?: string | null
           outbound_caller_id?: string | null
           phone_number: string
+          record_calls?: boolean
           sid: string
           twilio_account_sid?: string | null
           voicemail_greeting?: string | null
@@ -1847,6 +2011,7 @@ export type Database = {
           messaging_service_sid?: string | null
           outbound_caller_id?: string | null
           phone_number?: string
+          record_calls?: boolean
           sid?: string
           twilio_account_sid?: string | null
           voicemail_greeting?: string | null
@@ -2181,6 +2346,108 @@ export type Database = {
           },
         ]
       }
+      sms_consent_log: {
+        Row: {
+          consented: boolean
+          detail: Json
+          id: string
+          phone_number: string
+          purpose: string
+          recorded_at: string
+          recorded_by: string | null
+          source: string
+          workspace_id: string | null
+        }
+        Insert: {
+          consented: boolean
+          detail?: Json
+          id?: string
+          phone_number: string
+          purpose: string
+          recorded_at?: string
+          recorded_by?: string | null
+          source: string
+          workspace_id?: string | null
+        }
+        Update: {
+          consented?: boolean
+          detail?: Json
+          id?: string
+          phone_number?: string
+          purpose?: string
+          recorded_at?: string
+          recorded_by?: string | null
+          source?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
+      sms_opt_outs: {
+        Row: {
+          id: string
+          keyword: string | null
+          messaging_service_sid: string | null
+          opted_out: boolean
+          phone_number: string
+          source: string
+          updated_at: string
+          workspace_id: string | null
+        }
+        Insert: {
+          id?: string
+          keyword?: string | null
+          messaging_service_sid?: string | null
+          opted_out: boolean
+          phone_number: string
+          source: string
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          id?: string
+          keyword?: string | null
+          messaging_service_sid?: string | null
+          opted_out?: boolean
+          phone_number?: string
+          source?: string
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
+      sms_quiet_hours: {
+        Row: {
+          enabled: boolean
+          id: string
+          quiet_end: string
+          quiet_start: string
+          timezone: string
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          enabled?: boolean
+          id?: string
+          quiet_end?: string
+          quiet_start?: string
+          timezone?: string
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          enabled?: boolean
+          id?: string
+          quiet_end?: string
+          quiet_start?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           billing_interval: string
@@ -2306,6 +2573,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      trust_hub_registrations: {
+        Row: {
+          business_id_type: string | null
+          cnam_display_name: string | null
+          cnam_sid: string | null
+          created_at: string
+          customer_profile_sid: string | null
+          daily_call_volume: number | null
+          draft: Json
+          employee_count: number | null
+          id: string
+          last_error: string | null
+          owner_confirmed_at: string | null
+          shaken_stir_sid: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          voice_integrity_sid: string | null
+          voice_integrity_use_case: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          business_id_type?: string | null
+          cnam_display_name?: string | null
+          cnam_sid?: string | null
+          created_at?: string
+          customer_profile_sid?: string | null
+          daily_call_volume?: number | null
+          draft?: Json
+          employee_count?: number | null
+          id?: string
+          last_error?: string | null
+          owner_confirmed_at?: string | null
+          shaken_stir_sid?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          voice_integrity_sid?: string | null
+          voice_integrity_use_case?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          business_id_type?: string | null
+          cnam_display_name?: string | null
+          cnam_sid?: string | null
+          created_at?: string
+          customer_profile_sid?: string | null
+          daily_call_volume?: number | null
+          draft?: Json
+          employee_count?: number | null
+          id?: string
+          last_error?: string | null
+          owner_confirmed_at?: string | null
+          shaken_stir_sid?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          voice_integrity_sid?: string | null
+          voice_integrity_use_case?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: []
       }
       twiml_apps: {
         Row: {
