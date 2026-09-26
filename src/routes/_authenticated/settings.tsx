@@ -71,7 +71,7 @@ function SettingsScreen() {
   const team = useQuery({ queryKey: ["team"], queryFn: () => listTeam(), enabled: boot.isAdmin });
 
   return (
-    <div className="pb-6">
+    <div className="mx-auto max-w-6xl pb-6">
       <ScreenHeader
         title="Settings"
         subtitle={
@@ -191,7 +191,7 @@ function SettingsScreen() {
                         }
                       }}
                     >
-                      <SelectTrigger className="h-9 w-28 rounded-xl px-3">
+          <SelectTrigger className="h-11 w-28 rounded-lg px-3">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

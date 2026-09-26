@@ -156,11 +156,12 @@ function ContactsScreen() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search name, number or email"
-              className="h-11 rounded-xl pl-9"
+              aria-label="Search contacts by name, number, or email"
+              className="h-11 rounded-lg pl-9"
             />
           </div>
 
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4">
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/18 text-primary">
               <Smartphone className="size-[1.05rem]" />
             </span>
@@ -221,9 +222,10 @@ function ContactsScreen() {
                 <ListGroup>
                   {list.map((contact) => (
                     <div key={contact.id} className="flex min-h-14 items-center gap-3 px-4 py-3">
-                      <button
+                      <Button
                         type="button"
-                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                        variant="ghost"
+                        className="h-auto min-h-11 min-w-0 flex-1 justify-start gap-3 overflow-hidden px-0 py-0 text-left hover:bg-transparent"
                         onClick={() => setEditing(contact)}
                       >
                         <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/15 text-sm font-semibold text-primary">
@@ -239,7 +241,7 @@ function ContactsScreen() {
                               : contact.email || "No name"}
                           </span>
                         </span>
-                      </button>
+                      </Button>
                       <Button
                         size="icon"
                         variant="ghost"
@@ -318,7 +320,7 @@ function ContactSheet({
     <Sheet open onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="bottom"
-        className="max-h-[85dvh] overflow-y-auto rounded-t-3xl border-border bg-card"
+        className="max-h-[85dvh] overflow-y-auto rounded-t-lg border-border bg-card"
       >
         <SheetHeader className="px-0">
           <SheetTitle>{contact ? "Edit contact" : "New contact"}</SheetTitle>
