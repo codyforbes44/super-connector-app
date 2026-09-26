@@ -13,8 +13,9 @@
 --     drop column if exists service_area_lat,
 --     drop column if exists service_area_lng,
 --     drop column if exists service_area_address,
---     drop column if exists service_area_zips,
---     drop column if exists workspace_id;
+--     drop column if exists service_area_zips;
+--   -- workspace_id on phone_numbers is shared with missed-call text-back.
+--   -- Drop it only when both features are rolled back.
 --   alter table public.call_intelligence
 --     drop column if exists lead_name,
 --     drop column if exists lead_callback,
@@ -35,8 +36,9 @@
 --     drop column if exists spam_action,
 --     drop column if exists spam_reason,
 --     drop column if exists stir_verstat,
---     drop column if exists line_type,
---     drop column if exists workspace_id;
+--     drop column if exists line_type;
+--   -- workspace_id on calls is shared with missed-call text-back.
+--   -- Drop it only when both features are rolled back.
 
 alter table public.phone_numbers
   add column if not exists booking_travel_minutes integer not null default 0,

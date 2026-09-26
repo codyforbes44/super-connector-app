@@ -204,54 +204,65 @@ create table if not exists public.trade_syncs (
 grant select, insert, update, delete on public.integration_connections to authenticated;
 grant all on public.integration_connections to service_role;
 alter table public.integration_connections enable row level security;
+drop policy if exists "users read their integration connections" on public.integration_connections;
 create policy "users read their integration connections" on public.integration_connections
   for select to authenticated using (user_id = auth.uid() or public.is_admin(auth.uid()));
+drop policy if exists "users write their integration connections" on public.integration_connections;
 create policy "users write their integration connections" on public.integration_connections
   for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists "users update their integration connections" on public.integration_connections;
 create policy "users update their integration connections" on public.integration_connections
   for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+drop policy if exists "users delete their integration connections" on public.integration_connections;
 create policy "users delete their integration connections" on public.integration_connections
   for delete to authenticated using (user_id = auth.uid());
 
 grant select, insert, update, delete on public.review_settings to authenticated;
 grant all on public.review_settings to service_role;
 alter table public.review_settings enable row level security;
+drop policy if exists "users manage their review settings" on public.review_settings;
 create policy "users manage their review settings" on public.review_settings
   for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 grant select on public.review_requests to authenticated;
 grant all on public.review_requests to service_role;
 alter table public.review_requests enable row level security;
+drop policy if exists "users read their review requests" on public.review_requests;
 create policy "users read their review requests" on public.review_requests
   for select to authenticated using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 grant select on public.consent_log to authenticated;
 grant all on public.consent_log to service_role;
 alter table public.consent_log enable row level security;
+drop policy if exists "users read their consent log" on public.consent_log;
 create policy "users read their consent log" on public.consent_log
   for select to authenticated using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 grant select on public.payment_links to authenticated;
 grant all on public.payment_links to service_role;
 alter table public.payment_links enable row level security;
+drop policy if exists "users read their payment links" on public.payment_links;
 create policy "users read their payment links" on public.payment_links
   for select to authenticated using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 grant select on public.port_in_requests to authenticated;
 grant all on public.port_in_requests to service_role;
 alter table public.port_in_requests enable row level security;
+drop policy if exists "users read their port-in requests" on public.port_in_requests;
 create policy "users read their port-in requests" on public.port_in_requests
   for select to authenticated using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 grant select on public.port_in_events to authenticated;
 grant all on public.port_in_events to service_role;
 alter table public.port_in_events enable row level security;
+drop policy if exists "users read their port-in events" on public.port_in_events;
 create policy "users read their port-in events" on public.port_in_events
   for select to authenticated using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 grant select on public.trade_syncs to authenticated;
 grant all on public.trade_syncs to service_role;
 alter table public.trade_syncs enable row level security;
+drop policy if exists "users read their trade syncs" on public.trade_syncs;
 create policy "users read their trade syncs" on public.trade_syncs
   for select to authenticated using (user_id = auth.uid() or public.is_admin(auth.uid()));
 

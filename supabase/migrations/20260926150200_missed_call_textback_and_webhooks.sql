@@ -1,3 +1,28 @@
+-- Rollback:
+--   drop table if exists public.outbound_webhook_deliveries;
+--   drop table if exists public.outbound_webhook_endpoints;
+--   drop table if exists public.missed_call_textbacks;
+--   alter table public.phone_numbers
+--     drop constraint if exists phone_numbers_after_hours_route_check,
+--     drop constraint if exists phone_numbers_text_back_dedupe_check,
+--     drop column if exists text_back_enabled,
+--     drop column if exists text_back_template,
+--     drop column if exists text_back_on_ai,
+--     drop column if exists text_back_on_voicemail,
+--     drop column if exists text_back_dedupe_minutes,
+--     drop column if exists business_hours_enabled,
+--     drop column if exists business_timezone,
+--     drop column if exists business_hours,
+--     drop column if exists business_holidays,
+--     drop column if exists after_hours_route,
+--     drop column if exists emergency_keywords,
+--     drop column if exists emergency_transfer_number;
+--   -- workspace_id on phone_numbers and calls is also added by the receptionist
+--   -- migration. Drop it only when both features are rolled back:
+--   --   alter table public.phone_numbers drop column if exists workspace_id;
+--   --   alter table public.calls drop column if exists workspace_id;
+--   alter table public.calls drop column if exists dial_status;
+
 -- Missed-call text-back, business hours, emergency keywords, and signed outbound webhooks.
 -- workspace_id is nullable on purpose. Phase 1's workspace migration should use
 -- ADD COLUMN IF NOT EXISTS so the two branches compose.

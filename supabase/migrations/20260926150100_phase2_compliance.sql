@@ -1,3 +1,14 @@
+-- Rollback (drop these tables only; record_calls is this migration's column):
+--   drop table if exists public.messaging_opt_out_prefs;
+--   drop table if exists public.trust_hub_registrations;
+--   drop table if exists public.ai_voice_consents;
+--   drop table if exists public.sms_quiet_hours;
+--   drop table if exists public.sms_consent_log;
+--   drop table if exists public.sms_opt_outs;
+--   drop table if exists public.e911_acknowledgments;
+--   drop table if exists public.emergency_addresses;
+--   alter table public.phone_numbers drop column if exists record_calls;
+
 -- Phase 2: E911, recording consent, Trust Hub drafts, TCPA opt-out.
 -- workspace_id is nullable on every new customer-owned table. Phase 1 backfills
 -- it and turns on enforcement. There is no workspaces table in this migration.
@@ -8,7 +19,7 @@ ALTER TABLE public.phone_numbers
 COMMENT ON COLUMN public.phone_numbers.record_calls IS
   'Live call recording for this line. Off by default. When on, every recorded leg plays an all-party notice first. Voicemail always records and always plays the notice.';
 
-CREATE TABLE public.emergency_addresses (
+CREATE TABLE IF NOT EXISTS public.emergency_addresses (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid,
   phone_number_sid text NOT NULL UNIQUE,
@@ -34,7 +45,7 @@ CREATE TABLE public.emergency_addresses (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.e911_acknowledgments (
+CREATE TABLE IF NOT EXISTS public.e911_acknowledgments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -43,7 +54,7 @@ CREATE TABLE public.e911_acknowledgments (
   UNIQUE (user_id, disclosure_version)
 );
 
-CREATE TABLE public.sms_opt_outs (
+CREATE TABLE IF NOT EXISTS public.sms_opt_outs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid,
   phone_number text NOT NULL UNIQUE,
@@ -54,7 +65,7 @@ CREATE TABLE public.sms_opt_outs (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.sms_consent_log (
+CREATE TABLE IF NOT EXISTS public.sms_consent_log (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid,
   phone_number text NOT NULL,
@@ -66,10 +77,10 @@ CREATE TABLE public.sms_consent_log (
   recorded_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX sms_consent_log_phone_idx
+CREATE INDEX IF NOT EXISTS sms_consent_log_phone_idx
   ON public.sms_consent_log (phone_number, purpose, recorded_at DESC);
 
-CREATE TABLE public.sms_quiet_hours (
+CREATE TABLE IF NOT EXISTS public.sms_quiet_hours (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid,
   user_id uuid NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -80,7 +91,7 @@ CREATE TABLE public.sms_quiet_hours (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.ai_voice_consents (
+CREATE TABLE IF NOT EXISTS public.ai_voice_consents (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid,
   phone_number text NOT NULL,
@@ -91,10 +102,10 @@ CREATE TABLE public.ai_voice_consents (
   recorded_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX ai_voice_consents_phone_idx
+CREATE INDEX IF NOT EXISTS ai_voice_consents_phone_idx
   ON public.ai_voice_consents (phone_number, recorded_at DESC);
 
-CREATE TABLE public.trust_hub_registrations (
+CREATE TABLE IF NOT EXISTS public.trust_hub_registrations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid,
   user_id uuid NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -115,7 +126,7 @@ CREATE TABLE public.trust_hub_registrations (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.messaging_opt_out_prefs (
+CREATE TABLE IF NOT EXISTS public.messaging_opt_out_prefs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid,
   messaging_service_sid text NOT NULL UNIQUE,
@@ -151,42 +162,54 @@ ALTER TABLE public.ai_voice_consents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.trust_hub_registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messaging_opt_out_prefs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "admins read emergency addresses" ON public.emergency_addresses;
 CREATE POLICY "admins read emergency addresses" ON public.emergency_addresses
   FOR SELECT TO authenticated USING (public.is_admin(auth.uid()));
 
+DROP POLICY IF EXISTS "users read own e911 acknowledgment" ON public.e911_acknowledgments;
 CREATE POLICY "users read own e911 acknowledgment" ON public.e911_acknowledgments
   FOR SELECT TO authenticated USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
 
+DROP POLICY IF EXISTS "admins read sms opt outs" ON public.sms_opt_outs;
 CREATE POLICY "admins read sms opt outs" ON public.sms_opt_outs
   FOR SELECT TO authenticated USING (public.is_admin(auth.uid()));
 
+DROP POLICY IF EXISTS "admins read sms consent" ON public.sms_consent_log;
 CREATE POLICY "admins read sms consent" ON public.sms_consent_log
   FOR SELECT TO authenticated USING (public.is_admin(auth.uid()));
 
+DROP POLICY IF EXISTS "users read own quiet hours" ON public.sms_quiet_hours;
 CREATE POLICY "users read own quiet hours" ON public.sms_quiet_hours
   FOR SELECT TO authenticated USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
 
+DROP POLICY IF EXISTS "admins read ai voice consent" ON public.ai_voice_consents;
 CREATE POLICY "admins read ai voice consent" ON public.ai_voice_consents
   FOR SELECT TO authenticated USING (public.is_admin(auth.uid()));
 
+DROP POLICY IF EXISTS "owners read trust hub" ON public.trust_hub_registrations;
 CREATE POLICY "owners read trust hub" ON public.trust_hub_registrations
   FOR SELECT TO authenticated USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
 
+DROP POLICY IF EXISTS "admins read messaging opt-out prefs" ON public.messaging_opt_out_prefs;
 CREATE POLICY "admins read messaging opt-out prefs" ON public.messaging_opt_out_prefs
   FOR SELECT TO authenticated USING (public.is_admin(auth.uid()));
 
+DROP TRIGGER IF EXISTS update_emergency_addresses_updated_at ON public.emergency_addresses;
 CREATE TRIGGER update_emergency_addresses_updated_at
   BEFORE UPDATE ON public.emergency_addresses
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS update_sms_quiet_hours_updated_at ON public.sms_quiet_hours;
 CREATE TRIGGER update_sms_quiet_hours_updated_at
   BEFORE UPDATE ON public.sms_quiet_hours
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS update_trust_hub_registrations_updated_at ON public.trust_hub_registrations;
 CREATE TRIGGER update_trust_hub_registrations_updated_at
   BEFORE UPDATE ON public.trust_hub_registrations
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS update_messaging_opt_out_prefs_updated_at ON public.messaging_opt_out_prefs;
 CREATE TRIGGER update_messaging_opt_out_prefs_updated_at
   BEFORE UPDATE ON public.messaging_opt_out_prefs
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
