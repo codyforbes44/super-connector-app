@@ -5,6 +5,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { twilioRequest } from "./twilio.server";
+import { resolveWorkspaceIdForNumber } from "./workspace.server";
 
 export type WebhookErrorInput = {
   source?: string;
@@ -22,21 +23,32 @@ export async function logWebhookError(
   admin: SupabaseClient,
   input: WebhookErrorInput,
 ): Promise<void> {
+  const source = input.source ?? "twilio";
   try {
     let workspaceId = input.workspaceId ?? null;
-    if (!workspaceId && input.appNumber) {
-      const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
-      workspaceId = (await resolveWorkspaceIdForNumber(input.appNumber)).workspaceId;
+    const appNumber = input.appNumber?.trim() || null;
+    if (!workspaceId && appNumber) {
+      workspaceId = (await resolveWorkspaceIdForNumber(appNumber)).workspaceId;
+    }
+    // webhook_errors.workspace_id is NOT NULL. The assign_workspace_id trigger
+    // fills it only for a signed-in user, so a service-role insert with no
+    // workspace is rejected and the failure never lands in the table.
+    if (!workspaceId) {
+      console.warn("Skipped webhook_errors insert", {
+        source,
+        reason: appNumber ? "unresolved app number" : "missing app number",
+      });
+      return;
     }
     const { error } = await admin.from("webhook_errors").insert({
-      source: input.source ?? "twilio",
+      source,
       error_code: input.errorCode ?? null,
       message: input.message ? String(input.message).slice(0, 2000) : null,
       url: input.url ?? null,
       call_sid: input.callSid ?? null,
       app_number: input.appNumber ?? null,
       payload: (input.payload ?? {}) as never,
-      ...(workspaceId ? { workspace_id: workspaceId } : {}),
+      workspace_id: workspaceId,
     });
     if (error) console.error("Failed to record webhook error", error.message);
   } catch (error) {
