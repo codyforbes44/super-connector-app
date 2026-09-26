@@ -16,11 +16,10 @@ export const submitBusinessProfile = createServerFn({ method: "POST" })
 
 export const submitBrand = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => ops.submitBrand(context.supabase, context.userId));
+  .inputValidator((input: { confirmFees: boolean }) => input)
+  .handler(async ({ context, data }) => ops.submitBrand(context.supabase, context.userId, data));
 
 export const submitCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: ops.CampaignInput) => input)
-  .handler(async ({ context, data }) =>
-    ops.submitCampaign(context.supabase, context.userId, data),
-  );
+  .handler(async ({ context, data }) => ops.submitCampaign(context.supabase, context.userId, data));

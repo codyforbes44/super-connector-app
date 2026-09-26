@@ -3,7 +3,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import * as ops from "./twilio-ops.server";
 
-
 export const getBootstrap = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => ops.bootstrap(context.supabase, context.userId));
@@ -45,6 +44,10 @@ export const searchAvailableNumbers = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) =>
     ops.searchAvailableNumbers(context.supabase, context.userId, data),
   );
+
+export const migrateWorkspaceTelephony = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => ops.migrateWorkspaceTelephony(context.supabase, context.userId));
 
 export const purchaseNumber = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -121,9 +124,7 @@ export const requestCallerIdVerification = createServerFn({ method: "POST" })
 export const deleteCallerId = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { sid: string; phoneNumber?: string }) => input)
-  .handler(async ({ context, data }) =>
-    ops.deleteCallerId(context.supabase, context.userId, data),
-  );
+  .handler(async ({ context, data }) => ops.deleteCallerId(context.supabase, context.userId, data));
 
 export const setOutboundCallerId = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -272,9 +273,7 @@ export const listTwimlApps = createServerFn({ method: "GET" })
 export const createTwimlApp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { name: string }) => input)
-  .handler(async ({ context, data }) =>
-    ops.createTwimlApp(context.supabase, context.userId, data),
-  );
+  .handler(async ({ context, data }) => ops.createTwimlApp(context.supabase, context.userId, data));
 
 export const syncTwimlApp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -291,9 +290,7 @@ export const setDefaultTwimlApp = createServerFn({ method: "POST" })
 export const deleteTwimlApp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { sid: string }) => input)
-  .handler(async ({ context, data }) =>
-    ops.deleteTwimlApp(context.supabase, context.userId, data),
-  );
+  .handler(async ({ context, data }) => ops.deleteTwimlApp(context.supabase, context.userId, data));
 
 export const getVoiceToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -337,6 +334,4 @@ export const webhookDiagnostics = createServerFn({ method: "GET" })
 
 export const refreshMessagingReadiness = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) =>
-    ops.refreshMessagingReadiness(context.supabase, context.userId),
-  );
+  .handler(async ({ context }) => ops.refreshMessagingReadiness(context.supabase, context.userId));

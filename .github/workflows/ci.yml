@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sixvox_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/sixvox_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        # package-lock.json on main is behind package.json (vitest and others).
+        # npm ci fails until that lockfile is regenerated. legacy-peer-deps matches
+        # the install that typechecks this repo today.
+        run: npm install --no-audit --no-fund --legacy-peer-deps
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint Phase 1 files
+        # `npm run lint` still reports pre-existing Prettier issues across the repo,
+        # including the generated Supabase types. This job lints the files this change owns.
+        run: >
+          npx eslint --max-warnings 0
+          src/lib/a2p-api.ts
+          src/lib/a2p-fees.ts
+          src/lib/a2p-guard.ts
+          src/lib/a2p.functions.ts
+          src/lib/a2p.server.ts
+          src/lib/ai-greeting.ts
+          src/lib/app.server.ts
+          src/lib/entitlements.server.ts
+          src/lib/onboarding.functions.ts
+          src/lib/onboarding.server.ts
+          src/lib/phase1.test.ts
+          src/lib/plan-limits.ts
+          src/lib/plans.ts
+          src/lib/push.server.ts
+          src/lib/ring-targets.server.ts
+          src/lib/ring-targets.ts
+          src/lib/runtime-env.ts
+          src/lib/tenant-tables.ts
+          src/lib/twilio-account.ts
+          src/lib/twilio-ops.server.ts
+          src/lib/twilio-provision.server.ts
+          src/lib/twilio.functions.ts
+          src/lib/twilio.server.ts
+          src/lib/voice-token.server.ts
+          src/lib/workspace.server.ts
+          src/routes/_authenticated/a2p.tsx
+          src/routes/_authenticated/advanced.tsx
+          src/routes/_authenticated/welcome.tsx
+          src/routes/api/public/payments/webhook.ts
+          src/routes/api/public/twilio/app-voice.ts
+          src/routes/api/public/twilio/sms.ts
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Tenant isolation (Postgres RLS)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/tenant-isolation.sql

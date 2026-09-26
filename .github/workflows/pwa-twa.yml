@@ -1,8 +1,13 @@
 name: PWA / TWA artifacts
 
+# Play uploads run on a version tag (twa-v* or v*) or a manual dispatch.
+# A tag that does not touch the path filters below will not start this
+# workflow; use workflow_dispatch for those releases. Pushes to main never
+# upload to Google Play.
 on:
   push:
     branches: [main]
+    tags: ['twa-v*', 'v*']
     paths:
       - 'public/manifest.webmanifest'
       - 'twa-manifest.json'
@@ -162,13 +167,11 @@ jobs:
           if [ -z "$TRACK" ]; then TRACK="internal"; fi
           STATUS="${{ inputs.play_status }}"
           if [ -z "$STATUS" ]; then STATUS="draft"; fi
-          # Pushes to main always go to the internal testing track as a completed release.
-          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            TRACK="internal"
-            STATUS="completed"
-          fi
-          ENABLED=true
-          [ "${{ github.event_name }}" = "pull_request" ] && ENABLED=false
+          REF="${{ github.ref }}"
+          EVENT="${{ github.event_name }}"
+          ENABLED=false
+          if [ "$EVENT" = "workflow_dispatch" ]; then ENABLED=true; fi
+          if [ "$EVENT" = "push" ] && [ "${REF#refs/tags/}" != "$REF" ]; then ENABLED=true; fi
           [ "$TRACK" = "none" ] && ENABLED=false
           [ -z "$SA_JSON" ] && ENABLED=false
           [ ! -f app-release-bundle.aab ] && ENABLED=false

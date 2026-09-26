@@ -4,7 +4,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
         if (!auth.ok) return rejectWebhook(request, auth.reason);
 
@@ -36,6 +37,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
         });
 
         const body = get("Body");
+        const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+        const numberHome = await resolveWorkspaceIdForNumber(appNumber);
         await supabaseAdmin.from("messages").insert({
           conversation_id: conversationId,
           sid: get("MessageSid") || get("SmsSid") || null,
@@ -46,7 +49,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           body,
           media,
           status: "received",
-        });
+          ...(numberHome.workspaceId ? { workspace_id: numberHome.workspaceId } : {}),
+        } as never);
 
         // Carrier-standard STOP/START keywords gate every future send.
         const { optOutSignal } = await import("@/lib/messaging.server");

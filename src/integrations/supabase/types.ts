@@ -544,6 +544,7 @@ export type Database = {
           status: string | null
           to_number: string
           transcription: string | null
+          workspace_id: string | null
         }
         Insert: {
           answer_path?: string | null
@@ -564,6 +565,7 @@ export type Database = {
           status?: string | null
           to_number: string
           transcription?: string | null
+          workspace_id?: string | null
         }
         Update: {
           answer_path?: string | null
@@ -584,6 +586,7 @@ export type Database = {
           status?: string | null
           to_number?: string
           transcription?: string | null
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -1441,6 +1444,7 @@ export type Database = {
           sid: string
           voicemail_greeting: string | null
           webhook_wired: boolean
+          workspace_id: string | null
         }
         Insert: {
           ai_fallback?: string
@@ -1477,6 +1481,7 @@ export type Database = {
           sid: string
           voicemail_greeting?: string | null
           webhook_wired?: boolean
+          workspace_id?: string | null
         }
         Update: {
           ai_fallback?: string
@@ -1513,6 +1518,7 @@ export type Database = {
           sid?: string
           voicemail_greeting?: string | null
           webhook_wired?: boolean
+          workspace_id?: string | null
         }
         Relationships: [
           {

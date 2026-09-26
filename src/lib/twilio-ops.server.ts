@@ -33,14 +33,12 @@ async function adminClient() {
 /* ------------------------------------------------------------------ shell */
 
 export async function bootstrap(supabase: SB, userId: string) {
-  const [{ data: profile }, role] = await Promise.all([
+  const [{ data: profile }, role, workspace] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     getRole(supabase, userId),
+    import("./workspace.server").then((mod) => mod.resolveWorkspaceForUser(userId)),
   ]);
-  const { data: numbers } = await supabase
-    .from("phone_numbers")
-    .select("*")
-    .order("phone_number");
+  const { data: numbers } = await supabase.from("phone_numbers").select("*").order("phone_number");
 
   // Inbound texts break silently when a Messaging Service webhook drifts, so
   // re-verify (and repair) it in the background whenever the cache goes stale.
@@ -58,11 +56,21 @@ export async function bootstrap(supabase: SB, userId: string) {
     }
   }
 
+  const workspaceRole = workspace?.role ?? null;
   return {
     profile,
-    role,
-    isAdmin: isAdminRole(role),
-    isOwner: isOwnerRole(role),
+    role: workspaceRole ?? role,
+    platformRole: role,
+    isAdmin: workspaceRole === "owner" || workspaceRole === "admin" || role === "super_admin",
+    isOwner: workspaceRole === "owner" || role === "super_admin",
+    workspace: workspace
+      ? {
+          id: workspace.id,
+          name: workspace.name,
+          role: workspace.role,
+          a2pGrandfathered: workspace.a2pGrandfathered,
+        }
+      : null,
     numbers: numbers ?? [],
     directCredentials: hasDirectCredentials(),
     smsWebhook: webhookUrl("sms"),
@@ -87,12 +95,18 @@ type TwilioNumber = {
 export async function syncNumbers(supabase: SB, userId: string) {
   await requireAdmin(supabase, userId);
   const admin = await adminClient();
-  // Walk every page so the local list always mirrors the live Twilio account.
+  const { requireWorkspace } = await import("./workspace.server");
+  const { twilioAccountForWorkspace } = await import("./twilio-provision.server");
+  const workspace = await requireWorkspace(userId);
+  const creds = await twilioAccountForWorkspace(workspace.id);
+  const account = { accountSid: creds.accountSid, authToken: creds.authToken };
+  // Walk every page of this workspace's Twilio account only.
   const list: TwilioNumber[] = [];
   for (let page = 0; page < 20; page += 1) {
     const res = await twilioRequest<{ incoming_phone_numbers: TwilioNumber[] }>({
       path: "/IncomingPhoneNumbers.json",
       params: { PageSize: 100, Page: page },
+      account,
     });
     const chunk = res.incoming_phone_numbers ?? [];
     list.push(...chunk);
@@ -103,7 +117,10 @@ export async function syncNumbers(supabase: SB, userId: string) {
   const { isFullyWired } = await import("./wiring");
   const { serviceInboundByNumber } = await import("./messaging.server");
   const inboundOk = await serviceInboundByNumber();
-  const { data: localRows } = await admin.from("phone_numbers").select("sid, answer_mode");
+  const { data: localRows } = await admin
+    .from("phone_numbers")
+    .select("sid, answer_mode")
+    .eq("workspace_id", workspace.id);
   const answerModes = new Map(
     (localRows ?? []).map((row) => [row["sid"] as string, row["answer_mode"] as string | null]),
   );
@@ -116,6 +133,8 @@ export async function syncNumbers(supabase: SB, userId: string) {
         capabilities: n.capabilities ?? {},
         sms_url: n.sms_url ?? null,
         voice_url: n.voice_url ?? null,
+        workspace_id: workspace.id,
+        twilio_account_sid: creds.accountSid,
         webhook_wired: isFullyWired({
           phone_number: n.phone_number,
           voice_url: n.voice_url ?? null,
@@ -132,7 +151,7 @@ export async function syncNumbers(supabase: SB, userId: string) {
 
   // Drop anything released in the Twilio console (including the empty case).
   const sids = list.map((n) => n.sid);
-  const prune = admin.from("phone_numbers").delete();
+  const prune = admin.from("phone_numbers").delete().eq("workspace_id", workspace.id);
   const { data: removed } = sids.length
     ? await prune.not("sid", "in", `(${sids.join(",")})`).select("phone_number")
     : await prune.not("sid", "is", null).select("phone_number");
@@ -149,10 +168,13 @@ export async function assignNumber(
 ) {
   await requireAdmin(supabase, userId);
   const admin = await adminClient();
+  const { requireWorkspace } = await import("./workspace.server");
+  const workspace = await requireWorkspace(userId);
   const { error } = await admin
     .from("phone_numbers")
     .update({ assigned_to: data.assignedTo })
-    .eq("sid", data.sid);
+    .eq("sid", data.sid)
+    .eq("workspace_id", workspace.id);
   if (error) throw error;
   await audit(admin, userId, "numbers.assign", data as Record<string, unknown>);
   return { ok: true };
@@ -267,7 +289,8 @@ export async function listCallerIds(supabase: SB, userId: string): Promise<Calle
       friendlyName: (row.friendly_name as string | null) ?? null,
       dateCreated: row.created_at as string,
       status,
-      validationCode: status === "pending" ? ((row.validation_code as string | null) ?? null) : null,
+      validationCode:
+        status === "pending" ? ((row.validation_code as string | null) ?? null) : null,
       error,
     });
   }
@@ -327,7 +350,10 @@ export async function deleteCallerId(
     const value = normalizePhone(data.phoneNumber);
     await admin.from("caller_id_verifications").delete().eq("phone_number", value);
     await admin.from("caller_id_routes").delete().eq("caller_id", value);
-    await admin.from("contacts").update({ outbound_caller_id: null }).eq("outbound_caller_id", value);
+    await admin
+      .from("contacts")
+      .update({ outbound_caller_id: null })
+      .eq("outbound_caller_id", value);
     await admin
       .from("phone_numbers")
       .update({ outbound_caller_id: null })
@@ -341,7 +367,9 @@ export async function deleteCallerId(
 async function verifiedCallerIdSet(supabase: SB, userId: string): Promise<Set<string>> {
   const list = await listCallerIds(supabase, userId);
   return new Set(
-    list.filter((item) => item.status === "verified").map((item) => normalizePhone(item.phoneNumber)),
+    list
+      .filter((item) => item.status === "verified")
+      .map((item) => normalizePhone(item.phoneNumber)),
   );
 }
 
@@ -369,7 +397,10 @@ export async function upsertCallerIdRoute(
   data: { id?: string; pattern: string; callerId: string; label?: string | null },
 ) {
   await requireAdmin(supabase, userId);
-  const pattern = data.pattern.trim().replace(/[^\d+*]/g, "").replace(/\*+$/, "");
+  const pattern = data.pattern
+    .trim()
+    .replace(/[^\d+*]/g, "")
+    .replace(/\*+$/, "");
   if (pattern.length < 2) throw new Error("Enter a full number or at least a country/area prefix.");
   const callerId = normalizePhone(data.callerId);
   const verified = await verifiedCallerIdSet(supabase, userId);
@@ -637,51 +668,110 @@ export async function searchAvailableNumbers(
   return asJson(res.available_phone_numbers ?? []) as Json[];
 }
 
-export async function purchaseNumber(
-  supabase: SB,
-  userId: string,
-  data: { phoneNumber: string },
-) {
+export async function purchaseNumber(supabase: SB, userId: string, data: { phoneNumber: string }) {
   await requireOwner(supabase, userId);
+  const { requireWorkspaceOwner, recordActivation } = await import("./workspace.server");
+  const workspace = await requireWorkspaceOwner(userId);
+  const { assertCanAddNumber } = await import("./entitlements.server");
+  await assertCanAddNumber(workspace.id);
+  const { provisionWorkspaceTelephony } = await import("./twilio-provision.server");
+  const account = await provisionWorkspaceTelephony(workspace.id, {
+    friendlyName: workspace.businessName ?? workspace.name,
+  });
   const admin = await adminClient();
   const { isFullyWired: isFullyWiredNumber } = await import("./wiring");
+  const voiceUrl = webhookUrl("app-voice");
   const bought = await twilioRequest<TwilioNumber>({
     method: "POST",
     path: "/IncomingPhoneNumbers.json",
+    account:
+      account.source === "subaccount"
+        ? { accountSid: account.accountSid, authToken: account.authToken }
+        : null,
     params: {
       PhoneNumber: data.phoneNumber,
       SmsUrl: webhookUrl("sms"),
       SmsMethod: "POST",
       SmsFallbackUrl: webhookUrl("sms"),
       SmsFallbackMethod: "POST",
-      VoiceUrl: webhookUrl("voice"),
+      VoiceUrl: voiceUrl,
       VoiceMethod: "POST",
       VoiceFallbackUrl: webhookUrl("voice-fallback"),
       VoiceFallbackMethod: "POST",
       StatusCallback: webhookUrl("status"),
       StatusCallbackMethod: "POST",
+      ...(account.twimlAppSid ? { VoiceApplicationSid: account.twimlAppSid } : {}),
     },
   });
-  await admin.from("phone_numbers").upsert(
-    {
-      sid: bought.sid,
-      phone_number: bought.phone_number,
-      friendly_name: bought.friendly_name,
-      capabilities: bought.capabilities ?? {},
-      sms_url: bought.sms_url ?? webhookUrl("sms"),
-      voice_url: bought.voice_url ?? webhookUrl("voice"),
-      webhook_wired: isFullyWiredNumber({
+  const greeting = workspace.aiGreeting;
+  const { data: saved, error } = await admin
+    .from("phone_numbers")
+    .upsert(
+      {
+        sid: bought.sid,
         phone_number: bought.phone_number,
-        voice_url: bought.voice_url ?? null,
-        sms_url: bought.sms_url ?? null,
-        sms_application_sid: bought.sms_application_sid ?? null,
-        status_callback: bought.status_callback ?? null,
-      }),
+        friendly_name: bought.friendly_name,
+        capabilities: bought.capabilities ?? {},
+        sms_url: bought.sms_url ?? webhookUrl("sms"),
+        voice_url: bought.voice_url ?? voiceUrl,
+        workspace_id: workspace.id,
+        assigned_to: userId,
+        twilio_account_sid: account.accountSid,
+        ...(greeting ? { voicemail_greeting: greeting, ai_first_message: greeting } : {}),
+        webhook_wired: isFullyWiredNumber({
+          phone_number: bought.phone_number,
+          voice_url: bought.voice_url ?? null,
+          sms_url: bought.sms_url ?? null,
+          sms_application_sid: bought.sms_application_sid ?? null,
+          status_callback: bought.status_callback ?? null,
+        }),
+      },
+      { onConflict: "sid" },
+    )
+    .select("id")
+    .single();
+  if (error) throw error;
+  await admin.from("number_assignees").upsert(
+    {
+      phone_number_id: saved["id"],
+      user_id: userId,
+      workspace_id: workspace.id,
     },
-    { onConflict: "sid" },
+    { onConflict: "phone_number_id,user_id" },
   );
-  await audit(admin, userId, "numbers.purchase", { number: bought.phone_number });
+  if (account.messagingServiceSid && account.source === "subaccount") {
+    await twilioRequest({
+      method: "POST",
+      host: "messaging",
+      path: `/v1/Services/${account.messagingServiceSid}/PhoneNumbers`,
+      account: { accountSid: account.accountSid, authToken: account.authToken },
+      params: { PhoneNumberSid: bought.sid },
+    }).catch((attachError) => {
+      console.error("could not attach number to messaging service", attachError);
+    });
+  }
+  await audit(admin, userId, "numbers.purchase", {
+    number: bought.phone_number,
+    workspaceId: workspace.id,
+  });
+  await recordActivation(workspace.id, "number_claimed", { number: bought.phone_number });
   return bought;
+}
+
+/** Move this workspace's numbers onto its own Twilio subaccount. Owner only, idempotent. */
+export async function migrateWorkspaceTelephony(supabase: SB, userId: string) {
+  await requireOwner(supabase, userId);
+  const { requireWorkspaceOwner } = await import("./workspace.server");
+  const workspace = await requireWorkspaceOwner(userId);
+  const { migrateNumbersOntoSubaccount } = await import("./twilio-provision.server");
+  const result = await migrateNumbersOntoSubaccount(workspace.id);
+  const admin = await adminClient();
+  await audit(admin, userId, "twilio.subaccount.migrate", {
+    workspaceId: workspace.id,
+    moved: result.moved.length,
+    skipped: result.skipped.length,
+  });
+  return result;
 }
 
 export async function releaseNumber(supabase: SB, userId: string, data: { sid: string }) {
@@ -714,10 +804,27 @@ export async function sendMessage(
 
   const to = normalizePhone(data.to);
   const admin = await adminClient();
+  const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
+  const numberHome = await resolveWorkspaceIdForNumber(appNumber);
+  let smsGrandfathered = false;
+  if (numberHome.workspaceId) {
+    const { assertCanSendSms, workspaceSmsPolicy } = await import("./entitlements.server");
+    const { outboundSmsDecision } = await import("./a2p-guard");
+    const policy = await workspaceSmsPolicy(numberHome.workspaceId);
+    smsGrandfathered = policy.grandfathered;
+    const decision = outboundSmsDecision({
+      channel: data.channel,
+      grandfathered: policy.grandfathered,
+      campaignStatus: policy.campaignStatus,
+    });
+    if (!decision.allowed) throw new Error(decision.reason ?? "Texting is not approved yet.");
+    if (data.channel === "sms") await assertCanSendSms(numberHome.workspaceId);
+  }
   const conversationId = await upsertConversation(admin, {
     channel: data.channel,
     appNumber,
     contactNumber: to,
+    workspaceId: numberHome.workspaceId,
   });
 
   const { data: convoState } = await admin
@@ -742,21 +849,17 @@ export async function sendMessage(
   } else {
     const { messagingStateFor } = await import("./messaging.server");
     const state = await messagingStateFor(admin, appNumber);
-    const serviceSid = data.messagingServiceSid ?? state.messagingServiceSid;
+    const serviceSid = state.messagingServiceSid;
 
-    // A US long code only delivers through a registered campaign; sending from
-    // the bare number is what produced the 30034 failures.
-    if (!serviceSid) {
+    // A US long code only delivers through a registered campaign. A service SID
+    // from the client cannot skip the workspace approval check above.
+    if (!smsGrandfathered && !state.ready) {
       throw new Error(
-        "This number isn't approved for texting yet. Register it for A2P messaging, then try again.",
+        `Texting from ${appNumber} is not approved yet (campaign status: ${state.campaignStatus ?? "not registered"}).`,
       );
     }
-    if (!data.messagingServiceSid && !state.ready) {
-      throw new Error(
-        `Texting from ${appNumber} is not approved yet (campaign status: ${state.campaignStatus ?? "not registered"}). Use an approved number.`,
-      );
-    }
-    params["MessagingServiceSid"] = serviceSid;
+    if (serviceSid) params["MessagingServiceSid"] = serviceSid;
+    else params["From"] = `${prefix}${appNumber}`;
   }
   if (data.mediaUrls?.length) params["MediaUrl"] = data.mediaUrls;
   if (data.sendAt) {
@@ -786,6 +889,7 @@ export async function sendMessage(
     from_number: appNumber,
     to_number: to,
     body: data.body,
+    ...(numberHome.workspaceId ? { workspace_id: numberHome.workspaceId } : {}),
     media: (data.mediaUrls ?? []).map((url) => ({ url })),
     status: sent.status,
     sent_by: userId,
@@ -967,6 +1071,12 @@ export async function startCall(
     .maybeSingle();
   const agentPhone = (profile?.agent_phone as string | null) || null;
   const target = normalizePhone(data.to);
+  const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
+  const home = await resolveWorkspaceIdForNumber(appNumber);
+  if (home.workspaceId) {
+    const { assertCanCallDestination } = await import("./entitlements.server");
+    await assertCanCallDestination(home.workspaceId, target);
+  }
   const callerId = await resolveOutboundCallerId(supabase, appNumber, target);
 
   const mode: "bridge" | "direct" = agentPhone ? "bridge" : "direct";
@@ -1093,17 +1203,18 @@ export async function getRecordingAudio(supabase: SB, userId: string, data: { si
   await allowedNumbers(supabase, userId);
   const sid = process.env["TWILIO_ACCOUNT_SID"];
   const token = process.env["TWILIO_AUTH_TOKEN"];
-  const response = sid && token
-    ? await fetch(
-        `https://api.twilio.com/2010-04-01/Accounts/${sid}/Recordings/${data.sid}.mp3`,
-        { headers: { Authorization: `Basic ${btoa(`${sid}:${token}`)}` } },
-      )
-    : await fetch(`https://connector-gateway.lovable.dev/twilio/Recordings/${data.sid}.mp3`, {
-        headers: {
-          Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]!}`,
-          "X-Connection-Api-Key": process.env["TWILIO_API_KEY"]!,
-        },
-      });
+  const response =
+    sid && token
+      ? await fetch(
+          `https://api.twilio.com/2010-04-01/Accounts/${sid}/Recordings/${data.sid}.mp3`,
+          { headers: { Authorization: `Basic ${btoa(`${sid}:${token}`)}` } },
+        )
+      : await fetch(`https://connector-gateway.lovable.dev/twilio/Recordings/${data.sid}.mp3`, {
+          headers: {
+            Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]!}`,
+            "X-Connection-Api-Key": process.env["TWILIO_API_KEY"]!,
+          },
+        });
   if (!response.ok) throw new Error(`Could not load recording [${response.status}]`);
   const buffer = await response.arrayBuffer();
   const bytes = new Uint8Array(buffer);
@@ -1338,11 +1449,7 @@ export async function removeNumberFromMessagingService(
   return { ok: true };
 }
 
-export async function createMessagingService(
-  supabase: SB,
-  userId: string,
-  data: { name: string },
-) {
+export async function createMessagingService(supabase: SB, userId: string, data: { name: string }) {
   await requireOwner(supabase, userId);
   const result = await twilioRequest<MessagingService>({
     host: "messaging",
@@ -1373,7 +1480,7 @@ export async function rawTwilioCall(
     try {
       params = JSON.parse(data.params) as Record<string, unknown>;
     } catch {
-      throw new Error("Parameters must be valid JSON, e.g. {\"PageSize\": 5}");
+      throw new Error('Parameters must be valid JSON, e.g. {"PageSize": 5}');
     }
   }
   const admin = await adminClient();
@@ -1396,13 +1503,21 @@ export async function rawTwilioCall(
 
 export async function listTeam(supabase: SB, userId: string) {
   await requireAdmin(supabase, userId);
-  const [{ data: profiles }, { data: roles }] = await Promise.all([
-    supabase.from("profiles").select("*").order("created_at"),
-    supabase.from("user_roles").select("user_id, role"),
-  ]);
-  return (profiles ?? []).map((p) => ({
-    ...p,
-    roles: (roles ?? []).filter((r) => r.user_id === p.id).map((r) => r.role as string),
+  const { requireWorkspace } = await import("./workspace.server");
+  const workspace = await requireWorkspace(userId);
+  const admin = await adminClient();
+  const { data: members } = await admin
+    .from("workspace_members")
+    .select("user_id, role")
+    .eq("workspace_id", workspace.id);
+  const ids = (members ?? []).map((member) => member["user_id"] as string);
+  if (ids.length === 0) return [];
+  const { data: profiles } = await admin.from("profiles").select("*").in("id", ids);
+  return (profiles ?? []).map((profile) => ({
+    ...profile,
+    roles: (members ?? [])
+      .filter((member) => member["user_id"] === profile["id"])
+      .map((member) => member["role"] as string),
   }));
 }
 
@@ -1412,10 +1527,32 @@ export async function setTeamRole(
   data: { targetUserId: string; role: "owner" | "admin" | "agent" },
 ) {
   await requireOwner(supabase, userId);
+  const { requireWorkspaceOwner } = await import("./workspace.server");
+  const workspace = await requireWorkspaceOwner(userId);
   const admin = await adminClient();
-  await admin.from("user_roles").delete().eq("user_id", data.targetUserId);
-  await admin.from("user_roles").insert({ user_id: data.targetUserId, role: data.role });
-  await audit(admin, userId, "team.role", data as unknown as Record<string, unknown>);
+  const { data: existing } = await admin
+    .from("workspace_members")
+    .select("user_id")
+    .eq("workspace_id", workspace.id)
+    .eq("user_id", data.targetUserId)
+    .maybeSingle();
+  if (!existing) {
+    const { assertCanAddSeat } = await import("./entitlements.server");
+    await assertCanAddSeat(workspace.id);
+  }
+  const { error } = await admin.from("workspace_members").upsert(
+    {
+      workspace_id: workspace.id,
+      user_id: data.targetUserId,
+      role: data.role,
+    },
+    { onConflict: "workspace_id,user_id" },
+  );
+  if (error) throw new Error(error.message);
+  await audit(admin, userId, "team.role", {
+    ...data,
+    workspaceId: workspace.id,
+  } as unknown as Record<string, unknown>);
   return { ok: true };
 }
 
@@ -1577,7 +1714,11 @@ export async function deleteTwimlApp(supabase: SB, userId: string, data: { sid: 
 /** Short-lived Voice SDK token for the signed-in user's device. */
 export async function voiceToken(supabase: SB, userId: string) {
   const admin = await adminClient();
-  const appSid = await defaultTwimlAppSid(admin);
+  const { resolveWorkspaceForUser } = await import("./workspace.server");
+  const workspace = await resolveWorkspaceForUser(userId);
+  const { twilioAccountForWorkspace } = await import("./twilio-provision.server");
+  const account = workspace ? await twilioAccountForWorkspace(workspace.id) : null;
+  const appSid = account?.twimlAppSid ?? (await defaultTwimlAppSid(admin));
   if (!appSid) {
     return {
       ok: false as const,
@@ -1586,7 +1727,19 @@ export async function voiceToken(supabase: SB, userId: string) {
   }
   await allowedNumbers(supabase, userId);
   const { mintVoiceToken } = await import("./voice-token.server");
-  return { ok: true as const, grant: asJson(await mintVoiceToken({ userId, applicationSid: appSid })) };
+  return {
+    ok: true as const,
+    grant: asJson(
+      await mintVoiceToken({
+        userId,
+        applicationSid: appSid,
+        ...(account ? { accountSid: account.accountSid } : {}),
+        ...(account?.apiKeySid && account.apiKeySecret
+          ? { apiKeySid: account.apiKeySid, apiKeySecret: account.apiKeySecret }
+          : {}),
+      }),
+    ),
+  };
 }
 
 export async function voiceSetupStatus(supabase: SB, userId: string) {
@@ -1598,9 +1751,7 @@ export async function voiceSetupStatus(supabase: SB, userId: string) {
     .order("created_at", { ascending: true });
   return asJson({
     apps: data ?? [],
-    hasApiKey: Boolean(
-      process.env["TWILIO_API_KEY_SID"] && process.env["TWILIO_API_KEY_SECRET"],
-    ),
+    hasApiKey: Boolean(process.env["TWILIO_API_KEY_SID"] && process.env["TWILIO_API_KEY_SECRET"]),
     hasDefault: (data ?? []).some((row) => row.is_default === true),
     voiceUrl: webhookUrl("app-voice"),
     smsUrl: webhookUrl("sms"),
@@ -1617,16 +1768,21 @@ export async function setVoicePresence(supabase: SB, userId: string, online: boo
   const admin = await adminClient();
   const { voiceIdentityFor } = await import("./voice-token.server");
   const identity = voiceIdentityFor(userId);
+  const { resolveWorkspaceForUser } = await import("./workspace.server");
+  const workspace = await resolveWorkspaceForUser(userId);
   if (!online) {
     await admin.from("voice_presence").delete().eq("user_id", userId);
     return asJson({ ok: true, online: false });
   }
-  await admin
-    .from("voice_presence")
-    .upsert(
-      { user_id: userId, identity, last_seen_at: new Date().toISOString() },
-      { onConflict: "user_id" },
-    );
+  await admin.from("voice_presence").upsert(
+    {
+      user_id: userId,
+      identity,
+      last_seen_at: new Date().toISOString(),
+      ...(workspace ? { workspace_id: workspace.id } : {}),
+    },
+    { onConflict: "user_id" },
+  );
   return asJson({ ok: true, online: true, identity });
 }
 /* ------------------------------------------------------ webhook diagnostics */
