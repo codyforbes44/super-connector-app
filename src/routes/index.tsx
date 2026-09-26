@@ -90,7 +90,7 @@ const FEATURES = [
   {
     icon: PhoneCall,
     title: "Calls that just connect",
-    body: "Calls ring inside the app with your business caller ID, plus voicemail and transcripts you can read. Live calls are never recorded.",
+    body: "Calls ring inside the app with your business caller ID, plus voicemail and transcripts you can read. Calls are only recorded if you turn on transcription for a line, and callers hear a recording notice first.",
   },
   {
     icon: Hash,

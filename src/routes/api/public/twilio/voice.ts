@@ -6,22 +6,15 @@ function xml(body: string) {
   });
 }
 
-function escapeXml(value: string) {
-  return value.replace(
-    /[<>&'"]/g,
-    (c) =>
-      ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c] as string,
-  );
-}
-
 export const Route = createFileRoute("/api/public/twilio/voice")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const url = new URL(request.url);
-        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
-        if (!auth.ok) return rejectWebhook(request, auth.reason);
+        if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
         const get = (key: string) => auth.params[key] ?? "";
         const appNumber = get("To").replace(/^whatsapp:/, "");
@@ -85,26 +78,17 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
 
           const aiAnswering = number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id;
 
-          const {
-            voicemailTwiml,
-            ringbackTwiml,
-            RING_SECONDS,
-            RECORDING_CONSENT,
-            recordingCallbackUrl,
-          } = await import("@/lib/voice-answer.server");
-
-          const consent = transcribeCalls
-            ? `<Say voice="alice">${escapeXml(RECORDING_CONSENT)}</Say>`
-            : "";
-          const dialRecording = transcribeCalls
-            ? ` record="record-from-answer-dual" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed"`
-            : "";
+          const { voicemailTwiml, ringbackTwiml, RING_SECONDS, forwardedCallTwiml } =
+            await import("@/lib/voice-answer.server");
 
           if (number?.forward_to && !aiAnswering) {
             return xml(
-              // Live two-party calls are recorded only when the line owner
-              // opted in, and always after a spoken consent notice.
-              `${consent}<Dial callerId="${escapeXml(appNumber)}" timeout="${RING_SECONDS}" ringTone="us"${dialRecording}><Number>${escapeXml(number.forward_to)}</Number></Dial>`,
+              forwardedCallTwiml({
+                record: transcribeCalls,
+                callerId: appNumber,
+                destination: number.forward_to as string,
+                timeoutSeconds: RING_SECONDS,
+              }),
             );
           }
 
@@ -115,9 +99,10 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           });
 
           // Callers always hear four rings first — including before the AI
-          // hand-off, which would otherwise pick up instantly.
+          // hand-off, which would otherwise pick up instantly. Voicemail
+          // recording, when used, speaks the notice inside the answer TwiML.
           const handOff = answer.startsWith("<Redirect");
-          const twiml = consent + ringbackTwiml() + answer;
+          const twiml = ringbackTwiml() + answer;
 
           try {
             await supabaseAdmin
@@ -143,9 +128,8 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           } catch {
             // never block the fallback
           }
-          return xml(
-            `<Say voice="alice">Thanks for calling. Please leave a message after the tone.</Say><Record maxLength="120" playBeep="true" /><Say voice="alice">We did not receive a recording. Goodbye.</Say>`,
-          );
+          const { fallbackVoicemailTwiml } = await import("@/lib/voice-answer.server");
+          return xml(fallbackVoicemailTwiml());
         }
       },
     },

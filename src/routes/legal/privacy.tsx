@@ -19,17 +19,18 @@ function Privacy() {
       <p>
         We collect the account details you give us (name, email address and workspace name), the
         business communications you send and receive through SixVox (call metadata, messages,
-        voicemail recordings and their transcripts), the contacts you save, and technical data such
-        as device type and push notification tokens. SixVox does not record live calls — only
-        voicemail a caller chooses to leave is stored.
+        voicemail recordings and their transcripts, and call recordings when transcription is turned
+        on for a line), the contacts you save, and technical data such as device type and push
+        notification tokens. Calls are only recorded if you turn on transcription for a line, and
+        callers hear a recording notice first. Voicemail a caller chooses to leave is also stored.
       </p>
 
       <h2>How we use it</h2>
       <p>
         We use your data to deliver the service: routing calls and messages, storing your inbox,
-        producing transcripts and summaries, sending you alerts, supporting your account and
-        billing your subscription. We do not sell your data and we do not use your business
-        communications for advertising.
+        producing transcripts and summaries, sending you alerts, supporting your account and billing
+        your subscription. We do not sell your data and we do not use your business communications
+        for advertising.
       </p>
 
       <h2>Connected accounts</h2>
@@ -38,8 +39,8 @@ function Privacy() {
         features you enable: your email address and profile, reading notification threads and
         sending mail on your behalf, and reading and creating calendar events. Access tokens are
         stored encrypted, used only for actions you trigger, and revoked immediately when you
-        disconnect. SixVox&apos;s use of information received from Google APIs adheres to the
-        Google API Services User Data Policy, including the Limited Use requirements.
+        disconnect. SixVox&apos;s use of information received from Google APIs adheres to the Google
+        API Services User Data Policy, including the Limited Use requirements.
       </p>
 
       <h2>Sharing</h2>
@@ -72,8 +73,8 @@ function Privacy() {
 
       <h2>Changes</h2>
       <p>
-        If we make a material change to this policy we will notify you in the app or by email
-        before it takes effect.
+        If we make a material change to this policy we will notify you in the app or by email before
+        it takes effect.
       </p>
     </LegalPage>
   );
