@@ -33,7 +33,7 @@ function InboxIndex() {
       <Empty
         icon={MessagesSquare}
         title="Pick a conversation"
-        description="Choose a thread on the left to read it and reply here."
+        description="Choose a thread to read and reply."
       />
     </div>
   );

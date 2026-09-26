@@ -1,9 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, Bot, Check, MessageSquare, PhoneCall, Wrench } from "lucide-react";
 
-import receptionistAvifSrcSet from "@/assets/ai-receptionist.jpg?w=420;640;900&format=avif&as=srcset";
-import receptionistSrcSet from "@/assets/ai-receptionist.jpg?w=420;640;900&format=webp&as=srcset";
-import receptionistShot from "@/assets/ai-receptionist.jpg?w=640&format=webp";
 import { ComingSoonBadge } from "@/components/ComingSoonBadge";
 import {
   CtaBand,
@@ -86,12 +83,10 @@ function Landing() {
           <div className="grid gap-8 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-10">
             <div>
               <Eyebrow>For solo trades and crews of 2–5</Eyebrow>
-              <h1 className="font-display mt-5 text-[2rem] leading-[1.08] font-semibold text-balance sm:text-5xl">
-                {POSITIONING_LINE}
-              </h1>
+              <h1 className="font-display mt-5 text-[2rem] leading-[1.08] font-semibold text-balance sm:text-5xl">SixVox</h1>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-pretty text-muted-foreground">
-                Built for plumbers, HVAC, electricians, cleaners, and other owner-operators who miss
-                calls while they're on a job. The AI receptionist is on every plan, including Solo.
+                {POSITIONING_LINE} Built for plumbers, HVAC, electricians, cleaners, and other
+                owner-operators who miss calls while they're on a job.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -173,8 +168,7 @@ function Landing() {
       </Section>
 
       <Section className="py-8 md:py-12">
-        <div className="grid items-center gap-8 md:grid-cols-2">
-          <div>
+        <div className="max-w-3xl">
             <Eyebrow>On every plan, including Solo</Eyebrow>
             <h2 className="font-display mt-4 text-2xl font-semibold md:text-3xl">
               An AI receptionist that takes the job details
@@ -205,29 +199,6 @@ function Landing() {
               </li>
             </ul>
           </div>
-          <picture>
-            <source
-              type="image/avif"
-              srcSet={receptionistAvifSrcSet}
-              sizes="(min-width: 768px) 30rem, 100vw"
-            />
-            <source
-              type="image/webp"
-              srcSet={receptionistSrcSet}
-              sizes="(min-width: 768px) 30rem, 100vw"
-            />
-            <img
-              src={receptionistShot}
-              srcSet={receptionistSrcSet}
-              sizes="(min-width: 768px) 30rem, 100vw"
-              width={1024}
-              height={1024}
-              loading="lazy"
-              decoding="async"
-              alt="SixVox AI receptionist screen with call controls and a live transcript"
-              className="aspect-square w-full rounded-[1.5rem] object-cover"
-            />
-          </picture>
         </div>
       </Section>
 

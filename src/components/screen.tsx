@@ -13,6 +13,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
 
 /* -------------------------------------------------------------------------
  * Screen — safe-area aware page body with optional pull-to-refresh.
@@ -141,7 +142,7 @@ export function ListGroup({ children, className }: { children: ReactNode; classN
   return (
     <div
       className={cn(
-        "hairline-list overflow-hidden rounded-2xl border border-border bg-card",
+        "hairline-list overflow-hidden rounded-lg border border-border bg-card",
         className,
       )}
     >
@@ -294,13 +295,9 @@ export function ErrorState({
       <p className="font-display text-sm font-semibold text-foreground">{title}</p>
       {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {onRetry ? (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-secondary px-4 text-sm font-medium"
-        >
+      <Button type="button" variant="secondary" onClick={onRetry} className="mt-4">
           Try again
-        </button>
+      </Button>
       ) : null}
     </div>
   );
@@ -388,16 +385,9 @@ export function LoadMore({
   if (!hasMore) return null;
   return (
     <div ref={ref} className={cn("flex justify-center py-4", className)}>
-      <button
-        type="button"
-        onClick={() => {
-          haptic("light");
-          onLoadMore();
-        }}
-        className="inline-flex min-h-11 items-center rounded-xl bg-secondary px-4 text-sm font-medium text-foreground"
-      >
+          <Button type="button" variant="secondary" onClick={() => { haptic("light"); onLoadMore(); }}>
         {remaining ? `Load ${remaining > 25 ? "25 more" : `${remaining} more`}` : "Load more"}
-      </button>
+          </Button>
     </div>
   );
 }
