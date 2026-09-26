@@ -49,6 +49,17 @@ jobs:
           distribution: temurin
           java-version: 17
       - run: npm ci
+      - name: Free disk space
+        # The hosted image keeps .NET, GHC, and Android emulator images.
+        # A React Native debug build with every ABI fills the disk at
+        # mergeDebugNativeLibs and the step dies with no useful log.
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost \
+            /usr/local/lib/android/sdk/system-images \
+            /usr/local/lib/android/sdk/emulator || true
+          sudo apt-get clean
+          df -h /
+
       - name: Prebuild and compile an Android debug APK
         run: |
           set -euo pipefail
@@ -92,4 +103,7 @@ jobs:
             'org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8' \
             'org.gradle.workers.max=2' \
             >> gradle.properties
-          ./gradlew assembleDebug --no-daemon --console=plain </dev/null
+          # One ABI is enough to prove the native project compiles, and it
+          # keeps the merged .so files from filling the runner disk.
+          ./gradlew assembleDebug --no-daemon --console=plain \
+            -PreactNativeArchitectures=arm64-v8a </dev/null
