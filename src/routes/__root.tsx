@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerAppServiceWorker } from "@/lib/service-worker";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { handleE911AuthEvent } from "@/lib/compliance/e911-session";
 import { primeSessionPersistence, startSessionKeeper } from "@/lib/session-keeper";
 
 // Must run before the lazy Supabase client first reads persisted storage.
@@ -220,6 +221,7 @@ function RootComponent() {
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
+      handleE911AuthEvent(event);
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();

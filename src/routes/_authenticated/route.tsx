@@ -86,6 +86,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedLayout() {
+  const { user } = Route.useRouteContext();
   useNotificationRouting();
   return (
     <VoiceProvider>
@@ -103,7 +104,7 @@ function AuthenticatedLayout() {
       <InCallScreen />
       <WelcomeDialog />
       <EnableNotificationsPrompt />
-      <E911Gate />
+      <E911Gate userId={user.id} />
     </VoiceProvider>
   );
 }
