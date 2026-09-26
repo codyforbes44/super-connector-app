@@ -156,15 +156,24 @@ INSERT INTO public.workspaces (id, name) VALUES
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'A'),
   ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'B');
 
-INSERT INTO auth.users (id, email) VALUES
-  ('11111111-1111-4111-8111-111111111111', 'a@sixvox.test'),
-  ('22222222-2222-4222-8222-222222222222', 'b@sixvox.test')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.profiles (id, email, display_name) VALUES
-  ('11111111-1111-4111-8111-111111111111', 'a@sixvox.test', 'A'),
-  ('22222222-2222-4222-8222-222222222222', 'b@sixvox.test', 'B')
-ON CONFLICT (id) DO NOTHING;
+-- CI runs this file on an empty database, where these tables do not exist.
+-- After the real migrations, workspace_members.user_id references profiles,
+-- so the member rows need a profile (and the auth user that creates it).
+DO $$
+BEGIN
+  IF to_regclass('auth.users') IS NOT NULL THEN
+    INSERT INTO auth.users (id, email) VALUES
+      ('11111111-1111-4111-8111-111111111111', 'a@sixvox.test'),
+      ('22222222-2222-4222-8222-222222222222', 'b@sixvox.test')
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+  IF to_regclass('public.profiles') IS NOT NULL THEN
+    INSERT INTO public.profiles (id, email, display_name) VALUES
+      ('11111111-1111-4111-8111-111111111111', 'a@sixvox.test', 'A'),
+      ('22222222-2222-4222-8222-222222222222', 'b@sixvox.test', 'B')
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+END $$;
 
 INSERT INTO public.workspace_members (workspace_id, user_id, role) VALUES
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111111', 'owner'),
