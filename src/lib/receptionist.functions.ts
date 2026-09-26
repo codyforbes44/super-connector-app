@@ -61,12 +61,15 @@ export const saveCallerRule = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { normalizePhone } = await import("./twilio.server");
     const phone = normalizePhone(data.phoneNumber);
+    const { requireWorkspace } = await import("./workspace.server");
+    const workspace = await requireWorkspace(context.userId);
     const { error } = await context.supabase.from("caller_lists").upsert(
       {
         user_id: context.userId,
         phone_number: phone,
         list: data.list,
         note: data.note ?? null,
+        workspace_id: workspace.id,
       },
       { onConflict: "user_id,phone_number" },
     );
