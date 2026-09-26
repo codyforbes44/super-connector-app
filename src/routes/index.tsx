@@ -198,7 +198,6 @@ function Landing() {
                 <ComingSoonBadge flag="nativeApp" />
               </li>
             </ul>
-          </div>
         </div>
       </Section>
 
