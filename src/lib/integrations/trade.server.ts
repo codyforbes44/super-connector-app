@@ -1078,8 +1078,9 @@ export async function applyConnectWebhook(event: {
       .maybeSingle();
     if (conversation) {
       const { resolveWorkspaceIdForNumber } = await import("../workspace.server");
+      const paymentWorkspace = payment["workspace_id"] as string | null;
       const noteWorkspaceId =
-        ((payment["workspace_id"] as string | null) ?? null) ??
+        paymentWorkspace ??
         (await resolveWorkspaceIdForNumber(conversation.app_number)).workspaceId;
       if (noteWorkspaceId) {
         await admin.from("messages").insert({
