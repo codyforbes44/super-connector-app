@@ -889,6 +889,7 @@ export type Database = {
           owner_id: string | null
           phone_number: string
           place_id: string | null
+          workspace_id: string | null
         }
         Insert: {
           address?: string | null
@@ -903,6 +904,7 @@ export type Database = {
           owner_id?: string | null
           phone_number: string
           place_id?: string | null
+          workspace_id?: string | null
         }
         Update: {
           address?: string | null
@@ -917,6 +919,7 @@ export type Database = {
           owner_id?: string | null
           phone_number?: string
           place_id?: string | null
+          workspace_id?: string | null
         }
         Relationships: []
       }
@@ -930,11 +933,14 @@ export type Database = {
           contact_number: string
           created_at: string
           id: string
+          job_done_at: string | null
+          job_status: string | null
           last_message_at: string
           last_message_preview: string | null
           opted_out: boolean
           opted_out_at: string | null
           unread_count: number
+          workspace_id: string | null
         }
         Insert: {
           app_number: string
@@ -945,11 +951,14 @@ export type Database = {
           contact_number: string
           created_at?: string
           id?: string
+          job_done_at?: string | null
+          job_status?: string | null
           last_message_at?: string
           last_message_preview?: string | null
           opted_out?: boolean
           opted_out_at?: string | null
           unread_count?: number
+          workspace_id?: string | null
         }
         Update: {
           app_number?: string
@@ -960,11 +969,14 @@ export type Database = {
           contact_number?: string
           created_at?: string
           id?: string
+          job_done_at?: string | null
+          job_status?: string | null
           last_message_at?: string
           last_message_preview?: string | null
           opted_out?: boolean
           opted_out_at?: string | null
           unread_count?: number
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -1217,33 +1229,48 @@ export type Database = {
       leads: {
         Row: {
           company: string | null
+          conversation_id: string | null
           created_at: string
           email: string
           handled: boolean
           id: string
+          job_done_at: string | null
+          job_status: string | null
           message: string
           name: string
+          phone_number: string | null
           source: string
+          workspace_id: string | null
         }
         Insert: {
           company?: string | null
+          conversation_id?: string | null
           created_at?: string
           email: string
           handled?: boolean
           id?: string
+          job_done_at?: string | null
+          job_status?: string | null
           message: string
           name: string
+          phone_number?: string | null
           source?: string
+          workspace_id?: string | null
         }
         Update: {
           company?: string | null
+          conversation_id?: string | null
           created_at?: string
           email?: string
           handled?: boolean
           id?: string
+          job_done_at?: string | null
+          job_status?: string | null
           message?: string
           name?: string
+          phone_number?: string | null
           source?: string
+          workspace_id?: string | null
         }
         Relationships: []
       }
@@ -1297,6 +1324,7 @@ export type Database = {
           sid: string | null
           status: string | null
           to_number: string
+          workspace_id: string | null
         }
         Insert: {
           body?: string | null
@@ -1315,6 +1343,7 @@ export type Database = {
           sid?: string | null
           status?: string | null
           to_number: string
+          workspace_id?: string | null
         }
         Update: {
           body?: string | null
@@ -1333,6 +1362,7 @@ export type Database = {
           sid?: string | null
           status?: string | null
           to_number?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {

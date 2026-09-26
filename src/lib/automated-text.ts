@@ -5,8 +5,6 @@
  * At minimum this honors `conversations.opted_out`, which STOP sets in the SMS webhook.
  */
 
-import { normalizePhone } from "./twilio.server";
-
 export type AutomatedTextKind = "manual" | "automated" | "review" | "marketing";
 
 export type AutomatedTextBlock =
@@ -75,14 +73,24 @@ export function evaluateAutomatedText(input: {
   return { ok: true, messagingServiceSid: input.messagingServiceSid };
 }
 
+/** Same E.164 shape as `normalizePhone`, kept here so this module stays client-safe. */
+function normalizeContact(input: string): string {
+  const trimmed = input.trim();
+  if (trimmed.startsWith("whatsapp:")) return `whatsapp:${normalizeContact(trimmed.slice(9))}`;
+  const digits = trimmed.replace(/[^\d+]/g, "");
+  if (digits.startsWith("+")) return digits;
+  if (digits.length === 10) return `+1${digits}`;
+  return `+${digits}`;
+}
+
 export async function applyAutomatedTextChecks(
   to: string,
   from: string,
   verdict: AutomatedTextVerdict,
 ): Promise<AutomatedTextVerdict> {
   if (!verdict.ok) return verdict;
-  const contact = normalizePhone(to);
-  const line = normalizePhone(from);
+  const contact = normalizeContact(to);
+  const line = normalizeContact(from);
   for (const check of extraChecks) {
     const reason = await check(contact, line);
     if (reason) return { ok: false, reason };

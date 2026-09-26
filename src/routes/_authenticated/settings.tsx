@@ -1,6 +1,16 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Bot, CreditCard, LogOut, Plug, ShieldCheck, SlidersHorizontal, Sparkles, Users } from "lucide-react";
+import {
+  Blocks,
+  Bot,
+  CreditCard,
+  LogOut,
+  Plug,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -218,6 +228,13 @@ function SettingsScreen() {
           tone="cyan"
           title="Connectors"
           description="Connection status and guided setup"
+        />
+        <SettingsLink
+          to="/integrations"
+          icon={Blocks}
+          tone="green"
+          title="Integrations"
+          description="Jobber, Housecall Pro, reviews, payments, and porting"
         />
         <SettingsLink
           to="/billing"
