@@ -63,16 +63,24 @@ export const saveCallerRule = createServerFn({ method: "POST" })
     const phone = normalizePhone(data.phoneNumber);
     const { requireWorkspace } = await import("./workspace.server");
     const workspace = await requireWorkspace(context.userId);
-    const { error } = await context.supabase.from("caller_lists").upsert(
-      {
-        user_id: context.userId,
-        phone_number: phone,
-        list: data.list,
-        note: data.note ?? null,
-        workspace_id: workspace.id,
-      },
-      { onConflict: "user_id,phone_number" },
-    );
+    const row: {
+      user_id: string;
+      phone_number: string;
+      list: "allow" | "block";
+      workspace_id: string;
+      note?: string | null;
+    } = {
+      user_id: context.userId,
+      phone_number: phone,
+      list: data.list,
+      workspace_id: workspace.id,
+    };
+    // Omit note unless the caller sent one, so a block/allow from Calls
+    // does not erase a note already stored on the list.
+    if (data.note !== undefined) row.note = data.note;
+    const { error } = await context.supabase.from("caller_lists").upsert(row, {
+      onConflict: "user_id,phone_number",
+    });
     if (error) throw error;
     return { ok: true as const, phoneNumber: phone };
   });

@@ -1,20 +1,12 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  Filter,
-  Smartphone,
-  PhoneCall,
-  PhoneOff,
-  PhoneOutgoing,
-  Play,
-  RefreshCw,
-} from "lucide-react";
+import { Filter, Smartphone, PhoneCall, PhoneOff, PhoneOutgoing, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader, useScreenFab } from "@/components/AppShell";
+import { CallHistoryRow } from "@/components/calls/CallHistoryRow";
+import { CallSpamPanel } from "@/components/calls/CallSpamPanel";
 import { E911Disclosure } from "@/components/marketing/Disclosures";
 import { AsyncList, Empty, ListGroup, Screen } from "@/components/screen";
 import { AiCallTranscript } from "@/components/AiCallTranscript";
@@ -39,7 +31,18 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useBootstrap } from "@/hooks/useBootstrap";
-import { duration, errorMessage, formatPhone, relativeTime } from "@/lib/format";
+import {
+  NOT_SPAM_ORS,
+  SPAM_BLOCKED_OR,
+  callerListForNumber,
+  hasCallFilters,
+  isSpamBlocked,
+  matchesScreening,
+  otherPartyNumber,
+  type CallerListKind,
+} from "@/lib/call-spam";
+import { duration, errorMessage, formatPhone } from "@/lib/format";
+import { listCallerRules, saveCallerRule } from "@/lib/receptionist.functions";
 import {
   getCallRecordings,
   getRecordingAudio,
@@ -54,25 +57,7 @@ type CallRow = Tables<"calls">;
 
 type CallSearch = CallFilterState & { incoming?: string; answer?: string };
 
-/** The other party on a call row, or "" when the number is unusable. */
-function otherParty(call: CallRow): string {
-  const raw = call.direction === "inbound" ? call.from_number : call.to_number;
-  const value = (raw ?? "").trim();
-  if (!value || /anonymous|unknown|restricted|private/i.test(value)) return "";
-  return value.replace(/^client:/, "");
-}
-
 const sel = (s: string): string => s;
-
-/** Plain-language description of what happened on a call. */
-function callStory(call: CallRow): string {
-  const inbound = call.direction === "inbound";
-  const failed = ["no-answer", "failed", "busy", "canceled"].includes(call.status ?? "");
-  const byAi = /ai|receptionist|assistant|agent/i.test(call.answered_by ?? "");
-  if (failed) return inbound ? "Missed call" : "No answer";
-  if (byAi) return "Answered by receptionist";
-  return inbound ? "Incoming call" : "Outgoing call";
-}
 
 function rangeStart(range: CallFilterState["range"]): string | null {
   if (range === "all") return null;
@@ -94,6 +79,7 @@ export const Route = createFileRoute("/_authenticated/calls")({
       direction: pick(search["direction"], ["all", "inbound", "outbound"] as const, "all"),
       range: pick(search["range"], ["all", "today", "7d", "30d"] as const, "all"),
       device: pick(search["device"], ["all", "app", "phone"] as const, "all"),
+      screening: pick(search["screening"], ["all", "spam", "normal"] as const, "all"),
       ...(typeof search["incoming"] === "string" && search["incoming"]
         ? { incoming: search["incoming"] }
         : {}),
@@ -187,6 +173,20 @@ function CallsScreen() {
 
       if (filters.direction !== "all") query = query.eq("direction", filters.direction);
       if (filters.device !== "all") query = query.eq("answered_in_app", filters.device === "app");
+      switch (filters.screening) {
+        case "spam":
+          query = query.or(SPAM_BLOCKED_OR);
+          break;
+        case "normal":
+          for (const clause of NOT_SPAM_ORS) query = query.or(clause);
+          break;
+        case "all":
+          break;
+        default: {
+          const unreachable: never = filters.screening;
+          throw new Error(unreachable);
+        }
+      }
 
       const since = rangeStart(filters.range);
       if (since) query = query.gte("started_at", since);
@@ -209,9 +209,38 @@ function CallsScreen() {
 
       const { data, error } = await query.returns<CallRow[]>();
       if (error) throw error;
-      return data;
+      return data.filter((row) => matchesScreening(row, filters.screening));
     },
   });
+
+  const callerLists = useQuery({
+    queryKey: ["caller-lists"],
+    queryFn: () => listCallerRules(),
+  });
+
+  const setCallerList = useMutation({
+    mutationFn: (input: { phoneNumber: string; list: CallerListKind }) =>
+      saveCallerRule({ data: input }),
+    onSuccess: async (_result, input) => {
+      toast.success(
+        input.list === "block"
+          ? "Blocked. Future calls from this number won't ring."
+          : "Allowed. Future calls from this number will ring.",
+      );
+      await queryClient.invalidateQueries({ queryKey: ["caller-lists"] });
+      await queryClient.invalidateQueries({ queryKey: ["caller-rules"] });
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+
+  function listStatusFor(phone: string): CallerListKind | null {
+    return callerListForNumber(callerLists.data ?? [], phone);
+  }
+
+  function setList(phone: string, list: CallerListKind) {
+    if (!phone || setCallerList.isPending) return;
+    setCallerList.mutate({ phoneNumber: phone, list });
+  }
 
   async function sync() {
     setSyncing(true);
@@ -268,7 +297,7 @@ function CallsScreen() {
 
   /** Redial a party from the number the original call used. */
   async function callBack(call: CallRow) {
-    const target = otherParty(call);
+    const target = otherPartyNumber(call);
     if (!target) return;
     if (!e911Acknowledged) {
       toast.error("Acknowledge the 911 limitations before placing a call.");
@@ -304,7 +333,7 @@ function CallsScreen() {
     <div className="min-w-0 overflow-x-clip">
       <ScreenHeader
         title="Calls"
-        subtitle="Missed calls stay at the top of the story"
+        subtitle="Blocked spam is marked so you don't call it back by mistake"
         action={
           <Button size="icon" variant="ghost" onClick={sync} disabled={syncing}>
             <RefreshCw className={cn("h-4 w-4", syncing && "animate-spin")} />
@@ -339,29 +368,12 @@ function CallsScreen() {
           errorTitle="Couldn't load your calls"
           empty={
             <Empty
-              icon={
-                filters.q ||
-                filters.direction !== "all" ||
-                filters.range !== "all" ||
-                filters.device !== "all"
-                  ? Filter
-                  : PhoneCall
-              }
-              title={
-                filters.q ||
-                filters.direction !== "all" ||
-                filters.range !== "all" ||
-                filters.device !== "all"
-                  ? "No matching calls"
-                  : "No calls on this line yet"
-              }
+              icon={hasCallFilters(filters) ? Filter : PhoneCall}
+              title={hasCallFilters(filters) ? "No matching calls" : "No calls on this line yet"}
               description={
-                filters.q ||
-                filters.direction !== "all" ||
-                filters.range !== "all" ||
-                filters.device !== "all"
+                hasCallFilters(filters)
                   ? "Clear a filter or search a different number."
-                  : "When a customer calls while you're on a job, it shows up here. Missed calls are marked in red so you can call them back first."
+                  : "When a customer calls while you're on a job, it shows up here. Missed calls are marked in red. Spam that never rang is marked so you don't treat it like a missed customer."
               }
               action={
                 <Button variant="secondary" onClick={sync} disabled={syncing}>
@@ -374,93 +386,18 @@ function CallsScreen() {
           {(pageCalls) => (
             <ListGroup className="min-w-0">
               {pageCalls.map((call) => {
-                const inbound = call.direction === "inbound";
-                const other = inbound ? call.from_number : call.to_number;
-                const redialTo = otherParty(call);
-                const missed = ["no-answer", "failed", "busy", "canceled"].includes(
-                  call.status ?? "",
-                );
+                const phone = otherPartyNumber(call);
                 return (
-                  <div
+                  <CallHistoryRow
                     key={call.id}
-                    className="flex min-h-[4.5rem] min-w-0 items-center gap-2.5 px-4 py-3 sm:gap-3"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setDetail(call)}
-                      className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
-                    >
-                      <span
-                        className={cn(
-                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
-                          missed
-                            ? "bg-destructive/15 text-destructive"
-                            : inbound
-                              ? "bg-success/15 text-success"
-                              : "bg-primary/15 text-primary",
-                        )}
-                      >
-                        {inbound ? (
-                          <ArrowDownLeft className="h-4 w-4" />
-                        ) : (
-                          <ArrowUpRight className="h-4 w-4" />
-                        )}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={cn(
-                            "flex min-w-0 items-center gap-1.5 text-[0.95rem]",
-                            missed ? "font-semibold" : "font-medium",
-                          )}
-                        >
-                          <span className="truncate">{formatPhone(other)}</span>
-                          {call.answered_in_app ? (
-                            <Smartphone
-                              className="h-3 w-3 shrink-0 text-primary"
-                              aria-label="Answered in app"
-                            />
-                          ) : null}
-                          <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
-                            {relativeTime(call.started_at)}
-                          </span>
-                        </p>
-                        <p className="flex min-w-0 items-center gap-1.5 truncate text-[0.78rem] text-muted-foreground">
-                          {missed ? (
-                            <span className="shrink-0 rounded-full bg-destructive/15 px-2 py-0.5 text-[0.65rem] font-semibold text-destructive">
-                              Missed call
-                            </span>
-                          ) : call.recording_url ? (
-                            <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[0.65rem] font-semibold text-primary">
-                              Voicemail
-                            </span>
-                          ) : null}
-                          <span className={cn("truncate", missed && "text-destructive")}>
-                            {callStory(call)}
-                          </span>
-                          {call.duration ? (
-                            <span className="tabular"> · {duration(call.duration)}</span>
-                          ) : null}
-                        </p>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => playVoicemail(call.sid)}
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
-                    >
-                      <Play className="h-4 w-4" />
-                      <span className="sr-only">Play voicemail</span>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={!redialTo}
-                      onClick={() => void callBack(call)}
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
-                    >
-                      <PhoneCall className="h-4 w-4" />
-                      <span className="sr-only">Call back {redialTo || "unavailable"}</span>
-                    </button>
-                  </div>
+                    call={call}
+                    listStatus={phone ? listStatusFor(phone) : null}
+                    pending={setCallerList.isPending}
+                    onOpen={() => setDetail(call)}
+                    onPlay={() => void playVoicemail(call.sid)}
+                    onCallBack={() => void callBack(call)}
+                    onSetList={(list) => setList(phone, list)}
+                  />
                 );
               })}
             </ListGroup>
@@ -469,18 +406,30 @@ function CallsScreen() {
       </Screen>
 
       <Sheet open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
-        <SheetContent side="bottom" className="rounded-t-3xl border-border bg-card">
+        <SheetContent
+          side="bottom"
+          className="max-h-[85dvh] overflow-y-auto rounded-t-3xl border-border bg-card pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+        >
           <SheetHeader className="px-0">
             <SheetTitle className="font-display text-center">Call details</SheetTitle>
           </SheetHeader>
           {detail ? (
-            <dl className="space-y-1.5 pb-[calc(env(safe-area-inset-bottom)+1rem)] text-sm">
+            <CallSpamPanel
+              call={detail}
+              phone={otherPartyNumber(detail)}
+              listStatus={listStatusFor(otherPartyNumber(detail))}
+              pending={setCallerList.isPending}
+              onSetList={(list) => setList(otherPartyNumber(detail), list)}
+            />
+          ) : null}
+          {detail ? (
+            <dl className="space-y-1.5 text-sm">
               {[
                 ["From", formatPhone(detail.from_number)],
                 ["To", formatPhone(detail.to_number)],
                 ["Twilio number", formatPhone(detail.app_number)],
                 ["Direction", detail.direction],
-                ["Status", detail.status ?? "—"],
+                ["Status", isSpamBlocked(detail) ? "Spam blocked" : (detail.status ?? "—")],
                 ["Duration", duration(detail.duration)],
                 [
                   "Device",
@@ -508,28 +457,30 @@ function CallsScreen() {
             <div className="mt-3 space-y-3">
               <CallSummaryCard
                 callSid={detail.sid}
-                contactNumber={otherParty(detail)}
+                contactNumber={otherPartyNumber(detail)}
                 appNumber={detail.app_number}
               />
-              {otherParty(detail) ? <CallerContextCard contactNumber={otherParty(detail)} /> : null}
+              {otherPartyNumber(detail) ? (
+                <CallerContextCard contactNumber={otherPartyNumber(detail)} />
+              ) : null}
               <AiCallTranscript callSid={detail.sid} />
             </div>
           ) : null}
           {detail ? (
             <Button
               className="key-call mt-3 h-12 w-full rounded-xl"
-              disabled={!otherParty(detail)}
+              disabled={!otherPartyNumber(detail)}
               onClick={() => void callBack(detail)}
             >
               <PhoneCall className="mr-2 h-4 w-4" />
-              {otherParty(detail)
-                ? `Call back ${formatPhone(otherParty(detail))}`
+              {otherPartyNumber(detail)
+                ? `Call back ${formatPhone(otherPartyNumber(detail))}`
                 : "Number unavailable"}
             </Button>
           ) : null}
-          {detail && otherParty(detail) ? (
+          {detail && otherPartyNumber(detail) ? (
             <a
-              href={`tel:${otherParty(detail)}`}
+              href={`tel:${otherPartyNumber(detail)}`}
               className="key-raised mt-2 flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold"
             >
               <Smartphone className="mr-2 h-4 w-4" />
