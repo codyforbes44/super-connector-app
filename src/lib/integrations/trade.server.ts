@@ -74,9 +74,11 @@ async function adminClient(): Promise<SB> {
   return supabaseAdmin;
 }
 
-/** Phase 1 replaces this with the session's workspace. Never trust a client id. */
-export async function resolveWorkspaceId(_userId: string): Promise<string | null> {
-  return null;
+/** The session's workspace. Never trust a client id. */
+export async function resolveWorkspaceId(userId: string): Promise<string | null> {
+  const { resolveWorkspaceForUser } = await import("../workspace.server");
+  const workspace = await resolveWorkspaceForUser(userId);
+  return workspace?.id ?? null;
 }
 
 function must(error: { message: string } | null, data: Row | null, label: string): Row {
@@ -488,19 +490,25 @@ export async function syncJobber(supabase: SB, userId: string, fields: TradeCall
       summary: ctx.summary,
     });
   if (ctx.conversation) {
-    await admin.from("messages").insert({
-      conversation_id: ctx.conversation.id,
-      direction: "note",
-      channel: ctx.conversation.channel,
-      from_number: ctx.conversation.app_number,
-      to_number: ctx.conversation.contact_number,
-      body: result.matchedExistingClient
-        ? `Jobber request created for an existing client.`
-        : `Jobber client and request created.`,
-      is_internal_note: true,
-      sent_by: userId,
-      workspace_id: workspaceId,
-    });
+    const { resolveWorkspaceIdForNumber } = await import("../workspace.server");
+    const noteWorkspaceId =
+      workspaceId ??
+      (await resolveWorkspaceIdForNumber(ctx.conversation.app_number)).workspaceId;
+    if (noteWorkspaceId) {
+      await admin.from("messages").insert({
+        conversation_id: ctx.conversation.id,
+        direction: "note",
+        channel: ctx.conversation.channel,
+        from_number: ctx.conversation.app_number,
+        to_number: ctx.conversation.contact_number,
+        body: result.matchedExistingClient
+          ? `Jobber request created for an existing client.`
+          : `Jobber client and request created.`,
+        is_internal_note: true,
+        sent_by: userId,
+        workspace_id: noteWorkspaceId,
+      });
+    }
   }
   return result;
 }
@@ -1069,16 +1077,22 @@ export async function applyConnectWebhook(event: {
       .eq("id", conversationId)
       .maybeSingle();
     if (conversation) {
-      await admin.from("messages").insert({
-        conversation_id: conversation.id,
-        direction: "note",
-        channel: conversation.channel,
-        from_number: conversation.app_number,
-        to_number: conversation.contact_number,
-        body: interpreted.note,
-        is_internal_note: true,
-        workspace_id: (payment["workspace_id"] as string | null) ?? null,
-      });
+      const { resolveWorkspaceIdForNumber } = await import("../workspace.server");
+      const noteWorkspaceId =
+        ((payment["workspace_id"] as string | null) ?? null) ??
+        (await resolveWorkspaceIdForNumber(conversation.app_number)).workspaceId;
+      if (noteWorkspaceId) {
+        await admin.from("messages").insert({
+          conversation_id: conversation.id,
+          direction: "note",
+          channel: conversation.channel,
+          from_number: conversation.app_number,
+          to_number: conversation.contact_number,
+          body: interpreted.note,
+          is_internal_note: true,
+          workspace_id: noteWorkspaceId,
+        });
+      }
     }
   }
   return { ignore: false as const, status: interpreted.status };
