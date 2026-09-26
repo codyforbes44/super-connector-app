@@ -8,6 +8,8 @@ export const savePushSubscription = createServerFn({ method: "POST" })
     (input: { endpoint: string; p256dh: string; auth: string; userAgent?: string }) => input,
   )
   .handler(async ({ context, data }) => {
+    const { requireWorkspace } = await import("./workspace.server");
+    const workspace = await requireWorkspace(context.userId);
     const { error } = await context.supabase.from("push_subscriptions").upsert(
       {
         user_id: context.userId,
@@ -15,6 +17,7 @@ export const savePushSubscription = createServerFn({ method: "POST" })
         p256dh: data.p256dh,
         auth: data.auth,
         user_agent: data.userAgent ?? null,
+        workspace_id: workspace.id,
       },
       { onConflict: "endpoint" },
     );
@@ -84,9 +87,14 @@ export const savePushAlertPrefs = createServerFn({ method: "POST" })
     const patch: Partial<PushAlertPrefs> = {};
     if (typeof data.push_esim_ready === "boolean") patch.push_esim_ready = data.push_esim_ready;
     if (typeof data.push_esim_failed === "boolean") patch.push_esim_failed = data.push_esim_failed;
+    const { requireWorkspace } = await import("./workspace.server");
+    const workspace = await requireWorkspace(context.userId);
     const { error } = await context.supabase
       .from("notification_prefs")
-      .upsert({ user_id: context.userId, ...patch }, { onConflict: "user_id" });
+      .upsert(
+        { user_id: context.userId, ...patch, workspace_id: workspace.id },
+        { onConflict: "user_id" },
+      );
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -194,12 +194,15 @@ export const saveCallerRule = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const number = data.contactNumber.trim();
     if (!number) throw new Error("Enter a phone number first.");
+    const { requireWorkspace } = await import("./workspace.server");
+    const workspace = await requireWorkspace(context.userId);
     const { error } = await context.supabase.from("caller_rules").upsert(
       {
         user_id: context.userId,
         contact_number: number,
         behavior: data.behavior,
         label: data.label?.trim() || null,
+        workspace_id: workspace.id,
       },
       { onConflict: "user_id,contact_number" },
     );
@@ -343,11 +346,14 @@ export const applySuggestedAction = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     if (data.kind === "save_contact") {
       if (!data.contactNumber) throw new Error("No number to save.");
+      const { requireWorkspace } = await import("./workspace.server");
+      const workspace = await requireWorkspace(context.userId);
       const { error } = await context.supabase.from("contacts").upsert(
         {
           phone_number: data.contactNumber,
           name: data.value || null,
           owner_id: context.userId,
+          workspace_id: workspace.id,
         },
         { onConflict: "phone_number" },
       );
@@ -382,11 +388,14 @@ export const applySuggestedAction = createServerFn({ method: "POST" })
     }
 
     if (data.kind === "save_place") {
+      const { requireWorkspace } = await import("./workspace.server");
+      const workspace = await requireWorkspace(context.userId);
       const { error } = await context.supabase.from("saved_places").insert({
         user_id: context.userId,
         nickname: data.value?.slice(0, 40) || "Saved from a call",
         label: "other",
         address: data.value ?? "",
+        workspace_id: workspace.id,
       });
       if (error) throw new Error(error.message);
       return { ok: true, message: "Address saved." };

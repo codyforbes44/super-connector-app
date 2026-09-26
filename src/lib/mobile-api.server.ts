@@ -149,19 +149,28 @@ async function presence(userId: string, body: unknown): Promise<Response> {
     return mobileJson({ ok: true, online: false, identity });
   }
 
+  const { resolveWorkspaceForUser } = await import("./workspace.server");
+  const workspace = await resolveWorkspaceForUser(userId);
+  if (!workspace) return bad("Create your workspace before going online.", 403);
   const row = {
     user_id: userId,
     identity,
     platform: parsed.platform,
     device_key: parsed.deviceId,
     last_seen_at: new Date().toISOString(),
+    workspace_id: workspace.id,
   };
   const wrote = await supabaseAdmin.from("voice_presence").upsert(row, { onConflict: "identity" });
   if (wrote.error && /platform|device_key/i.test(wrote.error.message)) {
     const retry = await supabaseAdmin
       .from("voice_presence")
       .upsert(
-        { user_id: userId, identity, last_seen_at: row.last_seen_at },
+        {
+          user_id: userId,
+          identity,
+          last_seen_at: row.last_seen_at,
+          workspace_id: workspace.id,
+        },
         { onConflict: "identity" },
       );
     if (retry.error) throw new Error(retry.error.message);
