@@ -9,6 +9,7 @@ import { AccountActions } from "@/components/AccountMenu";
 import { useSession } from "@/hooks/useSession";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ConciergeMount } from "@/components/concierge/ConciergeMount";
+import { Button } from "@/components/ui/button";
 
 const NAV = [
   { to: "/features", label: "Features" },
@@ -156,17 +157,19 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle />
             <AccountActions />
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="icon"
               ref={toggleRef}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
               aria-controls="marketing-mobile-nav"
               onClick={() => setOpen((value) => !value)}
-              className="surface-row flex h-11 w-11 items-center justify-center rounded-xl lg:hidden"
+              className="size-11 rounded-lg lg:hidden"
             >
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -189,7 +192,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
                   <Link
                     to={item.to}
                     onClick={() => setOpen(false)}
-                    className="surface-row flex min-h-14 items-center justify-between rounded-2xl px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
+                    className="surface-row flex min-h-14 items-center justify-between rounded-lg px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
                     activeProps={{ className: "text-foreground border-primary/40" }}
                   >
                     {item.label}

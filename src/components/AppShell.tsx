@@ -170,14 +170,14 @@ export function ScreenHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/95 px-4 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 backdrop-blur sm:px-5 lg:pt-5">
+     <header className="sticky top-0 z-30 border-b border-border bg-background px-4 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 sm:px-5 lg:pt-5">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
         <div className="min-w-0">
           <h1 className="font-display truncate text-xl leading-tight font-semibold tracking-tight sm:text-[1.35rem]">
             {title}
           </h1>
           {subtitle ? (
-            <p className="truncate text-[0.7rem] text-muted-foreground">{subtitle}</p>
+          <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">{subtitle}</p>
           ) : null}
         </div>
         {action ? <div className="flex shrink-0 items-center gap-1">{action}</div> : null}

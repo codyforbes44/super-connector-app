@@ -24,6 +24,7 @@ import {
 } from "@/lib/plans";
 import { SITE_URL, breadcrumbLd, faqLd, pageHead } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const solo = PLANS.find((plan) => plan.code === "solo");
 const team = PLANS.find((plan) => plan.code === "team");
@@ -139,7 +140,7 @@ function PricingPage() {
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
           Solo is ${PLANS[0]?.monthly}/mo, Team is ${PLANS[1]?.monthly}/mo, Scale is $
           {PLANS[2]?.monthly}/mo. Missed-call text-back and carrier texting registration are on
-          every plan. Change a price later by editing one number in the plans config.
+          every plan.
         </p>
         <Link
           to="/auth"
@@ -152,21 +153,22 @@ function PricingPage() {
         <div
           role="group"
           aria-label="Billing interval"
-          className="glass-panel mt-8 inline-flex rounded-full p-1"
+          className="mt-8 inline-flex max-w-full gap-1 rounded-lg border border-border bg-card p-1"
         >
           {(["month", "year"] as BillingInterval[]).map((option) => (
-            <button
+            <Button
               key={option}
               type="button"
               aria-pressed={interval === option}
               onClick={() => setInterval(option)}
+              variant={interval === option ? "default" : "ghost"}
               className={cn(
-                "inline-flex min-h-11 items-center rounded-xl px-5 text-sm font-semibold",
+                "min-h-11 min-w-0 rounded-md px-3 text-xs font-semibold sm:px-5 sm:text-sm",
                 interval === option ? "key-signal" : "text-muted-foreground",
               )}
             >
               {option === "month" ? "Monthly" : "Yearly · 2 months free"}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -174,7 +176,7 @@ function PricingPage() {
           {PLANS.map((plan) => (
             <article
               key={plan.code}
-              className={cn("glass-panel rounded-3xl p-6", plan.highlighted && "border-primary/50")}
+              className={cn("glass-panel rounded-lg p-6", plan.highlighted && "border-primary/50")}
             >
               {plan.highlighted ? (
                 <span className="key-signal inline-flex rounded-full px-3 py-1 text-xs font-semibold">
