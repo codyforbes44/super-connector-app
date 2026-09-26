@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
-import { PullToRefresh } from "@/components/screen";
+import { ErrorState, ListSkeleton, PullToRefresh } from "@/components/screen";
 import { SettingsGroup, SettingsLink } from "@/components/settings/SettingsGroup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +60,12 @@ function SettingsScreen() {
 
   return (
     <div className="pb-6">
-      <ScreenHeader title="Settings" subtitle={`Signed in as ${boot.profile?.email ?? ""}`} />
+      <ScreenHeader
+        title="Settings"
+        subtitle={
+          boot.profile?.email ? `Signed in as ${boot.profile.email}` : "Your line, alerts, and plan"
+        }
+      />
 
       <PullToRefresh
         onRefresh={async () => {
@@ -69,8 +74,11 @@ function SettingsScreen() {
         }}
       />
 
-      <section className="space-y-3 px-4 py-4">
+      <section className="space-y-3 px-4 py-5">
         <h2 className="font-display text-sm font-semibold">Your profile</h2>
+        <p className="text-sm text-muted-foreground">
+          This name is what your crew sees. Customers still hear the greeting you set on the number.
+        </p>
         <div className="space-y-1.5">
           <Label htmlFor="name">Display name</Label>
           <Input
@@ -130,6 +138,14 @@ function SettingsScreen() {
         <>
           <section className="space-y-3 border-t border-border px-4 py-4">
             <h2 className="font-display text-sm font-semibold">Team</h2>
+            {team.isLoading ? <ListSkeleton rows={3} /> : null}
+            {team.isError ? (
+              <ErrorState
+                title="Couldn't load the crew"
+                description="Check the connection and try again."
+                onRetry={() => void team.refetch()}
+              />
+            ) : null}
             <ul className="space-y-2">
               {(team.data ?? []).map((member) => (
                 <li key={member.id} className="flex items-center gap-2">

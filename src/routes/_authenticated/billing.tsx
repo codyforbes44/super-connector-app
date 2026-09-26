@@ -12,7 +12,15 @@ import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
 import { errorMessage } from "@/lib/format";
 import { createPortalSession } from "@/lib/payments.functions";
-import { PLANS, TRIAL_DAYS, priceIdFor, type BillingInterval, type PlanCode } from "@/lib/plans";
+import { ComingSoonBadge } from "@/components/ComingSoonBadge";
+import {
+  PLANS,
+  TRIAL_DAYS,
+  featureIsSoon,
+  priceIdFor,
+  type BillingInterval,
+  type PlanCode,
+} from "@/lib/plans";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 
@@ -171,19 +179,33 @@ function BillingScreen() {
               </div>
             </div>
             {subscription.stripe_customer_id ? (
-              <Button
-                variant="secondary"
-                className="mt-4 h-11 w-full rounded-xl"
-                onClick={openPortal}
-                disabled={portalBusy}
-              >
-                {portalBusy ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <CreditCard className="h-4 w-4" />
-                )}
-                Manage payment & invoices
-              </Button>
+              <div className="mt-4 grid gap-2">
+                <Button
+                  variant="secondary"
+                  className="h-12 w-full rounded-xl"
+                  onClick={openPortal}
+                  disabled={portalBusy}
+                >
+                  {portalBusy ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CreditCard className="h-4 w-4" />
+                  )}
+                  Manage payment & invoices
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-12 w-full rounded-xl"
+                  onClick={openPortal}
+                  disabled={portalBusy}
+                >
+                  Cancel plan
+                </Button>
+                <p className="text-[0.7rem] leading-relaxed text-muted-foreground">
+                  Cancel plan opens billing. You keep access until the end of the period you have
+                  already paid for.
+                </p>
+              </div>
             ) : null}
             <Button
               className="key-call mt-2 h-11 w-full rounded-xl"
@@ -255,9 +277,14 @@ function BillingScreen() {
                 </div>
                 <ul className="mt-3 space-y-1.5">
                   {item.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-[0.8rem]">
+                    <li key={feature.label} className="flex items-start gap-2 text-[0.8rem]">
                       <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
-                      <span className="text-muted-foreground">{feature}</span>
+                      <span className="text-muted-foreground">
+                        {feature.label}
+                        {feature.flag && featureIsSoon(feature) ? (
+                          <ComingSoonBadge flag={feature.flag} className="ml-2 align-middle" />
+                        ) : null}
+                      </span>
                     </li>
                   ))}
                 </ul>

@@ -137,13 +137,7 @@ export function Section({
 }
 
 /** Grouped list card with hairline dividers between rows. */
-export function ListGroup({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function ListGroup({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
       className={cn(
@@ -195,10 +189,7 @@ function RowInner({
         ) : null)}
       <span className="min-w-0 flex-1 text-left">
         <span
-          className={cn(
-            "block truncate text-sm font-medium",
-            destructive && "text-destructive",
-          )}
+          className={cn("block truncate text-sm font-medium", destructive && "text-destructive")}
         >
           {title}
         </span>
@@ -217,13 +208,9 @@ function RowInner({
   );
 }
 
-const rowClasses =
-  "flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left transition-colors";
+const rowClasses = "flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left transition-colors";
 
-export function Row({
-  onClick,
-  ...props
-}: RowBase & { onClick?: () => void }) {
+export function Row({ onClick, ...props }: RowBase & { onClick?: () => void }) {
   if (!onClick) {
     return (
       <div className={cn(rowClasses, props.className)}>
@@ -278,17 +265,17 @@ export function Empty({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center px-8 py-14 text-center">
+    <div className="flex flex-col items-center justify-center px-6 py-16 text-center" role="status">
       {Icon ? (
         <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-secondary">
-          <Icon className="h-5 w-5 text-primary" />
+          <Icon className="h-5 w-5 text-primary" aria-hidden />
         </span>
       ) : null}
-      <p className="font-display text-base font-semibold">{title}</p>
+      <p className="font-display text-lg font-semibold text-balance">{title}</p>
       {description ? (
-        <p className="mt-1 max-w-xs text-sm text-muted-foreground">{description}</p>
+        <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</p>
       ) : null}
-      {action ? <div className="mt-5">{action}</div> : null}
+      {action ? <div className="mt-5 flex flex-wrap justify-center gap-2">{action}</div> : null}
     </div>
   );
 }
@@ -305,9 +292,7 @@ export function ErrorState({
   return (
     <div className="rounded-2xl border border-destructive/30 bg-card px-5 py-6 text-center">
       <p className="font-display text-sm font-semibold text-foreground">{title}</p>
-      {description ? (
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      ) : null}
+      {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {onRetry ? (
         <button
           type="button"
@@ -479,11 +464,7 @@ export function AsyncList<T>({
   return (
     <div className={className}>
       {children(paged.items)}
-      <LoadMore
-        hasMore={paged.hasMore}
-        remaining={paged.remaining}
-        onLoadMore={paged.loadMore}
-      />
+      <LoadMore hasMore={paged.hasMore} remaining={paged.remaining} onLoadMore={paged.loadMore} />
     </div>
   );
 }

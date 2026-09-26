@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Check, Minus } from "lucide-react";
 import { useState } from "react";
 
+import { ComingSoonBadge } from "@/components/ComingSoonBadge";
 import {
   CtaBand,
   Eyebrow,
@@ -9,38 +10,51 @@ import {
   MarketingLayout,
   Section,
 } from "@/components/MarketingLayout";
-import { FEATURE_MATRIX, PLANS, type BillingInterval } from "@/lib/plans";
-import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
+import {
+  E911Disclosure,
+  TextingDisclosure,
+  TrialLimitsNote,
+} from "@/components/marketing/Disclosures";
+import {
+  FEATURE_MATRIX,
+  PLANS,
+  TRIAL_DAYS,
+  featureIsSoon,
+  type BillingInterval,
+} from "@/lib/plans";
+import { SITE_URL, breadcrumbLd, faqLd, pageHead } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Pricing — SixVox business phone plans from $29/mo";
-const DESCRIPTION =
-  "Compare SixVox Solo, Team and Scale: numbers, seats, AI receptionist and API access. Every plan starts with a 14-day free trial, no card required.";
+const solo = PLANS.find((plan) => plan.code === "solo");
+const team = PLANS.find((plan) => plan.code === "team");
+const scale = PLANS.find((plan) => plan.code === "scale");
+const TITLE = `Pricing — SixVox plans from $${solo?.monthly}/mo with AI answering included`;
+const DESCRIPTION = `Solo $${solo?.monthly}, Team $${team?.monthly}, Scale $${scale?.monthly}. AI receptionist and missed-call text-back on every plan. 14-day trial: 1 number, 1 seat, 20 AI calls. Cancel in the app.`;
 
 const BILLING_FAQS = [
   {
     q: "Is tax included in these prices?",
-    a: "Prices are shown in USD excluding tax. Any applicable sales tax or VAT is calculated and shown at checkout based on your billing address.",
+    a: "Prices are shown in USD excluding tax. Sales tax or VAT is calculated at checkout from your billing address.",
   },
   {
     q: "When am I charged?",
-    a: "Not for the first 14 days. Your card is stored at checkout but nothing is charged until the trial ends, then automatically each month or year until you cancel.",
+    a: `Not during the ${TRIAL_DAYS}-day trial. After that, the plan renews monthly or yearly until you cancel. The trial includes 1 number, 1 seat, and 20 AI receptionist calls.`,
   },
   {
     q: "How do I cancel?",
-    a: "From Billing inside the app, in one tap. You keep access until the end of the period you've already paid for, and we don't charge again.",
+    a: "Open Billing and tap Cancel plan. You keep access until the end of the period you've already paid for.",
   },
   {
-    q: "What appears on my statement?",
-    a: "Charges are processed by our payment network partner, so your bank statement shows their descriptor alongside SixVox. Receipts and invoices are emailed for every payment.",
+    q: "Is the AI receptionist only on Team?",
+    a: "No. The AI receptionist is on Solo, Team, and Scale. Solo includes 50 AI calls, Team 200, and Scale 600.",
+  },
+  {
+    q: "Do I pay extra for texting registration?",
+    a: "US carriers require business texting registration. SixVox handles that registration on every plan. Texts can be filtered until the carrier approves it.",
   },
   {
     q: "Can I change plans later?",
-    a: "Yes. Upgrade or downgrade at any time — the difference is pro-rated on your next invoice.",
-  },
-  {
-    q: "What about call and message usage?",
-    a: "Usage is billed at cost with no markup and no per-message surcharge, itemised on your invoice alongside your plan.",
+    a: "Yes. Upgrade or downgrade from Billing. The difference is handled on your next invoice.",
   },
 ];
 
@@ -68,7 +82,6 @@ export const Route = createFileRoute("/pricing")({
             price: String(plan.monthly),
             priceCurrency: "USD",
             url: `${SITE_URL}/pricing`,
-            availability: "https://schema.org/InStock",
           })),
         }),
       },
@@ -81,37 +94,60 @@ export const Route = createFileRoute("/pricing")({
           ]),
         ),
       },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: BILLING_FAQS.map((item) => ({
-            "@type": "Question",
-            name: item.q,
-            acceptedAnswer: { "@type": "Answer", text: item.a },
-          })),
-        }),
-      },
+      { type: "application/ld+json", children: JSON.stringify(faqLd(BILLING_FAQS)) },
     ],
   }),
   component: PricingPage,
 });
+
+function Cell({ value }: { value: string }) {
+  if (value === "Yes") {
+    return (
+      <>
+        <Check className="h-4 w-4 text-success" aria-hidden />
+        <span className="sr-only">Included</span>
+      </>
+    );
+  }
+  if (value === "Handled") {
+    return <span>Handled</span>;
+  }
+  if (value === "—") {
+    return (
+      <>
+        <Minus className="h-4 w-4 text-muted-foreground" aria-hidden />
+        <span className="sr-only">Not included</span>
+      </>
+    );
+  }
+  if (value === "Coming soon") {
+    return <ComingSoonBadge />;
+  }
+  return <span>{value}</span>;
+}
 
 function PricingPage() {
   const [interval, setInterval] = useState<BillingInterval>("month");
 
   return (
     <MarketingLayout>
-      <Section className="pb-10">
-        <Eyebrow>Simple, per-workspace pricing</Eyebrow>
-        <h1 className="font-display mt-5 text-[2rem] leading-[1.06] font-semibold text-balance sm:text-4xl md:text-5xl">
-          Start free. Pick a plan when you're ready.
+      <Section className="pb-8">
+        <Eyebrow>Flat plans for a one-truck shop</Eyebrow>
+        <h1 className="font-display mt-5 text-[2rem] leading-[1.08] font-semibold text-balance sm:text-5xl">
+          AI answering on every plan, including Solo.
         </h1>
-        <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          Every plan starts with 14 days free and no card. Usage is billed at cost — no markup, no
-          per-message surcharge, no locked features.
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
+          Solo is ${PLANS[0]?.monthly}/mo, Team is ${PLANS[1]?.monthly}/mo, Scale is $
+          {PLANS[2]?.monthly}/mo. Missed-call text-back and carrier texting registration are on
+          every plan. Change a price later by editing one number in the plans config.
         </p>
+        <Link
+          to="/auth"
+          search={{ mode: "signup" }}
+          className="key-signal mt-6 inline-flex min-h-14 w-full items-center justify-center rounded-xl px-6 text-base font-semibold sm:w-auto"
+        >
+          Start free trial
+        </Link>
 
         <div
           role="group"
@@ -125,10 +161,8 @@ function PricingPage() {
               aria-pressed={interval === option}
               onClick={() => setInterval(option)}
               className={cn(
-                "inline-flex min-h-11 items-center rounded-xl px-5 text-xs font-semibold transition-all",
-                interval === option
-                  ? "key-signal text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                "inline-flex min-h-11 items-center rounded-xl px-5 text-sm font-semibold",
+                interval === option ? "key-signal" : "text-muted-foreground",
               )}
             >
               {option === "month" ? "Monthly" : "Yearly · 2 months free"}
@@ -140,84 +174,71 @@ function PricingPage() {
           {PLANS.map((plan) => (
             <article
               key={plan.code}
-              className={cn("glass-panel rounded-3xl p-6", plan.highlighted && "border-primary/45")}
+              className={cn("glass-panel rounded-3xl p-6", plan.highlighted && "border-primary/50")}
             >
               {plan.highlighted ? (
-                <span className="key-signal inline-flex rounded-full px-3 py-1 text-[0.65rem] font-semibold text-primary-foreground">
-                  Most popular
+                <span className="key-signal inline-flex rounded-full px-3 py-1 text-xs font-semibold">
+                  Most crews start here
                 </span>
               ) : null}
-              <h2 className="font-display mt-3 text-lg font-semibold">{plan.name}</h2>
-              <p className="text-xs text-muted-foreground">{plan.tagline}</p>
-              <p className="font-display mt-5 text-3xl font-semibold">
+              <h2 className="font-display mt-3 text-xl font-semibold">{plan.name}</h2>
+              <p className="text-sm text-muted-foreground">{plan.tagline}</p>
+              <p className="font-display mt-4 text-4xl font-semibold">
                 ${interval === "month" ? plan.monthly : plan.yearly}
-                <span className="text-sm font-normal text-muted-foreground">
+                <span className="text-base font-normal text-muted-foreground">
                   /{interval === "month" ? "mo" : "yr"}
                 </span>
               </p>
-              <p className="mt-1 text-[0.7rem] text-muted-foreground">
-                USD, excluding tax · {plan.numbers} number{plan.numbers === 1 ? "" : "s"} ·{" "}
-                {plan.seats === null
-                  ? "unlimited seats"
-                  : `${plan.seats} seat${plan.seats === 1 ? "" : "s"}`}
+              <p className="mt-1 text-sm text-muted-foreground">
+                {plan.numbers} number{plan.numbers === 1 ? "" : "s"} · {plan.seats} seats ·{" "}
+                {plan.aiCalls} AI calls
               </p>
               <Link
                 to="/auth"
                 search={{ mode: "signup", plan: plan.code, interval }}
                 className={cn(
-                  "mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold",
+                  "mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl text-sm font-semibold",
                   plan.highlighted ? "key-signal" : "surface-row",
                 )}
               >
-                Start {plan.name} free
+                Start {plan.name} trial
               </Link>
-              <p className="mt-2 text-center text-[0.7rem] text-muted-foreground">
-                14 days free, then ${interval === "month" ? plan.monthly : plan.yearly}/
-                {interval === "month" ? "mo" : "yr"}
-              </p>
               <ul className="mt-5 space-y-2">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-[0.82rem]">
-                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
-                    <span className="text-muted-foreground">{feature}</span>
+                  <li key={feature.label} className="flex items-start gap-2 text-sm">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
+                    <span className="text-muted-foreground">
+                      {feature.label}{" "}
+                      {feature.flag && featureIsSoon(feature) ? (
+                        <ComingSoonBadge flag={feature.flag} />
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>
             </article>
           ))}
         </div>
+        <TrialLimitsNote className="mt-4 text-sm leading-relaxed text-muted-foreground" />
       </Section>
 
-      <Section className="py-9 md:py-14">
-        <h2 className="font-display text-xl font-semibold">Compare every plan</h2>
-        {/* Phones get a stacked, per-plan breakdown; the real table returns at md. */}
+      <Section className="py-8">
+        <h2 className="font-display text-2xl font-semibold">What's on each plan</h2>
         <div className="mt-5 grid gap-3 md:hidden">
           {PLANS.map((plan, planIndex) => (
             <div key={plan.code} className="glass-panel rounded-3xl p-5">
-              <h3 className="font-display text-sm font-semibold">{plan.name}</h3>
+              <h3 className="font-display font-semibold">{plan.name}</h3>
               <dl className="mt-3 divide-y divide-border/60">
                 {FEATURE_MATRIX.map((row) => {
-                  const value = [row.solo, row.team, row.scale][planIndex] as string;
+                  const value = [row.solo, row.team, row.scale][planIndex] ?? "—";
                   return (
                     <div
                       key={row.label}
-                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2.5"
+                      className="grid grid-cols-[1fr_auto] items-center gap-3 py-2.5"
                     >
-                      <dt className="min-w-0 text-[0.82rem] text-muted-foreground">{row.label}</dt>
-                      <dd className="shrink-0 text-[0.82rem] font-medium">
-                        {value === "Yes" ? (
-                          <>
-                            <Check className="h-4 w-4 text-success" aria-hidden />
-                            <span className="sr-only">Included</span>
-                          </>
-                        ) : value === "—" ? (
-                          <>
-                            <Minus className="h-4 w-4 text-muted-foreground" aria-hidden />
-                            <span className="sr-only">Not included</span>
-                          </>
-                        ) : (
-                          value
-                        )}
+                      <dt className="text-sm text-muted-foreground">{row.label}</dt>
+                      <dd className="text-sm font-medium">
+                        <Cell value={value} />
                       </dd>
                     </div>
                   );
@@ -226,16 +247,19 @@ function PricingPage() {
             </div>
           ))}
         </div>
-
         <div className="glass-panel mt-5 hidden overflow-x-auto rounded-3xl md:block">
           <table className="w-full text-left text-sm">
+            <caption className="sr-only">SixVox plan comparison</caption>
             <thead>
               <tr className="border-b border-border">
-                <th className="px-5 py-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                <th
+                  scope="col"
+                  className="px-5 py-3 text-xs font-semibold text-muted-foreground uppercase"
+                >
                   Feature
                 </th>
                 {PLANS.map((plan) => (
-                  <th key={plan.code} className="px-5 py-3 text-xs font-semibold">
+                  <th key={plan.code} scope="col" className="px-5 py-3 text-xs font-semibold">
                     {plan.name}
                   </th>
                 ))}
@@ -244,16 +268,12 @@ function PricingPage() {
             <tbody>
               {FEATURE_MATRIX.map((row) => (
                 <tr key={row.label} className="border-b border-border/60 last:border-0">
-                  <td className="px-5 py-3 text-[0.82rem] text-muted-foreground">{row.label}</td>
+                  <th scope="row" className="px-5 py-3 text-left font-normal text-muted-foreground">
+                    {row.label}
+                  </th>
                   {[row.solo, row.team, row.scale].map((value, index) => (
-                    <td key={index} className="px-5 py-3 text-[0.82rem]">
-                      {value === "Yes" ? (
-                        <Check className="h-4 w-4 text-success" />
-                      ) : value === "—" ? (
-                        <Minus className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        value
-                      )}
+                    <td key={PLANS[index]?.code ?? index} className="px-5 py-3">
+                      <Cell value={value} />
                     </td>
                   ))}
                 </tr>
@@ -261,27 +281,34 @@ function PricingPage() {
             </tbody>
           </table>
         </div>
-        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-          All prices in USD and exclusive of tax; applicable sales tax or VAT is calculated at
-          checkout. Subscriptions renew automatically each billing period until cancelled. Cancel
-          any time from Billing and keep access until the end of the paid period. Call and message
-          usage is billed at cost.
-        </p>
-      </Section>
-
-      <Section className="py-9 md:py-14">
-        <h2 className="font-display text-xl font-semibold">Billing questions</h2>
-        <div className="mt-5">
-          <FaqAccordion items={BILLING_FAQS} />
+        <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            Prices in USD, before tax. Subscriptions renew until you cancel. Cancel from Billing in
+            one tap.
+          </p>
+          <TextingDisclosure />
+          <E911Disclosure />
+          <p>
+            <Link to="/compare" className="font-semibold text-primary underline">
+              Compare these prices with Quo, Grasshopper, Google Voice, and Jobber Receptionist
+            </Link>
+            . Competitor figures are list prices as of Sep 2026.
+          </p>
         </div>
       </Section>
 
-      <Section className="pt-4">
-        <CtaBand
-          title="Try the whole thing free."
-          body="Every plan starts with the full feature set for 14 days. Pick the one that fits once you've seen it working."
-          note="No card required to start"
-        />
+      <Section>
+        <h2 className="font-display text-2xl font-semibold">Billing questions</h2>
+        <div className="mt-5">
+          <FaqAccordion items={BILLING_FAQS} />
+        </div>
+        <div className="mt-8">
+          <CtaBand
+            title="Start on Solo if it's just you."
+            body="Move to Team when a second person needs the same inbox. The AI receptionist stays on either way."
+            label="Start free trial"
+          />
+        </div>
       </Section>
     </MarketingLayout>
   );

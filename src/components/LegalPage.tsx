@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { MarketingLayout, Section } from "@/components/MarketingLayout";
 
-export const LEGAL_UPDATED = "7 August 2026";
+export const LEGAL_UPDATED = "26 September 2026";
 
 export function LegalPage({
   title,

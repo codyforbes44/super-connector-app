@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
+import { TRADES } from "@/lib/trades";
+
 const BASE_URL = "https://sixvox.3bi.io";
 
 interface SitemapEntry {
@@ -21,6 +23,12 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/use-cases", changefreq: "weekly", priority: "0.8" },
           { path: "/contact", changefreq: "monthly", priority: "0.6" },
           { path: "/faq", changefreq: "monthly", priority: "0.6" },
+          { path: "/compare", changefreq: "weekly", priority: "0.8" },
+          ...TRADES.map((trade) => ({
+            path: `/for/${trade.slug}`,
+            changefreq: "monthly" as const,
+            priority: "0.7",
+          })),
           { path: "/legal/privacy", changefreq: "monthly", priority: "0.3" },
           { path: "/legal/terms", changefreq: "monthly", priority: "0.3" },
         ];

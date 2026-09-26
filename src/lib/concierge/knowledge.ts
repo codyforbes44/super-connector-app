@@ -6,17 +6,23 @@
  * a retrieval round trip for the most common questions.
  */
 
-import { FEATURE_MATRIX, PLANS, TRIAL_DAYS } from "@/lib/plans";
+import {
+  FEATURE_MATRIX,
+  PLANS,
+  RECORDING_CLAIM,
+  TRIAL_DAYS,
+  TRIAL_LIMITS,
+  featureLabel,
+} from "@/lib/plans";
 
 export type KnowledgeDoc = { name: string; text: string };
 
 function planLines(): string {
   return PLANS.map((plan) => {
-    const seats = plan.seats === null ? "unlimited seats" : `${plan.seats} seat(s)`;
     return [
       `${plan.name} (code ${plan.code}) — $${plan.monthly}/month or $${plan.yearly}/year.`,
-      `${plan.tagline} Includes ${plan.numbers} phone number(s) and ${seats}.`,
-      `Features: ${plan.features.join("; ")}.`,
+      `${plan.tagline} Includes ${plan.numbers} phone number(s), ${plan.seats} seat(s), and ${plan.aiCalls} AI receptionist calls.`,
+      `Features: ${plan.features.map(featureLabel).join("; ")}.`,
     ].join(" ");
   }).join("\n");
 }
@@ -39,7 +45,9 @@ Core capabilities
 - Messaging: SMS and MMS, a shared inbox with assignment,
   saved templates and scheduled sends.
 - AI receptionist: an ElevenLabs voice assistant answers calls, greets in your chosen voice,
-  follows your instructions, captures the reason for the call, and can book into your calendar.
+  follows your instructions, and captures the reason for the call. It is included on every plan,
+  including Solo. Booking a time and waiting for the owner to approve it is coming soon.
+  Google Calendar is already a connected tool in the app.
 - Voicemail and transcription: every voicemail transcribed, summarised and searchable.
 - Call intelligence: per-call summary, intent, sentiment, urgency, topics, extracted details
   (name, address, date, amount, callback number, email) and one-tap follow-up actions.
@@ -51,8 +59,8 @@ Core capabilities
 - Admin and compliance: A2P 10DLC registration, messaging services, verified caller ID,
   roles and permissions, audit log.
 
-Platform: works in any modern browser, installs as an app on iOS and Android (PWA), and is
-published to Google Play. Dark, slate-and-blue interface designed mobile first.
+Platform: works in any modern browser and as an Android app. A native iPhone app is coming soon.
+Dark, slate-and-blue interface designed mobile first.
 
 Where things live in the app: Inbox, Calls, Dialer, Contacts, Insights, Receptionist,
 Numbers, Tools, Billing, Settings.`,
@@ -60,7 +68,7 @@ Numbers, Tools, Billing, Settings.`,
 
 export const PRICING_DOC: KnowledgeDoc = {
   name: "SixVox — plans and pricing",
-  text: `Every plan starts with a ${TRIAL_DAYS}-day free trial. No contract; monthly or yearly
+  text: `Every plan starts with a ${TRIAL_DAYS}-day free trial (${TRIAL_LIMITS.numbers} number, ${TRIAL_LIMITS.seats} seat, ${TRIAL_LIMITS.aiCalls} AI calls). No contract; monthly or yearly
 billing, and yearly is roughly two months cheaper. Cancel any time from Billing.
 
 ${planLines()}
@@ -81,16 +89,19 @@ export const FAQ_DOC: KnowledgeDoc = {
 A: No. SixVox runs on the phone you already have, as an installed app or in the browser.
 
 Q: Can I keep my existing number?
-A: Yes, two ways. Forward your carrier number into SixVox with the activation codes we show you,
-or port the number in later. Forwarding takes about a minute and is reversible.
+A: Yes. Forward your carrier number into SixVox with the activation codes we show you.
+Forwarding takes about a minute and is reversible. Porting the number in is coming soon.
 
 Q: Does the AI receptionist sound robotic?
 A: It uses ElevenLabs voices. You pick the voice, the greeting and the instructions, and you can
 preview it before it goes live.
 
 Q: What happens when I miss a call?
-A: The receptionist or voicemail answers, the call is transcribed and summarised, and you get a
-push and email alert with the caller's details and suggested follow-ups.
+A: The receptionist or voicemail answers, and you get a push and email alert. Missed-call text-back
+is included on every plan and is coming soon — do not say it already texts every missed caller.
+
+Q: Are calls recorded?
+A: ${RECORDING_CLAIM} Voicemail a caller leaves is stored so the owner can play it back.
 
 Q: Can a team share one number?
 A: Yes, on Team and Scale. The inbox is shared, conversations can be assigned, and internal notes
@@ -119,10 +130,10 @@ export const POSITIONING_DOC: KnowledgeDoc = {
   text: `How to talk about SixVox against other business phone apps:
 - SixVox is a phone app first, not a telephony dashboard. The dialer, inbox and call history are
   the product; the admin controls are there when you want them.
-- The AI receptionist is included and configurable per number, with real voices, your instructions,
-  transcripts, summaries and calendar booking — not a bolt-on answering machine.
+- The AI receptionist is included on every plan, including Solo. It is configurable per number.
+  Do not claim automatic calendar booking. Approval-first booking is coming soon.
 - Call intelligence turns every call into a summary and one-tap follow-ups.
-- It installs like a native app, works offline for reading, and is on Google Play.
+- It works in the browser and as an Android app. A native iPhone app is coming soon.
 
 Objection handling
 - "Too expensive": compare to a missed job. Point at the ${TRIAL_DAYS}-day trial and monthly billing.

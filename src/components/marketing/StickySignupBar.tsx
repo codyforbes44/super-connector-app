@@ -28,7 +28,7 @@ export function StickySignupBar() {
       <div className="glass-panel flex items-center gap-3 rounded-full py-2 pr-2 pl-4">
         <div className="min-w-0 flex-1">
           <p className="truncate text-[0.8rem] font-semibold">Try SixVox free</p>
-          <p className="truncate text-[0.65rem] text-muted-foreground">14 days · no card</p>
+          <p className="truncate text-[0.65rem] text-muted-foreground">14 days free</p>
         </div>
         <Link
           to="/auth"

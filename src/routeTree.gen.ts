@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
@@ -38,6 +39,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSubscribersRouteImport } from './routes/_authenticated/subscribers'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
+import { Route as ForTradeRouteImport } from './routes/for/$trade'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as AuthenticatedAdminUserIdRouteImport } from './routes/_authenticated/admin.$userId'
@@ -73,6 +75,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -207,6 +214,11 @@ const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ForTradeRoute = ForTradeRouteImport.update({
+  id: '/for/$trade',
+  path: '/for/$trade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
   id: '/legal/privacy',
   path: '/legal/privacy',
@@ -328,6 +340,7 @@ const ApiPublicAgentToolNameRoute = ApiPublicAgentToolNameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -354,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -380,6 +394,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -405,6 +420,7 @@ export interface FileRoutesByTo {
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -433,6 +449,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -459,6 +476,7 @@ export interface FileRoutesById {
   '/_authenticated/subscribers': typeof AuthenticatedSubscribersRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/_authenticated/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -487,6 +505,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -513,6 +532,7 @@ export interface FileRouteTypes {
     | '/subscribers'
     | '/tools'
     | '/welcome'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
     | '/admin/$userId'
@@ -539,6 +559,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -564,6 +585,7 @@ export interface FileRouteTypes {
     | '/subscribers'
     | '/tools'
     | '/welcome'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
     | '/admin/$userId'
@@ -591,6 +613,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -617,6 +640,7 @@ export interface FileRouteTypes {
     | '/_authenticated/subscribers'
     | '/_authenticated/tools'
     | '/_authenticated/welcome'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
     | '/_authenticated/admin/$userId'
@@ -645,6 +669,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
@@ -654,6 +679,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   UseCasesRoute: typeof UseCasesRoute
+  ForTradeRoute: typeof ForTradeRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
@@ -695,6 +721,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -878,6 +911,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/welcome'
       preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/for/$trade': {
+      id: '/for/$trade'
+      path: '/for/$trade'
+      fullPath: '/for/$trade'
+      preLoaderRoute: typeof ForTradeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/legal/privacy': {
       id: '/legal/privacy'
@@ -1103,6 +1143,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
@@ -1112,6 +1153,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   UseCasesRoute: UseCasesRoute,
+  ForTradeRoute: ForTradeRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,

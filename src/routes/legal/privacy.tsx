@@ -3,9 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage, LEGAL_UPDATED } from "@/components/LegalPage";
 import { pageHead } from "@/lib/seo";
 
-const TITLE = "Privacy Policy — SixVox";
+const TITLE = "Privacy Policy — SixVox business phone";
 const DESCRIPTION =
-  "How SixVox collects, uses, stores and protects your account, call, message and contact data.";
+  "How SixVox handles account, call, message, voicemail, and contact data for your business line, including when calls are recorded.";
 
 export const Route = createFileRoute("/legal/privacy")({
   head: () => pageHead({ path: "/legal/privacy", title: TITLE, description: DESCRIPTION }),
@@ -17,12 +17,26 @@ function Privacy() {
     <LegalPage title="Privacy Policy" updated={LEGAL_UPDATED}>
       <h2>What we collect</h2>
       <p>
-        We collect the account details you give us (name, email address and workspace name), the
+        We collect the account details you give us (name, email address, and workspace name), the
         business communications you send and receive through SixVox (call metadata, messages,
         voicemail recordings and their transcripts, and call recordings when transcription is turned
         on for a line), the contacts you save, and technical data such as device type and push
         notification tokens. Calls are only recorded if you turn on transcription for a line, and
         callers hear a recording notice first. Voicemail a caller chooses to leave is also stored.
+      </p>
+
+      <h2>AI receptionist</h2>
+      <p>
+        If you turn on the AI receptionist for a number, the audio of that call is processed to
+        generate the spoken reply and a transcript. That processing is used to run the feature you
+        enabled. We do not sell those conversations and we do not use them to advertise to your
+        callers.
+      </p>
+
+      <h2>Emergency calling</h2>
+      <p>
+        SixVox is a VoIP service and does not currently register an emergency address for 911. Do
+        not treat it as a substitute for a traditional phone when you need emergency services.
       </p>
 
       <h2>How we use it</h2>
