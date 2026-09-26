@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Bot, CreditCard, LogOut, Plug, SlidersHorizontal, Sparkles, Users } from "lucide-react";
+import { Bot, CreditCard, LogOut, Plug, ShieldCheck, SlidersHorizontal, Sparkles, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ import { errorMessage } from "@/lib/format";
 import { PushNotifications } from "@/components/PushNotifications";
 import { DeviceAccess } from "@/components/DeviceAccess";
 import { CallingSettings } from "@/components/CallingSettings";
+import { QuietHoursSettings } from "@/components/compliance/QuietHoursSettings";
 import { AssistantSettings } from "@/components/intelligence/AssistantSettings";
 import { CallerRules } from "@/components/intelligence/CallerRules";
 import { EmailNotifications } from "@/components/EmailNotifications";
@@ -105,6 +106,8 @@ function SettingsScreen() {
 
       <CallingSettings />
 
+      <QuietHoursSettings />
+
       <AssistantSettings />
 
       <CallerRules />
@@ -180,6 +183,13 @@ function SettingsScreen() {
 
           {boot.isOwner ? (
             <SettingsGroup title="Owner">
+              <SettingsLink
+                to="/trust"
+                icon={ShieldCheck}
+                tone="green"
+                title="Caller trust"
+                description="SHAKEN/STIR, CNAM, and Voice Integrity. Nothing is submitted yet."
+              />
               <SettingsLink
                 to="/advanced"
                 icon={SlidersHorizontal}

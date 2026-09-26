@@ -72,7 +72,7 @@ const GROUPS = [
       {
         icon: Waves,
         title: "Voicemail and transcripts",
-        body: "Every call logged with duration, price and device, plus voicemail playback and transcription, searchable by number, agent or SID. Calls are only recorded if you turn on transcription for a line, and callers hear a recording notice first.",
+        body: "Every call logged with duration, price and device, plus voicemail playback and transcription, searchable by number, agent or SID. Call recording is off for each line until you turn it on. When it is on, everyone on the call hears a recording notice before recording starts, including voicemail and the AI receptionist.",
       },
       {
         icon: Bot,

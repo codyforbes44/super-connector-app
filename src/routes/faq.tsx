@@ -91,7 +91,7 @@ const GROUPS = [
     items: [
       {
         q: "Who owns my data?",
-        a: "You do. Messages, voicemail, transcripts and contacts belong to your workspace, and roles are enforced at the database level so agents only see what's assigned to them. Calls are only recorded if you turn on transcription for a line, and callers hear a recording notice first.",
+        a: "You do. Messages, voicemail, transcripts and contacts belong to your workspace, and roles are enforced at the database level so agents only see what's assigned to them. Call recording is off for each line until you turn it on. When it is on, everyone on the call hears a recording notice before recording starts, including voicemail and the AI receptionist.",
       },
       {
         q: "What is the unrestricted API console?",

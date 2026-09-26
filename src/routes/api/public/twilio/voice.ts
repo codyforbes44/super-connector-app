@@ -50,16 +50,8 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
             .eq("phone_number", appNumber)
             .maybeSingle();
 
-          // Opt-in call transcription: only with a spoken consent notice.
-          let transcribeCalls = false;
-          if (number?.assigned_to) {
-            const { data: owner } = await supabaseAdmin
-              .from("profiles")
-              .select("transcribe_calls")
-              .eq("id", number.assigned_to as string)
-              .maybeSingle();
-            transcribeCalls = Boolean(owner?.transcribe_calls);
-          }
+          const { lineRecordsCalls } = await import("@/lib/compliance/recording.server");
+          const recordCalls = await lineRecordsCalls(supabaseAdmin as never, appNumber);
 
           // Alert watchers immediately so a backgrounded device can pick up.
           try {
@@ -84,7 +76,7 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           if (number?.forward_to && !aiAnswering) {
             return xml(
               forwardedCallTwiml({
-                record: transcribeCalls,
+                record: recordCalls,
                 callerId: appNumber,
                 destination: number.forward_to as string,
                 timeoutSeconds: RING_SECONDS,
@@ -92,16 +84,20 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
             );
           }
 
-          const answer = await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
-            callSid: get("CallSid"),
-            from: get("From"),
-            appNumber,
-          });
+          const answer = await voicemailTwiml(
+            supabaseAdmin as never,
+            { ...(number ?? {}), record_calls: recordCalls },
+            {
+              callSid: get("CallSid"),
+              from: get("From"),
+              appNumber,
+            },
+          );
 
           // Callers always hear four rings first — including before the AI
           // hand-off, which would otherwise pick up instantly. Voicemail
           // recording, when used, speaks the notice inside the answer TwiML.
-          const handOff = answer.startsWith("<Redirect");
+          const handOff = answer.includes("<Redirect");
           const twiml = ringbackTwiml() + answer;
 
           try {

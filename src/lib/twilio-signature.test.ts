@@ -124,6 +124,19 @@ describe("Twilio webhook signatures", () => {
     if (signed.ok) expect(signed.params["Body"]).toBe("hello");
   });
 
+  it("accepts a signature for the recording-notice webhook", async () => {
+    vi.stubEnv("TWILIO_AUTH_TOKEN", AUTH);
+    vi.stubEnv("TWILIO_WEBHOOK_TOKEN", TOKEN);
+    const url = `https://sixvox.3bi.io/api/public/twilio/recording-notice?t=${TOKEN}`;
+    const params = { CallSid: "CA123", ParentCallSid: "CA999" };
+    const result = await verifyTwilioWebhook(
+      formRequest(url, params, twilioSignature(AUTH, url, params)),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.params["ParentCallSid"]).toBe("CA999");
+  });
+
   it("rejects a signature for a different host even with a valid token", async () => {
     vi.stubEnv("TWILIO_AUTH_TOKEN", AUTH);
     vi.stubEnv("TWILIO_WEBHOOK_TOKEN", TOKEN);

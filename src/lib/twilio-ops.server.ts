@@ -11,6 +11,11 @@ import {
   upsertConversation,
   webhookUrl,
 } from "./app.server";
+import { outboundCallBlock } from "./compliance/e911";
+import { userAcknowledgedE911 } from "./compliance/e911.server";
+import { assertSendAllowed } from "./compliance/opt-out.server";
+import { lineRecordsCalls } from "./compliance/recording.server";
+import { bridgeCallTwiml, inboundClientDialTwiml } from "./voice-answer.server";
 import {
   credentialHealth,
   hasDirectCredentials,
@@ -706,6 +711,7 @@ export async function sendMessage(
     mediaUrls?: string[];
     sendAt?: string | null;
     messagingServiceSid?: string | null;
+    kind?: "manual" | "automated" | "review" | "marketing";
   },
 ) {
   const { numbers } = await allowedNumbers(supabase, userId);
@@ -730,6 +736,10 @@ export async function sendMessage(
       "This person replied STOP. They have to text START before you can message them again.",
     );
   }
+  await assertSendAllowed(admin, userId, {
+    to,
+    kind: data.kind ?? "manual",
+  });
 
   const prefix = data.channel === "whatsapp" ? "whatsapp:" : "";
   const params: Record<string, unknown> = {
@@ -975,9 +985,26 @@ export async function startCall(
   let to: string;
   let from: string;
 
+  let acknowledged = false;
+  try {
+    acknowledged = await userAcknowledgedE911(await adminClient(), userId);
+  } catch (error) {
+    console.error("E911 acknowledgment lookup failed", error);
+  }
+  if (outboundCallBlock(acknowledged)) {
+    throw new Error(
+      "Acknowledge the 911 limitations in the app before placing a call.",
+    );
+  }
+  const recordCalls = await lineRecordsCalls(await adminClient(), appNumber);
+
   if (agentPhone) {
     // Ring the user's own phone first, then dial the contact from that leg.
-    twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Connecting your call.</Say><Dial callerId="${callerId}"><Number>${target}</Number></Dial></Response>`;
+    twiml = `<?xml version="1.0" encoding="UTF-8"?><Response>${bridgeCallTwiml({
+      record: recordCalls,
+      callerId,
+      destination: target,
+    })}</Response>`;
     to = normalizePhone(agentPhone);
     from = appNumber;
   } else {
@@ -994,7 +1021,13 @@ export async function startCall(
       .maybeSingle();
 
     twiml = presence
-      ? `<?xml version="1.0" encoding="UTF-8"?><Response><Dial timeout="30" callerId="${callerId}"><Client>${identity}</Client></Dial></Response>`
+      ? `<?xml version="1.0" encoding="UTF-8"?><Response>${inboundClientDialTwiml({
+          record: recordCalls,
+          callerId,
+          timeoutSeconds: 30,
+          actionUrl: webhookUrl("status"),
+          clientIdentities: [identity],
+        })}</Response>`
       : `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Please hold while we connect you.</Say><Pause length="10"/></Response>`;
     to = target;
     from = callerId;

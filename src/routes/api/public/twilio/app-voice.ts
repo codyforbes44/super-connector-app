@@ -68,6 +68,17 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
             console.warn(`Blocked client call from ${from} using caller ID ${callerId}`);
             return xml(`<Say voice="alice">You are not allowed to call from that number.</Say>`);
           }
+          const { userAcknowledgedE911 } = await import("@/lib/compliance/e911.server");
+          const { outboundCallBlock, E911_BLOCK_SAY } = await import("@/lib/compliance/e911");
+          let acknowledged = false;
+          try {
+            acknowledged = await userAcknowledgedE911(supabaseAdmin as never, userId);
+          } catch (error) {
+            console.error("E911 acknowledgment lookup failed", error);
+          }
+          if (outboundCallBlock(acknowledged)) {
+            return xml(`<Say voice="alice">${esc(E911_BLOCK_SAY)}</Say>`);
+          }
           // Contact override → routing rule → per-number caller ID → the number itself.
           const { resolveOutboundCallerId } = await import("@/lib/twilio-ops.server");
           const presentedId = await resolveOutboundCallerId(supabaseAdmin, callerId, to);
@@ -87,10 +98,16 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
             { onConflict: "sid" },
           );
 
+          const { lineRecordsCalls } = await import("@/lib/compliance/recording.server");
+          const { outboundAppDialTwiml } = await import("@/lib/voice-answer.server");
+          const recordCalls = await lineRecordsCalls(supabaseAdmin as never, callerId);
           return xml(
-            // This outbound leg is not recorded. Inbound voicemail uses recordVerb,
-            // which speaks the recording notice before Twilio starts the recording.
-            `<Dial callerId="${esc(presentedId)}" answerOnBridge="true" action="${esc(statusUrl)}"><Number>${esc(to)}</Number></Dial>`,
+            outboundAppDialTwiml({
+              record: recordCalls,
+              callerId: presentedId,
+              destination: to,
+              actionUrl: statusUrl,
+            }),
           );
         }
 
@@ -178,9 +195,18 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           });
         }
 
-        const { voicemailTwiml, ringbackTwiml, RING_SECONDS, RINGBACK_CYCLE_SECONDS } =
-          await import("@/lib/voice-answer.server");
-        const unanswered = await voicemailTwiml(supabaseAdmin as never, number ?? {}, {
+        const {
+          voicemailTwiml,
+          ringbackTwiml,
+          RING_SECONDS,
+          RINGBACK_CYCLE_SECONDS,
+          forwardedCallTwiml,
+          inboundClientDialTwiml,
+        } = await import("@/lib/voice-answer.server");
+        const { lineRecordsCalls } = await import("@/lib/compliance/recording.server");
+        const recordCalls = await lineRecordsCalls(supabaseAdmin as never, appNumber);
+        const voiceConfig = { ...(number ?? {}), record_calls: recordCalls };
+        const unanswered = await voicemailTwiml(supabaseAdmin as never, voiceConfig, {
           callSid,
           from,
           appNumber,
@@ -189,12 +215,17 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
 
         const fallback =
           number?.forward_to && !aiAnswering
-            ? `<Dial callerId="${esc(appNumber)}" timeout="${RING_SECONDS}" ringTone="us"><Number>${esc(number.forward_to as string)}</Number></Dial>${unanswered}`
+            ? forwardedCallTwiml({
+                record: recordCalls,
+                callerId: appNumber,
+                destination: number.forward_to as string,
+                timeoutSeconds: RING_SECONDS,
+              }) + unanswered
             : unanswered;
 
         // Let the caller hear four rings before voicemail or the AI answers.
         // Forwarding to another phone rings on its own, so it goes straight out.
-        const handOff = unanswered.startsWith("<Redirect");
+        const handOff = unanswered.includes("<Redirect");
         if (!stage) {
           try {
             await supabaseAdmin
@@ -219,13 +250,14 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           return xml(forwarding ? fallback : ringbackTwiml() + fallback);
         }
 
-        const clients = identities
-          .slice(0, 10)
-          .map((identity) => `<Client>${esc(identity)}</Client>`)
-          .join("");
-
         const dialClients = (timeout: number, nextStage: string) =>
-          `<Dial callerId="${esc(from)}" timeout="${timeout}" ringTone="us" answerOnBridge="true" action="${esc(stageUrl(nextStage))}" method="POST">${clients}</Dial>`;
+          inboundClientDialTwiml({
+            record: recordCalls,
+            callerId: from,
+            timeoutSeconds: timeout,
+            actionUrl: stageUrl(nextStage),
+            clientIdentities: identities.slice(0, 10),
+          });
 
         // First pass: ring every signed-in device.
         if (!stage) return xml(dialClients(RING_SECONDS, "after-dial"));

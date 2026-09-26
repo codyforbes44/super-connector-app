@@ -7,6 +7,9 @@ import {
   hasElevenLabs,
 } from "./elevenlabs.server";
 import { GREETING_BUCKET } from "./elevenlabs-ops.server";
+import { AI_IDENTITY, RECORDING_CONSENT, composeAiFirstMessage } from "./compliance/recording-copy";
+
+export { AI_IDENTITY, RECORDING_CONSENT, composeAiFirstMessage };
 
 export function escapeXml(value: string): string {
   return value.replace(
@@ -32,11 +35,31 @@ export function ringbackTwiml(seconds: number = RING_SECONDS): string {
   return `<Play loop="${loops}">${escapeXml(RINGBACK_AUDIO_URL)}</Play>`;
 }
 
-/** Spoken notice. Always played before a recording starts, live or voicemail. */
-export const RECORDING_CONSENT = "This call may be recorded and transcribed for note taking.";
-
 export function recordingNoticeTwiml(): string {
   return `<Say voice="alice">${escapeXml(RECORDING_CONSENT)}</Say>`;
+}
+
+/** Whisper played to the other party when they answer a recorded call. */
+export function recordingNoticeResponseTwiml(): string {
+  return recordingNoticeTwiml();
+}
+
+export function recordingNoticeWebhook(): string {
+  return webhookUrl("recording-notice");
+}
+
+/**
+ * Starts a call recording, then speaks the notice, so the recording file
+ * begins with the notice. The other party hears the same notice from the
+ * whisper URL on Number or Client.
+ */
+export function liveRecordingPrefix(): string {
+  return `<Start><Recording channels="dual" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed" /></Start>${recordingNoticeTwiml()}`;
+}
+
+function partyNoticeUrl(record: boolean): string {
+  if (!record) return "";
+  return ` url="${escapeXml(recordingNoticeWebhook())}" method="POST"`;
 }
 
 /** Twilio posts finished recordings here; we transcribe them ourselves. */
@@ -57,18 +80,61 @@ export function fallbackVoicemailTwiml(): string {
   return `<Say voice="alice">Thanks for calling. Please leave a message after the tone.</Say>${recordVerb()}<Say voice="alice">We did not receive a recording. Goodbye.</Say>`;
 }
 
-/** Forwarded two-party dial. Recording, when enabled, starts only after the notice. */
+/** Forwarded two-party dial. When recording is on, the file starts with the notice. */
 export function forwardedCallTwiml(input: {
   record: boolean;
   callerId: string;
   destination: string;
   timeoutSeconds: number;
 }): string {
-  const notice = input.record ? recordingNoticeTwiml() : "";
-  const recording = input.record
-    ? ` record="record-from-answer-dual" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed"`
-    : "";
-  return `${notice}<Dial callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us"${recording}><Number>${escapeXml(input.destination)}</Number></Dial>`;
+  const prefix = input.record ? liveRecordingPrefix() : "";
+  return `${prefix}<Dial callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us"><Number${partyNoticeUrl(input.record)}>${escapeXml(input.destination)}</Number></Dial>`;
+}
+
+/** Outbound in-app dial. The app user hears the notice; the callee hears the whisper. */
+export function outboundAppDialTwiml(input: {
+  record: boolean;
+  callerId: string;
+  destination: string;
+  actionUrl: string;
+}): string {
+  const prefix = input.record ? liveRecordingPrefix() : "";
+  return `${prefix}<Dial callerId="${escapeXml(input.callerId)}" answerOnBridge="true" action="${escapeXml(input.actionUrl)}"><Number${partyNoticeUrl(input.record)}>${escapeXml(input.destination)}</Number></Dial>`;
+}
+
+/** Inbound ring to in-app clients. */
+export function inboundClientDialTwiml(input: {
+  record: boolean;
+  callerId: string;
+  timeoutSeconds: number;
+  actionUrl: string;
+  clientIdentities: string[];
+}): string {
+  const prefix = input.record ? liveRecordingPrefix() : "";
+  const clients = input.clientIdentities
+    .map(
+      (identity) =>
+        `<Client${partyNoticeUrl(input.record)}>${escapeXml(identity)}</Client>`,
+    )
+    .join("");
+  return `${prefix}<Dial callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us" answerOnBridge="true" action="${escapeXml(input.actionUrl)}" method="POST">${clients}</Dial>`;
+}
+
+/** PSTN bridge used when the dialer calls the owner's cell first. */
+export function bridgeCallTwiml(input: {
+  record: boolean;
+  callerId: string;
+  destination: string;
+}): string {
+  const prefix = input.record ? liveRecordingPrefix() : `<Say voice="alice">Connecting your call.</Say>`;
+  return `${prefix}<Dial callerId="${escapeXml(input.callerId)}"><Number${partyNoticeUrl(input.record)}>${escapeXml(input.destination)}</Number></Dial>`;
+}
+
+export function aiHandoffTwiml(input: { record: boolean; redirectUrl: string }): string {
+  const redirect = `<Redirect method="POST">${escapeXml(input.redirectUrl)}</Redirect>`;
+  const identity = `<Say voice="alice">${escapeXml(AI_IDENTITY)}</Say>`;
+  if (!input.record) return `${identity}${redirect}`;
+  return `${liveRecordingPrefix()}${identity}${redirect}`;
 }
 
 export type NumberVoiceConfig = {
@@ -84,6 +150,7 @@ export type NumberVoiceConfig = {
   ai_fallback?: string | null;
   ai_fallback_number?: string | null;
   ai_max_duration?: number | null;
+  record_calls?: boolean | null;
 };
 
 /** Columns every caller must select for voicemail/AI answering to behave. */
@@ -99,12 +166,19 @@ export const AI_TONES: Record<string, string> = {
 };
 
 /** What happens when the AI assistant cannot take the call. */
-function fallbackTwiml(config: NumberVoiceConfig, classic: string): string {
+function fallbackTwiml(config: NumberVoiceConfig, classic: string, appNumber: string): string {
   if (config.ai_fallback === "hangup") {
     return `<Say voice="alice">Sorry, we can't take your call right now. Please try again later.</Say><Hangup />`;
   }
   if (config.ai_fallback === "forward" && config.ai_fallback_number) {
-    return `<Dial timeout="25"><Number>${escapeXml(config.ai_fallback_number)}</Number></Dial>${classic}`;
+    return (
+      forwardedCallTwiml({
+        record: Boolean(config.record_calls),
+        callerId: appNumber,
+        destination: config.ai_fallback_number,
+        timeoutSeconds: 25,
+      }) + classic
+    );
   }
   return classic;
 }
@@ -147,14 +221,17 @@ export async function voicemailTwiml(
       // cached id makes the hand-off return something Twilio can't read, which
       // the caller hears as a generic application error.
       const numberId = await ensureAgentPhoneNumber(ctx.appNumber, config.elevenlabs_agent_id);
-      if (!numberId) return fallbackTwiml(config, classic);
+      if (!numberId) return fallbackTwiml(config, classic, ctx.appNumber);
       if (numberId !== config.elevenlabs_phone_number_id) {
         await admin
           .from("phone_numbers")
           .update({ elevenlabs_phone_number_id: numberId })
           .eq("phone_number", ctx.appNumber);
       }
-      return `<Redirect method="POST">${escapeXml(ELEVENLABS_TWILIO_INBOUND_URL)}</Redirect>`;
+      return aiHandoffTwiml({
+        record: Boolean(config.record_calls),
+        redirectUrl: ELEVENLABS_TWILIO_INBOUND_URL,
+      });
     } catch (error) {
       console.error(`ElevenLabs hand-off failed for ${ctx.appNumber}:`, error);
       try {
@@ -168,7 +245,7 @@ export async function voicemailTwiml(
       } catch {
         // logging must never break the call
       }
-      return fallbackTwiml(config, classic);
+      return fallbackTwiml(config, classic, ctx.appNumber);
     }
   }
 

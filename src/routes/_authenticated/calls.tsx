@@ -21,7 +21,9 @@ import { CallSummaryCard } from "@/components/intelligence/CallSummaryCard";
 import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { CallReadiness } from "@/components/CallReadiness";
+import { DialerE911Warning } from "@/components/compliance/DialerE911Warning";
 import { Dialpad } from "@/components/Dialpad";
+import { getE911Gate } from "@/lib/compliance.functions";
 import { markAnswerIntent } from "@/lib/call-answer-intent";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -111,6 +113,11 @@ export const Route = createFileRoute("/_authenticated/calls")({
 
 function CallsScreen() {
   const boot = useBootstrap();
+  const e911 = useQuery({
+    queryKey: ["e911-gate"],
+    queryFn: () => getE911Gate(),
+  });
+  const e911Acknowledged = e911.data?.acknowledged === true;
   const queryClient = useQueryClient();
   const voice = useVoice();
   const search = Route.useSearch();
@@ -219,6 +226,10 @@ function CallsScreen() {
 
   async function dial(event: React.FormEvent) {
     event.preventDefault();
+    if (!e911Acknowledged) {
+      toast.error("Acknowledge the 911 limitations before placing a call.");
+      return;
+    }
     try {
       if (voice.ready) {
         await voice.call(to.trim(), from);
@@ -257,6 +268,10 @@ function CallsScreen() {
   async function callBack(call: CallRow) {
     const target = otherParty(call);
     if (!target) return;
+    if (!e911Acknowledged) {
+      toast.error("Acknowledge the 911 limitations before placing a call.");
+      return;
+    }
     const line =
       boot.numbers.find((n) => n.phone_number === call.app_number)?.phone_number ||
       from ||
@@ -514,7 +529,8 @@ function CallsScreen() {
           <SheetHeader className="px-0">
             <SheetTitle className="font-display text-center">Dialer</SheetTitle>
           </SheetHeader>
-          <form onSubmit={dial} className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+            <form onSubmit={dial} className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+            <DialerE911Warning acknowledged={e911Acknowledged} />
             <Dialpad value={to} onChange={setTo} />
 
             <div className="space-y-1.5">
@@ -552,7 +568,7 @@ function CallsScreen() {
               </button>
               <button
                 type="submit"
-                disabled={!to.trim()}
+                disabled={!to.trim() || !e911Acknowledged}
                 className="key-call flex h-16 w-16 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-40"
               >
                 <PhoneCall className="h-6 w-6" />
