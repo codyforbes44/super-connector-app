@@ -737,6 +737,7 @@ export type Database = {
           app_number: string
           client_identity: string | null
           created_at: string
+          dial_status: string | null
           direction: string
           duration: number | null
           error_code: string | null
@@ -758,6 +759,7 @@ export type Database = {
           app_number: string
           client_identity?: string | null
           created_at?: string
+          dial_status?: string | null
           direction: string
           duration?: number | null
           error_code?: string | null
@@ -779,6 +781,7 @@ export type Database = {
           app_number?: string
           client_identity?: string | null
           created_at?: string
+          dial_status?: string | null
           direction?: string
           duration?: number | null
           error_code?: string | null
@@ -1783,6 +1786,45 @@ export type Database = {
         }
         Relationships: []
       }
+      missed_call_textbacks: {
+        Row: {
+          app_number: string
+          body: string | null
+          call_sid: string
+          contact_number: string
+          created_at: string
+          id: string
+          message_sid: string | null
+          skip_reason: string | null
+          status: string
+          workspace_id: string | null
+        }
+        Insert: {
+          app_number: string
+          body?: string | null
+          call_sid: string
+          contact_number: string
+          created_at?: string
+          id?: string
+          message_sid?: string | null
+          skip_reason?: string | null
+          status?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          app_number?: string
+          body?: string | null
+          call_sid?: string
+          contact_number?: string
+          created_at?: string
+          id?: string
+          message_sid?: string | null
+          skip_reason?: string | null
+          status?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       notification_prefs: {
         Row: {
           created_at: string
@@ -1897,8 +1939,104 @@ export type Database = {
           },
         ]
       }
+      outbound_webhook_deliveries: {
+        Row: {
+          attempt_count: number
+          body: string
+          created_at: string
+          delivered_at: string | null
+          endpoint_id: string
+          event_id: string
+          event_type: string
+          id: string
+          last_error: string | null
+          last_status_code: number | null
+          next_attempt_at: string | null
+          payload: Json
+          status: string
+          workspace_id: string | null
+        }
+        Insert: {
+          attempt_count?: number
+          body: string
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id: string
+          event_id: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          last_status_code?: number | null
+          next_attempt_at?: string | null
+          payload?: Json
+          status?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          attempt_count?: number
+          body?: string
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          last_status_code?: number | null
+          next_attempt_at?: string | null
+          payload?: Json
+          status?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outbound_webhook_deliveries_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "outbound_webhook_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outbound_webhook_endpoints: {
+        Row: {
+          created_at: string
+          description: string | null
+          enabled: boolean
+          events: string[]
+          id: string
+          secret: string
+          updated_at: string
+          url: string
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          events?: string[]
+          id?: string
+          secret: string
+          updated_at?: string
+          url: string
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          events?: string[]
+          id?: string
+          secret?: string
+          updated_at?: string
+          url?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       phone_numbers: {
         Row: {
+          after_hours_route: string
           ai_fallback: string
           ai_fallback_number: string | null
           ai_first_message: string | null
@@ -1913,6 +2051,10 @@ export type Database = {
           booking_hours: Json
           booking_slot_minutes: number
           booking_timezone: string
+          business_holidays: Json
+          business_hours: Json
+          business_hours_enabled: boolean
+          business_timezone: string
           calendar_id: string | null
           campaign_id: string | null
           campaign_status: string | null
@@ -1923,6 +2065,8 @@ export type Database = {
           elevenlabs_agent_id: string | null
           elevenlabs_phone_number_id: string | null
           elevenlabs_voice_id: string | null
+          emergency_keywords: Json
+          emergency_transfer_number: string | null
           forward_to: string | null
           friendly_name: string | null
           greeting_audio_path: string | null
@@ -1933,12 +2077,18 @@ export type Database = {
           phone_number: string
           record_calls: boolean
           sid: string
+          text_back_dedupe_minutes: number
+          text_back_enabled: boolean
+          text_back_on_ai: boolean
+          text_back_on_voicemail: boolean
+          text_back_template: string
           twilio_account_sid: string | null
           voicemail_greeting: string | null
           webhook_wired: boolean
           workspace_id: string
         }
         Insert: {
+          after_hours_route?: string
           ai_fallback?: string
           ai_fallback_number?: string | null
           ai_first_message?: string | null
@@ -1953,6 +2103,10 @@ export type Database = {
           booking_hours?: Json
           booking_slot_minutes?: number
           booking_timezone?: string
+          business_holidays?: Json
+          business_hours?: Json
+          business_hours_enabled?: boolean
+          business_timezone?: string
           calendar_id?: string | null
           campaign_id?: string | null
           campaign_status?: string | null
@@ -1963,6 +2117,8 @@ export type Database = {
           elevenlabs_agent_id?: string | null
           elevenlabs_phone_number_id?: string | null
           elevenlabs_voice_id?: string | null
+          emergency_keywords?: Json
+          emergency_transfer_number?: string | null
           forward_to?: string | null
           friendly_name?: string | null
           greeting_audio_path?: string | null
@@ -1973,12 +2129,18 @@ export type Database = {
           phone_number: string
           record_calls?: boolean
           sid: string
+          text_back_dedupe_minutes?: number
+          text_back_enabled?: boolean
+          text_back_on_ai?: boolean
+          text_back_on_voicemail?: boolean
+          text_back_template?: string
           twilio_account_sid?: string | null
           voicemail_greeting?: string | null
           webhook_wired?: boolean
           workspace_id: string
         }
         Update: {
+          after_hours_route?: string
           ai_fallback?: string
           ai_fallback_number?: string | null
           ai_first_message?: string | null
@@ -1993,6 +2155,10 @@ export type Database = {
           booking_hours?: Json
           booking_slot_minutes?: number
           booking_timezone?: string
+          business_holidays?: Json
+          business_hours?: Json
+          business_hours_enabled?: boolean
+          business_timezone?: string
           calendar_id?: string | null
           campaign_id?: string | null
           campaign_status?: string | null
@@ -2003,6 +2169,8 @@ export type Database = {
           elevenlabs_agent_id?: string | null
           elevenlabs_phone_number_id?: string | null
           elevenlabs_voice_id?: string | null
+          emergency_keywords?: Json
+          emergency_transfer_number?: string | null
           forward_to?: string | null
           friendly_name?: string | null
           greeting_audio_path?: string | null
@@ -2013,6 +2181,11 @@ export type Database = {
           phone_number?: string
           record_calls?: boolean
           sid?: string
+          text_back_dedupe_minutes?: number
+          text_back_enabled?: boolean
+          text_back_on_ai?: boolean
+          text_back_on_voicemail?: boolean
+          text_back_template?: string
           twilio_account_sid?: string | null
           voicemail_greeting?: string | null
           webhook_wired?: boolean
