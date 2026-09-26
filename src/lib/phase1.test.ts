@@ -194,10 +194,13 @@ describe("onboarding greeting", () => {
 });
 
 describe("tenant isolation contract", () => {
-  const migration = readFileSync(
-    "supabase/migrations/20260926120000_phase1_workspaces.sql",
-    "utf8",
-  );
+  const migration = [
+    readFileSync("supabase/migrations/20260926120000_phase1_workspaces.sql", "utf8"),
+    readFileSync(
+      "supabase/migrations/20260927040000_phase1_backfill_sibling_workspace_id.sql",
+      "utf8",
+    ),
+  ].join("\n");
   const probe = readFileSync("scripts/tenant-isolation.sql", "utf8");
 
   it("puts every tenant table behind membership RLS", () => {
@@ -207,5 +210,6 @@ describe("tenant isolation contract", () => {
     }
     expect(migration).toContain("is_workspace_member");
     expect(probe).toContain("other_count <> 0");
+    expect(migration).toContain("information_schema.columns");
   });
 });

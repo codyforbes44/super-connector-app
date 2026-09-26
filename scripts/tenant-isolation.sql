@@ -1,6 +1,7 @@
 -- Proves a member of workspace A cannot read workspace B rows.
 -- Self-contained: stubs auth.uid() and applies the same membership policies
--- as supabase/migrations/20260926120000_phase1_workspaces.sql.
+-- as supabase/migrations/20260926120000_phase1_workspaces.sql and
+-- 20260927040000_phase1_backfill_sibling_workspace_id.sql.
 -- Run as a superuser against an empty database (CI postgres service).
 
 CREATE SCHEMA IF NOT EXISTS auth;
@@ -51,7 +52,13 @@ DECLARE
     'audit_log', 'templates', 'lookups', 'ai_conversations', 'twiml_apps',
     'saved_places', 'place_searches', 'calendar_settings', 'calendar_bookings',
     'app_user_connections', 'notification_prefs', 'email_log',
-    'email_template_overrides', 'digest_queue', 'webhook_errors', 'esim_orders'
+    'email_template_overrides', 'digest_queue', 'webhook_errors', 'esim_orders',
+    'missed_call_textbacks', 'outbound_webhook_endpoints', 'outbound_webhook_deliveries',
+    'emergency_addresses', 'e911_acknowledgments', 'sms_opt_outs', 'sms_consent_log',
+    'sms_quiet_hours', 'ai_voice_consents', 'trust_hub_registrations',
+    'messaging_opt_out_prefs', 'integration_connections', 'review_settings',
+    'review_requests', 'consent_log', 'payment_links', 'port_in_requests',
+    'port_in_events', 'trade_syncs'
   ];
 BEGIN
   FOREACH t IN ARRAY tables LOOP
@@ -102,7 +109,13 @@ DECLARE
     'audit_log', 'templates', 'lookups', 'ai_conversations', 'twiml_apps',
     'saved_places', 'place_searches', 'calendar_settings', 'calendar_bookings',
     'app_user_connections', 'notification_prefs', 'email_log',
-    'email_template_overrides', 'digest_queue', 'webhook_errors', 'esim_orders'
+    'email_template_overrides', 'digest_queue', 'webhook_errors', 'esim_orders',
+    'missed_call_textbacks', 'outbound_webhook_endpoints', 'outbound_webhook_deliveries',
+    'emergency_addresses', 'e911_acknowledgments', 'sms_opt_outs', 'sms_consent_log',
+    'sms_quiet_hours', 'ai_voice_consents', 'trust_hub_registrations',
+    'messaging_opt_out_prefs', 'integration_connections', 'review_settings',
+    'review_requests', 'consent_log', 'payment_links', 'port_in_requests',
+    'port_in_events', 'trade_syncs'
   ];
 BEGIN
   FOREACH t IN ARRAY tables LOOP
@@ -127,6 +140,12 @@ TRUNCATE public.phone_numbers, public.calls, public.messages, public.conversatio
   public.saved_places, public.place_searches, public.calendar_settings, public.calendar_bookings,
   public.app_user_connections, public.notification_prefs, public.email_log,
   public.email_template_overrides, public.digest_queue, public.webhook_errors, public.esim_orders,
+  public.missed_call_textbacks, public.outbound_webhook_endpoints, public.outbound_webhook_deliveries,
+  public.emergency_addresses, public.e911_acknowledgments, public.sms_opt_outs, public.sms_consent_log,
+  public.sms_quiet_hours, public.ai_voice_consents, public.trust_hub_registrations,
+  public.messaging_opt_out_prefs, public.integration_connections, public.review_settings,
+  public.review_requests, public.consent_log, public.payment_links, public.port_in_requests,
+  public.port_in_events, public.trade_syncs,
   public.workspace_members, public.user_roles, public.workspaces;
 
 INSERT INTO public.workspaces (id, name) VALUES
@@ -148,7 +167,13 @@ DECLARE
     'audit_log', 'templates', 'lookups', 'ai_conversations', 'twiml_apps',
     'saved_places', 'place_searches', 'calendar_settings', 'calendar_bookings',
     'app_user_connections', 'notification_prefs', 'email_log',
-    'email_template_overrides', 'digest_queue', 'webhook_errors', 'esim_orders'
+    'email_template_overrides', 'digest_queue', 'webhook_errors', 'esim_orders',
+    'missed_call_textbacks', 'outbound_webhook_endpoints', 'outbound_webhook_deliveries',
+    'emergency_addresses', 'e911_acknowledgments', 'sms_opt_outs', 'sms_consent_log',
+    'sms_quiet_hours', 'ai_voice_consents', 'trust_hub_registrations',
+    'messaging_opt_out_prefs', 'integration_connections', 'review_settings',
+    'review_requests', 'consent_log', 'payment_links', 'port_in_requests',
+    'port_in_events', 'trade_syncs'
   ];
 BEGIN
   FOREACH t IN ARRAY tables LOOP
@@ -177,7 +202,13 @@ DECLARE
     'audit_log', 'templates', 'lookups', 'ai_conversations', 'twiml_apps',
     'saved_places', 'place_searches', 'calendar_settings', 'calendar_bookings',
     'app_user_connections', 'notification_prefs', 'email_log',
-    'email_template_overrides', 'digest_queue', 'webhook_errors', 'esim_orders'
+    'email_template_overrides', 'digest_queue', 'webhook_errors', 'esim_orders',
+    'missed_call_textbacks', 'outbound_webhook_endpoints', 'outbound_webhook_deliveries',
+    'emergency_addresses', 'e911_acknowledgments', 'sms_opt_outs', 'sms_consent_log',
+    'sms_quiet_hours', 'ai_voice_consents', 'trust_hub_registrations',
+    'messaging_opt_out_prefs', 'integration_connections', 'review_settings',
+    'review_requests', 'consent_log', 'payment_links', 'port_in_requests',
+    'port_in_events', 'trade_syncs'
   ];
 BEGIN
   FOREACH t IN ARRAY tables LOOP

@@ -4,13 +4,13 @@ Production (`main`) deploys to https://sixvox.3bi.io. Staging is a separate stac
 
 ## Pieces
 
-| Piece    | Production                                                                              | Staging                                                                                                                 |
-| -------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Supabase | Lovable Cloud project used by sixvox.3bi.io                                             | A second Supabase project. Apply every file in `supabase/migrations`, including `20260926120000_phase1_workspaces.sql`. |
-| Twilio   | Parent account. The founding workspace keeps using it until an owner runs Move numbers. | A subaccount created under the same parent (or a separate test account). Do not buy numbers on the parent from staging. |
-| Web app  | Cloudflare deploy of `main`                                                             | A second Cloudflare project (or preview) whose origin is `PUBLIC_BASE_URL`.                                             |
-| Stripe   | Live webhook `?env=live`                                                                | Existing sandbox webhook `?env=sandbox`. Do not create or edit live Prices or Products.                                 |
-| A2P      | Real TrustHub submissions cost money                                                    | Set `TWILIO_A2P_MOCK=true` so brand registration sends `Mock=true`. Never set that in production.                       |
+| Piece    | Production                                                                              | Staging                                                                                                                                                                               |
+| -------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Supabase | Lovable Cloud project used by sixvox.3bi.io                                             | A second Supabase project. Apply every file in `supabase/migrations`, including `20260926120000_phase1_workspaces.sql` and `20260927040000_phase1_backfill_sibling_workspace_id.sql`. |
+| Twilio   | Parent account. The founding workspace keeps using it until an owner runs Move numbers. | A subaccount created under the same parent (or a separate test account). Do not buy numbers on the parent from staging.                                                               |
+| Web app  | Cloudflare deploy of `main`                                                             | A second Cloudflare project (or preview) whose origin is `PUBLIC_BASE_URL`.                                                                                                           |
+| Stripe   | Live webhook `?env=live`                                                                | Existing sandbox webhook `?env=sandbox`. Do not create or edit live Prices or Products.                                                                                               |
+| A2P      | Real TrustHub submissions cost money                                                    | Set `TWILIO_A2P_MOCK=true` so brand registration sends `Mock=true`. Never set that in production.                                                                                     |
 
 `SIXVOX_ENV` is `development`, `staging`, or `production`. `publicBaseUrl()` reads `PUBLIC_BASE_URL` and otherwise stays `https://sixvox.3bi.io`.
 

@@ -15,6 +15,16 @@ Apply `supabase/migrations/20260926120000_phase1_workspaces.sql` to staging befo
 - Raises founding entitlements to at least the current number and seat counts so existing usage is not locked out. If there is no active subscription, the founding plan defaults to Scale.
 - Adds nullable `phone_numbers.e911_address_sid` and `workspaces.recording_consent_required` (default false) for the Phase 2 emergency-address and recording-consent work. The Secondary Customer Profile SID on `a2p_registrations` is the TrustHub bundle that later SHAKEN/CNAM registration reuses.
 
+`20260927040000_phase1_backfill_sibling_workspace_id.sql` runs after the release-train migrations. Those PRs add a nullable `workspace_id` with no foreign key, and their timestamps are later than `20260926120000`, so the first migration skips the tables. The follow-up:
+
+- Backfills `missed_call_textbacks`, `outbound_webhook_endpoints`, `outbound_webhook_deliveries`, `emergency_addresses`, `e911_acknowledgments`, `sms_opt_outs`, `sms_consent_log`, `sms_quiet_hours`, `ai_voice_consents`, `trust_hub_registrations`, `messaging_opt_out_prefs`, `integration_connections`, `review_settings`, `review_requests`, `consent_log`, `payment_links`, `port_in_requests`, `port_in_events`, and `trade_syncs`.
+- Also backfills any other public table that already has `workspace_id` and is not in the Phase 1 list. That covers an AI receptionist table if its migration sorts before this file. No receptionist migration was on the remote when this was written.
+- Points rows at the caller's workspace when `user_id` is set, then at the founding workspace. Text-backs and emergency addresses follow the phone number. Webhook deliveries follow their endpoint. Port-in events follow the request.
+- Adds the foreign key, index, membership RLS, and `assign_workspace_id` trigger. `workspace_id` becomes NOT NULL only when no nulls remain.
+- Backfills `leads.workspace_id` and adds the foreign key when that column exists. Leads stay nullable and keep the super-admin policies.
+- Drops `voice_presence_user_id_uidx` when `voice_presence.device_key` exists, so the native-calling migration can keep one presence row per device.
+- Leaves `integration_secrets`, `oauth_transactions`, `stripe_connect_events`, `port_in_private`, and `mobile_call_acks` alone. They have no `workspace_id`.
+
 ## Rollback
 
 There is no down migration that restores the previous policies. If production must be rolled back:
