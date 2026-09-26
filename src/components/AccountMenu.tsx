@@ -34,7 +34,9 @@ export function AccountActions({ className, stacked }: { className?: string; sta
           onClick={() => void signOut()}
           className={cn(
             "items-center justify-center rounded-full px-4 text-sm text-muted-foreground transition-colors hover:text-foreground",
-            stacked ? "key-raised flex min-h-14 text-base font-semibold" : "hidden min-h-11 sm:inline-flex",
+            stacked
+              ? "key-raised flex min-h-14 text-base font-semibold"
+              : "hidden min-h-11 sm:inline-flex",
           )}
         >
           <LogOut className="mr-2 h-4 w-4" aria-hidden />

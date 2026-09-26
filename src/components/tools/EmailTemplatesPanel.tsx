@@ -16,11 +16,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage } from "@/lib/format";
-import {
-  listEmailTemplates,
-  previewEmailTemplate,
-  saveEmailTemplate,
-} from "@/lib/tools.functions";
+import { listEmailTemplates, previewEmailTemplate, saveEmailTemplate } from "@/lib/tools.functions";
 
 type Draft = {
   subject: string;
@@ -31,7 +27,14 @@ type Draft = {
   enabled: boolean;
 };
 
-const EMPTY: Draft = { subject: "", eyebrow: "", headline: "", intro: "", outro: "", enabled: false };
+const EMPTY: Draft = {
+  subject: "",
+  eyebrow: "",
+  headline: "",
+  intro: "",
+  outro: "",
+  enabled: false,
+};
 
 export function EmailTemplatesPanel() {
   const queryClient = useQueryClient();

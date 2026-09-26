@@ -2,11 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { TRIAL_DAYS } from "@/lib/plans";
-import {
-  type StripeEnv,
-  createStripeClient,
-  getStripeErrorMessage,
-} from "@/lib/stripe.server";
+import { type StripeEnv, createStripeClient, getStripeErrorMessage } from "@/lib/stripe.server";
 
 type CheckoutSessionResult = { clientSecret: string } | { error: string };
 type PortalSessionResult = { url: string } | { error: string };
@@ -47,7 +43,22 @@ export type BillingHistoryResult =
   | { error: string };
 
 const ZERO_DECIMAL = new Set([
-  "bif","clp","djf","gnf","jpy","kmf","krw","mga","pyg","rwf","ugx","vnd","vuv","xaf","xof","xpf",
+  "bif",
+  "clp",
+  "djf",
+  "gnf",
+  "jpy",
+  "kmf",
+  "krw",
+  "mga",
+  "pyg",
+  "rwf",
+  "ugx",
+  "vnd",
+  "vuv",
+  "xaf",
+  "xof",
+  "xpf",
 ]);
 const THREE_DECIMAL = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
 
@@ -406,7 +417,9 @@ export const updateSubscriber = createServerFn({ method: "POST" })
         .delete()
         .eq("user_id", data.targetUserId)
         .in("role", ["owner", "admin", "agent"]);
-      await supabaseAdmin.from("user_roles").insert({ user_id: data.targetUserId, role: data.role });
+      await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: data.targetUserId, role: data.role });
     }
 
     return { ok: true };

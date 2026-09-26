@@ -1,12 +1,14 @@
 Create a `/use-cases` marketing page and add it to the main public navigation.
 
 What we will build
+
 - A new public route at `/use-cases` rendered with the existing `MarketingLayout` and shared components (`Section`, `Eyebrow`, `Reveal`, `FeatureGroup`, `IconTile`, `CtaBand`).
 - The page will present four top use cases that benefit from SixVox, each as a concrete persona + problem + outcome card.
 - Add "Use Cases" to the main site navigation (`MarketingLayout` `NAV` array) and footer "Product" column.
 - Route-specific SEO metadata using the existing `pageHead` helper.
 
 Page structure
+
 1. Hero section: short punchy headline, subheadline, and primary CTA to `/auth` signup.
 2. Four use case cards in a responsive grid:
    - "Solopreneurs & side businesses" — separate business and personal life with a second line, business voicemail, and transcripts.
@@ -17,11 +19,13 @@ Page structure
 4. CTA band to start the free trial.
 
 Files to create/modify
+
 - `src/routes/use-cases.tsx` — new route file.
 - `src/components/MarketingLayout.tsx` — insert "Use Cases" into the `NAV` array and footer links.
 - `src/routeTree.gen.ts` will auto-regenerate from the new route file; no manual edits.
 
 Design & content constraints
+
 - Reuse the Graphite & Amber design system (no new colors, no glass panels unless using existing `glass-panel` utility).
 - Keep language benefit-driven and concrete, not feature-list style.
 - All CTAs lead to `/auth?mode=signup` or `/pricing`.

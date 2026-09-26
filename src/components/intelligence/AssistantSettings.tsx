@@ -15,7 +15,10 @@ import { getAssistantSettings, saveAssistantSettings } from "@/lib/intelligence.
  */
 export function AssistantSettings() {
   const qc = useQueryClient();
-  const settings = useQuery({ queryKey: ["assistant-settings"], queryFn: () => getAssistantSettings() });
+  const settings = useQuery({
+    queryKey: ["assistant-settings"],
+    queryFn: () => getAssistantSettings(),
+  });
   const [instructions, setInstructions] = useState("");
 
   useEffect(() => {

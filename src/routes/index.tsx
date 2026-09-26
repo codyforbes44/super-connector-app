@@ -160,7 +160,10 @@ const CONTRAST = [
     them: "A curated slice of what your line can do",
     us: "Messaging, calling, numbers, AI answering and raw API access",
   },
-  { them: "Voicemail you have to listen to", us: "Voicemail read as text, summarised and searchable" },
+  {
+    them: "Voicemail you have to listen to",
+    us: "Voicemail read as text, summarised and searchable",
+  },
   { them: "One login, one user", us: "Real owner, admin and agent roles scoped in the database" },
   { them: "Per-message surcharges", us: "Flat plan, usage billed at cost" },
 ];
@@ -202,8 +205,8 @@ function Landing() {
                 <span className="text-primary"> that pays for the week.</span>
               </h1>
               <p className="mt-5 max-w-xl text-[0.98rem] leading-relaxed text-pretty text-muted-foreground md:text-[1.05rem]">
-                SixVox is a second line that answers for you — calls, texts and voicemail
-                in one app.
+                SixVox is a second line that answers for you — calls, texts and voicemail in one
+                app.
                 <span className="block text-foreground/90">
                   When you can't pick up, the AI receptionist books the job and drops the summary in
                   your inbox.
@@ -228,7 +231,10 @@ function Landing() {
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
                 Built for trades, solo operators, small teams and people who work from anywhere —{" "}
-                <Link to="/use-cases" className="font-semibold text-primary underline-offset-4 hover:underline">
+                <Link
+                  to="/use-cases"
+                  className="font-semibold text-primary underline-offset-4 hover:underline"
+                >
                   see the use cases
                 </Link>
                 .
@@ -435,7 +441,10 @@ function Landing() {
           {CONTRAST.map((row) => (
             <li key={row.us} className="surface-row rounded-3xl p-5">
               <p className="flex items-start gap-2 text-[0.82rem] text-muted-foreground line-through decoration-destructive/60">
-                <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive no-underline" aria-hidden />
+                <X
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive no-underline"
+                  aria-hidden
+                />
                 {row.them}
               </p>
               <p className="mt-2 flex items-start gap-2 text-[0.85rem] font-medium">
@@ -452,7 +461,10 @@ function Landing() {
           <h2 className="font-display text-2xl font-semibold md:text-3xl">
             Free for 14 days, then plans that scale
           </h2>
-          <Link to="/pricing" className="inline-flex min-h-11 items-center text-sm text-primary underline">
+          <Link
+            to="/pricing"
+            className="inline-flex min-h-11 items-center text-sm text-primary underline"
+          >
             Full comparison
           </Link>
         </div>
@@ -489,7 +501,10 @@ function Landing() {
       <Section className="py-9 md:py-14">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="font-display text-2xl font-semibold md:text-3xl">Common questions</h2>
-          <Link to="/faq" className="inline-flex min-h-11 items-center text-sm text-primary underline">
+          <Link
+            to="/faq"
+            className="inline-flex min-h-11 items-center text-sm text-primary underline"
+          >
             All answers
           </Link>
         </div>
@@ -505,7 +520,7 @@ function Landing() {
             body="Create your workspace, claim a number and take your first call in about a minute."
             note="14 days free · no card · cancel any time"
           />
-      </Reveal>
+        </Reveal>
       </Section>
     </MarketingLayout>
   );

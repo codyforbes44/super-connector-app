@@ -29,16 +29,19 @@ Two changes running side by side: everything a normal user reads becomes plain-E
 ## Technical notes
 
 **Data** (one migration)
+
 - `byo_numbers`: `user_id`, `personal_number`, `carrier`, `forward_mode` (`conditional` | `all`), `assigned_number`, `status` (`pending` | `verified` | `off`), `verified_at`, `last_forwarded_call_at`, timestamps. RLS: owner read/write, admins full; GRANTs to `authenticated` and `service_role` in the same migration.
 - `profiles`: add `setup_state jsonb` and `support_requested_at`.
 
 **Server**
+
 - `src/lib/byo.server.ts` + `byo.functions.ts` behind `requireSupabaseAuth`: save settings, poll verification, disable forwarding, admin overrides.
 - Pure module `src/lib/forwarding-codes.ts` holds the carrier code table so the UI can render codes client-side.
 - Inbound voice path (`voice-answer.server.ts`, `api/public/twilio/app-voice.ts`): when a call lands on a line with a `byo_numbers` row, stamp `last_forwarded_call_at`, flip `pending` to `verified`, and use that user's greeting/agent config. Existing ringback and fallback behaviour untouched.
 - Admin per-user config reuses `twilio-ops.server.ts` and `elevenlabs-ops.server.ts` through an admin-acting-on-user variant guarded by `is_admin`.
 
 **UI**
+
 - `src/components/line/BringYourOwnNumber.tsx` (wizard: number → style → carrier → codes → verify) and `ForwardingStatusCard.tsx`.
 - `src/routes/_authenticated/admin.$userId.tsx` account page; `subscribers.tsx` rows link into it.
 - `src/routes/_authenticated/advanced.tsx` collecting API console, TwiML app, messaging services, webhook URLs and account usage, admin-gated.
@@ -46,5 +49,6 @@ Two changes running side by side: everything a normal user reads becomes plain-E
 - Copy pass across `numbers.tsx`, `settings.tsx`, `calls.tsx`, `tools.tsx`, `inbox/*`, `welcome.tsx`, marketing routes and email templates.
 
 **Notes**
+
 - Carrier codes are dialled by the user on their own handset; SixVox cannot set them programmatically, so verification is observational (first forwarded call) plus a manual admin override.
 - Conditional forwarding usually needs three codes (busy, no answer, unreachable); the wizard walks them one at a time with a tick per code.

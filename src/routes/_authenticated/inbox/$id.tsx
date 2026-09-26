@@ -112,13 +112,14 @@ function ThreadScreen() {
     retry: false,
   });
   const senderState =
-    ((readiness.data ?? []) as unknown as Array<{
-      phoneNumber: string;
-      campaignStatus: string | null;
-      ready: boolean;
-    }>).find((s) => s.phoneNumber === convo?.app_number) ?? null;
-  const smsBlocked =
-    convo?.channel !== "whatsapp" && Boolean(senderState) && !senderState?.ready;
+    (
+      (readiness.data ?? []) as unknown as Array<{
+        phoneNumber: string;
+        campaignStatus: string | null;
+        ready: boolean;
+      }>
+    ).find((s) => s.phoneNumber === convo?.app_number) ?? null;
+  const smsBlocked = convo?.channel !== "whatsapp" && Boolean(senderState) && !senderState?.ready;
 
   // Calls with the same contact are folded into the thread so the history of a
   // relationship reads as one timeline instead of two disconnected screens.
@@ -355,40 +356,40 @@ function ThreadScreen() {
           to reply from this number.
         </div>
       ) : (
-      <form
-        onSubmit={submit}
-        className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/60 px-3 py-2 backdrop-blur-xl"
-      >
-        <div className="glass-panel flex items-end gap-2 rounded-full p-1.5">
-          <button
-            type="button"
-            onClick={() => setNoteMode(!noteMode)}
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95",
-              noteMode ? "key-signal" : "key-raised text-muted-foreground",
-            )}
-          >
-            <StickyNote className="h-4 w-4" />
-            <span className="sr-only">Toggle internal note</span>
-          </button>
-          <Textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={1}
-            maxLength={1500}
-            placeholder={noteMode ? "Internal note (not sent)" : "Message"}
-            className="max-h-32 min-h-10 resize-none rounded-2xl border-0 bg-transparent px-2 py-2.5 shadow-none focus-visible:ring-0"
-          />
-          <button
-            type="submit"
-            disabled={busy || !draft.trim()}
-            className="key-call flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95 disabled:opacity-50"
-          >
-            <Send className="h-4 w-4" />
-            <span className="sr-only">Send</span>
-          </button>
-        </div>
-      </form>
+        <form
+          onSubmit={submit}
+          className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-background/60 px-3 py-2 backdrop-blur-xl"
+        >
+          <div className="glass-panel flex items-end gap-2 rounded-full p-1.5">
+            <button
+              type="button"
+              onClick={() => setNoteMode(!noteMode)}
+              className={cn(
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95",
+                noteMode ? "key-signal" : "key-raised text-muted-foreground",
+              )}
+            >
+              <StickyNote className="h-4 w-4" />
+              <span className="sr-only">Toggle internal note</span>
+            </button>
+            <Textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={1}
+              maxLength={1500}
+              placeholder={noteMode ? "Internal note (not sent)" : "Message"}
+              className="max-h-32 min-h-10 resize-none rounded-2xl border-0 bg-transparent px-2 py-2.5 shadow-none focus-visible:ring-0"
+            />
+            <button
+              type="submit"
+              disabled={busy || !draft.trim()}
+              className="key-call flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform active:scale-95 disabled:opacity-50"
+            >
+              <Send className="h-4 w-4" />
+              <span className="sr-only">Send</span>
+            </button>
+          </div>
+        </form>
       )}
     </div>
   );

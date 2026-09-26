@@ -3,7 +3,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import * as ops from "./elevenlabs-ops.server";
 
-
 export const elevenLabsStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => ops.status(context.supabase, context.userId));

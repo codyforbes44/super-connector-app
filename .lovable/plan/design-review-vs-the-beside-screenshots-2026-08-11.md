@@ -13,25 +13,30 @@ The reference app (Beside) is a flat near-black consumer messaging app with big 
 
 ## Recommended changes for SixVox
 
-Keep the SixVox identity (cyan signal accent, Space Grotesk, gradient canvas) — adopt the *structure*, not the palette.
+Keep the SixVox identity (cyan signal accent, Space Grotesk, gradient canvas) — adopt the _structure_, not the palette.
 
 ### Chrome
+
 - Convert `ScreenHeader` to a floating pill layout on mobile: title capsule left, action capsule right, transparent background over the gradient.
 - Convert the bottom tab bar into a detached rounded pod with safe-area margin, and add a single round primary FAB to its right for the screen's main action (new message on Inbox, dial on Calls).
 
 ### Lists (Inbox + Calls)
+
 - Flatten rows: drop the per-row glass panel, use a hairline divider, name/number at `text-lg font-semibold`, one muted status line, unread pill right-aligned. Target ~72px rows.
 - Add a small circular source glyph (AI receptionist / SMS / voicemail) in front of the status line instead of a badge row.
 - Reduce to at most one soft chip per row ("Callback needed"), pushing the rest into detail.
 - Add swipe-to-mark-read and swipe-to-pin on conversation rows.
 
 ### Settings
+
 - Restructure `/settings` into labelled sections with colored rounded-square icon tiles and a right-side value + chevron pattern, matching the reference's scanability. Map: green = calls/number, cyan = messaging, violet = email/AI, amber = billing.
 
 ### Thread view
+
 - Render missed calls and AI-answered calls as in-thread event cards with the one-line summary, a "Tap to read transcript" affordance and a compact waveform player — instead of only living in the Calls sheet.
 
 ### Contacts / quick actions
+
 - The reference's "+" opens a sheet of verbs (Dial, New Chat, Ask assistant). Worth adopting for the FAB so one control covers every create action.
 
 ## Scope note

@@ -20,10 +20,7 @@ function InboxLayout() {
   return (
     <div className="md:grid md:min-h-dvh md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]">
       <div
-        className={cn(
-          "min-w-0 md:block md:border-r md:border-border",
-          showingDetail && "hidden",
-        )}
+        className={cn("min-w-0 md:block md:border-r md:border-border", showingDetail && "hidden")}
       >
         <InboxList {...(activeId ? { activeId } : {})} />
       </div>

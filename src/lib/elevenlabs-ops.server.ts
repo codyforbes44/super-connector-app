@@ -100,7 +100,11 @@ function cleanAgent(draft: AgentDraft): el.AgentInput {
   };
 }
 
-export async function getAgent(supabase: SupabaseClient, userId: string, args: { agentId: string }) {
+export async function getAgent(
+  supabase: SupabaseClient,
+  userId: string,
+  args: { agentId: string },
+) {
   await allowedNumbers(supabase, userId);
   return el.getAgent(args.agentId);
 }

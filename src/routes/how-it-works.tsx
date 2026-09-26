@@ -41,7 +41,8 @@ const STEPS = [
     title: "Sync your existing numbers",
     time: "2 minutes",
     body: "Port your current numbers or set call forwarding from your existing carrier. SixVox answers behind the scenes while your callers keep dialing the same digits.",
-    detail: "We generate the exact carrier forwarding codes for your provider so you just dial them.",
+    detail:
+      "We generate the exact carrier forwarding codes for your provider so you just dial them.",
   },
   {
     title: "Wire your numbers",
@@ -78,8 +79,8 @@ function HowItWorksPage() {
           From signup to your first answered call.
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          No migration project. Keep the numbers you already use, and put a proper
-          product on top of them.
+          No migration project. Keep the numbers you already use, and put a proper product on top of
+          them.
         </p>
       </Section>
 

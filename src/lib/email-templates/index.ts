@@ -217,7 +217,9 @@ export type DigestData = {
 export function dailyDigest(d: DigestData): RenderedEmail {
   const threadRows = d.threads
     .map(
-      (t) => `<tr><td style="padding:10px 0;border-bottom:1px solid ${BRAND.line};font:400 14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${BRAND.ink};">
+      (
+        t,
+      ) => `<tr><td style="padding:10px 0;border-bottom:1px solid ${BRAND.line};font:400 14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${BRAND.ink};">
       <a href="${escapeHtml(appLink(d.baseUrl, `/inbox/${t.id}`))}" style="color:${BRAND.ink};text-decoration:none;"><strong>${escapeHtml(t.from)}</strong><br/>
       <span style="color:${BRAND.muted};font-size:13px;">${escapeHtml(t.preview.slice(0, 90))}</span></a></td></tr>`,
     )

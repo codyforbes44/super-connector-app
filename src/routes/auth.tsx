@@ -166,112 +166,112 @@ function AuthScreen() {
         className="pointer-events-none absolute -top-16 right-0 h-56 w-56 rounded-full bg-primary/25 blur-3xl"
       />
       <div className="glass-panel relative rounded-[2rem] p-6">
-      <span className="key-signal mb-5 flex h-14 w-14 items-center justify-center rounded-xl">
-        <PhoneCall className="h-6 w-6" />
-      </span>
-      <h1 className="font-display text-3xl font-semibold">
-        {mode === "signin" ? "Welcome back" : "Start your free trial"}
-      </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {mode === "signin"
-          ? "Sign in to your SixVox workspace."
-          : "14 days free. No card required. Set up in about a minute."}
-      </p>
+        <span className="key-signal mb-5 flex h-14 w-14 items-center justify-center rounded-xl">
+          <PhoneCall className="h-6 w-6" />
+        </span>
+        <h1 className="font-display text-3xl font-semibold">
+          {mode === "signin" ? "Welcome back" : "Start your free trial"}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {mode === "signin"
+            ? "Sign in to your SixVox workspace."
+            : "14 days free. No card required. Set up in about a minute."}
+        </p>
 
-      <Button
-        type="button"
-        variant="secondary"
-        className="mt-7 h-12 w-full rounded-xl text-sm font-semibold"
-        disabled={busy}
-        onClick={handleGoogle}
-      >
-        Continue with Google
-      </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          className="mt-7 h-12 w-full rounded-xl text-sm font-semibold"
+          disabled={busy}
+          onClick={handleGoogle}
+        >
+          Continue with Google
+        </Button>
 
-      <div className="my-5 flex items-center gap-3 text-[0.7rem] tracking-wide text-muted-foreground uppercase">
-        <span className="h-px flex-1 bg-border" />
-        or
-        <span className="h-px flex-1 bg-border" />
-      </div>
+        <div className="my-5 flex items-center gap-3 text-[0.7rem] tracking-wide text-muted-foreground uppercase">
+          <span className="h-px flex-1 bg-border" />
+          or
+          <span className="h-px flex-1 bg-border" />
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {mode === "signup" ? (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "signup" ? (
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Your name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="h-12 rounded-xl px-4 text-base"
+                autoComplete="name"
+                maxLength={80}
+              />
+            </div>
+          ) : null}
           <div className="space-y-1.5">
-            <Label htmlFor="name">Your name</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            className="h-12 rounded-xl px-4 text-base"
-              autoComplete="name"
-              maxLength={80}
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-12 rounded-xl px-4 text-base"
+              autoComplete="email"
+              maxLength={255}
             />
           </div>
-        ) : null}
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-12 rounded-xl px-4 text-base"
-            autoComplete="email"
-            maxLength={255}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="h-12 rounded-xl px-4 text-base"
-            autoComplete={mode === "signin" ? "current-password" : "new-password"}
-          />
-        </div>
-        <Button
-          type="submit"
-          className="key-signal h-12 w-full rounded-xl text-sm font-semibold"
-          disabled={busy}
-        >
-          {mode === "signin" ? "Sign in" : "Start free trial"}
-        </Button>
-      </form>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-12 rounded-xl px-4 text-base"
+              autoComplete={mode === "signin" ? "current-password" : "new-password"}
+            />
+          </div>
+          <Button
+            type="submit"
+            className="key-signal h-12 w-full rounded-xl text-sm font-semibold"
+            disabled={busy}
+          >
+            {mode === "signin" ? "Sign in" : "Start free trial"}
+          </Button>
+        </form>
 
-      <label className="mt-4 flex min-h-11 cursor-pointer items-center gap-3 rounded-2xl px-1 text-sm">
-        <input
-          type="checkbox"
-          checked={remember}
-          onChange={(e) => {
-            setRemember(e.target.checked);
-            setRememberMe(e.target.checked);
-          }}
-          className="h-5 w-5 shrink-0 rounded-md border border-border bg-transparent accent-[var(--color-primary)]"
-        />
-        <span className="min-w-0">
-          <span className="font-medium">Keep me signed in</span>
-          <span className="block text-xs text-muted-foreground">
-            {remember
-              ? "Stay signed in on this device until you sign out."
-              : "Sign out automatically when you close this browser or tab."}
+        <label className="mt-4 flex min-h-11 cursor-pointer items-center gap-3 rounded-2xl px-1 text-sm">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => {
+              setRemember(e.target.checked);
+              setRememberMe(e.target.checked);
+            }}
+            className="h-5 w-5 shrink-0 rounded-md border border-border bg-transparent accent-[var(--color-primary)]"
+          />
+          <span className="min-w-0">
+            <span className="font-medium">Keep me signed in</span>
+            <span className="block text-xs text-muted-foreground">
+              {remember
+                ? "Stay signed in on this device until you sign out."
+                : "Sign out automatically when you close this browser or tab."}
+            </span>
           </span>
-        </span>
-      </label>
+        </label>
 
-      <button
-        type="button"
-        className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
-        onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-      >
-        {mode === "signin"
-          ? "No account yet? Start a free trial"
-          : "Already have an account? Sign in"}
-      </button>
+        <button
+          type="button"
+          className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+        >
+          {mode === "signin"
+            ? "No account yet? Start a free trial"
+            : "Already have an account? Sign in"}
+        </button>
       </div>
     </main>
   );

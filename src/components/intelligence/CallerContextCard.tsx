@@ -29,7 +29,11 @@ export function CallerContextCard({
   if (!lines.length && !data?.rule) return null;
 
   return (
-    <div className={compact ? "glass-panel w-full rounded-2xl p-3" : "glass-panel mt-2 rounded-2xl p-3.5"}>
+    <div
+      className={
+        compact ? "glass-panel w-full rounded-2xl p-3" : "glass-panel mt-2 rounded-2xl p-3.5"
+      }
+    >
       <div className="flex items-center gap-2">
         {data?.rule?.behavior === "vip" ? (
           <Star className="size-4 shrink-0 text-primary" />
@@ -37,7 +41,8 @@ export function CallerContextCard({
           <History className="size-4 shrink-0 text-primary" />
         )}
         <p className="font-display text-sm font-semibold">
-          {data?.rule?.label || (data?.rule?.behavior === "vip" ? "VIP caller" : "You've spoken before")}
+          {data?.rule?.label ||
+            (data?.rule?.behavior === "vip" ? "VIP caller" : "You've spoken before")}
         </p>
         {data?.memory?.call_count ? (
           <span className="ml-auto text-[0.7rem] text-muted-foreground">

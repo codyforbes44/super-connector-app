@@ -7,29 +7,29 @@ name: PWA / TWA artifacts
 on:
   push:
     branches: [main]
-    tags: ['twa-v*', 'v*']
+    tags: ["twa-v*", "v*"]
     paths:
-      - 'public/manifest.webmanifest'
-      - 'twa-manifest.json'
-      - 'scripts/sync-twa-manifest.mjs'
-      - '.github/workflows/pwa-twa.yml'
+      - "public/manifest.webmanifest"
+      - "twa-manifest.json"
+      - "scripts/sync-twa-manifest.mjs"
+      - ".github/workflows/pwa-twa.yml"
   pull_request:
     paths:
-      - 'public/manifest.webmanifest'
-      - 'twa-manifest.json'
+      - "public/manifest.webmanifest"
+      - "twa-manifest.json"
   workflow_dispatch:
     inputs:
       release:
-        description: 'Create a GitHub Release with the AAB'
+        description: "Create a GitHub Release with the AAB"
         type: boolean
         default: false
       play_track:
-        description: 'Google Play track to upload to'
+        description: "Google Play track to upload to"
         type: choice
         default: internal
         options: [none, internal, alpha, beta, production]
       play_status:
-        description: 'Release status on that track'
+        description: "Release status on that track"
         type: choice
         default: draft
         options: [draft, inProgress, halted, completed]

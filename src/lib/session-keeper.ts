@@ -4,10 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 const PROJECT_ID =
   (import.meta.env["VITE_SUPABASE_PROJECT_ID"] as string | undefined) ??
-  ((import.meta.env["VITE_SUPABASE_URL"] as string | undefined)?.match(
+  (import.meta.env["VITE_SUPABASE_URL"] as string | undefined)?.match(
     /https:\/\/([^.]+)\.supabase\./,
   )?.[1] ??
-    "");
+  "";
 
 /** Where supabase-js persists the session (localStorage, per the generated client). */
 const SESSION_KEY = `sb-${PROJECT_ID}-auth-token`;

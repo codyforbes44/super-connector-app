@@ -18,13 +18,7 @@ const KEYS = [
   { digit: "#", letters: "" },
 ] as const;
 
-export function Dialpad({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-}) {
+export function Dialpad({ value, onChange }: { value: string; onChange: (next: string) => void }) {
   return (
     <div className="space-y-4">
       <div className="flex min-h-14 items-center justify-center gap-2">

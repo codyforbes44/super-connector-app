@@ -349,89 +349,89 @@ function CallsScreen() {
           {(pageCalls) => (
             <ListGroup className="min-w-0">
               {pageCalls.map((call) => {
-              const inbound = call.direction === "inbound";
-              const other = inbound ? call.from_number : call.to_number;
-              const redialTo = otherParty(call);
-              const missed = ["no-answer", "failed", "busy", "canceled"].includes(
-                call.status ?? "",
-              );
-              return (
-                <div
-                  key={call.id}
-                  className="flex min-h-[4.5rem] min-w-0 items-center gap-2.5 px-4 py-3 sm:gap-3"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setDetail(call)}
-                    className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
+                const inbound = call.direction === "inbound";
+                const other = inbound ? call.from_number : call.to_number;
+                const redialTo = otherParty(call);
+                const missed = ["no-answer", "failed", "busy", "canceled"].includes(
+                  call.status ?? "",
+                );
+                return (
+                  <div
+                    key={call.id}
+                    className="flex min-h-[4.5rem] min-w-0 items-center gap-2.5 px-4 py-3 sm:gap-3"
                   >
-                    <span
-                      className={cn(
-                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
-                        missed
-                          ? "bg-destructive/15 text-destructive"
-                          : inbound
-                            ? "bg-success/15 text-success"
-                            : "bg-primary/15 text-primary",
-                      )}
+                    <button
+                      type="button"
+                      onClick={() => setDetail(call)}
+                      className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
                     >
-                      {inbound ? (
-                        <ArrowDownLeft className="h-4 w-4" />
-                      ) : (
-                        <ArrowUpRight className="h-4 w-4" />
-                      )}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="flex min-w-0 items-center gap-1.5 text-[0.95rem] font-medium">
-                        <span className="truncate">{formatPhone(other)}</span>
-                        {call.answered_in_app ? (
-                          <Smartphone
-                            className="h-3 w-3 shrink-0 text-primary"
-                            aria-label="Answered in app"
-                          />
-                        ) : null}
-                        <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
-                          {relativeTime(call.started_at)}
-                        </span>
-                      </p>
-                      <p className="flex min-w-0 items-center gap-1.5 truncate text-[0.78rem] text-muted-foreground">
-                        {missed ? (
-                          <span className="shrink-0 rounded-full bg-destructive/15 px-2 py-0.5 text-[0.65rem] font-semibold text-destructive">
-                            Missed
+                      <span
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+                          missed
+                            ? "bg-destructive/15 text-destructive"
+                            : inbound
+                              ? "bg-success/15 text-success"
+                              : "bg-primary/15 text-primary",
+                        )}
+                      >
+                        {inbound ? (
+                          <ArrowDownLeft className="h-4 w-4" />
+                        ) : (
+                          <ArrowUpRight className="h-4 w-4" />
+                        )}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="flex min-w-0 items-center gap-1.5 text-[0.95rem] font-medium">
+                          <span className="truncate">{formatPhone(other)}</span>
+                          {call.answered_in_app ? (
+                            <Smartphone
+                              className="h-3 w-3 shrink-0 text-primary"
+                              aria-label="Answered in app"
+                            />
+                          ) : null}
+                          <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
+                            {relativeTime(call.started_at)}
                           </span>
-                        ) : call.recording_url ? (
-                          <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[0.65rem] font-semibold text-primary">
-                            Voicemail
+                        </p>
+                        <p className="flex min-w-0 items-center gap-1.5 truncate text-[0.78rem] text-muted-foreground">
+                          {missed ? (
+                            <span className="shrink-0 rounded-full bg-destructive/15 px-2 py-0.5 text-[0.65rem] font-semibold text-destructive">
+                              Missed
+                            </span>
+                          ) : call.recording_url ? (
+                            <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[0.65rem] font-semibold text-primary">
+                              Voicemail
+                            </span>
+                          ) : null}
+                          <span className={cn("truncate", missed && "text-destructive")}>
+                            {callStory(call)}
                           </span>
-                        ) : null}
-                        <span className={cn("truncate", missed && "text-destructive")}>
-                          {callStory(call)}
-                        </span>
-                        {call.duration ? (
-                          <span className="tabular"> · {duration(call.duration)}</span>
-                        ) : null}
-                      </p>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => playVoicemail(call.sid)}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
-                  >
-                    <Play className="h-4 w-4" />
-                    <span className="sr-only">Play voicemail</span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!redialTo}
-                    onClick={() => void callBack(call)}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
-                  >
-                    <PhoneCall className="h-4 w-4" />
-                    <span className="sr-only">Call back {redialTo || "unavailable"}</span>
-                  </button>
-                </div>
-              );
+                          {call.duration ? (
+                            <span className="tabular"> · {duration(call.duration)}</span>
+                          ) : null}
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => playVoicemail(call.sid)}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
+                    >
+                      <Play className="h-4 w-4" />
+                      <span className="sr-only">Play voicemail</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!redialTo}
+                      onClick={() => void callBack(call)}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
+                    >
+                      <PhoneCall className="h-4 w-4" />
+                      <span className="sr-only">Call back {redialTo || "unavailable"}</span>
+                    </button>
+                  </div>
+                );
               })}
             </ListGroup>
           )}

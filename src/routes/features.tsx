@@ -143,10 +143,7 @@ function FeaturesPage() {
       </Section>
 
       {GROUPS.map((group) => (
-        <Section
-          key={group.heading}
-          className="scroll-mt-24 py-8"
-        >
+        <Section key={group.heading} className="scroll-mt-24 py-8">
           <h2 className="font-display text-sm font-semibold tracking-wide text-primary uppercase">
             {group.heading}
           </h2>

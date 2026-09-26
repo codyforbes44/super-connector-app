@@ -54,7 +54,9 @@ function InsightsScreen() {
       );
     }
     if (data.urgent > 0) {
-      nudges.push(`${data.urgent} caller${data.urgent === 1 ? "" : "s"} sounded urgent — worth a look.`);
+      nudges.push(
+        `${data.urgent} caller${data.urgent === 1 ? "" : "s"} sounded urgent — worth a look.`,
+      );
     }
     if (data.inbound > 0 && data.analysed === 0) {
       nudges.push(
@@ -128,7 +130,10 @@ function InsightsScreen() {
           <h2 className="font-display text-sm font-semibold">Worth doing</h2>
           <ul className="space-y-1.5">
             {nudges.map((nudge) => (
-              <li key={nudge} className="glass-panel flex items-start gap-2.5 rounded-2xl px-3.5 py-3">
+              <li
+                key={nudge}
+                className="glass-panel flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
+              >
                 <Lightbulb className="mt-0.5 size-4 shrink-0 text-primary" />
                 <p className="text-sm text-muted-foreground">{nudge}</p>
               </li>

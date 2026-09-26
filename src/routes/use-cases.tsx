@@ -1,12 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, Briefcase, Globe, Users, Wrench } from "lucide-react";
 
-import {
-  CtaBand,
-  Eyebrow,
-  MarketingLayout,
-  Section,
-} from "@/components/MarketingLayout";
+import { CtaBand, Eyebrow, MarketingLayout, Section } from "@/components/MarketingLayout";
 import { Reveal } from "@/components/marketing/Reveal";
 import { FeatureGroup, IconTile, TONES } from "@/components/marketing/FeatureList";
 import { SITE_URL, pageHead } from "@/lib/seo";
@@ -160,7 +155,8 @@ function UseCasesPage() {
             <span className="text-primary text-glow"> small business.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-[0.95rem] leading-relaxed text-pretty text-muted-foreground md:text-[1rem]">
-            Whether you run a one-person shop, a service crew, a team, or a mobile operation, SixVox gives you a business phone, shared inbox, AI receptionist and global calling in one app.
+            Whether you run a one-person shop, a service crew, a team, or a mobile operation, SixVox
+            gives you a business phone, shared inbox, AI receptionist and global calling in one app.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
@@ -196,10 +192,7 @@ function UseCasesPage() {
               <p className="mt-3 text-[0.82rem] leading-relaxed">{useCase.outcome}</p>
               <ul className="mt-4 flex-1 space-y-1.5">
                 {useCase.bullets.map((bullet) => (
-                  <li
-                    key={bullet}
-                    className="text-[0.75rem] leading-relaxed text-muted-foreground"
-                  >
+                  <li key={bullet} className="text-[0.75rem] leading-relaxed text-muted-foreground">
                     {bullet}
                   </li>
                 ))}
@@ -271,7 +264,6 @@ function UseCasesPage() {
         </div>
       </Section>
 
-
       <Section className="py-9 md:py-14">
         <Reveal>
           <h2 className="font-display text-2xl font-semibold md:text-3xl">
@@ -282,11 +274,13 @@ function UseCasesPage() {
           {[
             {
               label: "Never miss a lead again",
-              value: "AI + shared inbox means every caller gets a response, even when the team is busy.",
+              value:
+                "AI + shared inbox means every caller gets a response, even when the team is busy.",
             },
             {
               label: "One bill, one app",
-              value: "Cancel the separate voicemail, forwarding, and answering-service subscriptions.",
+              value:
+                "Cancel the separate voicemail, forwarding, and answering-service subscriptions.",
             },
             {
               label: "Work from anywhere",

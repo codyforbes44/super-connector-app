@@ -3,7 +3,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireAdmin, requireOwner } from "./app.server";
 import { FROM_ALERTS, sendEmail } from "./email.server";
 import type { TemplateName } from "./email-templates/index";
-import { applyOverride, TEMPLATE_CATALOG, type TemplateOverride } from "./email-templates/overrides";
+import {
+  applyOverride,
+  TEMPLATE_CATALOG,
+  type TemplateOverride,
+} from "./email-templates/overrides";
 import * as maps from "./maps.server";
 
 async function admin() {
@@ -181,7 +185,8 @@ export async function retryEmail(supabase: SupabaseClient, userId: string, id: s
     .eq("id", id)
     .maybeSingle();
   if (!data) throw new Error("Email not found.");
-  if (!data.body_html) throw new Error("No stored copy for this email — send it again from source.");
+  if (!data.body_html)
+    throw new Error("No stored copy for this email — send it again from source.");
 
   const result = await sendEmail(db, {
     to: (data.to_address as string).split(",").map((a) => a.trim()),

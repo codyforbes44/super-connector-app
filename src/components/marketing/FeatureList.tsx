@@ -38,19 +38,10 @@ export function IconTile({
 }
 
 /** A flat, hairline-divided block of rows — the app's list language on the web. */
-export function FeatureGroup({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function FeatureGroup({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={cn(
-        "glass-panel divide-y divide-border/60 overflow-hidden rounded-3xl",
-        className,
-      )}
+      className={cn("glass-panel divide-y divide-border/60 overflow-hidden rounded-3xl", className)}
     >
       {children}
     </div>

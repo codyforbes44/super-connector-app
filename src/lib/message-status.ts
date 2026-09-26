@@ -3,14 +3,27 @@
  * Imported by both UI components and server code, so keep it dependency-free.
  */
 
-const STOP_WORDS = ["stop", "stopall", "unsubscribe", "cancel", "end", "quit", "revoke", "optout", "opt-out"];
+const STOP_WORDS = [
+  "stop",
+  "stopall",
+  "unsubscribe",
+  "cancel",
+  "end",
+  "quit",
+  "revoke",
+  "optout",
+  "opt-out",
+];
 const START_WORDS = ["start", "unstop", "yes", "optin", "opt-in"];
 
 export type OptOutSignal = "stop" | "start" | null;
 
 /** Carrier-standard keyword in an inbound message, if any. */
 export function optOutSignal(body: string): OptOutSignal {
-  const word = body.trim().toLowerCase().replace(/[^a-z-]/g, "");
+  const word = body
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z-]/g, "");
   if (!word) return null;
   if (STOP_WORDS.includes(word)) return "stop";
   if (START_WORDS.includes(word)) return "start";

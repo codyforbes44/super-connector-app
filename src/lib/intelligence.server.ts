@@ -132,7 +132,10 @@ export async function analyseTranscript(
     if (response.status === 429) {
       throw new AiUnavailable("AI is busy right now — try again in a moment.", 429);
     }
-    throw new AiUnavailable(`AI request failed [${response.status}]: ${body.slice(0, 300)}`, response.status);
+    throw new AiUnavailable(
+      `AI request failed [${response.status}]: ${body.slice(0, 300)}`,
+      response.status,
+    );
   }
 
   const payload = (await response.json()) as {
@@ -153,7 +156,10 @@ export async function analyseTranscript(
 export function turnsToText(turns: TranscriptTurn[]): string {
   return turns
     .filter((turn) => turn.text?.trim())
-    .map((turn) => `${turn.speaker === "assistant" ? "Assistant" : turn.speaker === "you" ? "Me" : "Caller"}: ${turn.text.trim()}`)
+    .map(
+      (turn) =>
+        `${turn.speaker === "assistant" ? "Assistant" : turn.speaker === "you" ? "Me" : "Caller"}: ${turn.text.trim()}`,
+    )
     .join("\n");
 }
 

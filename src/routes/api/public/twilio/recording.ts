@@ -8,7 +8,8 @@ export const Route = createFileRoute("/api/public/twilio/recording")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
         if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 

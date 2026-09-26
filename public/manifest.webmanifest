@@ -6,18 +6,11 @@
   "dir": "ltr",
   "start_url": "/inbox",
   "orientation": "portrait",
-  "categories": [
-    "business",
-    "productivity",
-    "communication"
-  ],
+  "categories": ["business", "productivity", "communication"],
   "id": "/?app=sixvox",
   "scope": "/",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
+  "display_override": ["standalone", "minimal-ui"],
   "prefer_related_applications": false,
   "background_color": "#0C1017",
   "theme_color": "#0C1017",

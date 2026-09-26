@@ -67,7 +67,10 @@ export function AgentList({
       ) : (
         <ul className="space-y-2">
           {(agents.data ?? []).map((agent) => (
-            <li key={agent.agent_id} className="flex items-center gap-3 rounded-2xl bg-muted/30 p-3">
+            <li
+              key={agent.agent_id}
+              className="flex items-center gap-3 rounded-2xl bg-muted/30 p-3"
+            >
               <div className="key-raised grid size-10 shrink-0 place-items-center rounded-full">
                 <Bot className="size-4 text-primary" />
               </div>

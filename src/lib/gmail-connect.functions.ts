@@ -86,9 +86,8 @@ export const getGmailConnection = createServerFn({ method: "GET" })
 export const disconnectGmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { getConnectionKeyForUser, deleteConnectionForUser } = await import(
-      "./app-user-connections.server"
-    );
+    const { getConnectionKeyForUser, deleteConnectionForUser } =
+      await import("./app-user-connections.server");
     const key = await getConnectionKeyForUser(context.userId, CONNECTOR_ID);
     if (key) {
       const { disconnectAppUser } = await import("@/integrations/lovable/appUserConnector");

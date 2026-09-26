@@ -137,13 +137,7 @@ export function Section({
 }
 
 /** Grouped list card with hairline dividers between rows. */
-export function ListGroup({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function ListGroup({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
       className={cn(
@@ -195,10 +189,7 @@ function RowInner({
         ) : null)}
       <span className="min-w-0 flex-1 text-left">
         <span
-          className={cn(
-            "block truncate text-sm font-medium",
-            destructive && "text-destructive",
-          )}
+          className={cn("block truncate text-sm font-medium", destructive && "text-destructive")}
         >
           {title}
         </span>
@@ -217,13 +208,9 @@ function RowInner({
   );
 }
 
-const rowClasses =
-  "flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left transition-colors";
+const rowClasses = "flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left transition-colors";
 
-export function Row({
-  onClick,
-  ...props
-}: RowBase & { onClick?: () => void }) {
+export function Row({ onClick, ...props }: RowBase & { onClick?: () => void }) {
   if (!onClick) {
     return (
       <div className={cn(rowClasses, props.className)}>
@@ -305,9 +292,7 @@ export function ErrorState({
   return (
     <div className="rounded-2xl border border-destructive/30 bg-card px-5 py-6 text-center">
       <p className="font-display text-sm font-semibold text-foreground">{title}</p>
-      {description ? (
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      ) : null}
+      {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {onRetry ? (
         <button
           type="button"
@@ -479,11 +464,7 @@ export function AsyncList<T>({
   return (
     <div className={className}>
       {children(paged.items)}
-      <LoadMore
-        hasMore={paged.hasMore}
-        remaining={paged.remaining}
-        onLoadMore={paged.loadMore}
-      />
+      <LoadMore hasMore={paged.hasMore} remaining={paged.remaining} onLoadMore={paged.loadMore} />
     </div>
   );
 }

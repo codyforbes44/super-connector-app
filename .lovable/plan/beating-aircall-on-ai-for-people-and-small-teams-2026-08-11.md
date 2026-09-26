@@ -51,6 +51,7 @@ Aircall's AI does four things SixVox doesn't yet:
 ## Technical notes
 
 **Data (one migration)**
+
 - `call_intelligence`: `call_id`, `user_id`, `summary`, `intent`, `sentiment`, `topics text[]`, `entities jsonb`, `action_items jsonb`, `model`, `created_at`.
 - `call_transcripts`: `call_id`, `user_id`, `turns jsonb` (speaker, text, ms offset), `source` (`elevenlabs` | `stt` | `voicemail`).
 - `contact_memory`: `contact_id`, `user_id`, `rolling_summary`, `last_call_at`.
@@ -59,6 +60,7 @@ Aircall's AI does four things SixVox doesn't yet:
 - Owner-scoped RLS on every new table, with GRANTs to `authenticated` and `service_role` in the same migration. Full-text index over summaries and transcript text for search.
 
 **Server**
+
 - `src/lib/intelligence.server.ts` — post-call pipeline: transcript in (ElevenLabs post-call webhook already lands at `api/public/elevenlabs/post-call`; voicemail through Lovable AI `/v1/audio/transcriptions` with `openai/gpt-4o-transcribe`), then one structured Lovable AI call (`openai/gpt-5.6-sol` on the Responses API) producing summary, intent, sentiment, topics, entities and actions.
 - `intelligence.functions.ts` behind `requireSupabaseAuth` for reads, search, executing a suggested action and re-analysis.
 - Follow-up actions reuse the existing `gcal.server.ts`, `gmail.server.ts`, `maps.server.ts` and `twilio-ops.server.ts` helpers — the AI proposes, the user taps, the existing server function performs.
@@ -66,10 +68,12 @@ Aircall's AI does four things SixVox doesn't yet:
 - Consent: when `transcribe_calls` is on, the TwiML plays a short announcement before `<Dial>` and only then enables recording — never silently.
 
 **UI**
+
 - `src/components/intelligence/`: `CallSummaryCard`, `TranscriptView`, `ActionSuggestions`.
 - Summary lines on Calls and Inbox rows; caller context card on the incoming-call screen.
 - `src/routes/_authenticated/insights.tsx` for the weekly view; assistant instruction sheet inside `receptionist.tsx`; caller rules in `settings.tsx`.
 - New marketing routes for the comparison page and the AI receptionist page.
 
 **Cost control**
+
 - One AI pass per conversation, cached, re-run only on demand; digests batched. Credit exhaustion (402) and rate limits (429) surface as clear in-app messages rather than silent failures.

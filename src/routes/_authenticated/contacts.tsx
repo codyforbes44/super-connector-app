@@ -191,42 +191,42 @@ function ContactsScreen() {
         >
           {(page) =>
             groupContacts(page).map(([letter, list]) => (
-            <Section key={letter} title={letter}>
-              <ListGroup>
-                {list.map((contact) => (
-                  <div key={contact.id} className="flex min-h-14 items-center gap-3 px-4 py-3">
-                    <button
-                      type="button"
-                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                      onClick={() => setEditing(contact)}
-                    >
-                      <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/15 text-sm font-semibold text-primary">
-                        {initialsFor(contact.name || contact.phone_number)}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-[0.95rem] font-medium">
-                          {contact.name || formatPhone(contact.phone_number)}
+              <Section key={letter} title={letter}>
+                <ListGroup>
+                  {list.map((contact) => (
+                    <div key={contact.id} className="flex min-h-14 items-center gap-3 px-4 py-3">
+                      <button
+                        type="button"
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                        onClick={() => setEditing(contact)}
+                      >
+                        <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/15 text-sm font-semibold text-primary">
+                          {initialsFor(contact.name || contact.phone_number)}
                         </span>
-                        <span className="tabular block truncate text-xs text-muted-foreground">
-                          {contact.name
-                            ? formatPhone(contact.phone_number)
-                            : contact.email || "No name"}
+                        <span className="min-w-0">
+                          <span className="block truncate text-[0.95rem] font-medium">
+                            {contact.name || formatPhone(contact.phone_number)}
+                          </span>
+                          <span className="tabular block truncate text-xs text-muted-foreground">
+                            {contact.name
+                              ? formatPhone(contact.phone_number)
+                              : contact.email || "No name"}
+                          </span>
                         </span>
-                      </span>
-                    </button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => del.mutate(contact.id)}
-                      disabled={del.isPending}
-                    >
-                      <Trash2 className="size-4 text-destructive" />
-                      <span className="sr-only">Delete contact</span>
-                    </Button>
-                  </div>
-                ))}
-              </ListGroup>
-            </Section>
+                      </button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => del.mutate(contact.id)}
+                        disabled={del.isPending}
+                      >
+                        <Trash2 className="size-4 text-destructive" />
+                        <span className="sr-only">Delete contact</span>
+                      </Button>
+                    </div>
+                  ))}
+                </ListGroup>
+              </Section>
             ))
           }
         </AsyncList>

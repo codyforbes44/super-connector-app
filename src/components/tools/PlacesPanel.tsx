@@ -30,7 +30,14 @@ import {
   saveFavoritePlace,
 } from "@/lib/tools.functions";
 
-type Place = { id: string; name: string; address: string; lat: number; lng: number; phone?: string };
+type Place = {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  phone?: string;
+};
 type Favorite = {
   id: string;
   nickname: string;
@@ -50,8 +57,7 @@ const directionsUrl = (p: { lat: number; lng: number; address?: string }) =>
   )}&travelmode=driving`;
 
 const browserKey = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] as
-  | string
-  | undefined;
+  string | undefined;
 
 export function PlacesPanel() {
   const queryClient = useQueryClient();
@@ -126,7 +132,10 @@ export function PlacesPanel() {
     onError: (error) => toast.error(errorMessage(error)),
   });
 
-  const favoriteList = useMemo(() => (favorites.data ?? []) as unknown as Favorite[], [favorites.data]);
+  const favoriteList = useMemo(
+    () => (favorites.data ?? []) as unknown as Favorite[],
+    [favorites.data],
+  );
   const notConnected = search.data && !search.data.connected;
 
   return (

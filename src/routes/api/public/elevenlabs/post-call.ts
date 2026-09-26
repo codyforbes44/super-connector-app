@@ -51,10 +51,7 @@ export const Route = createFileRoute("/api/public/elevenlabs/post-call")({
         );
 
         if (summary) {
-          await supabaseAdmin
-            .from("calls")
-            .update({ transcription: summary })
-            .eq("sid", callSid);
+          await supabaseAdmin.from("calls").update({ transcription: summary }).eq("sid", callSid);
         }
 
         if (appNumber) {

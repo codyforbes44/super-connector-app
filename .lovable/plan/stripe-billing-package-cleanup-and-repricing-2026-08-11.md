@@ -8,11 +8,11 @@ Archiving those three is a dashboard action on your side: product IDs are perman
 
 ## New pricing
 
-| Plan | Monthly | Yearly (2 months free) |
-| --- | --- | --- |
-| Solo | $19 | $190 |
-| Team | $59 | $590 |
-| Scale | $129 | $1,290 |
+| Plan  | Monthly | Yearly (2 months free) |
+| ----- | ------- | ---------------------- |
+| Solo  | $19     | $190                   |
+| Team  | $59     | $590                   |
+| Scale | $129    | $1,290                 |
 
 New amounts are published against the existing price IDs (`solo_monthly`, `solo_yearly`, and so on) so the lookup keys carry over and current subscribers keep resolving to the right plan. No new product or price IDs are minted.
 

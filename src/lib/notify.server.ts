@@ -76,8 +76,7 @@ export async function resolveEmailAudience(
       }
       if (inQuietHours(row)) continue;
     }
-    const address =
-      row?.email_address || (profiles ?? []).find((p) => p.id === id)?.email || null;
+    const address = row?.email_address || (profiles ?? []).find((p) => p.id === id)?.email || null;
     if (address) out.push(address as string);
   }
   return { instant: [...new Set(out)], digestUserIds };
@@ -132,7 +131,8 @@ export async function notifyNumber(
       if (digestUserIds.length) {
         const { queueDigestEvent } = await import("./digest.server");
         const prefKey = opts.email.prefKey;
-        const kind = prefKey === "email_inbound_message" ? "message" : prefKey.replace("email_", "");
+        const kind =
+          prefKey === "email_inbound_message" ? "message" : prefKey.replace("email_", "");
         for (const userId of digestUserIds) {
           await queueDigestEvent(admin, userId, kind, {
             appNumber,

@@ -15,7 +15,7 @@ Your last test call (01:45 UTC today, from 972-360-8557) shows exactly what happ
 1. **Replace the fake ring with a real one.** Play an actual US ring-back tone audio to the caller for four cycles (~24s) instead of dialing a phantom device. This produces audible ringing that reliably lasts the full duration.
 2. **Add the ring-back audio asset** (a standard US ring cadence: 2s tone, 4s silence) served from the app so it plays instantly with no external dependency.
 3. **Apply it everywhere a caller waits**: the AI hand-off path and the voicemail path, in both inbound handlers, so behavior is identical whether or not one of your devices is online.
-4. **Keep device ringing intact.** When one of your devices *is* registered and online, the call still rings that device for the same window first; only the phantom-identity ring-back is replaced.
+4. **Keep device ringing intact.** When one of your devices _is_ registered and online, the call still rings that device for the same window first; only the phantom-identity ring-back is replaced.
 5. **Record the outcome** on each call row (`answer_path`) so the Advanced screen shows whether a call rang, went to the agent, or went to voicemail — right now that field is never written on this path.
 6. **Verify with a live call** to (580) 217-8444: confirm four audible rings, then the agent greeting, and repeat for (580) 745-0045.
 

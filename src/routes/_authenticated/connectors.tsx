@@ -105,9 +105,7 @@ function ConnectorsScreen() {
                     key={step.id}
                     className={cn(
                       "rounded-2xl border p-3 transition-colors",
-                      active
-                        ? "border-primary/40 bg-primary/5"
-                        : "surface-subtle border-border",
+                      active ? "border-primary/40 bg-primary/5" : "surface-subtle border-border",
                     )}
                   >
                     <div className="flex items-start gap-3">

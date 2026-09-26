@@ -186,7 +186,9 @@ export function AgentEditorSheet({
               <Label>Voice</Label>
               <Select value={voiceId} onValueChange={setVoiceId}>
                 <SelectTrigger className="h-11 w-full rounded-xl px-4">
-                  <SelectValue placeholder={voices.isLoading ? "Loading voices…" : "Pick a voice"} />
+                  <SelectValue
+                    placeholder={voices.isLoading ? "Loading voices…" : "Pick a voice"}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {(voices.data ?? []).map((v) => (

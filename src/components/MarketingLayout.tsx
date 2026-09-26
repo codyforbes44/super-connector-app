@@ -68,7 +68,9 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
     if (!sheet) return;
     const focusables = () =>
       Array.from(
-        sheet.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+        sheet.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
       ).filter((el) => el.offsetParent !== null);
 
     focusables()[0]?.focus();
@@ -172,7 +174,6 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             </button>
           </div>
         </div>
-
       </header>
 
       {/* Full-height mobile sheet. Kept outside the blurred header so it is not
@@ -187,21 +188,21 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           className="fixed inset-0 top-[4.25rem] z-50 overflow-y-auto overscroll-contain bg-background px-4 pt-3 [scrollbar-gutter:stable] md:hidden"
         >
           <nav aria-label="Mobile">
-          <ul className="grid gap-1.5">
-            {NAV.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  onClick={() => setOpen(false)}
-                  className="surface-row flex min-h-14 items-center justify-between rounded-2xl px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
-                  activeProps={{ className: "text-foreground border-primary/40" }}
-                >
-                  {item.label}
-                  <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" aria-hidden />
-                </Link>
-              </li>
-            ))}
-          </ul>
+            <ul className="grid gap-1.5">
+              {NAV.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    onClick={() => setOpen(false)}
+                    className="surface-row flex min-h-14 items-center justify-between rounded-2xl px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
+                    activeProps={{ className: "text-foreground border-primary/40" }}
+                  >
+                    {item.label}
+                    <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" aria-hidden />
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </nav>
           <div className="safe-bottom mt-4 grid gap-2 pb-6">
             <AccountActions stacked />
@@ -284,8 +285,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               <span className="font-display text-sm font-semibold">SixVox</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              Business calls, texts, voicemail and an AI receptionist — in one
-              mobile app.
+              Business calls, texts, voicemail and an AI receptionist — in one mobile app.
             </p>
           </div>
           <FooterCol
@@ -354,13 +354,7 @@ function FooterCol({
   );
 }
 
-export function Section({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function Section({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <section className={cn("mx-auto max-w-6xl px-5 py-12 md:py-20", className)}>{children}</section>
   );
@@ -375,11 +369,7 @@ export function Eyebrow({ children }: { children: ReactNode }) {
   );
 }
 
-export function StatBand({
-  stats,
-}: {
-  stats: Array<{ value: string; label: string }>;
-}) {
+export function StatBand({ stats }: { stats: Array<{ value: string; label: string }> }) {
   return (
     <dl className="glass-panel grid grid-cols-2 divide-x divide-y divide-border/60 overflow-hidden rounded-3xl md:grid-cols-4 md:divide-y-0">
       {stats.map((stat) => (

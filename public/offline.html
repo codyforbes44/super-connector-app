@@ -9,28 +9,63 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <style>
-      :root { color-scheme: dark; }
+      :root {
+        color-scheme: dark;
+      }
       body {
-        margin: 0; min-height: 100dvh; display: grid; place-items: center;
-        background: #0B0B0C url("/splash-portrait.png") center / cover no-repeat;
-        color: #F5F5F4; padding: 24px;
-        font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: #0b0b0c url("/splash-portrait.png") center / cover no-repeat;
+        color: #f5f5f4;
+        padding: 24px;
+        font-family:
+          "DM Sans",
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          sans-serif;
       }
       @media (orientation: landscape) {
-        body { background-image: url("/splash-landscape.png"); }
+        body {
+          background-image: url("/splash-landscape.png");
+        }
       }
-      main { max-width: 24rem; text-align: center; }
+      main {
+        max-width: 24rem;
+        text-align: center;
+      }
       .badge {
-        width: 96px; height: 96px; margin: 0 auto 22px; border-radius: 26px;
-        display: block; object-fit: contain;
+        width: 96px;
+        height: 96px;
+        margin: 0 auto 22px;
+        border-radius: 26px;
+        display: block;
+        object-fit: contain;
         box-shadow: 0 18px 44px rgba(255, 176, 32, 0.22);
       }
-      h1 { font-size: 1.35rem; margin: 0 0 8px; letter-spacing: -0.01em; }
-      p { margin: 0 0 24px; font-size: 0.9rem; line-height: 1.55; color: rgba(245, 245, 244, 0.68); }
+      h1 {
+        font-size: 1.35rem;
+        margin: 0 0 8px;
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0 0 24px;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: rgba(245, 245, 244, 0.68);
+      }
       button {
-        min-height: 48px; padding: 0 26px; border: 0; border-radius: 999px; cursor: pointer;
-        font: inherit; font-weight: 600; color: #0B0B0C;
-        background: linear-gradient(180deg, #FFC24D 0%, #FFB020 100%);
+        min-height: 48px;
+        padding: 0 26px;
+        border: 0;
+        border-radius: 999px;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 600;
+        color: #0b0b0c;
+        background: linear-gradient(180deg, #ffc24d 0%, #ffb020 100%);
         box-shadow: 0 10px 30px rgba(255, 176, 32, 0.28);
       }
     </style>

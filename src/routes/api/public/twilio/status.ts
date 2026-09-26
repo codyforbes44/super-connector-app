@@ -4,7 +4,8 @@ export const Route = createFileRoute("/api/public/twilio/status")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
         if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
@@ -43,7 +44,14 @@ export const Route = createFileRoute("/api/public/twilio/status")({
           const voicemail = Boolean(patch.recording_url);
 
           // Clear the ringing notification once the call is no longer ringing.
-          if (["in-progress", "answered", "completed", ...["no-answer", "busy", "failed", "canceled"]].includes(status)) {
+          if (
+            [
+              "in-progress",
+              "answered",
+              "completed",
+              ...["no-answer", "busy", "failed", "canceled"],
+            ].includes(status)
+          ) {
             const { data: ringing } = await supabaseAdmin
               .from("calls")
               .select("app_number, direction")
@@ -112,8 +120,7 @@ export const Route = createFileRoute("/api/public/twilio/status")({
                   : {
                       prefKey: "email_missed_call",
                       template: "missed-call",
-                      render: (baseUrl) =>
-                        templates.missedCall({ baseUrl, from, to, at, callSid }),
+                      render: (baseUrl) => templates.missedCall({ baseUrl, from, to, at, callSid }),
                       context: { callSid },
                     },
               });

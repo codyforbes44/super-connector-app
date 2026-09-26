@@ -141,7 +141,6 @@ export async function listAgents(): Promise<Agent[]> {
   return [];
 }
 
-
 export type AgentDetail = {
   agent_id: string;
   name: string;
@@ -218,7 +217,6 @@ export async function createAgent(input: AgentInput): Promise<{ agent_id: string
 export async function updateAgent(agentId: string, input: AgentInput): Promise<{ ok: true }> {
   await assertAgentAllowed(agentId);
   await el(`/v1/convai/agents/${encodeURIComponent(agentId)}`, {
-
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(agentBody(input)),
@@ -229,7 +227,6 @@ export async function updateAgent(agentId: string, input: AgentInput): Promise<{
 export async function deleteAgent(agentId: string): Promise<{ ok: true }> {
   await assertAgentAllowed(agentId);
   const response = await fetch(`${BASE}/v1/convai/agents/${encodeURIComponent(agentId)}`, {
-
     method: "DELETE",
     headers: { "xi-api-key": elevenLabsKey() },
   });
@@ -300,7 +297,6 @@ export async function ensureAgentPhoneNumber(
 ): Promise<string | null> {
   await assertAgentAllowed(agentId);
   const existing = (await listPhoneNumbers()).find((row) => row.phone_number === phoneNumber);
-
 
   if (existing) {
     if (existing.assigned_agent?.agent_id !== agentId) {
