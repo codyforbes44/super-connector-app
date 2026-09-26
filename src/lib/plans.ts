@@ -21,8 +21,8 @@ export const PLANS: PlanMeta[] = [
     code: "solo",
     name: "Solo",
     tagline: "One number, everything that matters.",
-    monthly: 19,
-    yearly: 190,
+    monthly: 29,
+    yearly: 290,
     numbers: 1,
     seats: 1,
     features: [

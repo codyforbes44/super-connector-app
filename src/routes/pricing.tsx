@@ -13,7 +13,7 @@ import { FEATURE_MATRIX, PLANS, type BillingInterval } from "@/lib/plans";
 import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Pricing — SixVox business phone plans from $19/mo";
+const TITLE = "Pricing — SixVox business phone plans from $29/mo";
 const DESCRIPTION =
   "Compare SixVox Solo, Team and Scale: numbers, seats, AI receptionist and API access. Every plan starts with a 14-day free trial, no card required.";
 
