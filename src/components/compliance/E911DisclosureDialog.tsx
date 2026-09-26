@@ -15,20 +15,23 @@ export function E911DisclosureDialog({
   open,
   busy,
   onAcknowledge,
+  onDismiss,
 }: {
   open: boolean;
   busy?: boolean;
   onAcknowledge: () => void;
+  onDismiss: () => void;
 }) {
   const [checked, setChecked] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={() => undefined}>
-      <DialogContent
-        className="max-h-[85dvh] overflow-y-auto [&>button]:hidden"
-        onPointerDownOutside={(event) => event.preventDefault()}
-        onEscapeKeyDown={(event) => event.preventDefault()}
-      >
-        <DialogHeader>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onDismiss();
+      }}
+    >
+      <DialogContent className="max-h-[85dvh] overflow-y-auto">
+        <DialogHeader className="pr-8">
           <DialogTitle>911 limitations on SixVox</DialogTitle>
           <DialogDescription>
             Required acknowledgment for interconnected VoIP service under 47 CFR 9.11.

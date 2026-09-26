@@ -128,16 +128,27 @@ function AddressPreview() {
 function DisclosurePreview() {
   const [open, setOpen] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [pings, setPings] = useState(0);
   return (
     <div className="px-4 py-8">
       <h1 className="font-display text-xl font-semibold">911 acknowledgment</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {saved
           ? "Acknowledgment recorded in this preview only."
-          : "The disclosure stays open until you confirm it."}
+          : open
+            ? "Closing this notice does not record an acknowledgment."
+            : "Dismissed for this preview. The page stays usable until a fresh load."}
       </p>
+      <button
+        type="button"
+        className="mt-4 rounded-full border border-border px-4 py-2 text-sm"
+        onClick={() => setPings((count) => count + 1)}
+      >
+        Page still works ({pings})
+      </button>
       <E911DisclosureDialog
         open={open}
+        onDismiss={() => setOpen(false)}
         onAcknowledge={() => {
           setSaved(true);
           setOpen(false);
