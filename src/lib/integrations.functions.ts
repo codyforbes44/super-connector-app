@@ -91,6 +91,14 @@ export const saveBookingSettings = createServerFn({ method: "POST" })
       bufferMinutes: number;
       timezone: string;
       hours: { start: string; end: string; days: number[] };
+      travelMinutes?: number;
+      confirmMode?: "confirm" | "automatic";
+      serviceAreaMode?: "off" | "radius" | "zips";
+      serviceAreaRadiusMiles?: number | null;
+      serviceAreaAddress?: string | null;
+      serviceAreaLat?: number | null;
+      serviceAreaLng?: number | null;
+      serviceAreaZips?: string[];
     }) => input,
   )
   .handler(async ({ context, data }) =>

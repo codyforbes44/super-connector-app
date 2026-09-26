@@ -4,7 +4,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
         if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
@@ -48,13 +49,25 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           status: "received",
         });
 
-        const { recordInboundKeyword } = await import("@/lib/compliance/opt-out.server");
-        const signal = await recordInboundKeyword(supabaseAdmin as never, {
-          from: contactNumber,
+        // YES / CANCEL / RESCHEDULE (and Spanish) win over carrier keywords only
+        // when a proposal is open. Bare STOP is not a booking reply, so it still
+        // opts the customer out. HELP never opts anyone out.
+        const { handleBookingReply } = await import("@/lib/booking-ops.server");
+        const bookingReply = await handleBookingReply(supabaseAdmin as never, {
+          appNumber,
+          contactNumber,
           body: body ?? "",
-          optOutType: get("OptOutType") || null,
-          messagingServiceSid: get("MessagingServiceSid") || null,
         });
+
+        const { recordInboundKeyword } = await import("@/lib/compliance/opt-out.server");
+        const signal = bookingReply.handled
+          ? null
+          : await recordInboundKeyword(supabaseAdmin as never, {
+              from: contactNumber,
+              body: body ?? "",
+              optOutType: get("OptOutType") || null,
+              messagingServiceSid: get("MessagingServiceSid") || null,
+            });
         if (signal === "stop" || signal === "start") {
           await supabaseAdmin
             .from("conversations")

@@ -42,6 +42,7 @@ import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
 import { Route as DevComplianceRouteImport } from './routes/dev/compliance'
 import { Route as DevPreviewRouteImport } from './routes/dev.preview'
+import { Route as DevReceptionistPreviewRouteImport } from './routes/dev.receptionist-preview'
 import { Route as DevelopersWebhooksRouteImport } from './routes/developers/webhooks'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
@@ -59,6 +60,7 @@ import { Route as ApiPublicDigestRunRouteImport } from './routes/api/public/dige
 import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/public/elevenlabs/post-call'
 import { Route as ApiPublicPaymentsConnectWebhookRouteImport } from './routes/api/public/payments/connect-webhook'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicReportsWeeklyRouteImport } from './routes/api/public/reports/weekly'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend/webhook'
 import { Route as ApiPublicTwilioAppVoiceRouteImport } from './routes/api/public/twilio/app-voice'
 import { Route as ApiPublicTwilioDialActionRouteImport } from './routes/api/public/twilio/dial-action'
@@ -71,6 +73,7 @@ import { Route as ApiPublicTwilioStatusRouteImport } from './routes/api/public/t
 import { Route as ApiPublicTwilioVoiceRouteImport } from './routes/api/public/twilio/voice'
 import { Route as ApiPublicTwilioVoiceFallbackRouteImport } from './routes/api/public/twilio/voice-fallback'
 import { Route as ApiPublicAgentToolNameRouteImport } from './routes/api/public/agent/tool/$name'
+import { Route as ApiPublicElevenlabsToolNameRouteImport } from './routes/api/public/elevenlabs/tool/$name'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -239,6 +242,11 @@ const DevPreviewRoute = DevPreviewRouteImport.update({
   path: '/dev/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevReceptionistPreviewRoute = DevReceptionistPreviewRouteImport.update({
+  id: '/dev/receptionist-preview',
+  path: '/dev/receptionist-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DevelopersWebhooksRoute = DevelopersWebhooksRouteImport.update({
   id: '/developers/webhooks',
   path: '/developers/webhooks',
@@ -330,6 +338,11 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicReportsWeeklyRoute = ApiPublicReportsWeeklyRouteImport.update({
+  id: '/api/public/reports/weekly',
+  path: '/api/public/reports/weekly',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicResendWebhookRoute = ApiPublicResendWebhookRouteImport.update({
   id: '/api/public/resend/webhook',
   path: '/api/public/resend/webhook',
@@ -394,6 +407,12 @@ const ApiPublicAgentToolNameRoute = ApiPublicAgentToolNameRouteImport.update({
   path: '/api/public/agent/tool/$name',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicElevenlabsToolNameRoute =
+  ApiPublicElevenlabsToolNameRouteImport.update({
+    id: '/api/public/elevenlabs/tool/$name',
+    path: '/api/public/elevenlabs/tool/$name',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -428,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/welcome': typeof AuthenticatedWelcomeRoute
   '/dev/compliance': typeof DevComplianceRoute
   '/dev/preview': typeof DevPreviewRoute
+  '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
   '/developers/webhooks': typeof DevelopersWebhooksRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
@@ -445,6 +465,7 @@ export interface FileRoutesByFullPath {
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reports/weekly': typeof ApiPublicReportsWeeklyRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
@@ -457,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
   '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
+  '/api/public/elevenlabs/tool/$name': typeof ApiPublicElevenlabsToolNameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -490,6 +512,7 @@ export interface FileRoutesByTo {
   '/welcome': typeof AuthenticatedWelcomeRoute
   '/dev/compliance': typeof DevComplianceRoute
   '/dev/preview': typeof DevPreviewRoute
+  '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
   '/developers/webhooks': typeof DevelopersWebhooksRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
@@ -507,6 +530,7 @@ export interface FileRoutesByTo {
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reports/weekly': typeof ApiPublicReportsWeeklyRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
@@ -519,6 +543,7 @@ export interface FileRoutesByTo {
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
   '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
+  '/api/public/elevenlabs/tool/$name': typeof ApiPublicElevenlabsToolNameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -555,6 +580,7 @@ export interface FileRoutesById {
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
   '/dev/compliance': typeof DevComplianceRoute
   '/dev/preview': typeof DevPreviewRoute
+  '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
   '/developers/webhooks': typeof DevelopersWebhooksRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
@@ -572,6 +598,7 @@ export interface FileRoutesById {
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reports/weekly': typeof ApiPublicReportsWeeklyRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
@@ -584,6 +611,7 @@ export interface FileRoutesById {
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
   '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
+  '/api/public/elevenlabs/tool/$name': typeof ApiPublicElevenlabsToolNameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -620,6 +648,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/dev/compliance'
     | '/dev/preview'
+    | '/dev/receptionist-preview'
     | '/developers/webhooks'
     | '/legal/privacy'
     | '/legal/terms'
@@ -637,6 +666,7 @@ export interface FileRouteTypes {
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/connect-webhook'
     | '/api/public/payments/webhook'
+    | '/api/public/reports/weekly'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/dial-action'
@@ -649,6 +679,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
     | '/api/public/agent/tool/$name'
+    | '/api/public/elevenlabs/tool/$name'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -682,6 +713,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/dev/compliance'
     | '/dev/preview'
+    | '/dev/receptionist-preview'
     | '/developers/webhooks'
     | '/legal/privacy'
     | '/legal/terms'
@@ -699,6 +731,7 @@ export interface FileRouteTypes {
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/connect-webhook'
     | '/api/public/payments/webhook'
+    | '/api/public/reports/weekly'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/dial-action'
@@ -711,6 +744,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
     | '/api/public/agent/tool/$name'
+    | '/api/public/elevenlabs/tool/$name'
   id:
     | '__root__'
     | '/'
@@ -746,6 +780,7 @@ export interface FileRouteTypes {
     | '/_authenticated/welcome'
     | '/dev/compliance'
     | '/dev/preview'
+    | '/dev/receptionist-preview'
     | '/developers/webhooks'
     | '/legal/privacy'
     | '/legal/terms'
@@ -763,6 +798,7 @@ export interface FileRouteTypes {
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/connect-webhook'
     | '/api/public/payments/webhook'
+    | '/api/public/reports/weekly'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/dial-action'
@@ -775,6 +811,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
     | '/api/public/agent/tool/$name'
+    | '/api/public/elevenlabs/tool/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -792,6 +829,7 @@ export interface RootRouteChildren {
   UseCasesRoute: typeof UseCasesRoute
   DevComplianceRoute: typeof DevComplianceRoute
   DevPreviewRoute: typeof DevPreviewRoute
+  DevReceptionistPreviewRoute: typeof DevReceptionistPreviewRoute
   DevelopersWebhooksRoute: typeof DevelopersWebhooksRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
@@ -805,6 +843,7 @@ export interface RootRouteChildren {
   ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
   ApiPublicPaymentsConnectWebhookRoute: typeof ApiPublicPaymentsConnectWebhookRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicReportsWeeklyRoute: typeof ApiPublicReportsWeeklyRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
   ApiPublicTwilioAppVoiceRoute: typeof ApiPublicTwilioAppVoiceRoute
   ApiPublicTwilioDialActionRoute: typeof ApiPublicTwilioDialActionRoute
@@ -817,6 +856,7 @@ export interface RootRouteChildren {
   ApiPublicTwilioVoiceRoute: typeof ApiPublicTwilioVoiceRoute
   ApiPublicTwilioVoiceFallbackRoute: typeof ApiPublicTwilioVoiceFallbackRoute
   ApiPublicAgentToolNameRoute: typeof ApiPublicAgentToolNameRoute
+  ApiPublicElevenlabsToolNameRoute: typeof ApiPublicElevenlabsToolNameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1052,6 +1092,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dev/receptionist-preview': {
+      id: '/dev/receptionist-preview'
+      path: '/dev/receptionist-preview'
+      fullPath: '/dev/receptionist-preview'
+      preLoaderRoute: typeof DevReceptionistPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/developers/webhooks': {
       id: '/developers/webhooks'
       path: '/developers/webhooks'
@@ -1171,6 +1218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/reports/weekly': {
+      id: '/api/public/reports/weekly'
+      path: '/api/public/reports/weekly'
+      fullPath: '/api/public/reports/weekly'
+      preLoaderRoute: typeof ApiPublicReportsWeeklyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/resend/webhook': {
       id: '/api/public/resend/webhook'
       path: '/api/public/resend/webhook'
@@ -1253,6 +1307,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/agent/tool/$name'
       fullPath: '/api/public/agent/tool/$name'
       preLoaderRoute: typeof ApiPublicAgentToolNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/elevenlabs/tool/$name': {
+      id: '/api/public/elevenlabs/tool/$name'
+      path: '/api/public/elevenlabs/tool/$name'
+      fullPath: '/api/public/elevenlabs/tool/$name'
+      preLoaderRoute: typeof ApiPublicElevenlabsToolNameRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1340,6 +1401,7 @@ const rootRouteChildren: RootRouteChildren = {
   UseCasesRoute: UseCasesRoute,
   DevComplianceRoute: DevComplianceRoute,
   DevPreviewRoute: DevPreviewRoute,
+  DevReceptionistPreviewRoute: DevReceptionistPreviewRoute,
   DevelopersWebhooksRoute: DevelopersWebhooksRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
@@ -1353,6 +1415,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
   ApiPublicPaymentsConnectWebhookRoute: ApiPublicPaymentsConnectWebhookRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicReportsWeeklyRoute: ApiPublicReportsWeeklyRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,
   ApiPublicTwilioAppVoiceRoute: ApiPublicTwilioAppVoiceRoute,
   ApiPublicTwilioDialActionRoute: ApiPublicTwilioDialActionRoute,
@@ -1365,6 +1428,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTwilioVoiceRoute: ApiPublicTwilioVoiceRoute,
   ApiPublicTwilioVoiceFallbackRoute: ApiPublicTwilioVoiceFallbackRoute,
   ApiPublicAgentToolNameRoute: ApiPublicAgentToolNameRoute,
+  ApiPublicElevenlabsToolNameRoute: ApiPublicElevenlabsToolNameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

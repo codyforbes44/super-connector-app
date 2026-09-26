@@ -3,9 +3,15 @@
  * Imported by both UI components and server code, so keep it dependency-free.
  */
 
+import { campaignReady } from "./automated-text";
 import { keywordSignal } from "./compliance/opt-out";
 
 export type OptOutSignal = "stop" | "start" | null;
+
+/** Campaign states Twilio treats as cleared to send. Client-safe. */
+export function campaignApproved(status: string | null | undefined): boolean {
+  return campaignReady(status);
+}
 
 /** Carrier-standard keyword in an inbound message, if any. HELP is not an opt-out. */
 export function optOutSignal(body: string): OptOutSignal {

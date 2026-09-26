@@ -4,7 +4,8 @@ export const Route = createFileRoute("/api/public/twilio/status")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
         if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
@@ -34,6 +35,13 @@ export const Route = createFileRoute("/api/public/twilio/status")({
           if (get("CallDuration")) patch["duration"] = Number(get("CallDuration"));
           if (get("RecordingUrl")) patch["recording_url"] = get("RecordingUrl");
           if (get("TranscriptionText")) patch["transcription"] = get("TranscriptionText");
+          const { data: existingCall } = await supabaseAdmin
+            .from("calls")
+            .select("spam_action")
+            .eq("sid", callSid)
+            .maybeSingle();
+          const spamBlocked = existingCall?.spam_action === "block";
+          if (spamBlocked) delete patch.status;
           if (Object.keys(patch).length) {
             await supabaseAdmin.from("calls").update(patch).eq("sid", callSid);
           }
@@ -43,7 +51,14 @@ export const Route = createFileRoute("/api/public/twilio/status")({
           const voicemail = Boolean(patch.recording_url);
 
           // Clear the ringing notification once the call is no longer ringing.
-          if (["in-progress", "answered", "completed", ...["no-answer", "busy", "failed", "canceled"]].includes(status)) {
+          if (
+            [
+              "in-progress",
+              "answered",
+              "completed",
+              ...["no-answer", "busy", "failed", "canceled"],
+            ].includes(status)
+          ) {
             const { data: ringing } = await supabaseAdmin
               .from("calls")
               .select("app_number, direction")
@@ -63,10 +78,10 @@ export const Route = createFileRoute("/api/public/twilio/status")({
           if (missed || voicemail) {
             const { data: call } = await supabaseAdmin
               .from("calls")
-              .select("app_number, from_number, direction")
+              .select("app_number, from_number, direction, spam_action")
               .eq("sid", callSid)
               .maybeSingle();
-            if (call && call.direction === "inbound") {
+            if (call && call.direction === "inbound" && call.spam_action !== "block") {
               // A transcribed voicemail is enough to produce a summary,
               // follow-ups and caller memory for this call.
               if (patch.transcription) {
@@ -112,11 +127,22 @@ export const Route = createFileRoute("/api/public/twilio/status")({
                   : {
                       prefKey: "email_missed_call",
                       template: "missed-call",
-                      render: (baseUrl) =>
-                        templates.missedCall({ baseUrl, from, to, at, callSid }),
+                      render: (baseUrl) => templates.missedCall({ baseUrl, from, to, at, callSid }),
                       context: { callSid },
                     },
               });
+            }
+          }
+
+          if (
+            ["completed", "no-answer", "busy", "failed", "canceled"].includes(status) &&
+            !spamBlocked
+          ) {
+            try {
+              const { ensureCallSummary } = await import("@/lib/intelligence.server");
+              await ensureCallSummary(supabaseAdmin as never, callSid);
+            } catch (error) {
+              console.error("call summary failed", error);
             }
           }
         }

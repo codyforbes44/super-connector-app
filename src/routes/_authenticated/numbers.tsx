@@ -10,7 +10,9 @@ import { MessagingServicesSection } from "@/components/MessagingServices";
 import { BringYourOwnNumber } from "@/components/line/BringYourOwnNumber";
 import { EsimExplainer } from "@/components/line/EsimExplainer";
 import { LineCompliance } from "@/components/compliance/LineCompliance";
+import { BookingSettings } from "@/components/line/BookingSettings";
 import { LineAutomationSettings } from "@/components/line/LineAutomationSettings";
+import { SpamSettings } from "@/components/line/SpamSettings";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -450,6 +452,8 @@ function NumberSheet({
           />
 
           <VoiceAssistant number={number} onChanged={onChanged} />
+          <BookingSettings sid={number.sid} />
+          <SpamSettings />
 
           <LineAutomationSettings sid={number.sid} />
 

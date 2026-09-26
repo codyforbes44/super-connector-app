@@ -46,12 +46,36 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           }
           const { data: number } = await supabaseAdmin
             .from("phone_numbers")
-            .select(`forward_to, assigned_to, ${VOICE_CONFIG_COLUMNS}`)
+            .select(`forward_to, assigned_to, workspace_id, ${VOICE_CONFIG_COLUMNS}`)
             .eq("phone_number", appNumber)
             .maybeSingle();
 
           const { lineRecordsCalls } = await import("@/lib/compliance/recording.server");
           const recordCalls = await lineRecordsCalls(supabaseAdmin as never, appNumber);
+
+          if (number?.workspace_id) {
+            await supabaseAdmin
+              .from("calls")
+              .update({ workspace_id: number.workspace_id as string })
+              .eq("sid", get("CallSid"));
+          }
+
+          // Known spam never rings the owner and never reaches the AI.
+          try {
+            const { gateInboundCall } = await import("@/lib/spam-gate.server");
+            const spam = await gateInboundCall(supabaseAdmin as never, {
+              from: get("From"),
+              appNumber,
+              stirVerstat: get("StirVerstat"),
+              callSid: get("CallSid"),
+              assignedTo: (number?.assigned_to as string | null) ?? null,
+            });
+            if (!spam.ring) {
+              return xml(`<Reject reason="rejected"/>`);
+            }
+          } catch (error) {
+            console.error("spam gate failed open", error);
+          }
 
           // Alert watchers immediately so a backgrounded device can pick up.
           try {

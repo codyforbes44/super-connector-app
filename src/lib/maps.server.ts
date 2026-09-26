@@ -9,6 +9,7 @@ export type GeocodeResult = {
   lat: number;
   lng: number;
   placeId: string;
+  postalCode?: string;
 };
 
 export async function geocode(address: string): Promise<GeocodeResult | null> {
@@ -18,6 +19,7 @@ export async function geocode(address: string): Promise<GeocodeResult | null> {
       formatted_address: string;
       place_id: string;
       geometry: { location: { lat: number; lng: number } };
+      address_components?: Array<{ long_name: string; short_name: string; types: string[] }>;
     }>;
   }>({
     connector: "google_maps",
@@ -26,11 +28,13 @@ export async function geocode(address: string): Promise<GeocodeResult | null> {
   });
   const first = res.results?.[0];
   if (!first) return null;
+  const postal = first.address_components?.find((part) => part.types.includes("postal_code"));
   return {
     formatted: first.formatted_address,
     lat: first.geometry.location.lat,
     lng: first.geometry.location.lng,
     placeId: first.place_id,
+    ...(postal ? { postalCode: postal.short_name } : {}),
   };
 }
 

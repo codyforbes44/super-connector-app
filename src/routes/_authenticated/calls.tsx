@@ -18,6 +18,7 @@ import { ScreenHeader, useScreenFab } from "@/components/AppShell";
 import { AsyncList, Empty, ListGroup, Screen } from "@/components/screen";
 import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallSummaryCard } from "@/components/intelligence/CallSummaryCard";
+import { PendingBookings } from "@/components/line/PendingBookings";
 import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { CallReadiness } from "@/components/CallReadiness";
@@ -312,6 +313,8 @@ function CallsScreen() {
       />
 
       <CallFilters value={filters} onChange={setFilters} />
+
+      <PendingBookings />
 
       <Screen onRefresh={sync}>
         <CallReadiness />

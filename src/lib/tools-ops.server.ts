@@ -3,7 +3,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireAdmin, requireOwner } from "./app.server";
 import { FROM_ALERTS, sendEmail } from "./email.server";
 import type { TemplateName } from "./email-templates/index";
-import { applyOverride, TEMPLATE_CATALOG, type TemplateOverride } from "./email-templates/overrides";
+import {
+  applyOverride,
+  TEMPLATE_CATALOG,
+  type TemplateOverride,
+} from "./email-templates/overrides";
 import * as maps from "./maps.server";
 
 async function admin() {
@@ -181,7 +185,8 @@ export async function retryEmail(supabase: SupabaseClient, userId: string, id: s
     .eq("id", id)
     .maybeSingle();
   if (!data) throw new Error("Email not found.");
-  if (!data.body_html) throw new Error("No stored copy for this email — send it again from source.");
+  if (!data.body_html)
+    throw new Error("No stored copy for this email — send it again from source.");
 
   const result = await sendEmail(db, {
     to: (data.to_address as string).split(",").map((a) => a.trim()),
@@ -324,6 +329,20 @@ export async function previewTemplate(
           { from: vars["from"] as string, preview: vars["preview"] as string, id: "preview" },
         ],
         calls: [{ from: vars["from"] as string, at: vars["at"] as string, kind: "missed" }],
+      });
+      break;
+    case "weekly-missed":
+      rendered = templates.weeklyMissed({
+        baseUrl,
+        rangeLabel: "this week",
+        missed: [
+          {
+            from: vars["from"] as string,
+            at: vars["at"] as string,
+            summary: "Missed call while you were on a job.",
+          },
+        ],
+        booked: [{ summary: "Kitchen leak", when: vars["at"] as string, contact: "Maria Lopez" }],
       });
       break;
     case "test":
