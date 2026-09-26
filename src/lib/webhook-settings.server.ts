@@ -105,6 +105,8 @@ export async function createWebhookEndpoint(
   const url = assertPublicWebhookUrl(input.url);
   const events = assertEventList(input.events);
   const secret = newSecret();
+  const { requireWorkspace } = await import("./workspace.server");
+  const workspace = await requireWorkspace(userId);
   const { data, error } = await supabaseAdmin
     .from("outbound_webhook_endpoints")
     .insert({
@@ -113,6 +115,7 @@ export async function createWebhookEndpoint(
       events,
       description: input.description?.trim().slice(0, 120) || null,
       enabled: true,
+      workspace_id: workspace.id,
     })
     .select("*")
     .single();

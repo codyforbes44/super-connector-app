@@ -41,17 +41,26 @@ export const Route = createFileRoute("/api/public/elevenlabs/post-call")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        await supabaseAdmin.from("ai_conversations").upsert(
-          {
-            call_sid: callSid,
-            app_number: appNumber,
-            agent_id: (data["agent_id"] as string) ?? null,
-            conversation_id: (data["conversation_id"] as string) ?? null,
-            transcript,
-            summary,
-          },
-          { onConflict: "call_sid" },
-        );
+        const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+        const { workspaceId } = appNumber
+          ? await resolveWorkspaceIdForNumber(appNumber)
+          : { workspaceId: null };
+        if (workspaceId) {
+          await supabaseAdmin.from("ai_conversations").upsert(
+            {
+              call_sid: callSid,
+              app_number: appNumber,
+              agent_id: (data["agent_id"] as string) ?? null,
+              conversation_id: (data["conversation_id"] as string) ?? null,
+              transcript,
+              summary,
+              workspace_id: workspaceId,
+            },
+            { onConflict: "call_sid" },
+          );
+        } else {
+          console.warn("post-call: no workspace for", appNumber, "— transcript not stored");
+        }
 
         if (summary) {
           await supabaseAdmin.from("calls").update({ transcription: summary }).eq("sid", callSid);
