@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Plus, Search, Smartphone, Trash2, Users } from "lucide-react";
+import { Loader2, Plus, Search, Smartphone, Trash2, Upload, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
+import { ContactImportSheet } from "@/components/contacts/ContactImportSheet";
 import { AsyncList, Empty, ListGroup, Screen, Section } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,7 @@ function ContactsScreen() {
   const [search, setSearch] = useState("");
   const [term, setTerm] = useState("");
   const [editing, setEditing] = useState<Contact | "new" | null>(null);
+  const [importing, setImporting] = useState(false);
   const [deviceSupported, setDeviceSupported] = useState(false);
 
   useEffect(() => {
@@ -124,10 +126,25 @@ function ContactsScreen() {
         title="Contacts"
         subtitle={rows.length ? `${rows.length} saved` : "Your people, in one place"}
         action={
-          <Button size="icon" variant="ghost" onClick={() => setEditing("new")}>
-            <Plus className="h-4 w-4" />
-            <span className="sr-only">Add contact</span>
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              className="h-11 rounded-xl px-3"
+              onClick={() => setImporting(true)}
+            >
+              <Upload className="size-4" />
+              Import
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-11 w-11"
+              onClick={() => setEditing("new")}
+            >
+              <Plus className="h-4 w-4" />
+              <span className="sr-only">Add contact</span>
+            </Button>
+          </>
         }
       />
 
@@ -179,12 +196,21 @@ function ContactsScreen() {
               description={
                 term
                   ? "Try a different name or number."
-                  : "Save the homeowners you work for so the next call shows a name, not just a number. You can also sync the people already on this phone."
+                  : "Save the homeowners you work for so the next call shows a name, not just a number. Import a list, or add people one at a time."
               }
               action={
-                <Button className="rounded-xl" onClick={() => setEditing("new")}>
-                  Add a contact
-                </Button>
+                <>
+                  <Button className="h-12 rounded-xl px-5" onClick={() => setEditing("new")}>
+                    Add a contact
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-12 rounded-xl px-5"
+                    onClick={() => setImporting(true)}
+                  >
+                    Import
+                  </Button>
+                </>
               }
             />
           }
@@ -231,6 +257,8 @@ function ContactsScreen() {
           }
         </AsyncList>
       </Screen>
+
+      <ContactImportSheet open={importing} onOpenChange={setImporting} onImported={refresh} />
 
       {editing ? (
         <ContactSheet
