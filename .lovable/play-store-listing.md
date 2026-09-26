@@ -45,15 +45,15 @@ SixVox is designed for mobile-first use: install it from Google Play, sign in, a
 
 ## Data safety disclosures
 
-| Data type | Collected | Shared | Purpose |
-|---|---|---|---|
-| Email address | Yes | No | Account authentication and billing |
-| Phone number | Yes | Yes* | Core telephony service; carrier/SMS routing |
-| Call and SMS metadata | Yes | Yes* | Voice/SMS delivery via telephony providers |
-| Voice messages / transcripts | Yes | No | AI voicemail and user inbox |
-| Push notification token | Yes | No | Background alerts |
-| Device ID | No | No | — |
-| Location | No | No | — |
+| Data type                    | Collected | Shared | Purpose                                     |
+| ---------------------------- | --------- | ------ | ------------------------------------------- |
+| Email address                | Yes       | No     | Account authentication and billing          |
+| Phone number                 | Yes       | Yes*   | Core telephony service; carrier/SMS routing |
+| Call and SMS metadata        | Yes       | Yes*   | Voice/SMS delivery via telephony providers  |
+| Voice messages / transcripts | Yes       | No     | AI voicemail and user inbox                 |
+| Push notification token      | Yes       | No     | Background alerts                           |
+| Device ID                    | No        | No     | —                                           |
+| Location                     | No        | No     | —                                           |
 
 *Shared only with underlying telephony infrastructure providers required to deliver calls and messages. Not sold or used for advertising.
 

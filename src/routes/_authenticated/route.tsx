@@ -25,26 +25,26 @@ export const Route = createFileRoute("/_authenticated")({
     let online = true;
 
     if (!location.pathname.startsWith("/billing")) {
-      const [{ data: roles, error: rolesError }, { data: subs, error: subsError }] = await Promise.all([
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .eq("role", "super_admin"),
-        supabase
-          .from("subscriptions")
-          .select("status, comped, suspended, current_period_end")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(1),
-      ]);
+      const [{ data: roles, error: rolesError }, { data: subs, error: subsError }] =
+        await Promise.all([
+          supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", user.id)
+            .eq("role", "super_admin"),
+          supabase
+            .from("subscriptions")
+            .select("status, comped, suspended, current_period_end")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(1),
+        ]);
 
       // A failed entitlement lookup (offline, transient 5xx) must never look
       // like "no subscription" and bounce a paying user out of the app.
       online = !rolesError && !subsError;
       const sub = subs?.[0];
-      const future =
-        !sub?.current_period_end || new Date(sub.current_period_end) > new Date();
+      const future = !sub?.current_period_end || new Date(sub.current_period_end) > new Date();
       const active =
         (roles?.length ?? 0) > 0 ||
         (!!sub &&

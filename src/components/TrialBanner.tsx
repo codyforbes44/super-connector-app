@@ -9,10 +9,7 @@ export function TrialBanner() {
   const endsAt = subscription.trial_ends_at ?? subscription.current_period_end;
   if (!endsAt) return null;
 
-  const days = Math.max(
-    0,
-    Math.ceil((new Date(endsAt).getTime() - Date.now()) / 86_400_000),
-  );
+  const days = Math.max(0, Math.ceil((new Date(endsAt).getTime() - Date.now()) / 86_400_000));
 
   return (
     <Link

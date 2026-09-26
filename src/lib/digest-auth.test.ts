@@ -31,47 +31,28 @@ afterEach(() => {
 
 describe("digest scheduler authentication", () => {
   it("accepts only the dedicated bearer secret", () => {
+    expect(isDigestRequestAuthorized(request({ Authorization: `Bearer ${secret}` }), secret)).toBe(
+      true,
+    );
+    expect(isDigestRequestAuthorized(request({ Authorization: `bearer ${secret}` }), secret)).toBe(
+      true,
+    );
+    expect(isDigestRequestAuthorized(request({ apikey: secret }), secret)).toBe(false);
     expect(
-      isDigestRequestAuthorized(
-        request({ Authorization: `Bearer ${secret}` }),
-        secret,
-      ),
-    ).toBe(true);
-    expect(
-      isDigestRequestAuthorized(
-        request({ Authorization: `bearer ${secret}` }),
-        secret,
-      ),
-    ).toBe(true);
-    expect(isDigestRequestAuthorized(request({ apikey: secret }), secret)).toBe(
+      isDigestRequestAuthorized(request({ Authorization: `Bearer ${"b".repeat(64)}` }), secret),
+    ).toBe(false);
+    expect(isDigestRequestAuthorized(request({ Authorization: "Bearer short" }), secret)).toBe(
       false,
     );
-    expect(
-      isDigestRequestAuthorized(
-        request({ Authorization: `Bearer ${"b".repeat(64)}` }),
-        secret,
-      ),
-    ).toBe(false);
-    expect(
-      isDigestRequestAuthorized(
-        request({ Authorization: "Bearer short" }),
-        secret,
-      ),
-    ).toBe(false);
     expect(isDigestRequestAuthorized(request(), secret)).toBe(false);
   });
 
   it("fails closed for missing or malformed configuration", () => {
     vi.stubEnv("DIGEST_CRON_SECRET", "");
-    expect(
-      isDigestRequestAuthorized(request({ Authorization: `Bearer ${secret}` })),
-    ).toBe(false);
-    expect(
-      isDigestRequestAuthorized(
-        request({ Authorization: "Bearer short" }),
-        "short",
-      ),
-    ).toBe(false);
+    expect(isDigestRequestAuthorized(request({ Authorization: `Bearer ${secret}` }))).toBe(false);
+    expect(isDigestRequestAuthorized(request({ Authorization: "Bearer short" }), "short")).toBe(
+      false,
+    );
   });
 
   it("rejects the former public-key authentication before invoking the worker", async () => {

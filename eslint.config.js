@@ -33,6 +33,9 @@ export default tseslint.config(
         },
       ],
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      // These bindings are read in a closure before the single assignment.
+      // The default prefer-const fixer would turn that into an invalid const.
+      "prefer-const": ["error", { ignoreReadBeforeAssign: true }],
       "@typescript-eslint/no-unused-vars": "off",
     },
   },

@@ -45,7 +45,9 @@ export async function buildDigest(
   const [{ data: convos }, { data: calls }, { data: intel }] = await Promise.all([
     admin
       .from("conversations")
-      .select("id, contact_name, contact_number, last_message_preview, unread_count, last_message_at")
+      .select(
+        "id, contact_name, contact_number, last_message_preview, unread_count, last_message_at",
+      )
       .in("app_number", numbers)
       .gt("unread_count", 0)
       .gte("last_message_at", sinceIso)

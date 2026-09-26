@@ -3,7 +3,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import * as ops from "./tools-ops.server";
 
-
 /* places */
 
 export const quickPlaces = createServerFn({ method: "POST" })

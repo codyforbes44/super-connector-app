@@ -12,20 +12,24 @@ Root cause is not yet proven — the plan starts by capturing the actual Twilio 
 ## Plan
 
 ### 1. Capture the real error (first step)
+
 - Add a Twilio error webhook endpoint that records Twilio Debugger alerts (error code, message, URL, call SID) into a small `webhook_errors` table, and point the account's debugger callback at it.
 - Log the TwiML the voice webhook returns for each inbound call, plus the outcome of the ElevenLabs hand-off, so the failing leg is visible in the admin view.
 - Surface recent errors on the Advanced/admin screen so they can be read without digging.
 
 ### 2. Make the call never fail hard
+
 - Wrap the whole inbound voice handler in a guard: any unexpected failure returns valid voicemail TwiML instead of an error, so a caller always gets a greeting and can leave a message.
 - Verify the ElevenLabs hand-off before using it (confirm the number is still registered and bound to the agent). If the check fails, fall back to the greeting + recording path instead of redirecting.
 - Re-validate the cached `elevenlabs_phone_number_id`; if ElevenLabs no longer recognises it, clear it and re-register the number.
 
 ### 3. Fix the credential path
+
 - Confirm every Twilio call in the app uses the direct account credentials, and remove/flag remaining gateway-dependent calls, given the gateway is returning 401.
 - Add the gateway/credential health result to the connectors screen so this failure is visible early instead of showing up as a broken call.
 
 ### 4. Verify
+
 - Place a test inbound call to +1 580-238-4777 and confirm: audible ringing, AI receptionist answers (or voicemail greeting if AI is unavailable), the call row completes, and no error is recorded.
 - Repeat for +1 580-745-0045 and +1 580-217-8444, which share the same handler.
 

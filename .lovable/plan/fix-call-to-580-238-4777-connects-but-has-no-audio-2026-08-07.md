@@ -21,6 +21,7 @@ two things in SixVox combined to produce dead air:
 ## The fix
 
 **1. Hand AI-answered calls to ElevenLabs' native Twilio handler**
+
 - Ensure the number is registered with ElevenLabs (import it through their
   phone-numbers API, keyed on the agent already selected for the number) and
   cache the ElevenLabs phone-number id alongside the number.
@@ -32,6 +33,7 @@ two things in SixVox combined to produce dead air:
   silence again.
 
 **2. Stop the silent 20-second client ring**
+
 - Track whether any agent device is actually registered (persist a short-lived
   presence row per identity, refreshed while a device is registered).
 - `app-voice` only emits `<Dial><Client>` for identities that are present. With
@@ -40,11 +42,13 @@ two things in SixVox combined to produce dead air:
   air.
 
 **3. Turn in-app calling back on**
+
 - Mark the existing calling app (already pointed at SixVox's webhooks) as the
   default, and make the Voice setup panel in Settings show clearly when no
   default is set, with a one-tap "Use this app".
 
 **4. Make failures visible**
+
 - Log Twilio's error notifications against the call row, and surface the answer
   path ("AI receptionist", "voicemail", "rang app") in Call history so a silent
   call is diagnosable from the app.

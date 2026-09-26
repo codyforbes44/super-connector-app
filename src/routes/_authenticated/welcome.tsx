@@ -19,6 +19,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { errorMessage, formatPhone } from "@/lib/format";
+import { prefillAiGreeting } from "@/lib/ai-greeting";
+import {
+  checkPhoneVerification,
+  createWorkspace,
+  startPhoneVerification,
+} from "@/lib/onboarding.functions";
 import { purchaseNumber, searchAvailableNumbers, sendTestCall } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
 
@@ -69,6 +75,12 @@ function Welcome() {
   const elapsed = useElapsed();
   const [step, setStep] = useState(0);
   const [workspace, setWorkspace] = useState("");
+  const [website, setWebsite] = useState("");
+  const [hours, setHours] = useState("");
+  const [verifyPhone, setVerifyPhone] = useState("");
+  const [verifyCode, setVerifyCode] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [greeting, setGreeting] = useState("");
   const [busy, setBusy] = useState(false);
 
   // Step 2 — claim a number without leaving the flow.
@@ -160,6 +172,17 @@ function Welcome() {
     setBusy(true);
     try {
       if (step === 0) {
+        if (!phoneVerified) {
+          throw new Error("Verify your mobile number first.");
+        }
+        const created = await createWorkspace({
+          data: {
+            name: workspace.trim(),
+            website: website.trim() || null,
+            hours: hours.trim() || null,
+          },
+        });
+        setGreeting(created.aiGreeting);
         await saveProfile({ workspace_name: workspace.trim() || null, onboarding_step: 1 });
         setStep(1);
       } else if (step === 1) {
@@ -239,21 +262,102 @@ function Welcome() {
             <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-xl">
               <Sparkles className="h-6 w-6" />
             </span>
-            <h1 className="font-display text-2xl font-semibold">Name the business</h1>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Use the name customers know — the one on the truck, not your personal cell. You can
-              change it later.
+            <h1 className="font-display text-2xl font-semibold">Welcome to SixVox</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Four quick steps and you&apos;ll be taking calls. Start with a name for your workspace
+              — you can change it later.
             </p>
-            <div className="mt-6 space-y-1.5">
-              <Label htmlFor="workspace">Workspace name</Label>
-              <Input
-                id="workspace"
-                value={workspace}
-                onChange={(event) => setWorkspace(event.target.value)}
-                placeholder="Ridge Plumbing"
-                className="h-12 rounded-xl px-4"
-                maxLength={80}
-              />
+            <div className="mt-6 space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="workspace">Workspace name</Label>
+                <Input
+                  id="workspace"
+                  value={workspace}
+                  onChange={(event) => setWorkspace(event.target.value)}
+                  placeholder="Acme Plumbing"
+                  className="h-12 rounded-xl px-4"
+                  maxLength={80}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="website">Website</Label>
+                <Input
+                  id="website"
+                  value={website}
+                  onChange={(event) => setWebsite(event.target.value)}
+                  placeholder="https://acmeplumbing.example"
+                  className="h-12 rounded-xl px-4"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="hours">Hours</Label>
+                <Input
+                  id="hours"
+                  value={hours}
+                  onChange={(event) => setHours(event.target.value)}
+                  placeholder="Mon–Fri 8am–5pm"
+                  className="h-12 rounded-xl px-4"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="verify-phone">Your mobile</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="verify-phone"
+                    value={verifyPhone}
+                    onChange={(event) => setVerifyPhone(event.target.value)}
+                    placeholder="+1 512 555 0100"
+                    className="h-12 flex-1 rounded-xl px-4"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="h-12 rounded-xl"
+                    disabled={busy}
+                    onClick={() => {
+                      setBusy(true);
+                      void startPhoneVerification({ data: { phone: verifyPhone } })
+                        .then(() => toast.success("We texted you a code."))
+                        .catch((error) => toast.error(errorMessage(error)))
+                        .finally(() => setBusy(false));
+                    }}
+                  >
+                    Text code
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="verify-code">Code</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="verify-code"
+                    value={verifyCode}
+                    onChange={(event) => setVerifyCode(event.target.value)}
+                    placeholder="123456"
+                    className="h-12 flex-1 rounded-xl px-4"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="h-12 rounded-xl"
+                    disabled={busy || phoneVerified}
+                    onClick={() => {
+                      setBusy(true);
+                      void checkPhoneVerification({
+                        data: { phone: verifyPhone, code: verifyCode },
+                      })
+                        .then(() => {
+                          setPhoneVerified(true);
+                          toast.success("Phone verified.");
+                        })
+                        .catch((error) => toast.error(errorMessage(error)))
+                        .finally(() => setBusy(false));
+                    }}
+                  >
+                    {phoneVerified ? "Verified" : "Confirm"}
+                  </Button>
+                </div>
+              </div>
             </div>
           </>
         ) : null}
@@ -369,6 +473,14 @@ function Welcome() {
             <p className="mt-2 text-sm text-muted-foreground">
               We&apos;ll ring your own phone from your SixVox line so you can hear it working. This
               is also the number we bridge calls to when you&apos;re away from the app.
+            </p>
+            <p className="mt-3 rounded-2xl bg-muted/60 p-3 text-sm text-muted-foreground">
+              {greeting ||
+                prefillAiGreeting({
+                  businessName: workspace || "your business",
+                  website,
+                  hours,
+                })}
             </p>
             <div className="mt-5 space-y-3">
               <Label htmlFor="myphone">Your mobile number</Label>

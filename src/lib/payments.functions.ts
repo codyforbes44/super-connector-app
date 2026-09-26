@@ -2,11 +2,17 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { TRIAL_DAYS } from "@/lib/plans";
-import {
-  type StripeEnv,
-  createStripeClient,
-  getStripeErrorMessage,
-} from "@/lib/stripe.server";
+import { type StripeEnv, createStripeClient, getStripeErrorMessage } from "@/lib/stripe.server";
+import type Stripe from "stripe";
+
+type InvoiceLineShape = {
+  period?: { start?: number | null; end?: number | null } | null;
+  description?: string | null;
+};
+
+type WithPeriodEnd = {
+  current_period_end?: number | null;
+};
 
 type CheckoutSessionResult = { clientSecret: string } | { error: string };
 type PortalSessionResult = { url: string } | { error: string };
@@ -47,7 +53,22 @@ export type BillingHistoryResult =
   | { error: string };
 
 const ZERO_DECIMAL = new Set([
-  "bif","clp","djf","gnf","jpy","kmf","krw","mga","pyg","rwf","ugx","vnd","vuv","xaf","xof","xpf",
+  "bif",
+  "clp",
+  "djf",
+  "gnf",
+  "jpy",
+  "kmf",
+  "krw",
+  "mga",
+  "pyg",
+  "rwf",
+  "ugx",
+  "vnd",
+  "vuv",
+  "xaf",
+  "xof",
+  "xpf",
 ]);
 const THREE_DECIMAL = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
 
@@ -140,7 +161,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
           metadata: { userId },
           ...(trialEligible && { trial_period_days: TRIAL_DAYS }),
         },
-      } as any);
+      } as Stripe.Checkout.SessionCreateParams);
 
       return { clientSecret: session.client_secret ?? "" };
     } catch (error) {
@@ -220,9 +241,9 @@ export const getBillingHistory = createServerFn({ method: "POST" })
           amountDue: toMajor(inv.amount_due, inv.currency),
           currency: (inv.currency ?? "usd").toUpperCase(),
           created: iso(inv.created),
-          periodStart: iso((line as any)?.period?.start),
-          periodEnd: iso((line as any)?.period?.end),
-          description: (line as any)?.description ?? null,
+          periodStart: iso((line as InvoiceLineShape | undefined)?.period?.start),
+          periodEnd: iso((line as InvoiceLineShape | undefined)?.period?.end),
+          description: (line as InvoiceLineShape | undefined)?.description ?? null,
           hostedInvoiceUrl: inv.hosted_invoice_url ?? null,
           pdfUrl: inv.invoice_pdf ?? null,
         };
@@ -234,7 +255,9 @@ export const getBillingHistory = createServerFn({ method: "POST" })
       const timeline: BillingTimelineEvent[] = [];
       if (current) {
         const item = current.items?.data?.[0];
-        const periodEnd = (item as any)?.current_period_end ?? (current as any).current_period_end;
+        const periodEnd =
+          (item as WithPeriodEnd | undefined)?.current_period_end ??
+          (current as WithPeriodEnd).current_period_end;
 
         timeline.push({
           key: "created",
@@ -314,8 +337,8 @@ export const getBillingHistory = createServerFn({ method: "POST" })
         cancelAtPeriodEnd: current?.cancel_at_period_end ?? false,
         currentPeriodEnd: current
           ? iso(
-              (current.items?.data?.[0] as any)?.current_period_end ??
-                (current as any).current_period_end,
+              (current.items?.data?.[0] as WithPeriodEnd | undefined)?.current_period_end ??
+                (current as WithPeriodEnd).current_period_end,
             )
           : null,
         invoices,
@@ -406,7 +429,9 @@ export const updateSubscriber = createServerFn({ method: "POST" })
         .delete()
         .eq("user_id", data.targetUserId)
         .in("role", ["owner", "admin", "agent"]);
-      await supabaseAdmin.from("user_roles").insert({ user_id: data.targetUserId, role: data.role });
+      await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: data.targetUserId, role: data.role });
     }
 
     return { ok: true };

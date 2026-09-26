@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, Copy, ShieldCheck, Terminal } from "lucide-react";
 import { toast } from "sonner";
@@ -9,9 +10,14 @@ import { ElevenLabsStatus } from "@/components/ElevenLabsStatus";
 import { MessagingServicesSection } from "@/components/MessagingServices";
 import { VoiceSetup } from "@/components/VoiceSetup";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage } from "@/lib/format";
-import { accountOverview, webhookDiagnostics } from "@/lib/twilio.functions";
+import {
+  accountOverview,
+  migrateWorkspaceTelephony,
+  webhookDiagnostics,
+} from "@/lib/twilio.functions";
 
 const TITLE = "Advanced — SixVox";
 const DESCRIPTION = "Carrier account health, routing endpoints and the raw API console.";
@@ -100,6 +106,45 @@ function CallErrors({ data }: { data: unknown }) {
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+function SubaccountMove() {
+  const [busy, setBusy] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  return (
+    <section className="space-y-3 border-t border-border px-4 py-4">
+      <h2 className="font-display text-sm font-semibold">Move numbers onto a subaccount</h2>
+      <p className="text-xs text-muted-foreground">
+        The original workspace keeps using the parent Twilio account until you run this. It creates
+        a subaccount if needed and moves each number by updating its Account SID. Safe to run again.
+      </p>
+      <label className="flex items-start gap-2 text-xs">
+        <input
+          type="checkbox"
+          className="mt-0.5"
+          checked={confirm}
+          onChange={(event) => setConfirm(event.target.checked)}
+        />
+        <span>I want to move this workspace&apos;s numbers off the parent account.</span>
+      </label>
+      <Button
+        variant="secondary"
+        className="h-11 w-full rounded-xl"
+        disabled={!confirm || busy}
+        onClick={() => {
+          setBusy(true);
+          void migrateWorkspaceTelephony()
+            .then((result) => {
+              toast.success(`Moved ${result.moved.length}. Skipped ${result.skipped.length}.`);
+            })
+            .catch((error) => toast.error(errorMessage(error)))
+            .finally(() => setBusy(false));
+        }}
+      >
+        {busy ? "Moving…" : "Move numbers"}
+      </Button>
     </section>
   );
 }
@@ -225,6 +270,7 @@ function AdvancedBody() {
         )}
       </section>
 
+      <SubaccountMove />
       <VoiceSetup />
 
       <CallErrors data={diagnostics.data} />
@@ -263,10 +309,7 @@ function AdvancedBody() {
       </section>
 
       <section className="border-t border-border px-4 py-4">
-        <Link
-          to="/a2p"
-          className="glass-panel mb-3 flex items-center gap-3 rounded-2xl px-4 py-3"
-        >
+        <Link to="/a2p" className="glass-panel mb-3 flex items-center gap-3 rounded-2xl px-4 py-3">
           <ShieldCheck className="h-4 w-4 text-primary" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">US texting registration</p>

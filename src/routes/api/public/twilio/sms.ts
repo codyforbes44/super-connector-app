@@ -37,6 +37,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
         });
 
         const body = get("Body");
+        const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+        const numberHome = await resolveWorkspaceIdForNumber(appNumber);
         await supabaseAdmin.from("messages").insert({
           conversation_id: conversationId,
           sid: get("MessageSid") || get("SmsSid") || null,
@@ -47,7 +49,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           body,
           media,
           status: "received",
-        });
+          ...(numberHome.workspaceId ? { workspace_id: numberHome.workspaceId } : {}),
+        } as never);
 
         // YES / CANCEL / RESCHEDULE (and Spanish) win over carrier keywords only
         // when a proposal is open. Bare STOP is not a booking reply, so it still

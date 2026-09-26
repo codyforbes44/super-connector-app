@@ -356,9 +356,7 @@ export function LivePhoneDemo() {
                 onClick={() => pickScenario(item.id)}
                 className={cn(
                   "flex min-h-10 flex-1 items-center justify-center rounded-full px-2 py-1.5 text-[0.68rem] font-semibold transition-colors",
-                  active
-                    ? "key-signal"
-                    : "text-muted-foreground hover:text-foreground",
+                  active ? "key-signal" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {item.tab}
@@ -434,11 +432,7 @@ export function LivePhoneDemo() {
             className="flex min-w-0 flex-1 cursor-pointer touch-none items-center gap-1 py-2 focus-visible:outline-none"
           >
             {SCENE_ORDER.map((item, itemIndex) => {
-              const fill = clamp(
-                (elapsed - SCENE_STARTS[itemIndex]!) / SCENE_MS[item],
-                0,
-                1,
-              );
+              const fill = clamp((elapsed - SCENE_STARTS[itemIndex]!) / SCENE_MS[item], 0, 1);
               return (
                 <span
                   key={item}
@@ -716,11 +710,7 @@ function OutcomeScene({ scenario }: { scenario: Scenario }) {
 function InboxScene({ scenario }: { scenario: Scenario }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PillHeader
-        title="Inbox"
-        subtitle="6 numbers · SMS & MMS"
-        action={RefreshCw}
-      />
+      <PillHeader title="Inbox" subtitle="6 numbers · SMS & MMS" action={RefreshCw} />
       <div className="px-3 pb-1">
         <div className="surface-row rounded-full px-4 py-2 text-[0.72rem] text-muted-foreground">
           Search conversations

@@ -85,7 +85,6 @@ export type WiringPayload = {
   external_sms?: boolean | null;
 };
 
-
 export type WiringReport = {
   voice: boolean;
   sms: boolean;
@@ -109,8 +108,7 @@ export function wiringReport(n: WiringPayload): WiringReport {
     voiceElevenLabs;
 
   const smsExternal = Boolean(n.external_sms);
-  const smsOwnUrl =
-    !n.sms_application_sid && pointsAtSixVox(n.sms_url, ["/api/public/twilio/sms"]);
+  const smsOwnUrl = !n.sms_application_sid && pointsAtSixVox(n.sms_url, ["/api/public/twilio/sms"]);
   const sms = smsOwnUrl || Boolean(n.messaging_service_inbound_ok) || smsExternal;
 
   const status =

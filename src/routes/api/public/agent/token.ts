@@ -9,13 +9,8 @@ export const Route = createFileRoute("/api/public/agent/token")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const {
-          ANON_LIMIT,
-          SIGNED_IN_LIMIT,
-          clientIp,
-          hit,
-          originAllowed,
-        } = await import("@/lib/concierge/rate-limit.server");
+        const { ANON_LIMIT, SIGNED_IN_LIMIT, clientIp, hit, originAllowed } =
+          await import("@/lib/concierge/rate-limit.server");
 
         const ip = clientIp(request);
         if (!originAllowed(request)) {
@@ -30,10 +25,7 @@ export const Route = createFileRoute("/api/public/agent/token")({
         const hasBearer = auth.toLowerCase().startsWith("bearer ");
         const tooMany = () => {
           console.error("concierge token rate limited", { ip, signedIn: hasBearer });
-          return Response.json(
-            { error: "Too many requests. Try again later." },
-            { status: 429 },
-          );
+          return Response.json({ error: "Too many requests. Try again later." }, { status: 429 });
         };
         // Gate on IP before doing any work; bearer callers get the wider window.
         if (!hit(`ip:${ip}`, hasBearer ? SIGNED_IN_LIMIT : ANON_LIMIT)) return tooMany();
@@ -60,7 +52,6 @@ export const Route = createFileRoute("/api/public/agent/token")({
         }
         // Per-account ceiling so one signed-in user cannot burn the whole budget.
         if (userId && !hit(`user:${userId}`, SIGNED_IN_LIMIT)) return tooMany();
-
 
         let planName = "none";
         let trialDaysLeft = "0";

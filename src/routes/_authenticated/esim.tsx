@@ -1,15 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  Check,
-  Copy,
-  Globe2,
-  Loader2,
-  QrCode,
-  RefreshCw,
-  Signal,
-  Wifi,
-} from "lucide-react";
+import { Check, Copy, Globe2, Loader2, QrCode, RefreshCw, Signal, Wifi } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -140,115 +131,118 @@ function EsimScreen() {
       <PaymentTestModeBanner />
 
       <Screen className="px-3 sm:px-3" onRefresh={refresh}>
-      {finalize.isPending ? (
-        <p className="mt-3 flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-3 text-xs">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          Confirming your payment and preparing the eSIM…
-        </p>
-      ) : null}
+        {finalize.isPending ? (
+          <p className="mt-3 flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-3 text-xs">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            Confirming your payment and preparing the eSIM…
+          </p>
+        ) : null}
 
-      {mine.length > 0 ? (
-        <Section title="Your data plans">
-          <ul className="space-y-2">
-            {mine.map((order) => (
-              <li key={order.id}>
-                <button
-                  type="button"
-                  onClick={() => setDetail(order.id)}
-                  className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-left"
-                >
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15">
-                    <Signal className="size-4 text-primary" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold">
-                      {order.package_title}
-                    </span>
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {order.data_amount} · {order.validity_days} days · {money(order.amount_cents)}
-                    </span>
-                  </span>
-                  <Badge
-                    variant={order.status === "active" ? "secondary" : "outline"}
-                    className="shrink-0 text-[0.6rem]"
-                  >
-                    {order.status}
-                  </Badge>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-
-      <Section title="Data plans" className="space-y-3">
-        {!catalogue.data?.configured ? (
-          <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
-            <p className="text-sm font-semibold text-foreground">Data plans aren&apos;t live yet</p>
-            <p className="mt-1">
-              Everything is built and waiting — plan browsing, card payment and instant delivery of
-              the install QR code. Add the eSIM partner credentials and this storefront fills itself
-              in automatically.
-            </p>
-          </div>
-        ) : (
-          <>
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search a country or region"
-              className="h-12 rounded-xl px-4 text-base"
-              inputMode="search"
-            />
-            {catalogue.data.error ? (
-              <p className="text-xs text-destructive">{catalogue.data.error}</p>
-            ) : null}
-            <AsyncList
-              query={catalogue}
-              items={filtered}
-              skeletonRows={6}
-              className="mt-2"
-              errorTitle="Couldn't load data plans"
-              empty={
-                <Empty
-                  icon={Globe2}
-                  title="No plans match"
-                  description="Try a different country, region or 'global'."
-                />
-              }
-            >
-              {(page) => (
-                <ul className="space-y-2">
-                  {page.map((pkg) => (
-                  <li
-                    key={pkg.id}
-                    className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
+        {mine.length > 0 ? (
+          <Section title="Your data plans">
+            <ul className="space-y-2">
+              {mine.map((order) => (
+                <li key={order.id}>
+                  <button
+                    type="button"
+                    onClick={() => setDetail(order.id)}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-left"
                   >
                     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15">
-                      <Wifi className="size-4 text-primary" />
+                      <Signal className="size-4 text-primary" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">{pkg.region}</span>
+                      <span className="block truncate text-sm font-semibold">
+                        {order.package_title}
+                      </span>
                       <span className="block truncate text-xs text-muted-foreground">
-                        {pkg.data} · {pkg.validityDays} days · {pkg.operator}
+                        {order.data_amount} · {order.validity_days} days ·{" "}
+                        {money(order.amount_cents)}
                       </span>
                     </span>
-                    <Button
-                      size="sm"
-                      className="h-10 shrink-0 rounded-xl px-4 font-semibold"
-                      disabled={!paymentsConfigured()}
-                      onClick={() => setBuying(pkg.id)}
+                    <Badge
+                      variant={order.status === "active" ? "secondary" : "outline"}
+                      className="shrink-0 text-[0.6rem]"
                     >
-                      {money(pkg.priceCents)}
-                    </Button>
-                  </li>
-                  ))}
-                </ul>
-              )}
-            </AsyncList>
-          </>
-        )}
-      </Section>
+                      {order.status}
+                    </Badge>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        ) : null}
+
+        <Section title="Data plans" className="space-y-3">
+          {!catalogue.data?.configured ? (
+            <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
+              <p className="text-sm font-semibold text-foreground">
+                Data plans aren&apos;t live yet
+              </p>
+              <p className="mt-1">
+                Everything is built and waiting — plan browsing, card payment and instant delivery
+                of the install QR code. Add the eSIM partner credentials and this storefront fills
+                itself in automatically.
+              </p>
+            </div>
+          ) : (
+            <>
+              <Input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search a country or region"
+                className="h-12 rounded-xl px-4 text-base"
+                inputMode="search"
+              />
+              {catalogue.data.error ? (
+                <p className="text-xs text-destructive">{catalogue.data.error}</p>
+              ) : null}
+              <AsyncList
+                query={catalogue}
+                items={filtered}
+                skeletonRows={6}
+                className="mt-2"
+                errorTitle="Couldn't load data plans"
+                empty={
+                  <Empty
+                    icon={Globe2}
+                    title="No plans match"
+                    description="Try a different country, region or 'global'."
+                  />
+                }
+              >
+                {(page) => (
+                  <ul className="space-y-2">
+                    {page.map((pkg) => (
+                      <li
+                        key={pkg.id}
+                        className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
+                      >
+                        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15">
+                          <Wifi className="size-4 text-primary" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold">{pkg.region}</span>
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {pkg.data} · {pkg.validityDays} days · {pkg.operator}
+                          </span>
+                        </span>
+                        <Button
+                          size="sm"
+                          className="h-10 shrink-0 rounded-xl px-4 font-semibold"
+                          disabled={!paymentsConfigured()}
+                          onClick={() => setBuying(pkg.id)}
+                        >
+                          {money(pkg.priceCents)}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </AsyncList>
+            </>
+          )}
+        </Section>
       </Screen>
 
       {buying ? (

@@ -131,7 +131,12 @@ export function MessagingServicesSection({
       )}
 
       {open ? (
-        <ServiceSheet key={open.sid} service={open} numbers={numbers} onClose={() => setOpen(null)} />
+        <ServiceSheet
+          key={open.sid}
+          service={open}
+          numbers={numbers}
+          onClose={() => setOpen(null)}
+        />
       ) : null}
     </section>
   );

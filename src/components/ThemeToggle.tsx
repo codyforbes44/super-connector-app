@@ -19,11 +19,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         className,
       )}
     >
-      {isDark ? (
-        <Sun className="h-4 w-4" aria-hidden />
-      ) : (
-        <Moon className="h-4 w-4" aria-hidden />
-      )}
+      {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
     </button>
   );
 }

@@ -117,27 +117,37 @@ function encodeForm(params: Record<string, unknown>): string {
   return search.toString();
 }
 
+export type TwilioAccountAuth = {
+  accountSid: string;
+  authToken: string;
+};
+
 /** Low-level call. `path` must start with "/". */
 export async function twilioRequest<T = unknown>(opts: {
   method?: "GET" | "POST" | "PUT" | "DELETE";
   path: string;
   params?: Record<string, unknown>;
   host?: TwilioHost;
+  /**
+   * Authenticate as this account instead of the parent credentials in env.
+   * Workspace subaccount calls pass the subaccount SID and auth token.
+   */
+  account?: TwilioAccountAuth | null;
 }): Promise<T> {
   const method = opts.method ?? "GET";
   const host = opts.host ?? "api";
   const params = opts.params ?? {};
+  const accountSid = opts.account?.accountSid ?? process.env["TWILIO_ACCOUNT_SID"];
+  const authToken = opts.account?.authToken ?? process.env["TWILIO_AUTH_TOKEN"];
 
   let url: string;
   const headers: Record<string, string> = {};
 
-  if (host === "api" && hasDirectCredentials()) {
+  if (host === "api" && (opts.account || hasDirectCredentials())) {
     // Full account credentials reach every 2010-04-01 resource; the gateway's
     // connection key is scoped to a subset (messages/recordings/balance).
-    const sid = process.env["TWILIO_ACCOUNT_SID"];
-    const token = process.env["TWILIO_AUTH_TOKEN"];
-    url = `https://api.twilio.com/2010-04-01/Accounts/${sid}${opts.path}`;
-    headers["Authorization"] = `Basic ${btoa(`${sid}:${token}`)}`;
+    url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}${opts.path}`;
+    headers["Authorization"] = `Basic ${btoa(`${accountSid}:${authToken}`)}`;
   } else if (host === "api") {
     const lovableKey = process.env["LOVABLE_API_KEY"];
     const connectionKey = process.env["TWILIO_API_KEY"];
@@ -148,9 +158,7 @@ export async function twilioRequest<T = unknown>(opts: {
     headers["Authorization"] = `Bearer ${lovableKey}`;
     headers["X-Connection-Api-Key"] = connectionKey;
   } else {
-    const sid = process.env["TWILIO_ACCOUNT_SID"];
-    const token = process.env["TWILIO_AUTH_TOKEN"];
-    if (!sid || !token) {
+    if (!accountSid || !authToken) {
       throw new TwilioError(
         428,
         `This feature calls the ${host === "api-direct" ? "api" : host}.twilio.com API directly, which needs your Twilio Account SID and Auth Token saved in the app. Add them in Settings to unlock it.`,
@@ -158,7 +166,7 @@ export async function twilioRequest<T = unknown>(opts: {
     }
     const subdomain = host === "api-direct" ? "api" : host;
     url = `https://${subdomain}.twilio.com${opts.path}`;
-    headers["Authorization"] = `Basic ${btoa(`${sid}:${token}`)}`;
+    headers["Authorization"] = `Basic ${btoa(`${accountSid}:${authToken}`)}`;
   }
 
   const init: RequestInit = { method, headers };

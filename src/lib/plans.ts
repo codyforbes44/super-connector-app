@@ -159,8 +159,10 @@ export const FEATURE_MATRIX: Array<{ label: string; solo: string; team: string; 
     scale: matrixValue("missedCallTextBack"),
   },
   { label: "SMS, MMS and voice", solo: "Yes", team: "Yes", scale: "Yes" },
+  { label: "Included AI calls", solo: "50", team: "200", scale: "600" },
   { label: "Voicemail + transcription", solo: "Yes", team: "Yes", scale: "Yes" },
   { label: "In-app calling", solo: "Yes", team: "Yes", scale: "Yes" },
+  { label: "International calling", solo: "—", team: "Yes", scale: "Yes" },
   { label: "Shared inbox + assignment", solo: "—", team: "Yes", scale: "Yes" },
   { label: "A2P texting registration", solo: "Handled", team: "Handled", scale: "Handled" },
 ];

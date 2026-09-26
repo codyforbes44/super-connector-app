@@ -68,9 +68,7 @@ function Wizard({
     (initial?.forward_mode as ForwardMode) === "all" ? "all" : "conditional",
   );
   const [carrier, setCarrier] = useState(initial?.carrier ?? "att");
-  const [line, setLine] = useState(
-    initial?.assigned_number ?? lines[0]?.phone_number ?? "",
-  );
+  const [line, setLine] = useState(initial?.assigned_number ?? lines[0]?.phone_number ?? "");
   const [done, setDone] = useState<string[]>([]);
 
   const save = useMutation({
@@ -129,7 +127,9 @@ function Wizard({
                 type="button"
                 onClick={() => setMode(value)}
                 className={`flex w-full items-start gap-3 rounded-2xl p-3 text-left text-xs transition ${
-                  mode === value ? "key-raised text-foreground" : "bg-muted/30 text-muted-foreground"
+                  mode === value
+                    ? "key-raised text-foreground"
+                    : "bg-muted/30 text-muted-foreground"
                 }`}
               >
                 <PhoneForwarded className="mt-0.5 size-4 text-primary" />

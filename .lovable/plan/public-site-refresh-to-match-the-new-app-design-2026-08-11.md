@@ -18,12 +18,12 @@ Pages touched: home, features, how it works, pricing, FAQ, contact, auth, and th
 
 Generated fresh so screenshots show the current UI, not the old one:
 
-| Asset | Use |
-| --- | --- |
-| `hero-app` (replaces current) | Home hero — phone frame showing the new Inbox list with pill header, tab pod and FAB |
+| Asset                                | Use                                                                                             |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `hero-app` (replaces current)        | Home hero — phone frame showing the new Inbox list with pill header, tab pod and FAB            |
 | `ai-receptionist` (replaces current) | Feature section — the new call thread with an in-thread "Answered by receptionist" summary card |
-| `settings-tiles` (new) | Features page — the grouped settings rows with colored icon tiles |
-| `og-default` (regenerated) | 1200x630 social card using the refreshed hero and current logo |
+| `settings-tiles` (new)               | Features page — the grouped settings rows with colored icon tiles                               |
+| `og-default` (regenerated)           | 1200x630 social card using the refreshed hero and current logo                                  |
 
 Each is emitted at the sizes the existing responsive `srcset` pipeline expects, with explicit width/height so nothing shifts on load. The SixVox logo is unchanged.
 

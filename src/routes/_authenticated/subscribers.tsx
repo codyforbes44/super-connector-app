@@ -81,57 +81,60 @@ function SubscribersScreen() {
         >
           {(page) =>
             page.map((row) => {
-          const sub = row.subscription as {
-            plan_code: string | null;
-            status: string;
-            comped: boolean;
-            suspended: boolean;
-          } | null;
-          const plan = planByCode(sub?.plan_code);
-          return (
-            <div key={row.id} className="rounded-2xl border border-border bg-card p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-display truncate text-sm font-semibold">
-                    {row.displayName || row.email}
-                  </p>
-                  <p className="truncate text-xs text-muted-foreground">{row.email}</p>
-                  <p className="mt-1 text-[0.7rem] text-muted-foreground">
-                    {plan?.name ?? "No plan"} · {sub?.status ?? "inactive"}
-                    {sub?.comped ? " · comped" : ""}
-                    {sub?.suspended ? " · suspended" : ""}
-                    {row.roles.length ? ` · ${row.roles.join(", ")}` : ""}
-                  </p>
+              const sub = row.subscription as {
+                plan_code: string | null;
+                status: string;
+                comped: boolean;
+                suspended: boolean;
+              } | null;
+              const plan = planByCode(sub?.plan_code);
+              return (
+                <div key={row.id} className="rounded-2xl border border-border bg-card p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-display truncate text-sm font-semibold">
+                        {row.displayName || row.email}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">{row.email}</p>
+                      <p className="mt-1 text-[0.7rem] text-muted-foreground">
+                        {plan?.name ?? "No plan"} · {sub?.status ?? "inactive"}
+                        {sub?.comped ? " · comped" : ""}
+                        {sub?.suspended ? " · suspended" : ""}
+                        {row.roles.length ? ` · ${row.roles.join(", ")}` : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="h-10 flex-1 rounded-xl"
+                      disabled={mutation.isPending}
+                      onClick={() =>
+                        mutation.mutate({ targetUserId: row.id, comped: !(sub?.comped ?? false) })
+                      }
+                    >
+                      <Gift className="h-3.5 w-3.5" />
+                      {sub?.comped ? "Remove comp" : "Comp access"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="h-10 flex-1 rounded-xl"
+                      disabled={mutation.isPending}
+                      onClick={() =>
+                        mutation.mutate({
+                          targetUserId: row.id,
+                          suspended: !(sub?.suspended ?? false),
+                        })
+                      }
+                    >
+                      <UserX className="h-3.5 w-3.5" />
+                      {sub?.suspended ? "Restore" : "Suspend"}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <div className="mt-3 flex gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-10 flex-1 rounded-xl"
-                  disabled={mutation.isPending}
-                  onClick={() =>
-                    mutation.mutate({ targetUserId: row.id, comped: !(sub?.comped ?? false) })
-                  }
-                >
-                  <Gift className="h-3.5 w-3.5" />
-                  {sub?.comped ? "Remove comp" : "Comp access"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-10 flex-1 rounded-xl"
-                  disabled={mutation.isPending}
-                  onClick={() =>
-                    mutation.mutate({ targetUserId: row.id, suspended: !(sub?.suspended ?? false) })
-                  }
-                >
-                  <UserX className="h-3.5 w-3.5" />
-                  {sub?.suspended ? "Restore" : "Suspend"}
-                </Button>
-              </div>
-            </div>
-          );
+              );
             })
           }
         </AsyncList>

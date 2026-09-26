@@ -1,3 +1,5 @@
+/* Stripe's webhook payload is untyped in this route. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
@@ -16,8 +18,7 @@ function getSupabase() {
   return _supabase;
 }
 
-const iso = (seconds?: number | null) =>
-  seconds ? new Date(seconds * 1000).toISOString() : null;
+const iso = (seconds?: number | null) => (seconds ? new Date(seconds * 1000).toISOString() : null);
 
 function shapeFrom(subscription: any, env: StripeEnv) {
   const item = subscription.items?.data?.[0];
@@ -31,8 +32,7 @@ function shapeFrom(subscription: any, env: StripeEnv) {
     stripe_subscription_id: subscription.id as string,
     stripe_customer_id: (subscription.customer ?? null) as string | null,
     product_id: (typeof item?.price?.product === "string" ? item.price.product : null) as
-      | string
-      | null,
+      string | null,
     price_id: (priceId ?? null) as string | null,
     plan_code: plan,
     billing_interval: interval,
@@ -60,6 +60,12 @@ async function upsertSubscription(subscription: any, env: StripeEnv) {
 
   if (existing?.id) {
     await supabase.from("subscriptions").update(shape).eq("id", existing.id);
+    const { data: row } = await supabase
+      .from("subscriptions")
+      .select("user_id")
+      .eq("id", existing.id)
+      .maybeSingle();
+    await syncEntitlements(row?.user_id, shape);
     return;
   }
 
@@ -82,14 +88,55 @@ async function upsertSubscription(subscription: any, env: StripeEnv) {
   } else {
     await supabase.from("subscriptions").insert({ user_id: userId, ...shape });
   }
+  await syncEntitlements(userId, shape);
+}
+
+async function syncEntitlements(
+  userId: string | null | undefined,
+  shape: { plan_code: string | null; status: string; stripe_subscription_id: string },
+) {
+  if (!userId) return;
+  try {
+    const { syncEntitlementsFromSubscription } = await import("@/lib/entitlements.server");
+    const workspace = await import("@/lib/workspace.server").then((mod) =>
+      mod.resolveWorkspaceForUser(userId),
+    );
+    if (workspace) {
+      await getSupabase()
+        .from("subscriptions")
+        .update({ workspace_id: workspace.id } as never)
+        .eq("user_id", userId)
+        .is("workspace_id", null);
+    }
+    await syncEntitlementsFromSubscription({
+      userId,
+      planCode: shape.plan_code,
+      status: shape.status,
+      stripeSubscriptionId: shape.stripe_subscription_id,
+    });
+  } catch (error) {
+    console.error("entitlement sync failed", error);
+  }
 }
 
 async function markCanceled(subscription: any, env: StripeEnv) {
-  await getSupabase()
+  const supabase = getSupabase();
+  const { data: row } = await supabase
+    .from("subscriptions")
+    .select("user_id")
+    .eq("stripe_subscription_id", subscription.id)
+    .eq("environment", env)
+    .maybeSingle();
+  await supabase
     .from("subscriptions")
     .update({ status: "canceled", updated_at: new Date().toISOString() })
     .eq("stripe_subscription_id", subscription.id)
     .eq("environment", env);
+  await syncEntitlements(row?.user_id, {
+    plan_code: null,
+    status: "canceled",
+    stripe_subscription_id: subscription.id as string,
+  });
 }
 
 async function handleWebhook(req: Request, env: StripeEnv) {

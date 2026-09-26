@@ -328,7 +328,6 @@ function CallsScreen() {
 
         {audio ? (
           <div className="mb-3 rounded-2xl border border-border bg-card p-3">
-            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             <audio className="w-full" controls autoPlay src={audio} />
           </div>
         ) : null}
@@ -545,7 +544,7 @@ function CallsScreen() {
           <SheetHeader className="px-0">
             <SheetTitle className="font-display text-center">Dialer</SheetTitle>
           </SheetHeader>
-            <form onSubmit={dial} className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+          <form onSubmit={dial} className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
             <DialerE911Warning acknowledged={e911Acknowledged} />
             <Dialpad value={to} onChange={setTo} />
             <E911Disclosure className="text-center text-[0.7rem] leading-relaxed text-muted-foreground" />

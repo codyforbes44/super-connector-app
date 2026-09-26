@@ -33,9 +33,7 @@ export const startEsimCheckout = createServerFn({ method: "POST" })
 export const finalizeEsimOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { orderId: string; environment: StripeEnv }) => data)
-  .handler(async ({ data, context }) =>
-    esim.finalizeOrder(context.supabase, context.userId, data),
-  );
+  .handler(async ({ data, context }) => esim.finalizeOrder(context.supabase, context.userId, data));
 
 export const esimUsage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

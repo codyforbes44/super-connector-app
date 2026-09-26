@@ -156,33 +156,22 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           .eq("phone_number", appNumber)
           .maybeSingle();
 
-        const { voiceIdentityFor } = await import("@/lib/voice-token.server");
-        const ringUserIds: string[] = [];
-        if (number?.assigned_to) {
-          ringUserIds.push(number.assigned_to as string);
+        const { loadInboundRing } = await import("@/lib/ring-targets.server");
+        const ring = await loadInboundRing(supabaseAdmin as never, {
+          appNumber,
+          aiEnabled: Boolean(number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id),
+          forwardTo: (number?.forward_to as string | null) ?? null,
+        });
+        const ringUserIds = ring.userIds;
+        const identities = ring.identities;
+        if (ring.workspaceId) {
+          await supabaseAdmin
+            .from("calls")
+            .update({ workspace_id: ring.workspaceId })
+            .eq("sid", callSid);
         }
 
-        // Owners and admins can access every workspace number in the app, so
-        // they must remain eligible to answer even when a number is assigned
-        // to one specific teammate.
-        const { data: admins } = await supabaseAdmin
-          .from("user_roles")
-          .select("user_id")
-          .in("role", ["owner", "admin"]);
-        for (const row of admins ?? []) {
-          const userId = row.user_id as string;
-          if (!ringUserIds.includes(userId)) {
-            ringUserIds.push(userId);
-          }
-        }
-        const identities = ringUserIds.map(voiceIdentityFor);
-
-        // Always include assigned devices. Mobile browsers throttle heartbeat
-        // timers in the background, so presence is advisory and must never
-        // suppress the actual Twilio call invite. The Dial timeout already
-        // provides the bounded four-ring fallback to voicemail or the agent.
-
-        // Wake backgrounded devices so the incoming call can be answered in-app.
+        // Wake the devices we are actually going to ring.
         if (ringUserIds.length) {
           const { sendPushToUsers } = await import("@/lib/push.server");
           await sendPushToUsers(supabaseAdmin as never, ringUserIds, {
@@ -208,15 +197,39 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         } = await import("@/lib/voice-answer.server");
         const { lineRecordsCalls } = await import("@/lib/compliance/recording.server");
         const recordCalls = await lineRecordsCalls(supabaseAdmin as never, appNumber);
-        const voiceConfig = { ...(number ?? {}), record_calls: recordCalls };
+        const aiConfigured = Boolean(
+          number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id,
+        );
+        let aiAllowed = aiConfigured;
+        if (aiConfigured && ring.workspaceId) {
+          const { assertCanStartAiCall } = await import("@/lib/entitlements.server");
+          aiAllowed = await assertCanStartAiCall(ring.workspaceId);
+        }
+        const voiceConfig = aiAllowed
+          ? { ...(number ?? {}), record_calls: recordCalls }
+          : {
+              ...(number ?? {}),
+              record_calls: recordCalls,
+              answer_mode: "voicemail",
+              elevenlabs_agent_id: null,
+            };
         const unanswered = await voicemailTwiml(supabaseAdmin as never, voiceConfig, {
           callSid,
           from,
           appNumber,
         });
-        const aiAnswering = number?.answer_mode === "ai_agent" && number?.elevenlabs_agent_id;
+        const handOff = aiAllowed && unanswered.startsWith("<Redirect");
+        if (handOff && ring.workspaceId && !stage) {
+          const { recordAiCall } = await import("@/lib/entitlements.server");
+          await recordAiCall(ring.workspaceId);
+        }
 
-        const fallback =
+        const aiAnswering = handOff;
+        const ringOwnerCell = ring.ownerCell;
+        const ownerDial = ringOwnerCell
+          ? `<Dial callerId="${esc(appNumber)}" timeout="${RING_SECONDS}" ringTone="us" action="${esc(stageUrl("after-cell"))}" method="POST"><Number>${esc(ringOwnerCell)}</Number></Dial>`
+          : null;
+        const forwarded =
           number?.forward_to && !aiAnswering
             ? forwardedCallTwiml({
                 record: recordCalls,
@@ -224,11 +237,10 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
                 destination: number.forward_to as string,
                 timeoutSeconds: RING_SECONDS,
               }) + unanswered
-            : unanswered;
+            : null;
+        const fallback = forwarded ?? ownerDial ?? unanswered;
 
-        // Let the caller hear four rings before voicemail or the AI answers.
-        // Forwarding to another phone rings on its own, so it goes straight out.
-        const handOff = unanswered.includes("<Redirect");
+        if (stage === "after-cell") return xml(unanswered);
         if (!stage) {
           try {
             await supabaseAdmin
@@ -236,11 +248,13 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
               .update({
                 answer_path: identities.length
                   ? "in_app"
-                  : number?.forward_to && !aiAnswering
+                  : forwarded
                     ? "forward"
-                    : handOff
-                      ? "ai_agent"
-                      : (number?.answer_mode ?? "voicemail"),
+                    : ringOwnerCell
+                      ? "owner_cell"
+                      : handOff
+                        ? "ai_agent"
+                        : "voicemail",
               })
               .eq("sid", callSid);
           } catch {
@@ -249,8 +263,8 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         }
 
         if (identities.length === 0) {
-          const forwarding = Boolean(number?.forward_to) && !aiAnswering;
-          return xml(forwarding ? fallback : ringbackTwiml() + fallback);
+          if (forwarded) return xml(forwarded);
+          return xml(ownerDial ? ownerDial : ringbackTwiml() + unanswered);
         }
 
         const dialClients = (timeout: number, nextStage: string) =>
