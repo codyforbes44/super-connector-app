@@ -373,6 +373,7 @@ export const applySuggestedAction = createServerFn({ method: "POST" })
         to: data.contactNumber,
         body: data.value ?? "",
         channel: "sms",
+        kind: "automated",
       });
       return { ok: true, message: "Message sent." };
     }

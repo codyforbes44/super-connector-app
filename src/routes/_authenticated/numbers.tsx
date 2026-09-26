@@ -9,6 +9,7 @@ import { Empty, ListGroup, Screen, Section, usePagedList, LoadMore } from "@/com
 import { MessagingServicesSection } from "@/components/MessagingServices";
 import { BringYourOwnNumber } from "@/components/line/BringYourOwnNumber";
 import { EsimExplainer } from "@/components/line/EsimExplainer";
+import { LineCompliance } from "@/components/compliance/LineCompliance";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -338,6 +339,7 @@ type NumberRow = {
   answer_mode?: string | null;
   elevenlabs_voice_id?: string | null;
   elevenlabs_agent_id?: string | null;
+  record_calls?: boolean | null;
 };
 
 function NumberSheet({
@@ -438,6 +440,13 @@ function NumberSheet({
               className="h-11 rounded-xl px-4"
             />
           </div>
+
+          <LineCompliance
+            sid={number.sid}
+            phoneNumber={number.phone_number}
+            phoneLabel={formatPhone(number.phone_number)}
+            recordCalls={Boolean(number.record_calls)}
+          />
 
           <VoiceAssistant number={number} onChanged={onChanged} />
 

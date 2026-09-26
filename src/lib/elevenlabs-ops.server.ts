@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { allowedNumbers, audit, requireAdmin } from "./app.server";
+import { composeAiFirstMessage } from "./compliance/recording-copy";
 import * as el from "./elevenlabs.server";
 
 export const GREETING_BUCKET = "voice-greetings";
@@ -166,11 +167,19 @@ export async function saveAssistantProfile(
     throw new Error("Add a fallback number to forward to, or pick another fallback.");
   }
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: line } = await supabaseAdmin
+    .from("phone_numbers")
+    .select("record_calls")
+    .eq("sid", args.sid)
+    .maybeSingle();
   const { error } = await supabaseAdmin
     .from("phone_numbers")
     .update({
       ai_prompt: args.prompt?.trim() || null,
-      ai_first_message: args.firstMessage?.trim() || null,
+      ai_first_message: composeAiFirstMessage(
+        args.firstMessage,
+        Boolean(line?.["record_calls"]),
+      ),
       ai_tone: args.tone,
       ai_language: args.language,
       ai_fallback: args.fallback,

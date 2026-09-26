@@ -1438,6 +1438,7 @@ export type Database = {
           messaging_service_sid: string | null
           outbound_caller_id: string | null
           phone_number: string
+          record_calls: boolean
           sid: string
           voicemail_greeting: string | null
           webhook_wired: boolean
@@ -1474,6 +1475,7 @@ export type Database = {
           messaging_service_sid?: string | null
           outbound_caller_id?: string | null
           phone_number: string
+          record_calls?: boolean
           sid: string
           voicemail_greeting?: string | null
           webhook_wired?: boolean
@@ -1510,6 +1512,7 @@ export type Database = {
           messaging_service_sid?: string | null
           outbound_caller_id?: string | null
           phone_number?: string
+          record_calls?: boolean
           sid?: string
           voicemail_greeting?: string | null
           webhook_wired?: boolean

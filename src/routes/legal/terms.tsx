@@ -42,6 +42,43 @@ function Terms() {
         cancelled. We will give at least 30 days notice before any price change affecting your renewal.
       </p>
 
+      <h2>Emergency calling</h2>
+      <p>
+        SixVox is an interconnected VoIP service. 911 from a SixVox number can fail if power, the
+        internet, or SixVox is down, and responders are sent to the service address registered for
+        that number, not to wherever the handset is. You must acknowledge these limitations (47 CFR
+        9.11) before placing calls, and you must update the address if the business moves. Emergency
+        address registration is $0.75 per number per month. A 911 call with no registered address is
+        $75 and is routed to a national emergency call center. Those Twilio fees are in addition to
+        your plan.
+      </p>
+
+      <h2>Recording</h2>
+      <p>
+        Live call recording is off for each line until you turn it on. When it is on, every party
+        hears a recording notice before recording starts. Voicemail always plays that notice. The AI
+        receptionist identifies itself as an automated assistant on calls it answers. You are
+        responsible for using recording in line with the law that applies to your business. SixVox
+        applies the notice on every recorded leg, including in one-party-consent states.
+      </p>
+
+      <h2>Messages and AI calls</h2>
+      <p>
+        You must honor STOP and START. SixVox blocks further app and automated texts after STOP
+        until START, and it can hold automated texts during quiet hours you configure. Review and
+        marketing texts require a consent record. You may not place an outbound AI voice call to a
+        person without recorded prior consent. This release does not place outbound AI voice calls
+        at all.
+      </p>
+
+      <h2>Caller identity</h2>
+      <p>
+        SHAKEN/STIR, CNAM, and Voice Integrity are optional Trust Hub registrations. SixVox can save
+        a draft of those registrations. Submitting them to Twilio is a separate step that this
+        release does not perform. CNAM requires an EIN or a DUNS number. Branded Calling, at $0.12
+        per call where offered, is not included.
+      </p>
+
       <h2>Acceptable use</h2>
       <p>
         You may not use SixVox to send unsolicited bulk messages, impersonate others, harass anyone, distribute malware,

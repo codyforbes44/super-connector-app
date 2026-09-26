@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-
 import { Suspense, useEffect } from "react";
 
 import { AppShell } from "@/components/AppShell";
+import { E911Gate } from "@/components/compliance/E911Gate";
 import { InCallScreen } from "@/components/InCallScreen";
 import { WelcomeDialog } from "@/components/WelcomeDialog";
 import { EnableNotificationsPrompt } from "@/components/EnableNotificationsPrompt";
@@ -102,6 +103,7 @@ function AuthenticatedLayout() {
       <InCallScreen />
       <WelcomeDialog />
       <EnableNotificationsPrompt />
+      <E911Gate />
     </VoiceProvider>
   );
 }

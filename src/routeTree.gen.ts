@@ -37,7 +37,9 @@ import { Route as AuthenticatedReceptionistRouteImport } from './routes/_authent
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSubscribersRouteImport } from './routes/_authenticated/subscribers'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
+import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
+import { Route as DevComplianceRouteImport } from './routes/dev/compliance'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as AuthenticatedAdminUserIdRouteImport } from './routes/_authenticated/admin.$userId'
@@ -55,6 +57,7 @@ import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/
 import { Route as ApiPublicTwilioAppVoiceRouteImport } from './routes/api/public/twilio/app-voice'
 import { Route as ApiPublicTwilioErrorRouteImport } from './routes/api/public/twilio/error'
 import { Route as ApiPublicTwilioRecordingRouteImport } from './routes/api/public/twilio/recording'
+import { Route as ApiPublicTwilioRecordingNoticeRouteImport } from './routes/api/public/twilio/recording-notice'
 import { Route as ApiPublicTwilioSmsRouteImport } from './routes/api/public/twilio/sms'
 import { Route as ApiPublicTwilioStatusRouteImport } from './routes/api/public/twilio/status'
 import { Route as ApiPublicTwilioVoiceRouteImport } from './routes/api/public/twilio/voice'
@@ -202,10 +205,20 @@ const AuthenticatedToolsRoute = AuthenticatedToolsRouteImport.update({
   path: '/tools',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTrustRoute = AuthenticatedTrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const DevComplianceRoute = DevComplianceRouteImport.update({
+  id: '/dev/compliance',
+  path: '/dev/compliance',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
   id: '/legal/privacy',
@@ -298,6 +311,12 @@ const ApiPublicTwilioRecordingRoute =
     path: '/api/public/twilio/recording',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicTwilioRecordingNoticeRoute =
+  ApiPublicTwilioRecordingNoticeRouteImport.update({
+    id: '/api/public/twilio/recording-notice',
+    path: '/api/public/twilio/recording-notice',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTwilioSmsRoute = ApiPublicTwilioSmsRouteImport.update({
   id: '/api/public/twilio/sms',
   path: '/api/public/twilio/sms',
@@ -353,7 +372,9 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
+  '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/compliance': typeof DevComplianceRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -371,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
+  '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
@@ -404,7 +426,9 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
+  '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/compliance': typeof DevComplianceRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -422,6 +446,7 @@ export interface FileRoutesByTo {
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
+  '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
@@ -458,7 +483,9 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/subscribers': typeof AuthenticatedSubscribersRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
+  '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/compliance': typeof DevComplianceRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/_authenticated/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -476,6 +503,7 @@ export interface FileRoutesById {
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
+  '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
@@ -512,7 +540,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/subscribers'
     | '/tools'
+    | '/trust'
     | '/welcome'
+    | '/dev/compliance'
     | '/legal/privacy'
     | '/legal/terms'
     | '/admin/$userId'
@@ -530,6 +560,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/error'
     | '/api/public/twilio/recording'
+    | '/api/public/twilio/recording-notice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
@@ -563,7 +594,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/subscribers'
     | '/tools'
+    | '/trust'
     | '/welcome'
+    | '/dev/compliance'
     | '/legal/privacy'
     | '/legal/terms'
     | '/admin/$userId'
@@ -581,6 +614,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/error'
     | '/api/public/twilio/recording'
+    | '/api/public/twilio/recording-notice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
@@ -616,7 +650,9 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/subscribers'
     | '/_authenticated/tools'
+    | '/_authenticated/trust'
     | '/_authenticated/welcome'
+    | '/dev/compliance'
     | '/legal/privacy'
     | '/legal/terms'
     | '/_authenticated/admin/$userId'
@@ -634,6 +670,7 @@ export interface FileRouteTypes {
     | '/api/public/twilio/app-voice'
     | '/api/public/twilio/error'
     | '/api/public/twilio/recording'
+    | '/api/public/twilio/recording-notice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
@@ -654,6 +691,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   UseCasesRoute: typeof UseCasesRoute
+  DevComplianceRoute: typeof DevComplianceRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
@@ -667,6 +705,7 @@ export interface RootRouteChildren {
   ApiPublicTwilioAppVoiceRoute: typeof ApiPublicTwilioAppVoiceRoute
   ApiPublicTwilioErrorRoute: typeof ApiPublicTwilioErrorRoute
   ApiPublicTwilioRecordingRoute: typeof ApiPublicTwilioRecordingRoute
+  ApiPublicTwilioRecordingNoticeRoute: typeof ApiPublicTwilioRecordingNoticeRoute
   ApiPublicTwilioSmsRoute: typeof ApiPublicTwilioSmsRoute
   ApiPublicTwilioStatusRoute: typeof ApiPublicTwilioStatusRoute
   ApiPublicTwilioVoiceRoute: typeof ApiPublicTwilioVoiceRoute
@@ -872,12 +911,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedToolsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/trust': {
+      id: '/_authenticated/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof AuthenticatedTrustRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/welcome': {
       id: '/_authenticated/welcome'
       path: '/welcome'
       fullPath: '/welcome'
       preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/dev/compliance': {
+      id: '/dev/compliance'
+      path: '/dev/compliance'
+      fullPath: '/dev/compliance'
+      preLoaderRoute: typeof DevComplianceRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/legal/privacy': {
       id: '/legal/privacy'
@@ -998,6 +1051,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTwilioRecordingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/twilio/recording-notice': {
+      id: '/api/public/twilio/recording-notice'
+      path: '/api/public/twilio/recording-notice'
+      fullPath: '/api/public/twilio/recording-notice'
+      preLoaderRoute: typeof ApiPublicTwilioRecordingNoticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/twilio/sms': {
       id: '/api/public/twilio/sms'
       path: '/api/public/twilio/sms'
@@ -1069,6 +1129,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubscribersRoute: typeof AuthenticatedSubscribersRoute
   AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
+  AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
   AuthenticatedWelcomeRoute: typeof AuthenticatedWelcomeRoute
   AuthenticatedAdminUserIdRoute: typeof AuthenticatedAdminUserIdRoute
   AuthenticatedAssistantSidRoute: typeof AuthenticatedAssistantSidRoute
@@ -1091,6 +1152,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubscribersRoute: AuthenticatedSubscribersRoute,
   AuthenticatedToolsRoute: AuthenticatedToolsRoute,
+  AuthenticatedTrustRoute: AuthenticatedTrustRoute,
   AuthenticatedWelcomeRoute: AuthenticatedWelcomeRoute,
   AuthenticatedAdminUserIdRoute: AuthenticatedAdminUserIdRoute,
   AuthenticatedAssistantSidRoute: AuthenticatedAssistantSidRoute,
@@ -1112,6 +1174,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   UseCasesRoute: UseCasesRoute,
+  DevComplianceRoute: DevComplianceRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
@@ -1125,6 +1188,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTwilioAppVoiceRoute: ApiPublicTwilioAppVoiceRoute,
   ApiPublicTwilioErrorRoute: ApiPublicTwilioErrorRoute,
   ApiPublicTwilioRecordingRoute: ApiPublicTwilioRecordingRoute,
+  ApiPublicTwilioRecordingNoticeRoute: ApiPublicTwilioRecordingNoticeRoute,
   ApiPublicTwilioSmsRoute: ApiPublicTwilioSmsRoute,
   ApiPublicTwilioStatusRoute: ApiPublicTwilioStatusRoute,
   ApiPublicTwilioVoiceRoute: ApiPublicTwilioVoiceRoute,

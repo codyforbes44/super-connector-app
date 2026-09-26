@@ -67,6 +67,7 @@ export const sendMessage = createServerFn({ method: "POST" })
       mediaUrls?: string[];
       sendAt?: string | null;
       messagingServiceSid?: string | null;
+      kind?: "manual" | "automated" | "review" | "marketing";
     }) => input,
   )
   .handler(async ({ context, data }) => ops.sendMessage(context.supabase, context.userId, data));
