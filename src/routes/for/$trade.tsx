@@ -121,7 +121,7 @@ function TradeLanding() {
             AI calls.
           </li>
           <li>
-            Missed-call text-back is included on every plan.{" "}
+            Missed-call text-back is included on every plan. Turn it on in that line's settings.{" "}
             <ComingSoonBadge flag="missedCallTextBack" />
           </li>
           <li>

@@ -46,8 +46,8 @@ Core capabilities
   saved templates and scheduled sends.
 - AI receptionist: an ElevenLabs voice assistant answers calls, greets in your chosen voice,
   follows your instructions, and captures the reason for the call. It is included on every plan,
-  including Solo. Booking a time and waiting for the owner to approve it is coming soon.
-  Google Calendar is already a connected tool in the app.
+  including Solo. Google Calendar booking is in line settings. The default proposes a time and
+  waits for the owner to approve it before the customer is texted. Automatic booking is optional.
 - Voicemail and transcription: every voicemail transcribed, summarised and searchable.
 - Call intelligence: per-call summary, intent, sentiment, urgency, topics, extracted details
   (name, address, date, amount, callback number, email) and one-tap follow-up actions.
@@ -98,7 +98,8 @@ preview it before it goes live.
 
 Q: What happens when I miss a call?
 A: The receptionist or voicemail answers, and you get a push and email alert. Missed-call text-back
-is included on every plan and is coming soon — do not say it already texts every missed caller.
+is included on every plan and lives in line settings. It texts an unanswered inbound caller only
+after the owner turns it on for that line.
 
 Q: Are calls recorded?
 A: ${RECORDING_CLAIM} Voicemail a caller leaves is stored so the owner can play it back.
@@ -131,7 +132,7 @@ export const POSITIONING_DOC: KnowledgeDoc = {
 - SixVox is a phone app first, not a telephony dashboard. The dialer, inbox and call history are
   the product; the admin controls are there when you want them.
 - The AI receptionist is included on every plan, including Solo. It is configurable per number.
-  Do not claim automatic calendar booking. Approval-first booking is coming soon.
+  Approval booking is available in line settings. Automatic booking is an optional setting on that line.
 - Call intelligence turns every call into a summary and one-tap follow-ups.
 - It works in the browser and as an Android app. A native iPhone app is coming soon.
 

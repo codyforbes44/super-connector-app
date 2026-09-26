@@ -151,9 +151,9 @@ export type MatrixRow = {
 /**
  * Section 3.1 cells for Quo, Grasshopper, and Google Voice, copied as written
  * ("n/v" included). Jobber cells come only from sections 3.2 and 3.3.
- * SixVox cells follow section 3.1 except the three contradictions section 2
- * says to fix: AI on every plan, missed-call text-back on every plan, A2P on
- * every plan.
+ * SixVox cells follow section 3.1 except the contradictions section 2
+ * says to fix, plus later shipped line controls: text-back, business-hours
+ * routing, approval booking, E911 address registration, and per-workspace roles.
  */
 export const CAPABILITY_ROWS: MatrixRow[] = [
   {
@@ -183,7 +183,8 @@ export const CAPABILITY_ROWS: MatrixRow[] = [
   },
   {
     capability: "Missed-call auto text",
-    sixvox: "Included on every plan. Not built yet (coming soon).",
+    sixvox:
+      "Included on every plan. Turn it on in line settings; an unanswered inbound call then gets a text from that line.",
     quo: "Yes (auto-replies)",
     grasshopper: "Yes (Instant Response)",
     googleVoice: "n/v",
@@ -191,7 +192,8 @@ export const CAPABILITY_ROWS: MatrixRow[] = [
   },
   {
     capability: "Books into calendar",
-    sixvox: "Google Calendar (AI tool). Booking that waits for your approval is coming soon.",
+    sixvox:
+      "Google Calendar. Approval booking is in line settings: you approve the time before the customer is texted. Automatic booking is optional.",
     quo: "Not stated for Sona",
     grasshopper: "No",
     googleVoice: "No",
@@ -199,7 +201,7 @@ export const CAPABILITY_ROWS: MatrixRow[] = [
   },
   {
     capability: "Shared inbox + roles",
-    sixvox: "Yes (global roles, not per-tenant)",
+    sixvox: "Yes. Roles are per workspace (owner, admin, agent).",
     quo: "Yes",
     grasshopper: "Solo Plus+ (unlimited users)",
     googleVoice: "Ring groups on Standard",
@@ -239,7 +241,8 @@ export const CAPABILITY_ROWS: MatrixRow[] = [
   },
   {
     capability: "E911",
-    sixvox: "No",
+    sixvox:
+      "Address registration and a dialer disclosure are in the app. A number is covered after you register its service address.",
     quo: "n/v",
     grasshopper: "n/v",
     googleVoice: "n/v",

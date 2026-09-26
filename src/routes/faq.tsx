@@ -68,7 +68,7 @@ const GROUPS = [
     items: [
       {
         q: "What happens when I can't pick up?",
-        a: "If that number is set to the AI receptionist, it answers and leaves a transcript. Voicemail is the fallback. Missed-call text-back is included on every plan and is coming soon.",
+        a: "If that number is set to the AI receptionist, it answers and leaves a transcript. Voicemail is the fallback. Missed-call text-back is included on every plan. Turn it on in that line's settings and an unanswered inbound call gets a text from that number.",
       },
       {
         q: "Are calls recorded?",
@@ -76,7 +76,7 @@ const GROUPS = [
       },
       {
         q: "Will it book the job by itself?",
-        a: "Not yet. Google Calendar is a tool in the app. Booking that checks real availability and waits for you to approve the time is coming soon.",
+        a: "Google Calendar booking is in line settings. The default waits for you to approve the time before the customer is texted. Automatic booking is an optional setting on that line.",
       },
     ],
   },

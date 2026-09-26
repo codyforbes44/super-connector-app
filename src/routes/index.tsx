@@ -31,7 +31,7 @@ const HOME_FAQS = [
   },
   {
     q: "What if I'm on a roof or under a sink?",
-    a: "The AI receptionist is on every plan, including Solo. It answers, asks what the job is, and leaves the summary in your inbox. Missed-call text-back is included on every plan and is coming soon.",
+    a: "The AI receptionist is on every plan, including Solo. It answers, asks what the job is, and leaves the summary in your inbox. Missed-call text-back is included on every plan. Turn it on in that line's settings and an unanswered inbound call gets a text from that number.",
   },
   {
     q: "Are calls recorded?",
@@ -83,7 +83,9 @@ function Landing() {
           <div className="grid gap-8 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-10">
             <div>
               <Eyebrow>For solo trades and crews of 2–5</Eyebrow>
-              <h1 className="font-display mt-5 text-[2rem] leading-[1.08] font-semibold text-balance sm:text-5xl">SixVox</h1>
+              <h1 className="font-display mt-5 text-[2rem] leading-[1.08] font-semibold text-balance sm:text-5xl">
+                SixVox
+              </h1>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-pretty text-muted-foreground">
                 {POSITIONING_LINE} Built for plumbers, HVAC, electricians, cleaners, and other
                 owner-operators who miss calls while they're on a job.
@@ -169,35 +171,35 @@ function Landing() {
 
       <Section className="py-8 md:py-12">
         <div className="max-w-3xl">
-            <Eyebrow>On every plan, including Solo</Eyebrow>
-            <h2 className="font-display mt-4 text-2xl font-semibold md:text-3xl">
-              An AI receptionist that takes the job details
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              It greets callers in a voice you pick, follows your instructions, and leaves a
-              transcript on the call. You turn it on per number.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Call recording is off for each line until you turn it on. When it is on, everyone on
-              the call hears a recording notice before recording starts, including voicemail and the
-              AI receptionist.
-            </p>
-            <ul className="mt-4 space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <Bot className="h-4 w-4 text-primary" aria-hidden />
-                Included on Solo, Team, and Scale
-              </li>
-              <li className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-primary" aria-hidden />
-                Missed-call text-back
-                <ComingSoonBadge flag="missedCallTextBack" />
-              </li>
-              <li className="flex items-center gap-2">
-                <PhoneCall className="h-4 w-4 text-primary" aria-hidden />
-                Native iPhone and Android calling
-                <ComingSoonBadge flag="nativeApp" />
-              </li>
-            </ul>
+          <Eyebrow>On every plan, including Solo</Eyebrow>
+          <h2 className="font-display mt-4 text-2xl font-semibold md:text-3xl">
+            An AI receptionist that takes the job details
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            It greets callers in a voice you pick, follows your instructions, and leaves a
+            transcript on the call. You turn it on per number.
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Call recording is off for each line until you turn it on. When it is on, everyone on the
+            call hears a recording notice before recording starts, including voicemail and the AI
+            receptionist.
+          </p>
+          <ul className="mt-4 space-y-2 text-sm">
+            <li className="flex items-center gap-2">
+              <Bot className="h-4 w-4 text-primary" aria-hidden />
+              Included on Solo, Team, and Scale
+            </li>
+            <li className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-primary" aria-hidden />
+              Missed-call text-back
+              <ComingSoonBadge flag="missedCallTextBack" />
+            </li>
+            <li className="flex items-center gap-2">
+              <PhoneCall className="h-4 w-4 text-primary" aria-hidden />
+              Native iPhone and Android calling
+              <ComingSoonBadge flag="nativeApp" />
+            </li>
+          </ul>
         </div>
       </Section>
 

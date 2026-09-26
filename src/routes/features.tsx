@@ -23,7 +23,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Features — a business line that answers for trades";
 const DESCRIPTION =
-  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, Jobber, and a native app are marked coming soon.";
+  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, and approval booking are in line settings. Jobber and a native app are marked coming soon.";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -80,29 +80,29 @@ const GROUPS: Array<{
         title: "A business number",
         body: "Search and claim a number, or forward the one already on your truck and website. Callers keep dialing the same digits.",
       },
-    ],
-  },
-  {
-    heading: "Coming to the line",
-    items: [
       {
         icon: MessageSquare,
         title: "Missed-call text-back",
-        body: "Every missed call gets an automatic text. It is included on every plan, including Solo.",
+        body: "Turn it on in that line's settings. When an inbound call ends unanswered, SixVox texts the caller from that number. Included on every plan, including Solo.",
         flag: "missedCallTextBack",
       },
       {
         icon: BellRing,
         title: "Business hours and after-hours routing",
-        body: "Ring you during the day. Send after-hours and overflow calls to the receptionist.",
+        body: "Turn it on per line. Open hours follow that line's answering. After hours, calls go to the AI receptionist or voicemail.",
         flag: "businessHours",
       },
       {
         icon: CalendarClock,
         title: "AI booking you approve",
-        body: "The receptionist proposes a time from your real availability. You approve it with one tap before it is booked. Google Calendar is already a tool in the app.",
+        body: "Turn it on per line. The receptionist can propose a time from your Google Calendar availability. You approve it with one tap before it is booked. Automatic booking is an optional setting.",
         flag: "aiBookingWithApproval",
       },
+    ],
+  },
+  {
+    heading: "Coming to the line",
+    items: [
       {
         icon: Smartphone,
         title: "Native iPhone and Android app",
