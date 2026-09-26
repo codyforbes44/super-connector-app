@@ -124,6 +124,35 @@ describe("Twilio webhook signatures", () => {
     if (signed.ok) expect(signed.params["Body"]).toBe("hello");
   });
 
+  it("accepts a JSON port-in body signed as url plus raw body", async () => {
+    vi.stubEnv("TWILIO_AUTH_TOKEN", AUTH);
+    vi.stubEnv("TWILIO_WEBHOOK_TOKEN", TOKEN);
+    const url = `https://sixvox.3bi.io/api/public/twilio/port-in?t=${TOKEN}`;
+    const payload = {
+      port_in_request_sid: "KWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      phone_number: "+15805550100",
+      status: "waiting_for_signature",
+      portable: true,
+    };
+    const raw = JSON.stringify(payload);
+    const signature = createHmac("sha1", AUTH).update(`${url}${raw}`).digest("base64");
+    const result = await verifyTwilioWebhook(
+      new Request(url, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-Twilio-Signature": signature,
+        },
+        body: raw,
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.params["status"]).toBe("waiting_for_signature");
+      expect(result.params["phone_number"]).toBe("+15805550100");
+    }
+  });
+
   it("rejects a signature for a different host even with a valid token", async () => {
     vi.stubEnv("TWILIO_AUTH_TOKEN", AUTH);
     vi.stubEnv("TWILIO_WEBHOOK_TOKEN", TOKEN);

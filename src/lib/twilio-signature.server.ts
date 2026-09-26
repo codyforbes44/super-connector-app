@@ -73,6 +73,25 @@ function signedPayload(url: string, params: Record<string, string>): string {
   return `${url}${joined}`;
 }
 
+/**
+ * Port-in webhooks are JSON. Twilio signs those as HMAC-SHA1(url + raw body),
+ * the same construction as `validateRequestWithBody`. Form webhooks stay on
+ * the sorted-parameter payload.
+ */
+function jsonParams(value: unknown): Record<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const params: Record<string, string> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (item === null || item === undefined) params[key] = "";
+    else if (typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
+      params[key] = String(item);
+    } else {
+      params[key] = JSON.stringify(item);
+    }
+  }
+  return params;
+}
+
 export type WebhookAuth = {
   params: Record<string, string>;
 } & ({ ok: true; via: "signature" } | { ok: false; reason: string });
@@ -83,8 +102,17 @@ export type WebhookAuth = {
  */
 export async function verifyTwilioWebhook(request: Request): Promise<WebhookAuth> {
   const body = await request.text();
+  const jsonBody = (request.headers.get("content-type") ?? "").includes("application/json");
   const params: Record<string, string> = {};
-  for (const [key, value] of new URLSearchParams(body)) params[key] = value;
+  if (jsonBody) {
+    try {
+      Object.assign(params, jsonParams(JSON.parse(body)));
+    } catch {
+      return { ok: false, reason: "invalid json body", params };
+    }
+  } else {
+    for (const [key, value] of new URLSearchParams(body)) params[key] = value;
+  }
 
   const authToken = process.env["TWILIO_AUTH_TOKEN"];
   const signature = request.headers.get("x-twilio-signature")?.trim() ?? "";
@@ -94,11 +122,17 @@ export async function verifyTwilioWebhook(request: Request): Promise<WebhookAuth
 
   let matched = false;
   for (const url of twilioSignedUrlCandidates(request)) {
-    const expected = await sign(authToken, signedPayload(url, params));
-    if (timingSafeEqual(expected, signature)) {
-      matched = true;
-      break;
+    const payloads = jsonBody
+      ? [`${url}${body}`, signedPayload(url, params)]
+      : [signedPayload(url, params)];
+    for (const payload of payloads) {
+      const expected = await sign(authToken, payload);
+      if (timingSafeEqual(expected, signature)) {
+        matched = true;
+        break;
+      }
     }
+    if (matched) break;
   }
   if (!matched) return { ok: false, reason: "signature mismatch", params };
 
