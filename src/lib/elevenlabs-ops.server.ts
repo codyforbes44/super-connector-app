@@ -173,7 +173,7 @@ export async function saveAssistantProfile(
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: line } = await supabaseAdmin
     .from("phone_numbers")
-    .select("record_calls")
+    .select("record_calls, elevenlabs_agent_id")
     .eq("sid", args.sid)
     .maybeSingle();
   const { error } = await supabaseAdmin
@@ -190,7 +190,11 @@ export async function saveAssistantProfile(
     .eq("sid", args.sid);
   if (error) throw error;
   await audit(supabaseAdmin, userId, "elevenlabs.assistant.profile", { sid: args.sid });
-  return { ok: true };
+  const languageSync = await el.syncAnsweringLanguage({
+    agentId: (line?.["elevenlabs_agent_id"] as string | null) ?? null,
+    language: args.language,
+  });
+  return { ok: true as const, languageSync };
 }
 
 export async function getAssistantProfile(

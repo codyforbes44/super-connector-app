@@ -3,6 +3,7 @@ import { Bot, Loader2, Play, Sparkles, Voicemail } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { AnsweringLanguageControl } from "@/components/line/AnsweringLanguageControl";
 import { agentsQuery } from "@/components/receptionist/AgentList";
 import { useVoices } from "@/components/receptionist/VoiceLibrary";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { errorMessage } from "@/lib/format";
+import type { LineLanguage } from "@/lib/answering/language";
 import { previewVoice, renderGreeting, saveVoiceAssistant } from "@/lib/elevenlabs.functions";
+import { errorMessage } from "@/lib/format";
+import { getLineAutomation, saveLineAnsweringLanguage } from "@/lib/line-automation.functions";
 
 export type AnswerModeNumber = {
   sid: string;
@@ -54,10 +57,13 @@ export function AnswerModeCard({
   number,
   canEdit,
   onChanged,
+  showLanguage = true,
 }: {
   number: AnswerModeNumber;
   canEdit: boolean;
   onChanged: () => Promise<unknown>;
+  /** Numbers sheet already edits language in line settings. */
+  showLanguage?: boolean;
 }) {
   const voices = useVoices();
   const agents = useQuery(agentsQuery);
@@ -70,9 +76,21 @@ export function AnswerModeCard({
   const [voiceId, setVoiceId] = useState(number.elevenlabs_voice_id ?? "");
   const [agentId, setAgentId] = useState(number.elevenlabs_agent_id ?? "");
   const [greeting, setGreeting] = useState(number.voicemail_greeting ?? "");
+  const [language, setLanguage] = useState<LineLanguage>("en");
+  const [languageLoaded, setLanguageLoaded] = useState(!showLanguage);
   const [busy, setBusy] = useState<"save" | "render" | "preview" | null>(null);
+  const lineLanguage = useQuery({
+    queryKey: ["line-automation", number.sid],
+    queryFn: () => getLineAutomation({ data: { sid: number.sid } }),
+    enabled: showLanguage && canEdit,
+  });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => () => audioRef.current?.pause(), []);
+  useEffect(() => {
+    if (!lineLanguage.data) return;
+    setLanguage(lineLanguage.data.language);
+    setLanguageLoaded(true);
+  }, [lineLanguage.data]);
 
   function play(dataUrl: string) {
     audioRef.current?.pause();
@@ -127,6 +145,10 @@ export function AnswerModeCard({
     }
     setBusy("save");
     try {
+      const languageSaved =
+        showLanguage && languageLoaded
+          ? await saveLineAnsweringLanguage({ data: { sid: number.sid, language } })
+          : null;
       await saveVoiceAssistant({
         data: {
           sid: number.sid,
@@ -136,7 +158,11 @@ export function AnswerModeCard({
         },
       });
       await onChanged();
-      toast.success("Answering mode saved.");
+      toast.success(
+        languageSaved
+          ? `Answering mode saved. ${languageSaved.languageSync.detail}`
+          : "Answering mode saved.",
+      );
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -146,6 +172,14 @@ export function AnswerModeCard({
 
   return (
     <div className="space-y-4">
+      {showLanguage ? (
+        <>
+          <AnsweringLanguageControl value={language} disabled={!canEdit} onChange={setLanguage} />
+          {lineLanguage.error ? (
+            <p className="text-xs text-destructive">{errorMessage(lineLanguage.error)}</p>
+          ) : null}
+        </>
+      ) : null}
       <div className="space-y-2">
         {MODES.map((option) => {
           const Icon = option.icon;

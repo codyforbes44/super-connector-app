@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { AnsweringLanguageControl } from "@/components/line/AnsweringLanguageControl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import type { LineLanguage } from "@/lib/answering/language";
 import {
   DAY_KEYS,
   DEFAULT_BUSINESS_TIMEZONE,
@@ -24,7 +26,11 @@ import {
 import { DEFAULT_EMERGENCY_KEYWORDS } from "@/lib/emergency-keywords";
 import { errorMessage } from "@/lib/format";
 import { getLineAutomation, saveLineAutomation } from "@/lib/line-automation.functions";
-import { DEFAULT_TEXT_BACK_DEDUPE_MINUTES, DEFAULT_TEXT_BACK_TEMPLATE } from "@/lib/missed-call";
+import {
+  DEFAULT_TEXT_BACK_DEDUPE_MINUTES,
+  DEFAULT_TEXT_BACK_TEMPLATE,
+  textBackDraftForLanguage,
+} from "@/lib/missed-call";
 
 const DAY_LABEL: Record<(typeof DAY_KEYS)[number], string> = {
   sun: "Sunday",
@@ -59,6 +65,7 @@ type Draft = {
   emergencyKeywords: string;
   emergencyTransferNumber: string;
   textingNotice: string | null;
+  language: LineLanguage;
 };
 
 function emptyDraft(): Draft {
@@ -76,6 +83,7 @@ function emptyDraft(): Draft {
     emergencyKeywords: DEFAULT_EMERGENCY_KEYWORDS.join("\n"),
     emergencyTransferNumber: "",
     textingNotice: null,
+    language: "en",
   };
 }
 
@@ -111,6 +119,7 @@ export function LineAutomationSettings({
       emergencyKeywords: query.data.emergencyKeywords.join("\n"),
       emergencyTransferNumber: query.data.emergencyTransferNumber ?? "",
       textingNotice: query.data.textingNotice,
+      language: query.data.language,
     });
     setLoaded(true);
   }, [query.data]);
@@ -147,13 +156,13 @@ export function LineAutomationSettings({
             .map((line) => line.trim())
             .filter(Boolean),
           emergencyTransferNumber: draft.emergencyTransferNumber.trim() || null,
+          language: draft.language,
         },
       });
-      toast.success(
-        saved.transferSync.synced
-          ? "Line automation saved. Emergency transfer is on the AI agent."
-          : `Line automation saved. ${saved.transferSync.detail}`,
-      );
+      const transferNote = saved.transferSync.synced
+        ? "Emergency transfer is on the AI agent."
+        : saved.transferSync.detail;
+      toast.success(`Line automation saved. ${transferNote} ${saved.languageSync.detail}`);
       await query.refetch();
     } catch (error) {
       toast.error(errorMessage(error));
@@ -164,7 +173,18 @@ export function LineAutomationSettings({
 
   return (
     <div className="space-y-4 rounded-2xl border border-border p-4" data-testid="line-automation">
-      <div>
+      <AnsweringLanguageControl
+        value={draft.language}
+        onChange={(language) =>
+          setDraft({
+            ...draft,
+            language,
+            textBackTemplate: textBackDraftForLanguage(draft.textBackTemplate, language),
+          })
+        }
+      />
+
+      <div className="border-t border-border pt-4">
         <h3 className="font-display text-sm font-semibold">Missed-call text-back</h3>
         <p className="mt-1 text-xs text-muted-foreground">
           When an inbound call ends unanswered, SixVox texts the caller from this line. Use{" "}
@@ -377,7 +397,7 @@ export function LineAutomationSettings({
         disabled={busy}
         data-testid="save-line-automation"
       >
-        Save text-back, hours, and emergencies
+        Save language, text-back, hours, and emergencies
       </Button>
     </div>
   );

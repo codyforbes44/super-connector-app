@@ -56,9 +56,9 @@ const TONES = [
 ];
 
 const LANGUAGES = [
-  ["auto", "English, detect Spanish"],
-  ["en", "English"],
-  ["es", "Spanish"],
+  ["en", "English only"],
+  ["es", "Spanish only"],
+  ["auto", "Auto-detect (Spanish when the caller speaks Spanish)"],
   ["fr", "French"],
   ["de", "German"],
   ["pt", "Portuguese"],
@@ -118,7 +118,7 @@ function AssistantConfigScreen() {
   async function save() {
     setSaving(true);
     try {
-      await saveAssistantProfile({
+      const saved = await saveAssistantProfile({
         data: {
           sid,
           prompt: prompt || null,
@@ -132,7 +132,11 @@ function AssistantConfigScreen() {
       });
       await queryClient.invalidateQueries({ queryKey: ["assistant-profile", sid] });
       await queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
-      toast.success("Assistant settings saved.");
+      toast.success(
+        language === "es" || language === "auto"
+          ? `Assistant settings saved. ${saved.languageSync.detail}`
+          : "Assistant settings saved.",
+      );
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -268,9 +272,11 @@ function AssistantConfigScreen() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                {language === "es" || language === "auto"
-                  ? "Spanish callers are answered and booked in Spanish. Confirmation texts use the Spanish template."
-                  : "This line stays in English, including confirmation texts."}
+                {language === "es"
+                  ? "This line answers and books in Spanish. Confirmation texts use the Spanish template."
+                  : language === "auto"
+                    ? "Spanish when the caller speaks Spanish. Confirmation texts follow that call. A missed-call text you wrote yourself stays as you saved it."
+                    : "This line stays in English, including confirmation texts."}
               </p>
               <p className="rounded-2xl bg-muted/30 p-3 text-xs text-muted-foreground">
                 {smsTemplate("confirmed", language === "es" ? "es" : "en", {

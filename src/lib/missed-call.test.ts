@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DEFAULT_TEXT_BACK_TEMPLATE,
+  DEFAULT_TEXT_BACK_TEMPLATE_ES,
   isDuplicateTextBack,
   isUnansweredCall,
+  missedCallTextBody,
   missedCallTextDecision,
+  textBackDraftForLanguage,
   type MissedCallFacts,
 } from "./missed-call";
 
@@ -109,6 +113,87 @@ describe("missed-call detection", () => {
         enabled: true,
       }).reason,
     ).toBe("outbound");
+  });
+});
+
+describe("missed-call language", () => {
+  const custom = "Text the shop line and we will call you back.";
+
+  it("uses the Spanish default for a Spanish line without replacing a custom text", () => {
+    expect(
+      missedCallTextBody({
+        stored: null,
+        lineLanguage: "es",
+        lineLabel: "Shop",
+        caller: "+15805550142",
+      }),
+    ).toBe(DEFAULT_TEXT_BACK_TEMPLATE_ES);
+    expect(
+      missedCallTextBody({
+        stored: DEFAULT_TEXT_BACK_TEMPLATE,
+        lineLanguage: "es",
+        lineLabel: "Shop",
+        caller: "+15805550142",
+      }),
+    ).toBe(DEFAULT_TEXT_BACK_TEMPLATE_ES);
+    expect(
+      missedCallTextBody({
+        stored: custom,
+        lineLanguage: "es",
+        lineLabel: "Shop",
+        caller: "+15805550142",
+      }),
+    ).toBe(custom);
+  });
+
+  it("uses Spanish on auto only when the transcript is already Spanish", () => {
+    const transcript = [{ message: "Hola, necesito un plomero para una fuga" }];
+    expect(
+      missedCallTextBody({
+        stored: DEFAULT_TEXT_BACK_TEMPLATE,
+        lineLanguage: "auto",
+        transcript,
+        lineLabel: "Shop",
+        caller: "+15805550142",
+      }),
+    ).toBe(DEFAULT_TEXT_BACK_TEMPLATE_ES);
+    expect(
+      missedCallTextBody({
+        stored: DEFAULT_TEXT_BACK_TEMPLATE,
+        lineLanguage: "auto",
+        transcript: [{ message: "I need a plumber" }],
+        lineLabel: "Shop",
+        caller: "+15805550142",
+      }),
+    ).toBe(DEFAULT_TEXT_BACK_TEMPLATE);
+    expect(
+      missedCallTextBody({
+        stored: custom,
+        lineLanguage: "auto",
+        transcript,
+        lineLabel: "Shop",
+        caller: "+15805550142",
+      }),
+    ).toBe(custom);
+    expect(
+      missedCallTextBody({
+        stored: null,
+        lineLanguage: "en",
+        transcript,
+        lineLabel: "Shop",
+        caller: "+15805550142",
+      }),
+    ).toBe(DEFAULT_TEXT_BACK_TEMPLATE);
+  });
+
+  it("swaps only the default text when the owner changes language", () => {
+    expect(textBackDraftForLanguage(DEFAULT_TEXT_BACK_TEMPLATE, "es")).toBe(
+      DEFAULT_TEXT_BACK_TEMPLATE_ES,
+    );
+    expect(textBackDraftForLanguage(DEFAULT_TEXT_BACK_TEMPLATE_ES, "en")).toBe(
+      DEFAULT_TEXT_BACK_TEMPLATE,
+    );
+    expect(textBackDraftForLanguage(custom, "es")).toBe(custom);
   });
 });
 

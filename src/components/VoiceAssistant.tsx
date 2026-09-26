@@ -30,7 +30,12 @@ export function VoiceAssistant({
         </Link>
       </div>
 
-      <AnswerModeCard number={number} canEdit={canEdit} onChanged={onChanged} />
+      <AnswerModeCard
+        number={number}
+        canEdit={canEdit}
+        onChanged={onChanged}
+        showLanguage={false}
+      />
     </div>
   );
 }

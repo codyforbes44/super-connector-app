@@ -4,6 +4,7 @@
  * api.elevenlabs.io — ElevenLabs is not routed through the connector gateway.
  */
 
+import { elevenLabsAgentLanguage, mergeAnsweringLanguagePrompt } from "@/lib/answering/language";
 import {
   extractEmergencyBlock,
   mergeEmergencyPrompt,
@@ -310,6 +311,61 @@ export async function syncEmergencyTransfer(args: {
     console.error(`emergency transfer sync failed for ${args.agentId}`, error);
     return { synced: false, detail };
   }
+}
+
+/**
+ * Merge a Spanish or auto-detect block into the line's allowlisted agent.
+ * English removes that block. The rest of the prompt and the built-in tools stay.
+ * A missing agent, a missing key, or an agent outside this workspace does not throw.
+ */
+export async function syncAnsweringLanguage(args: {
+  agentId: string | null;
+  language: string;
+}): Promise<{ synced: boolean; detail: string }> {
+  if (!args.agentId) return { synced: false, detail: "This line has no AI agent yet." };
+  if (!hasElevenLabs()) {
+    return {
+      synced: false,
+      detail:
+        "Language is saved on the line. ElevenLabs is not connected, so the agent prompt was not changed.",
+    };
+  }
+  const spoken = elevenLabsAgentLanguage(args.language);
+  try {
+    await assertAgentAllowed(args.agentId);
+    const raw = await el<{ conversation_config?: { agent?: { prompt?: AgentPromptConfig } } }>(
+      `/v1/convai/agents/${encodeURIComponent(args.agentId)}`,
+    );
+    const prompt = raw.conversation_config?.agent?.prompt ?? {};
+    await el(`/v1/convai/agents/${encodeURIComponent(args.agentId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        conversation_config: {
+          agent: {
+            language: spoken,
+            prompt: {
+              ...prompt,
+              prompt: mergeAnsweringLanguagePrompt(prompt.prompt ?? "", args.language),
+            },
+          },
+        },
+      }),
+    });
+    return { synced: true, detail: answeringLanguageDetail(args.language) };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "Could not update the AI agent.";
+    console.error(`answering language sync failed for ${args.agentId}`, error);
+    return { synced: false, detail };
+  }
+}
+
+function answeringLanguageDetail(language: string): string {
+  if (language === "es") return "The AI agent will answer in Spanish.";
+  if (language === "auto") {
+    return "The AI agent will switch to Spanish when the caller speaks Spanish.";
+  }
+  return "The AI agent stays in English.";
 }
 
 export async function deleteAgent(agentId: string): Promise<{ ok: true }> {

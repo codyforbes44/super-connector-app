@@ -44,7 +44,11 @@ Saves name, callback number, service address, job type, and urgency onto the cal
 
 ## Language
 
-Line setting `ai_language`: `en`, `es`, or `auto`. `auto` answers and books in Spanish when the caller speaks Spanish. Confirmation, cancel, and reschedule texts use the Spanish templates in `src/lib/answering/language.ts`.
+Line setting `phone_numbers.ai_language`: `en`, `es`, or `auto` (default `en`). Owners set it on the receptionist sheet and in line settings (Answering language). `auto` answers and books in Spanish when the caller speaks Spanish. Confirmation, cancel, and reschedule texts use the Spanish templates in `src/lib/answering/language.ts`. The proposal template is the same helper; the approval flow texts the customer when the owner approves (confirmed), not when the slot is first proposed.
+
+Missed-call text-back uses the Spanish default only when the owner has not written their own text, and the line is `es` or (`auto` and the call transcript is already Spanish).
+
+Saving the line also merges a `[sixvox-language]` block into that line's allowlisted ElevenLabs agent and sets the agent language to `es` for Spanish-only. Auto keeps the agent language `en` and tells it to switch. The patch is skipped when the line has no agent, ElevenLabs is not connected, or the agent is not in this workspace. Booking-tool attach still requires `SIXVOX_ELEVENLABS_DEDICATED=1` and is not part of this save. Marketing does not claim Spanish voice answering is fully shipped.
 
 ## After approval
 
