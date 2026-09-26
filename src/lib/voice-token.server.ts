@@ -33,6 +33,8 @@ export async function mintVoiceToken(opts: {
   userId: string;
   applicationSid: string;
   ttlSeconds?: number;
+  /** Twilio Push Credential SID (CRxxxx). Omitted for browser tokens. */
+  pushCredentialSid?: string;
 }): Promise<VoiceTokenResult> {
   const accountSid = process.env["TWILIO_ACCOUNT_SID"];
   const keySid = process.env["TWILIO_API_KEY_SID"];
@@ -60,6 +62,7 @@ export async function mintVoiceToken(opts: {
       voice: {
         incoming: { allow: true },
         outgoing: { application_sid: opts.applicationSid },
+        ...(opts.pushCredentialSid ? { push_credential_sid: opts.pushCredentialSid } : {}),
       },
     },
   };

@@ -1345,6 +1345,24 @@ export type Database = {
           },
         ]
       }
+      mobile_call_acks: {
+        Row: {
+          acked_at: string
+          call_sid: string
+          user_id: string
+        }
+        Insert: {
+          acked_at?: string
+          call_sid: string
+          user_id: string
+        }
+        Update: {
+          acked_at?: string
+          call_sid?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_prefs: {
         Row: {
           created_at: string
@@ -1900,22 +1918,28 @@ export type Database = {
       voice_presence: {
         Row: {
           created_at: string
+          device_key: string | null
           identity: string
           last_seen_at: string
+          platform: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          device_key?: string | null
           identity: string
           last_seen_at?: string
+          platform?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          device_key?: string | null
           identity?: string
           last_seen_at?: string
+          platform?: string
           updated_at?: string
           user_id?: string
         }
