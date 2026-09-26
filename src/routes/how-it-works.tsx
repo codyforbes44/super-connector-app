@@ -7,7 +7,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "How SixVox works for a trades business line";
 const DESCRIPTION =
-  "Sign up, forward the number customers already call or claim one, and turn on the AI receptionist. Text-back, port-in, and the native app are marked coming soon.";
+  "Sign up, forward the number customers already call or claim one, and turn on the AI receptionist. Missed-call text-back is in line settings. Port-in and the native app are marked coming soon.";
 
 const STEPS = [
   {
@@ -85,7 +85,8 @@ function HowItWorksPage() {
         </ol>
         <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
           <li className="flex flex-wrap items-center gap-2">
-            Missed-call text-back <ComingSoonBadge flag="missedCallTextBack" />
+            Missed-call text-back is in line settings. Turn it on and an unanswered inbound call
+            gets a text from that number. <ComingSoonBadge flag="missedCallTextBack" />
           </li>
           <li className="flex flex-wrap items-center gap-2">
             Port-in for the old number <ComingSoonBadge flag="portIn" />

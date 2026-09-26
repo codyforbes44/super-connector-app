@@ -4,9 +4,12 @@
  * object, so one edit removes the badge everywhere.
  */
 export const FEATURE_FLAGS = {
-  missedCallTextBack: false,
-  businessHours: false,
-  aiBookingWithApproval: false,
+  /** Line settings: text an unanswered inbound caller. Off until the owner turns it on. */
+  missedCallTextBack: true,
+  /** Line settings: weekly hours, holidays, and after-hours AI or voicemail. */
+  businessHours: true,
+  /** Line settings plus Calls: Google Calendar proposal the owner approves. Automatic is optional. */
+  aiBookingWithApproval: true,
   jobber: false,
   reviewRequests: false,
   paymentLinks: false,

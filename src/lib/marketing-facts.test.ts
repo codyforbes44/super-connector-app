@@ -58,11 +58,33 @@ describe("competitor facts", () => {
 });
 
 describe("coming soon flags", () => {
-  it("starts with in-flight features off", () => {
-    expect(FEATURE_FLAGS.missedCallTextBack).toBe(false);
+  it("marks shipped line controls on and leaves unproductized work off", () => {
+    expect(FEATURE_FLAGS.missedCallTextBack).toBe(true);
+    expect(FEATURE_FLAGS.businessHours).toBe(true);
+    expect(FEATURE_FLAGS.aiBookingWithApproval).toBe(true);
     expect(FEATURE_FLAGS.nativeApp).toBe(false);
     expect(FEATURE_FLAGS.portIn).toBe(false);
     expect(FEATURE_FLAGS.jobber).toBe(false);
+    expect(FEATURE_FLAGS.reviewRequests).toBe(false);
+    expect(FEATURE_FLAGS.paymentLinks).toBe(false);
+  });
+
+  it("matches SixVox compare cells to what is in the app", () => {
+    const cell = (capability: string) =>
+      CAPABILITY_ROWS.find((row) => row.capability === capability)?.sixvox ?? "";
+
+    expect(cell("Missed-call auto text")).toMatch(/line settings/i);
+    expect(cell("Missed-call auto text")).not.toMatch(/not built|coming soon/i);
+    expect(cell("Books into calendar")).toMatch(/approval/i);
+    expect(cell("Books into calendar")).toMatch(/automatic/i);
+    expect(cell("Books into calendar")).not.toMatch(/coming soon/i);
+    expect(cell("E911")).toMatch(/register/i);
+    expect(cell("E911")).not.toBe("No");
+    expect(cell("Shared inbox + roles")).toMatch(/per workspace/i);
+    expect(cell("Shared inbox + roles")).not.toMatch(/global roles/i);
+    expect(cell("Native iOS/Android calling")).toMatch(/coming soon/i);
+    expect(cell("CRM / FSM integrations")).toMatch(/Jobber integration is coming soon/);
+    expect(cell("Porting")).toMatch(/coming soon/i);
   });
 });
 
