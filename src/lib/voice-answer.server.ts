@@ -11,8 +11,7 @@ import { GREETING_BUCKET } from "./elevenlabs-ops.server";
 export function escapeXml(value: string): string {
   return value.replace(
     /[<>&'"]/g,
-    (c) =>
-      ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c] as string,
+    (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c] as string,
   );
 }
 
@@ -33,18 +32,43 @@ export function ringbackTwiml(seconds: number = RING_SECONDS): string {
   return `<Play loop="${loops}">${escapeXml(RINGBACK_AUDIO_URL)}</Play>`;
 }
 
-/** Spoken notice played before a live call is recorded. Never silent. */
-export const RECORDING_CONSENT =
-  "This call may be recorded and transcribed for note taking.";
+/** Spoken notice. Always played before a recording starts, live or voicemail. */
+export const RECORDING_CONSENT = "This call may be recorded and transcribed for note taking.";
+
+export function recordingNoticeTwiml(): string {
+  return `<Say voice="alice">${escapeXml(RECORDING_CONSENT)}</Say>`;
+}
 
 /** Twilio posts finished recordings here; we transcribe them ourselves. */
 export function recordingCallbackUrl(): string {
   return webhookUrl("recording");
 }
 
-/** `<Record>` verb used for voicemail — modern transcription happens in our callback. */
+/** `<Record>` verb used for voicemail — the notice is the verb immediately before it. */
 export function recordVerb(): string {
-  return `<Record maxLength="120" playBeep="true" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed" />`;
+  return `${recordingNoticeTwiml()}<Record maxLength="120" playBeep="true" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed" />`;
+}
+
+/**
+ * Last-resort voicemail when the primary voice handler fails. The recording
+ * notice is inside `recordVerb`, so it plays before Twilio starts recording.
+ */
+export function fallbackVoicemailTwiml(): string {
+  return `<Say voice="alice">Thanks for calling. Please leave a message after the tone.</Say>${recordVerb()}<Say voice="alice">We did not receive a recording. Goodbye.</Say>`;
+}
+
+/** Forwarded two-party dial. Recording, when enabled, starts only after the notice. */
+export function forwardedCallTwiml(input: {
+  record: boolean;
+  callerId: string;
+  destination: string;
+  timeoutSeconds: number;
+}): string {
+  const notice = input.record ? recordingNoticeTwiml() : "";
+  const recording = input.record
+    ? ` record="record-from-answer-dual" recordingStatusCallback="${escapeXml(recordingCallbackUrl())}" recordingStatusCallbackEvent="completed"`
+    : "";
+  return `${notice}<Dial callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us"${recording}><Number>${escapeXml(input.destination)}</Number></Dial>`;
 }
 
 export type NumberVoiceConfig = {

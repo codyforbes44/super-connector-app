@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { canPlaceOutboundAppCall } from "@/lib/app-voice-auth";
+
 function xml(body: string) {
   return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${body}</Response>`, {
     headers: { "Content-Type": "text/xml" },
@@ -23,7 +25,7 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         const { verifyTwilioWebhook, rejectWebhook } =
           await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
-        if (!auth.ok) return rejectWebhook(request, auth.reason);
+        if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
         const get = (key: string) => auth.params[key] ?? "";
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -41,13 +43,27 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
             return xml(`<Say voice="alice">This call could not be placed.</Say>`);
           }
 
-          const { data: isAdmin } = await supabaseAdmin.rpc("is_admin", { _user_id: userId });
           const { data: owned } = await supabaseAdmin
             .from("phone_numbers")
             .select("phone_number, assigned_to, outbound_caller_id")
             .eq("phone_number", callerId)
             .maybeSingle();
-          const permitted = Boolean(owned) && (isAdmin === true || owned?.assigned_to === userId);
+          // Service-role requests have no logged-in user, and the database admin
+          // helper requires that user to match, so it cannot be used here.
+          const { data: roleRows, error: roleError } = await supabaseAdmin
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", userId);
+          if (roleError) {
+            console.error("Outbound role lookup failed", roleError);
+            return xml(`<Say voice="alice">This call could not be placed.</Say>`);
+          }
+          const permitted = canPlaceOutboundAppCall({
+            numberOnAccount: Boolean(owned),
+            assignedTo: (owned?.assigned_to as string | null) ?? null,
+            userId,
+            roles: (roleRows ?? []).map((row) => String(row.role)),
+          });
           if (!permitted) {
             console.warn(`Blocked client call from ${from} using caller ID ${callerId}`);
             return xml(`<Say voice="alice">You are not allowed to call from that number.</Say>`);
@@ -72,7 +88,8 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           );
 
           return xml(
-            // Live two-party calls are never recorded — only voicemail is.
+            // This outbound leg is not recorded. Inbound voicemail uses recordVerb,
+            // which speaks the recording notice before Twilio starts the recording.
             `<Dial callerId="${esc(presentedId)}" answerOnBridge="true" action="${esc(statusUrl)}"><Number>${esc(to)}</Number></Dial>`,
           );
         }
