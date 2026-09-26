@@ -285,6 +285,90 @@ export type Database = {
           },
         ]
       }
+      booking_proposals: {
+        Row: {
+          address: string | null
+          address_lat: number | null
+          address_lng: number | null
+          app_number: string
+          calendar_event_id: string | null
+          call_sid: string | null
+          confirm_mode: string
+          contact_name: string | null
+          contact_number: string | null
+          created_at: string
+          customer_reply: string | null
+          id: string
+          in_service_area: boolean | null
+          job_type: string | null
+          language: string
+          place_id: string | null
+          postal_code: string | null
+          slot_end: string
+          slot_start: string
+          sms_status: string | null
+          status: string
+          summary: string | null
+          updated_at: string
+          user_id: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          address_lat?: number | null
+          address_lng?: number | null
+          app_number: string
+          calendar_event_id?: string | null
+          call_sid?: string | null
+          confirm_mode?: string
+          contact_name?: string | null
+          contact_number?: string | null
+          created_at?: string
+          customer_reply?: string | null
+          id?: string
+          in_service_area?: boolean | null
+          job_type?: string | null
+          language?: string
+          place_id?: string | null
+          postal_code?: string | null
+          slot_end: string
+          slot_start: string
+          sms_status?: string | null
+          status?: string
+          summary?: string | null
+          updated_at?: string
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          address_lat?: number | null
+          address_lng?: number | null
+          app_number?: string
+          calendar_event_id?: string | null
+          call_sid?: string | null
+          confirm_mode?: string
+          contact_name?: string | null
+          contact_number?: string | null
+          created_at?: string
+          customer_reply?: string | null
+          id?: string
+          in_service_area?: boolean | null
+          job_type?: string | null
+          language?: string
+          place_id?: string | null
+          postal_code?: string | null
+          slot_end?: string
+          slot_start?: string
+          sms_status?: string | null
+          status?: string
+          summary?: string | null
+          updated_at?: string
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       byo_numbers: {
         Row: {
           assigned_number: string | null
@@ -352,8 +436,10 @@ export type Database = {
           event_id: string
           html_link: string | null
           id: string
+          proposal_id: string | null
           source: string
           starts_at: string
+          status: string
           summary: string | null
           updated_at: string
           workspace_id: string
@@ -371,8 +457,10 @@ export type Database = {
           event_id: string
           html_link?: string | null
           id?: string
+          proposal_id?: string | null
           source?: string
           starts_at: string
+          status?: string
           summary?: string | null
           updated_at?: string
           workspace_id: string
@@ -390,8 +478,10 @@ export type Database = {
           event_id?: string
           html_link?: string | null
           id?: string
+          proposal_id?: string | null
           source?: string
           starts_at?: string
+          status?: string
           summary?: string | null
           updated_at?: string
           workspace_id?: string
@@ -486,15 +576,23 @@ export type Database = {
         Row: {
           action_items: Json
           app_number: string | null
+          assigned_to: string | null
           call_sid: string
           contact_number: string | null
           created_at: string
           entities: Json
           id: string
           intent: string | null
+          lead_address: string | null
+          lead_address_valid: boolean | null
+          lead_callback: string | null
+          lead_job_type: string | null
+          lead_name: string | null
+          lead_urgency: string | null
           model: string | null
           sentiment: string | null
           summary: string | null
+          tags: string[]
           topics: string[]
           updated_at: string
           urgency: string | null
@@ -504,15 +602,23 @@ export type Database = {
         Insert: {
           action_items?: Json
           app_number?: string | null
+          assigned_to?: string | null
           call_sid: string
           contact_number?: string | null
           created_at?: string
           entities?: Json
           id?: string
           intent?: string | null
+          lead_address?: string | null
+          lead_address_valid?: boolean | null
+          lead_callback?: string | null
+          lead_job_type?: string | null
+          lead_name?: string | null
+          lead_urgency?: string | null
           model?: string | null
           sentiment?: string | null
           summary?: string | null
+          tags?: string[]
           topics?: string[]
           updated_at?: string
           urgency?: string | null
@@ -522,15 +628,23 @@ export type Database = {
         Update: {
           action_items?: Json
           app_number?: string | null
+          assigned_to?: string | null
           call_sid?: string
           contact_number?: string | null
           created_at?: string
           entities?: Json
           id?: string
           intent?: string | null
+          lead_address?: string | null
+          lead_address_valid?: boolean | null
+          lead_callback?: string | null
+          lead_job_type?: string | null
+          lead_name?: string | null
+          lead_urgency?: string | null
           model?: string | null
           sentiment?: string | null
           summary?: string | null
+          tags?: string[]
           topics?: string[]
           updated_at?: string
           urgency?: string | null
@@ -688,6 +802,54 @@ export type Database = {
           },
         ]
       }
+      caller_line_cache: {
+        Row: {
+          line_type: string | null
+          looked_up_at: string
+          phone_number: string
+        }
+        Insert: {
+          line_type?: string | null
+          looked_up_at?: string
+          phone_number: string
+        }
+        Update: {
+          line_type?: string | null
+          looked_up_at?: string
+          phone_number?: string
+        }
+        Relationships: []
+      }
+      caller_lists: {
+        Row: {
+          created_at: string
+          id: string
+          list: string
+          note: string | null
+          phone_number: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          list: string
+          note?: string | null
+          phone_number: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          list?: string
+          note?: string | null
+          phone_number?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       caller_rules: {
         Row: {
           behavior: string
@@ -743,11 +905,16 @@ export type Database = {
           error_code: string | null
           from_number: string
           id: string
+          line_type: string | null
           price: string | null
           recording_url: string | null
           sid: string
+          spam_action: string | null
+          spam_reason: string | null
+          spam_score: number | null
           started_at: string
           status: string | null
+          stir_verstat: string | null
           to_number: string
           transcription: string | null
           workspace_id: string
@@ -765,11 +932,16 @@ export type Database = {
           error_code?: string | null
           from_number: string
           id?: string
+          line_type?: string | null
           price?: string | null
           recording_url?: string | null
           sid: string
+          spam_action?: string | null
+          spam_reason?: string | null
+          spam_score?: number | null
           started_at?: string
           status?: string | null
+          stir_verstat?: string | null
           to_number: string
           transcription?: string | null
           workspace_id: string
@@ -787,11 +959,16 @@ export type Database = {
           error_code?: string | null
           from_number?: string
           id?: string
+          line_type?: string | null
           price?: string | null
           recording_url?: string | null
           sid?: string
+          spam_action?: string | null
+          spam_reason?: string | null
+          spam_score?: number | null
           started_at?: string
           status?: string | null
+          stir_verstat?: string | null
           to_number?: string
           transcription?: string | null
           workspace_id?: string
@@ -2265,10 +2442,12 @@ export type Database = {
           answer_mode: string
           assigned_to: string | null
           booking_buffer_minutes: number
+          booking_confirm_mode: string
           booking_enabled: boolean
           booking_hours: Json
           booking_slot_minutes: number
           booking_timezone: string
+          booking_travel_minutes: number
           business_holidays: Json
           business_hours: Json
           business_hours_enabled: boolean
@@ -2294,6 +2473,12 @@ export type Database = {
           outbound_caller_id: string | null
           phone_number: string
           record_calls: boolean
+          service_area_address: string | null
+          service_area_lat: number | null
+          service_area_lng: number | null
+          service_area_mode: string
+          service_area_radius_miles: number | null
+          service_area_zips: string[]
           sid: string
           text_back_dedupe_minutes: number
           text_back_enabled: boolean
@@ -2317,10 +2502,12 @@ export type Database = {
           answer_mode?: string
           assigned_to?: string | null
           booking_buffer_minutes?: number
+          booking_confirm_mode?: string
           booking_enabled?: boolean
           booking_hours?: Json
           booking_slot_minutes?: number
           booking_timezone?: string
+          booking_travel_minutes?: number
           business_holidays?: Json
           business_hours?: Json
           business_hours_enabled?: boolean
@@ -2346,6 +2533,12 @@ export type Database = {
           outbound_caller_id?: string | null
           phone_number: string
           record_calls?: boolean
+          service_area_address?: string | null
+          service_area_lat?: number | null
+          service_area_lng?: number | null
+          service_area_mode?: string
+          service_area_radius_miles?: number | null
+          service_area_zips?: string[]
           sid: string
           text_back_dedupe_minutes?: number
           text_back_enabled?: boolean
@@ -2369,10 +2562,12 @@ export type Database = {
           answer_mode?: string
           assigned_to?: string | null
           booking_buffer_minutes?: number
+          booking_confirm_mode?: string
           booking_enabled?: boolean
           booking_hours?: Json
           booking_slot_minutes?: number
           booking_timezone?: string
+          booking_travel_minutes?: number
           business_holidays?: Json
           business_hours?: Json
           business_hours_enabled?: boolean
@@ -2398,6 +2593,12 @@ export type Database = {
           outbound_caller_id?: string | null
           phone_number?: string
           record_calls?: boolean
+          service_area_address?: string | null
+          service_area_lat?: number | null
+          service_area_lng?: number | null
+          service_area_mode?: string
+          service_area_radius_miles?: number | null
+          service_area_zips?: string[]
           sid?: string
           text_back_dedupe_minutes?: number
           text_back_enabled?: boolean
