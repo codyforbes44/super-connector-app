@@ -162,17 +162,15 @@ async function presence(userId: string, body: unknown): Promise<Response> {
   };
   const wrote = await supabaseAdmin.from("voice_presence").upsert(row, { onConflict: "identity" });
   if (wrote.error && /platform|device_key/i.test(wrote.error.message)) {
-    const retry = await supabaseAdmin
-      .from("voice_presence")
-      .upsert(
-        {
-          user_id: userId,
-          identity,
-          last_seen_at: row.last_seen_at,
-          workspace_id: workspace.id,
-        },
-        { onConflict: "identity" },
-      );
+    const retry = await supabaseAdmin.from("voice_presence").upsert(
+      {
+        user_id: userId,
+        identity,
+        last_seen_at: row.last_seen_at,
+        workspace_id: workspace.id,
+      },
+      { onConflict: "identity" },
+    );
     if (retry.error) throw new Error(retry.error.message);
   } else if (wrote.error) {
     throw new Error(wrote.error.message);

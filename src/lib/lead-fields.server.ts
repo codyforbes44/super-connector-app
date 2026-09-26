@@ -60,7 +60,7 @@ export async function stampStructuredLead(
       lead_job_type: lead.jobType,
       lead_urgency: lead.urgency,
       tags: lead.tags,
-      workspace_id: input.workspaceId,
+      ...(input.workspaceId ? { workspace_id: input.workspaceId } : {}),
     },
     { onConflict: "call_sid" },
   );

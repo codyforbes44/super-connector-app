@@ -312,9 +312,11 @@ export async function bookSlot(
 ) {
   const { data: number } = await supabase
     .from("phone_numbers")
-    .select("calendar_id, booking_timezone")
+    .select("calendar_id, booking_timezone, workspace_id")
     .eq("phone_number", input.appNumber)
     .maybeSingle();
+  const workspaceId = (number?.workspace_id as string | null) ?? null;
+  if (!workspaceId) throw new Error("That number is not on a workspace.");
   const calendarId = (number?.calendar_id as string | null) || "primary";
 
   const event = await gcal.createEvent({
@@ -342,16 +344,10 @@ export async function bookSlot(
     call_sid: input.callSid ?? null,
     conversation_id: input.conversationId ?? null,
     created_by: userId,
+    workspace_id: workspaceId,
   });
 
   try {
-    let workspaceId: string | null = null;
-    const { data: owner, error: ownerError } = await supabase
-      .from("phone_numbers")
-      .select("workspace_id")
-      .eq("phone_number", input.appNumber)
-      .maybeSingle();
-    if (!ownerError) workspaceId = (owner?.workspace_id as string | null) ?? null;
     await publishOutboundEvent(db, {
       type: "booking.created",
       eventId: `booking.created:${event.id}`,
@@ -406,6 +402,13 @@ export async function saveContactLocation(
   input: { phoneNumber: string; name?: string; email?: string; address?: string },
 ) {
   const patch: Record<string, unknown> = { phone_number: input.phoneNumber };
+  const { data: session } = await supabase.auth.getUser();
+  const userId = session.user?.id ?? null;
+  if (userId) {
+    const { resolveWorkspaceForUser } = await import("./workspace.server");
+    const workspace = await resolveWorkspaceForUser(userId);
+    if (workspace) patch["workspace_id"] = workspace.id;
+  }
   if (input.name !== undefined) patch["name"] = input.name;
   if (input.email !== undefined) patch["email"] = input.email;
 

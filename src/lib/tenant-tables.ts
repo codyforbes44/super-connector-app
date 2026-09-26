@@ -5,9 +5,9 @@
  * migration and scripts/tenant-isolation.sql.
  *
  * Tables after esim_orders come from the release-train PRs. Those migrations
- * add a nullable workspace_id with no foreign key and sort after
- * 20260926120000, so 20260927040000_phase1_backfill_sibling_workspace_id.sql
- * is what backfills them. Secrets tables with no workspace_id
+ * add a nullable workspace_id with no foreign key. The live database recorded
+ * the workspace migration as 20260926101804 and the sibling backfill as
+ * 20260926102207, which is what fills them in. Secrets tables with no workspace_id
  * (integration_secrets, oauth_transactions, stripe_connect_events,
  * port_in_private, mobile_call_acks) stay server-only.
  */

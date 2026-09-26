@@ -84,24 +84,54 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           const presentedId = await resolveOutboundCallerId(supabaseAdmin, callerId, to);
 
           const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
-          const { workspaceId: outboundWorkspaceId } =
-            await resolveWorkspaceIdForNumber(callerId);
-          if (outboundWorkspaceId) {
-            await supabaseAdmin.from("calls").upsert(
-              {
-                sid: callSid,
-                direction: "outbound",
-                from_number: callerId,
-                to_number: to,
-                app_number: callerId,
-                status: "in-progress",
-                client_identity: from.slice("client:".length),
-                answered_in_app: true,
-                answered_by: userId,
-                workspace_id: outboundWorkspaceId,
-              },
-              { onConflict: "sid" },
-            );
+          const { logWebhookError } = await import("@/lib/webhook-errors.server");
+          try {
+            const { workspaceId: outboundWorkspaceId } =
+              await resolveWorkspaceIdForNumber(callerId);
+            if (!outboundWorkspaceId) {
+              await logWebhookError(supabaseAdmin as never, {
+                source: "app-voice",
+                message: "no workspace for outbound caller id",
+                url: url.toString(),
+                callSid,
+                appNumber: callerId,
+              });
+            } else {
+              const { error: callError } = await supabaseAdmin.from("calls").upsert(
+                {
+                  sid: callSid,
+                  direction: "outbound",
+                  from_number: callerId,
+                  to_number: to,
+                  app_number: callerId,
+                  status: "in-progress",
+                  client_identity: from.slice("client:".length),
+                  answered_in_app: true,
+                  answered_by: userId,
+                  workspace_id: outboundWorkspaceId,
+                },
+                { onConflict: "sid" },
+              );
+              if (callError) {
+                await logWebhookError(supabaseAdmin as never, {
+                  source: "app-voice",
+                  message: callError.message,
+                  url: url.toString(),
+                  callSid,
+                  appNumber: callerId,
+                  workspaceId: outboundWorkspaceId,
+                });
+              }
+            }
+          } catch (error) {
+            console.error("outbound call row failed", error);
+            await logWebhookError(supabaseAdmin as never, {
+              source: "app-voice",
+              message: error instanceof Error ? error.message : String(error),
+              url: url.toString(),
+              callSid,
+              appNumber: callerId,
+            });
           }
 
           const { lineRecordsCalls } = await import("@/lib/compliance/recording.server");
@@ -136,20 +166,50 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         }
 
         const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
-        const { workspaceId: inboundWorkspaceId } = await resolveWorkspaceIdForNumber(appNumber);
-        if (inboundWorkspaceId) {
-          await supabaseAdmin.from("calls").upsert(
-            {
-              sid: callSid,
-              direction: "inbound",
-              from_number: from,
-              to_number: get("To"),
-              app_number: appNumber,
-              status: get("CallStatus") || "ringing",
-              workspace_id: inboundWorkspaceId,
-            },
-            { onConflict: "sid" },
-          );
+        const { logWebhookError } = await import("@/lib/webhook-errors.server");
+        try {
+          const { workspaceId: inboundWorkspaceId } = await resolveWorkspaceIdForNumber(appNumber);
+          if (!inboundWorkspaceId) {
+            await logWebhookError(supabaseAdmin as never, {
+              source: "app-voice",
+              message: "no workspace for inbound number",
+              url: url.toString(),
+              callSid,
+              appNumber,
+            });
+          } else {
+            const { error: callError } = await supabaseAdmin.from("calls").upsert(
+              {
+                sid: callSid,
+                direction: "inbound",
+                from_number: from,
+                to_number: get("To"),
+                app_number: appNumber,
+                status: get("CallStatus") || "ringing",
+                workspace_id: inboundWorkspaceId,
+              },
+              { onConflict: "sid" },
+            );
+            if (callError) {
+              await logWebhookError(supabaseAdmin as never, {
+                source: "app-voice",
+                message: callError.message,
+                url: url.toString(),
+                callSid,
+                appNumber,
+                workspaceId: inboundWorkspaceId,
+              });
+            }
+          }
+        } catch (error) {
+          console.error("inbound call row failed", error);
+          await logWebhookError(supabaseAdmin as never, {
+            source: "app-voice",
+            message: error instanceof Error ? error.message : String(error),
+            url: url.toString(),
+            callSid,
+            appNumber,
+          });
         }
 
         const { VOICE_CONFIG_COLUMNS } = await import("@/lib/voice-answer.server");

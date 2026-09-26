@@ -10,6 +10,7 @@ const state = vi.hoisted(() => ({
     phone_number: string;
     assigned_to: string | null;
     outbound_caller_id: string | null;
+    workspace_id: string;
   } | null,
   params: {} as Record<string, string>,
   acknowledged: true,
@@ -89,7 +90,12 @@ async function place(
   state.roleError = null;
   state.acknowledged = acknowledged;
   state.number = numberOnAccount
-    ? { phone_number: callerId, assigned_to: assignedTo, outbound_caller_id: null }
+    ? {
+        phone_number: callerId,
+        assigned_to: assignedTo,
+        outbound_caller_id: null,
+        workspace_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      }
     : null;
   state.params = {
     From: `client:agent_${userId}`,

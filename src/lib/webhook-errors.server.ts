@@ -14,6 +14,8 @@ export type WebhookErrorInput = {
   callSid?: string | null;
   appNumber?: string | null;
   payload?: unknown;
+  /** Owning workspace, already resolved from a number or member. Never a client id. */
+  workspaceId?: string | null;
 };
 
 export async function logWebhookError(
@@ -21,7 +23,12 @@ export async function logWebhookError(
   input: WebhookErrorInput,
 ): Promise<void> {
   try {
-    await admin.from("webhook_errors").insert({
+    let workspaceId = input.workspaceId ?? null;
+    if (!workspaceId && input.appNumber) {
+      const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
+      workspaceId = (await resolveWorkspaceIdForNumber(input.appNumber)).workspaceId;
+    }
+    const { error } = await admin.from("webhook_errors").insert({
       source: input.source ?? "twilio",
       error_code: input.errorCode ?? null,
       message: input.message ? String(input.message).slice(0, 2000) : null,
@@ -29,7 +36,9 @@ export async function logWebhookError(
       call_sid: input.callSid ?? null,
       app_number: input.appNumber ?? null,
       payload: (input.payload ?? {}) as never,
+      ...(workspaceId ? { workspace_id: workspaceId } : {}),
     });
+    if (error) console.error("Failed to record webhook error", error.message);
   } catch (error) {
     console.error("Failed to record webhook error", error);
   }

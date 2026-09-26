@@ -928,6 +928,9 @@ export async function addInternalNote(
     .maybeSingle();
   if (!convo) throw new Error("Conversation not found.");
   const admin = await adminClient();
+  const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
+  const { workspaceId } = await resolveWorkspaceIdForNumber(convo.app_number as string);
+  if (!workspaceId) throw new Error("That conversation is not on a workspace number.");
   await admin.from("messages").insert({
     conversation_id: data.conversationId,
     direction: "note",
@@ -937,6 +940,7 @@ export async function addInternalNote(
     body: data.body,
     is_internal_note: true,
     sent_by: userId,
+    workspace_id: workspaceId,
   });
   return { ok: true };
 }
@@ -996,10 +1000,14 @@ export async function importHistory(supabase: SB, userId: string) {
     const contactNumber = stripChannel(rawContact);
     if (!numbers.includes(appNumber)) continue;
 
+    const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
+    const { workspaceId } = await resolveWorkspaceIdForNumber(appNumber);
+    if (!workspaceId) continue;
     const conversationId = await upsertConversation(admin, {
       channel,
       appNumber,
       contactNumber,
+      workspaceId,
     });
     const { error } = await admin.from("messages").upsert(
       {
@@ -1013,6 +1021,7 @@ export async function importHistory(supabase: SB, userId: string) {
         status: m.status,
         price: m.price,
         created_at: new Date(m.date_sent ?? m.date_created).toISOString(),
+        workspace_id: workspaceId,
       },
       { onConflict: "sid", ignoreDuplicates: true },
     );
@@ -1046,6 +1055,9 @@ export async function importCallHistory(supabase: SB, userId: string) {
     const inbound = c.direction.startsWith("inbound");
     const appNumber = stripChannel(inbound ? c.to : c.from);
     if (!numbers.includes(appNumber)) continue;
+    const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
+    const { workspaceId } = await resolveWorkspaceIdForNumber(appNumber);
+    if (!workspaceId) continue;
     const { error } = await admin.from("calls").upsert(
       {
         sid: c.sid,
@@ -1057,6 +1069,7 @@ export async function importCallHistory(supabase: SB, userId: string) {
         duration: c.duration ? Number(c.duration) : null,
         price: c.price,
         started_at: new Date(c.start_time ?? c.date_created).toISOString(),
+        workspace_id: workspaceId,
       },
       { onConflict: "sid" },
     );
@@ -1083,10 +1096,9 @@ export async function startCall(
   const target = normalizePhone(data.to);
   const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
   const home = await resolveWorkspaceIdForNumber(appNumber);
-  if (home.workspaceId) {
-    const { assertCanCallDestination } = await import("./entitlements.server");
-    await assertCanCallDestination(home.workspaceId, target);
-  }
+  if (!home.workspaceId) throw new Error("That number is not on a workspace.");
+  const { assertCanCallDestination } = await import("./entitlements.server");
+  await assertCanCallDestination(home.workspaceId, target);
   const callerId = await resolveOutboundCallerId(supabase, appNumber, target);
 
   const mode: "bridge" | "direct" = agentPhone ? "bridge" : "direct";
@@ -1166,6 +1178,7 @@ export async function startCall(
       app_number: appNumber,
       status: call.status,
       answered_by: userId,
+      workspace_id: home.workspaceId,
     },
     { onConflict: "sid" },
   );

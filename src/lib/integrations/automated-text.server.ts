@@ -75,6 +75,10 @@ export async function sendAutomatedText(
   });
   if (!sent.ok) return { sent: false, reason: asBlock(sent.reason) };
 
+  if (!input.workspaceId) {
+    console.error("automated text not stored, no workspace", input.appNumber);
+    return { sent: true, sid: sent.sid };
+  }
   await admin.from("messages").insert({
     conversation_id: input.conversationId,
     sid: sent.sid,

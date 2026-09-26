@@ -40,70 +40,102 @@ export const Route = createFileRoute("/api/public/elevenlabs/post-call")({
         const summary = (analysis["transcript_summary"] as string) ?? null;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { logWebhookError } = await import("@/lib/webhook-errors.server");
 
-        const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
-        const { workspaceId } = appNumber
-          ? await resolveWorkspaceIdForNumber(appNumber)
-          : { workspaceId: null };
-        if (workspaceId) {
-          await supabaseAdmin.from("ai_conversations").upsert(
-            {
-              call_sid: callSid,
-              app_number: appNumber,
-              agent_id: (data["agent_id"] as string) ?? null,
-              conversation_id: (data["conversation_id"] as string) ?? null,
-              transcript,
-              summary,
-              workspace_id: workspaceId,
-            },
-            { onConflict: "call_sid" },
-          );
-        } else {
-          console.warn("post-call: no workspace for", appNumber, "— transcript not stored");
-        }
+        try {
+          const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+          const { workspaceId } = appNumber
+            ? await resolveWorkspaceIdForNumber(appNumber)
+            : { workspaceId: null };
+          if (!workspaceId) {
+            await logWebhookError(supabaseAdmin as never, {
+              source: "elevenlabs",
+              message: "no workspace for post-call transcript",
+              callSid,
+              appNumber: appNumber || null,
+            });
+          } else {
+            const { error: transcriptError } = await supabaseAdmin.from("ai_conversations").upsert(
+              {
+                call_sid: callSid,
+                app_number: appNumber,
+                agent_id: (data["agent_id"] as string) ?? null,
+                conversation_id: (data["conversation_id"] as string) ?? null,
+                transcript,
+                summary,
+                workspace_id: workspaceId,
+              },
+              { onConflict: "call_sid" },
+            );
+            if (transcriptError) {
+              await logWebhookError(supabaseAdmin as never, {
+                source: "elevenlabs",
+                message: transcriptError.message,
+                callSid,
+                appNumber: appNumber || null,
+                workspaceId,
+              });
+            }
+          }
 
-        if (summary) {
-          await supabaseAdmin.from("calls").update({ transcription: summary }).eq("sid", callSid);
-        }
+          if (summary) {
+            await supabaseAdmin
+              .from("calls")
+              .update({
+                transcription: summary,
+                ...(workspaceId ? { workspace_id: workspaceId } : {}),
+              })
+              .eq("sid", callSid);
+          }
 
-        if (appNumber) {
-          const { notifyNumberWatchers } = await import("@/lib/push.server");
-          await notifyNumberWatchers(supabaseAdmin as never, appNumber, {
-            title: "AI assistant took a call",
-            body: summary ? summary.slice(0, 140) : "Tap to read the transcript.",
-            url: `/calls?q=${encodeURIComponent(callSid)}`,
-            tag: `ai-${callSid}`,
-            type: "message",
-          });
-        }
+          if (appNumber) {
+            const { notifyNumberWatchers } = await import("@/lib/push.server");
+            await notifyNumberWatchers(supabaseAdmin as never, appNumber, {
+              title: "AI assistant took a call",
+              body: summary ? summary.slice(0, 140) : "Tap to read the transcript.",
+              url: `/calls?q=${encodeURIComponent(callSid)}`,
+              tag: `ai-${callSid}`,
+              type: "message",
+            });
+          }
 
-        // Fold the conversation into call intelligence: transcript, summary,
-        // follow-ups and the caller's rolling memory.
-        if (appNumber && transcript.length) {
-          const { ingestCallTranscript } = await import("@/lib/intelligence.server");
-          const contactNumber =
-            (dynamic["caller_number"] as string) ||
-            (dynamic["system__caller_id"] as string) ||
-            null;
-          await ingestCallTranscript(supabaseAdmin as never, {
-            callSid,
-            appNumber,
-            contactNumber,
-            direction: "inbound",
+          // Fold the conversation into call intelligence: transcript, summary,
+          // follow-ups and the caller's rolling memory.
+          if (appNumber && transcript.length) {
+            const { ingestCallTranscript } = await import("@/lib/intelligence.server");
+            const contactNumber =
+              (dynamic["caller_number"] as string) ||
+              (dynamic["system__caller_id"] as string) ||
+              null;
+            await ingestCallTranscript(supabaseAdmin as never, {
+              callSid,
+              appNumber,
+              contactNumber,
+              direction: "inbound",
+              source: "elevenlabs",
+              turns: transcript
+                .filter((turn) => (turn.message ?? "").trim())
+                .map((turn) => ({
+                  speaker: turn.role === "agent" ? ("assistant" as const) : ("caller" as const),
+                  text: (turn.message ?? "").trim(),
+                  ...(typeof turn.time_in_call_secs === "number"
+                    ? { at: turn.time_in_call_secs }
+                    : {}),
+                })),
+            });
+          }
+
+          return new Response("ok");
+        } catch (error) {
+          console.error("post-call failed", error);
+          await logWebhookError(supabaseAdmin as never, {
             source: "elevenlabs",
-            turns: transcript
-              .filter((turn) => (turn.message ?? "").trim())
-              .map((turn) => ({
-                speaker: turn.role === "agent" ? ("assistant" as const) : ("caller" as const),
-                text: (turn.message ?? "").trim(),
-                ...(typeof turn.time_in_call_secs === "number"
-                  ? { at: turn.time_in_call_secs }
-                  : {}),
-              })),
+            message: error instanceof Error ? error.message : String(error),
+            callSid,
+            appNumber: appNumber || null,
           });
+          return new Response("ok");
         }
-
-        return new Response("ok");
       },
     },
   },

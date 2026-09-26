@@ -20,6 +20,7 @@ export async function recordInboundKeyword(
     body: string;
     optOutType?: string | null;
     messagingServiceSid?: string | null;
+    workspaceId?: string | null;
   },
 ): Promise<KeywordSignal | null> {
   const signal = resolveInboundSignal(input.body, input.optOutType);
@@ -27,32 +28,48 @@ export async function recordInboundKeyword(
   const phone = stripChannel(normalizePhone(input.from));
   const optedOut = signal === "stop";
   if (signal === "stop" || signal === "start") {
-    const { error } = await admin.from("sms_opt_outs").upsert(
-      {
-        phone_number: phone,
-        opted_out: optedOut,
-        keyword: input.body.trim().slice(0, 32) || signal,
-        source: input.optOutType ? "opt_out_type" : "inbound_keyword",
-        messaging_service_sid: input.messagingServiceSid ?? null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "phone_number" },
-    );
-    if (error) throw new Error(error.message);
+    if (!input.workspaceId) {
+      const { logWebhookError } = await import("@/lib/webhook-errors.server");
+      await logWebhookError(admin, {
+        source: "sms",
+        message: `no workspace for inbound opt-out from ${phone}`,
+      });
+    } else {
+      const { error } = await admin.from("sms_opt_outs").upsert(
+        {
+          phone_number: phone,
+          opted_out: optedOut,
+          keyword: input.body.trim().slice(0, 32) || signal,
+          source: input.optOutType ? "opt_out_type" : "inbound_keyword",
+          messaging_service_sid: input.messagingServiceSid ?? null,
+          updated_at: new Date().toISOString(),
+          workspace_id: input.workspaceId,
+        },
+        { onConflict: "phone_number" },
+      );
+      if (error) throw new Error(error.message);
+    }
   }
-  if (input.optOutType && input.messagingServiceSid) {
+  if (input.optOutType && input.messagingServiceSid && input.workspaceId) {
     await admin.from("messaging_opt_out_prefs").upsert(
       {
         messaging_service_sid: input.messagingServiceSid,
         detected_opt_out_type_at: new Date().toISOString(),
+        workspace_id: input.workspaceId,
       },
       { onConflict: "messaging_service_sid" },
     );
   }
-  await audit(admin, null, `sms.keyword.${signal}`, {
-    phone_number: phone,
-    opt_out_type: input.optOutType ?? null,
-  });
+  await audit(
+    admin,
+    null,
+    `sms.keyword.${signal}`,
+    {
+      phone_number: phone,
+      opt_out_type: input.optOutType ?? null,
+    },
+    input.workspaceId,
+  );
   return signal;
 }
 
@@ -118,6 +135,8 @@ export async function saveQuietHours(
 ) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const admin = supabaseAdmin as unknown as SB;
+  const { requireWorkspace } = await import("@/lib/workspace.server");
+  const workspace = await requireWorkspace(userId);
   const { error } = await admin.from("sms_quiet_hours").upsert(
     {
       user_id: userId,
@@ -125,6 +144,7 @@ export async function saveQuietHours(
       quiet_start: input.quietStart,
       quiet_end: input.quietEnd,
       timezone: input.timezone,
+      workspace_id: workspace.id,
     },
     { onConflict: "user_id" },
   );
@@ -158,6 +178,8 @@ export async function recordSmsConsent(
 ) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const admin = supabaseAdmin as unknown as SB;
+  const { requireWorkspace } = await import("@/lib/workspace.server");
+  const workspace = await requireWorkspace(userId);
   const phone = stripChannel(normalizePhone(input.phoneNumber));
   const { error } = await admin.from("sms_consent_log").insert({
     phone_number: phone,
@@ -165,6 +187,7 @@ export async function recordSmsConsent(
     consented: input.consented,
     source: input.source,
     recorded_by: userId,
+    workspace_id: workspace.id,
   });
   if (error) throw new Error(error.message);
   await audit(admin, userId, "sms.consent", {
@@ -188,10 +211,13 @@ export async function confirmAdvancedOptOut(userId: string, messagingServiceSid:
   }
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const admin = supabaseAdmin as unknown as SB;
+  const { requireWorkspace } = await import("@/lib/workspace.server");
+  const workspace = await requireWorkspace(userId);
   const { error } = await admin.from("messaging_opt_out_prefs").upsert(
     {
       messaging_service_sid: messagingServiceSid,
       owner_confirmed_at: new Date().toISOString(),
+      workspace_id: workspace.id,
     },
     { onConflict: "messaging_service_sid" },
   );

@@ -38,6 +38,9 @@ export async function upsertContact(supabase: SB, userId: string, input: Contact
   const phone = normalizePhone(input.phoneNumber);
   if (!phone) throw new Error("A phone number is required.");
 
+  const { resolveWorkspaceForUser } = await import("./workspace.server");
+  const workspace = await resolveWorkspaceForUser(userId);
+  if (!workspace) throw new Error("Create your workspace before saving contacts.");
   const patch: Record<string, unknown> = {
     owner_id: userId,
     phone_number: phone,
@@ -45,6 +48,7 @@ export async function upsertContact(supabase: SB, userId: string, input: Contact
     email: clean(input.email),
     address: clean(input.address),
     notes: clean(input.notes),
+    workspace_id: workspace.id,
   };
 
   const { data: existing } = await supabase
@@ -94,6 +98,9 @@ export async function importContacts(supabase: SB, userId: string, entries: Cont
   }
   if (byPhone.size === 0) return { imported: 0, updated: 0, skipped: entries.length };
 
+  const { resolveWorkspaceForUser } = await import("./workspace.server");
+  const workspace = await resolveWorkspaceForUser(userId);
+  if (!workspace) throw new Error("Create your workspace before saving contacts.");
   const phones = [...byPhone.keys()];
   const { data: existing } = await supabase
     .from("contacts")
@@ -115,6 +122,7 @@ export async function importContacts(supabase: SB, userId: string, entries: Cont
         name: entry.name ?? null,
         email: entry.email ?? null,
         address: entry.address ?? null,
+        workspace_id: workspace.id,
       });
       imported += 1;
       continue;

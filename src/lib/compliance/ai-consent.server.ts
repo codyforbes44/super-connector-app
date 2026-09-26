@@ -34,12 +34,15 @@ export async function recordAiVoiceConsent(
   input: { phoneNumber: string; consented: boolean; source: string },
 ) {
   const admin = await adminClient();
+  const { requireWorkspace } = await import("@/lib/workspace.server");
+  const workspace = await requireWorkspace(userId);
   const phone = stripChannel(normalizePhone(input.phoneNumber));
   const { error } = await admin.from("ai_voice_consents").insert({
     phone_number: phone,
     consented: input.consented,
     source: input.source,
     recorded_by: userId,
+    workspace_id: workspace.id,
   });
   if (error) throw new Error(error.message);
   await audit(admin, userId, "ai.voice.consent", {

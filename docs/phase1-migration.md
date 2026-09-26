@@ -1,6 +1,6 @@
 # Phase 1 workspace migration
 
-Apply `supabase/migrations/20260926120000_phase1_workspaces.sql` to staging before production. Take a database backup first. The migration is additive until it rewrites row-level security.
+Apply `supabase/migrations/20260926101804_02d5a13c-8098-4f4d-a585-20d59cac3f32.sql` to staging before production. Take a database backup first. The migration is additive until it rewrites row-level security. The live database recorded this SQL under that version; do not re-add the earlier `20260926120000_phase1_workspaces.sql` filename.
 
 ## What it does
 
@@ -15,7 +15,7 @@ Apply `supabase/migrations/20260926120000_phase1_workspaces.sql` to staging befo
 - Raises founding entitlements to at least the current number and seat counts so existing usage is not locked out. If there is no active subscription, the founding plan defaults to Scale.
 - Adds nullable `phone_numbers.e911_address_sid` and `workspaces.recording_consent_required` (default false) for the Phase 2 emergency-address and recording-consent work. The Secondary Customer Profile SID on `a2p_registrations` is the TrustHub bundle that later SHAKEN/CNAM registration reuses.
 
-`20260927040000_phase1_backfill_sibling_workspace_id.sql` runs after the release-train migrations. Those PRs add a nullable `workspace_id` with no foreign key, and their timestamps are later than `20260926120000`, so the first migration skips the tables. The follow-up:
+`20260926102207_e6b52639-d659-4a11-b859-e7974da49a35.sql` runs after the release-train migrations. Those PRs add a nullable `workspace_id` with no foreign key, and the live database applied this backfill under that version (the same SQL as the removed `20260927040000_phase1_backfill_sibling_workspace_id.sql`). The follow-up:
 
 - Backfills `missed_call_textbacks`, `outbound_webhook_endpoints`, `outbound_webhook_deliveries`, `emergency_addresses`, `e911_acknowledgments`, `sms_opt_outs`, `sms_consent_log`, `sms_quiet_hours`, `ai_voice_consents`, `trust_hub_registrations`, `messaging_opt_out_prefs`, `integration_connections`, `review_settings`, `review_requests`, `consent_log`, `payment_links`, `port_in_requests`, `port_in_events`, `trade_syncs`, `booking_proposals`, `caller_lists`, and `caller_line_cache`.
 - Also backfills any other public table that already has `workspace_id` and is not in the Phase 1 list. `caller_line_cache` stays nullable because the spam gate writes it with the service role and no member session. `contacts` (the customer directory) already receives `workspace_id` in the Phase 1 base migration. There is no separate `customers` table.

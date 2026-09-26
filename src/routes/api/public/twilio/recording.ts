@@ -27,18 +27,40 @@ export const Route = createFileRoute("/api/public/twilio/recording")({
             .eq("sid", callSid)
             .maybeSingle();
 
+          const appNumber = (call?.app_number as string | null) ?? "";
+          const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+          const { workspaceId } = appNumber
+            ? await resolveWorkspaceIdForNumber(appNumber)
+            : { workspaceId: null };
+          if (!workspaceId) {
+            const { logWebhookError } = await import("@/lib/webhook-errors.server");
+            await logWebhookError(supabaseAdmin as never, {
+              source: "recording",
+              message: "no workspace for recording callback",
+              callSid,
+              appNumber: appNumber || null,
+            });
+          }
           await supabaseAdmin
             .from("calls")
-            .update({ recording_url: recordingUrl })
+            .update({
+              recording_url: recordingUrl,
+              ...(workspaceId ? { workspace_id: workspaceId } : {}),
+            })
             .eq("sid", callSid);
 
           const { transcribeRecordingUrl } = await import("@/lib/transcribe.server");
           const text = await transcribeRecordingUrl(recordingUrl);
           if (!text) return new Response("ok");
 
-          await supabaseAdmin.from("calls").update({ transcription: text }).eq("sid", callSid);
+          await supabaseAdmin
+            .from("calls")
+            .update({
+              transcription: text,
+              ...(workspaceId ? { workspace_id: workspaceId } : {}),
+            })
+            .eq("sid", callSid);
 
-          const appNumber = (call?.app_number as string | null) ?? "";
           if (appNumber) {
             const contactNumber =
               call?.direction === "outbound"

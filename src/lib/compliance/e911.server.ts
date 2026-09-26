@@ -55,11 +55,14 @@ export async function userAcknowledgedE911(admin: SB, userId: string): Promise<b
 
 export async function acknowledgeE911(supabase: SB, userId: string): Promise<{ ok: true }> {
   const admin = await adminClient();
+  const { requireWorkspace } = await import("@/lib/workspace.server");
+  const workspace = await requireWorkspace(userId);
   const { error } = await admin.from("e911_acknowledgments").upsert(
     {
       user_id: userId,
       disclosure_version: E911_DISCLOSURE_VERSION,
       acknowledged_at: new Date().toISOString(),
+      workspace_id: workspace.id,
     },
     { onConflict: "user_id,disclosure_version" },
   );
@@ -87,6 +90,9 @@ export async function registerEmergencyAddress(
   input: RegisterEmergencyInput,
 ): Promise<RegisterEmergencyResult> {
   assertEmergencyFeeConfirmed(input.confirmMonthlyFee);
+  const { resolveWorkspaceIdForNumber, requireWorkspace } = await import("@/lib/workspace.server");
+  const fromNumber = (await resolveWorkspaceIdForNumber(input.phoneNumber)).workspaceId;
+  const workspaceId = fromNumber ?? (await requireWorkspace(userId)).id;
   const admin = await adminClient();
 
   const { data: existing } = await admin
@@ -122,6 +128,7 @@ export async function registerEmergencyAddress(
           validated: false,
           suggested_addresses: suggestions,
           created_by: userId,
+          workspace_id: workspaceId,
         },
         { onConflict: "phone_number_sid" },
       );
@@ -167,6 +174,7 @@ export async function registerEmergencyAddress(
         ? ((existing?.twilio_address_sid as string | null) ?? null)
         : null,
       created_by: userId,
+      workspace_id: workspaceId,
     },
     { onConflict: "phone_number_sid" },
   );

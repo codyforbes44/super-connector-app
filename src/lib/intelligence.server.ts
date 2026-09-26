@@ -166,6 +166,20 @@ export function turnsToText(turns: TranscriptTurn[]): string {
     .join("\n");
 }
 
+/** Workspace that owns the line. Service-role writers must set this themselves. */
+async function workspaceIdForNumber(
+  admin: SupabaseClient,
+  appNumber: string | null | undefined,
+): Promise<string | null> {
+  if (!appNumber) return null;
+  const { data } = await admin
+    .from("phone_numbers")
+    .select("workspace_id")
+    .eq("phone_number", appNumber)
+    .maybeSingle();
+  return (data?.["workspace_id"] as string | null) ?? null;
+}
+
 /** Who owns the line a call landed on. */
 export async function ownerOfNumber(
   admin: SupabaseClient,
@@ -193,6 +207,17 @@ export async function saveTranscript(
   },
 ): Promise<string> {
   const fullText = turnsToText(input.turns);
+  const workspaceId = await workspaceIdForNumber(admin, input.appNumber);
+  if (!workspaceId) {
+    const { logWebhookError } = await import("./webhook-errors.server");
+    await logWebhookError(admin, {
+      source: "transcript",
+      message: "no workspace for call transcript",
+      callSid: input.callSid,
+      appNumber: input.appNumber ?? null,
+    });
+    throw new Error("no workspace for call transcript");
+  }
   await admin.from("call_transcripts").upsert(
     {
       user_id: input.userId,
@@ -202,6 +227,7 @@ export async function saveTranscript(
       source: input.source,
       turns: input.turns,
       full_text: fullText,
+      workspace_id: workspaceId,
     },
     { onConflict: "call_sid,source" },
   );
@@ -225,6 +251,18 @@ export async function runCallIntelligence(
 ): Promise<Analysis | null> {
   const text = input.text.trim();
   if (text.length < 20) return null;
+
+  const workspaceId = await workspaceIdForNumber(admin, input.appNumber);
+  if (!workspaceId) {
+    const { logWebhookError } = await import("./webhook-errors.server");
+    await logWebhookError(admin, {
+      source: "transcript",
+      message: "no workspace for call intelligence",
+      callSid: input.callSid,
+      appNumber: input.appNumber ?? null,
+    });
+    return null;
+  }
 
   const { data: profile } = await admin
     .from("profiles")
@@ -253,28 +291,21 @@ export async function runCallIntelligence(
       entities: analysis.entities ?? {},
       action_items: analysis.action_items ?? [],
       model: MODEL,
+      workspace_id: workspaceId,
     },
     { onConflict: "call_sid" },
   );
 
   if (input.contactNumber) {
-    await rememberContact(admin, input.userId, input.contactNumber, analysis.summary);
+    await rememberContact(admin, input.userId, input.contactNumber, analysis.summary, workspaceId);
   }
-
-  const { data: number } = input.appNumber
-    ? await admin
-        .from("phone_numbers")
-        .select("workspace_id")
-        .eq("phone_number", input.appNumber)
-        .maybeSingle()
-    : { data: null };
 
   await stampStructuredLead(admin, {
     callSid: input.callSid,
     appNumber: input.appNumber ?? null,
     contactNumber: input.contactNumber ?? null,
     userId: input.userId,
-    workspaceId: (number?.["workspace_id"] as string | null) ?? null,
+    workspaceId,
     transcript: text,
     entities: analysis.entities,
     modelUrgency: analysis.urgency,
@@ -289,6 +320,7 @@ export async function rememberContact(
   userId: string,
   contactNumber: string,
   line: string,
+  workspaceId?: string | null,
 ): Promise<void> {
   const { data: existing } = await admin
     .from("contact_memory")
@@ -302,6 +334,15 @@ export async function rememberContact(
     .filter(Boolean)
     .slice(-4);
   const stamped = `${new Date().toISOString().slice(0, 10)} — ${line}`;
+  let workspace = workspaceId ?? null;
+  if (!workspace) {
+    const { resolveWorkspaceForUser } = await import("./workspace.server");
+    workspace = (await resolveWorkspaceForUser(userId))?.id ?? null;
+  }
+  if (!workspace) {
+    console.error("contact memory skipped, no workspace", contactNumber);
+    return;
+  }
 
   await admin.from("contact_memory").upsert(
     {
@@ -310,6 +351,7 @@ export async function rememberContact(
       rolling_summary: [...previous, stamped].join("\n"),
       last_call_at: new Date().toISOString(),
       call_count: ((existing?.["call_count"] as number | null) ?? 0) + 1,
+      workspace_id: workspace,
     },
     { onConflict: "user_id,contact_number" },
   );
@@ -427,11 +469,8 @@ export async function ensureCallSummary(admin: SupabaseClient, callSid: string):
   if (!summary) return;
   const userId = await ownerOfNumber(admin, appNumber);
   if (!userId) return;
-  const { data: number } = await admin
-    .from("phone_numbers")
-    .select("workspace_id")
-    .eq("phone_number", appNumber)
-    .maybeSingle();
+  const workspaceId = await workspaceIdForNumber(admin, appNumber);
+  if (!workspaceId) return;
   await admin.from("call_intelligence").upsert(
     {
       user_id: userId,
@@ -446,7 +485,7 @@ export async function ensureCallSummary(admin: SupabaseClient, callSid: string):
       entities: {},
       action_items: [],
       model: null,
-      workspace_id: (number?.workspace_id as string | null) ?? null,
+      workspace_id: workspaceId,
     },
     { onConflict: "call_sid" },
   );
