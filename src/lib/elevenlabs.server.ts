@@ -4,6 +4,12 @@
  * api.elevenlabs.io — ElevenLabs is not routed through the connector gateway.
  */
 
+import {
+  extractEmergencyBlock,
+  mergeEmergencyPrompt,
+  transferToolConfig,
+} from "@/lib/emergency-keywords";
+
 const BASE = "https://api.elevenlabs.io";
 
 export function elevenLabsKey(): string {
@@ -141,7 +147,6 @@ export async function listAgents(): Promise<Agent[]> {
   return [];
 }
 
-
 export type AgentDetail = {
   agent_id: string;
   name: string;
@@ -215,21 +220,101 @@ export async function createAgent(input: AgentInput): Promise<{ agent_id: string
   return { agent_id: data.agent_id };
 }
 
+type AgentPromptConfig = {
+  prompt?: string;
+  built_in_tools?: Record<string, unknown>;
+};
+
 export async function updateAgent(agentId: string, input: AgentInput): Promise<{ ok: true }> {
   await assertAgentAllowed(agentId);
+  let tools: Record<string, unknown> | undefined;
+  let preservedBlock: string | null = null;
+  try {
+    const raw = await el<{ conversation_config?: { agent?: { prompt?: AgentPromptConfig } } }>(
+      `/v1/convai/agents/${encodeURIComponent(agentId)}`,
+    );
+    const prompt = raw.conversation_config?.agent?.prompt;
+    tools = prompt?.built_in_tools;
+    preservedBlock = extractEmergencyBlock(prompt?.prompt ?? "");
+  } catch (error) {
+    console.error(`could not read agent ${agentId} before update`, error);
+  }
+  const body = agentBody(input);
+  let promptText = input.prompt;
+  if (
+    preservedBlock &&
+    !promptText.includes("[sixvox-emergency]") &&
+    tools?.["transfer_to_number"]
+  ) {
+    promptText = `${promptText}\n\n${preservedBlock}`.trim();
+  }
+  body.conversation_config.agent.prompt.prompt = promptText;
+  if (tools && Object.keys(tools).length > 0) {
+    (body.conversation_config.agent.prompt as AgentPromptConfig).built_in_tools = tools;
+  }
   await el(`/v1/convai/agents/${encodeURIComponent(agentId)}`, {
-
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(agentBody(input)),
+    body: JSON.stringify(body),
   });
   return { ok: true };
+}
+
+/**
+ * Push the line's emergency keywords onto the ElevenLabs agent as a conference
+ * transfer_to_number tool. Saving line settings calls this; the voice webhook does not.
+ */
+export async function syncEmergencyTransfer(args: {
+  agentId: string | null;
+  keywords: string[];
+  phone: string | null;
+}): Promise<{ synced: boolean; detail: string }> {
+  if (!args.agentId) return { synced: false, detail: "This line has no AI agent yet." };
+  if (!hasElevenLabs()) return { synced: false, detail: "ElevenLabs is not connected." };
+  try {
+    await assertAgentAllowed(args.agentId);
+    const raw = await el<{ conversation_config?: { agent?: { prompt?: AgentPromptConfig } } }>(
+      `/v1/convai/agents/${encodeURIComponent(args.agentId)}`,
+    );
+    const prompt = raw.conversation_config?.agent?.prompt ?? {};
+    const tools = { ...(prompt.built_in_tools ?? {}) };
+    const phone = args.phone;
+    if (phone && args.keywords.length > 0) {
+      tools["transfer_to_number"] = transferToolConfig(phone, args.keywords);
+    } else {
+      delete tools["transfer_to_number"];
+    }
+    await el(`/v1/convai/agents/${encodeURIComponent(args.agentId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        conversation_config: {
+          agent: {
+            prompt: {
+              ...prompt,
+              prompt: mergeEmergencyPrompt(prompt.prompt ?? "", args.keywords, phone),
+              built_in_tools: tools,
+            },
+          },
+        },
+      }),
+    });
+    return {
+      synced: true,
+      detail: phone
+        ? "Emergency transfer is on the AI agent."
+        : "Emergency transfer was removed from the AI agent.",
+    };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "Could not update the AI agent.";
+    console.error(`emergency transfer sync failed for ${args.agentId}`, error);
+    return { synced: false, detail };
+  }
 }
 
 export async function deleteAgent(agentId: string): Promise<{ ok: true }> {
   await assertAgentAllowed(agentId);
   const response = await fetch(`${BASE}/v1/convai/agents/${encodeURIComponent(agentId)}`, {
-
     method: "DELETE",
     headers: { "xi-api-key": elevenLabsKey() },
   });
@@ -300,7 +385,6 @@ export async function ensureAgentPhoneNumber(
 ): Promise<string | null> {
   await assertAgentAllowed(agentId);
   const existing = (await listPhoneNumbers()).find((row) => row.phone_number === phoneNumber);
-
 
   if (existing) {
     if (existing.assigned_agent?.agent_id !== agentId) {

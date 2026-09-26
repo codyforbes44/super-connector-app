@@ -40,9 +40,7 @@ function header(msg: GmailMessage, name: string): string {
 function decode(data: string): string {
   try {
     const normalized = data.replace(/-/g, "+").replace(/_/g, "/");
-    return new TextDecoder().decode(
-      Uint8Array.from(atob(normalized), (c) => c.charCodeAt(0)),
-    );
+    return new TextDecoder().decode(Uint8Array.from(atob(normalized), (c) => c.charCodeAt(0)));
   } catch {
     return "";
   }
@@ -72,9 +70,7 @@ function toSummary(msg: GmailMessage): MailSummary {
     to: header(msg, "To"),
     subject: header(msg, "Subject") || "(no subject)",
     snippet: msg.snippet ?? "",
-    date: msg.internalDate
-      ? new Date(Number(msg.internalDate)).toISOString()
-      : header(msg, "Date"),
+    date: msg.internalDate ? new Date(Number(msg.internalDate)).toISOString() : header(msg, "Date"),
     unread: (msg.labelIds ?? []).includes("UNREAD"),
   };
 }

@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { factualCallSummary } from "./call-summary";
+import { stampStructuredLead } from "./lead-fields.server";
+
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/responses";
 const MODEL = "openai/gpt-5.6-sol";
 
@@ -132,7 +135,10 @@ export async function analyseTranscript(
     if (response.status === 429) {
       throw new AiUnavailable("AI is busy right now — try again in a moment.", 429);
     }
-    throw new AiUnavailable(`AI request failed [${response.status}]: ${body.slice(0, 300)}`, response.status);
+    throw new AiUnavailable(
+      `AI request failed [${response.status}]: ${body.slice(0, 300)}`,
+      response.status,
+    );
   }
 
   const payload = (await response.json()) as {
@@ -153,7 +159,10 @@ export async function analyseTranscript(
 export function turnsToText(turns: TranscriptTurn[]): string {
   return turns
     .filter((turn) => turn.text?.trim())
-    .map((turn) => `${turn.speaker === "assistant" ? "Assistant" : turn.speaker === "you" ? "Me" : "Caller"}: ${turn.text.trim()}`)
+    .map(
+      (turn) =>
+        `${turn.speaker === "assistant" ? "Assistant" : turn.speaker === "you" ? "Me" : "Caller"}: ${turn.text.trim()}`,
+    )
     .join("\n");
 }
 
@@ -252,6 +261,25 @@ export async function runCallIntelligence(
     await rememberContact(admin, input.userId, input.contactNumber, analysis.summary);
   }
 
+  const { data: number } = input.appNumber
+    ? await admin
+        .from("phone_numbers")
+        .select("workspace_id")
+        .eq("phone_number", input.appNumber)
+        .maybeSingle()
+    : { data: null };
+
+  await stampStructuredLead(admin, {
+    callSid: input.callSid,
+    appNumber: input.appNumber ?? null,
+    contactNumber: input.contactNumber ?? null,
+    userId: input.userId,
+    workspaceId: (number?.["workspace_id"] as string | null) ?? null,
+    transcript: text,
+    entities: analysis.entities,
+    modelUrgency: analysis.urgency,
+  });
+
   return analysis;
 }
 
@@ -325,4 +353,101 @@ export async function ingestCallTranscript(
     console.error("call intelligence failed", error);
     return null;
   }
+}
+
+const TERMINAL_CALL = new Set(["completed", "no-answer", "busy", "failed", "canceled"]);
+
+/**
+ * Summarise every finished call. Transcripts go through the model. Calls
+ * with no transcript still get a factual one-line summary. Spam-blocked
+ * calls are skipped so they never spend AI minutes.
+ */
+export async function ensureCallSummary(admin: SupabaseClient, callSid: string): Promise<void> {
+  const { data: call } = await admin
+    .from("calls")
+    .select(
+      "sid, app_number, from_number, to_number, direction, status, duration, recording_url, transcription, answered_in_app, answer_path, spam_action",
+    )
+    .eq("sid", callSid)
+    .maybeSingle();
+  if (!call) return;
+  if (call.spam_action === "block") return;
+  const status = String(call.status ?? "").toLowerCase();
+  if (status && !TERMINAL_CALL.has(status)) return;
+
+  const { data: transcripts } = await admin
+    .from("call_transcripts")
+    .select("full_text")
+    .eq("call_sid", callSid);
+  const text = [call.transcription, ...(transcripts ?? []).map((row) => row.full_text)]
+    .filter((part): part is string => Boolean(part && part.trim()))
+    .join("\n")
+    .trim();
+
+  const appNumber = call.app_number as string;
+  const contactNumber =
+    call.direction === "outbound" ? (call.to_number as string) : (call.from_number as string);
+
+  if (text.length >= 20) {
+    const { data: analysed } = await admin
+      .from("call_intelligence")
+      .select("model, lead_name")
+      .eq("call_sid", callSid)
+      .maybeSingle();
+    if (analysed?.model) return;
+    await ingestCallTranscript(admin, {
+      callSid,
+      appNumber,
+      contactNumber,
+      direction: call.direction as string,
+      source:
+        call.answer_path === "ai_agent" ? "elevenlabs" : call.recording_url ? "voicemail" : "stt",
+      turns: [{ speaker: "caller", text }],
+    });
+    return;
+  }
+
+  const { data: existing } = await admin
+    .from("call_intelligence")
+    .select("summary")
+    .eq("call_sid", callSid)
+    .maybeSingle();
+  if (existing?.summary) return;
+
+  const summary = factualCallSummary({
+    direction: call.direction as string,
+    status: call.status as string | null,
+    answeredInApp: Boolean(call.answered_in_app),
+    answerPath: (call.answer_path as string | null) ?? null,
+    durationSeconds: (call.duration as number | null) ?? null,
+    from: contactNumber,
+    hasRecording: Boolean(call.recording_url),
+    spamBlocked: false,
+  });
+  if (!summary) return;
+  const userId = await ownerOfNumber(admin, appNumber);
+  if (!userId) return;
+  const { data: number } = await admin
+    .from("phone_numbers")
+    .select("workspace_id")
+    .eq("phone_number", appNumber)
+    .maybeSingle();
+  await admin.from("call_intelligence").upsert(
+    {
+      user_id: userId,
+      call_sid: callSid,
+      app_number: appNumber,
+      contact_number: contactNumber,
+      summary,
+      intent: call.answered_in_app ? "in-app call" : "call",
+      sentiment: "neutral",
+      urgency: "normal",
+      topics: [],
+      entities: {},
+      action_items: [],
+      model: null,
+      workspace_id: (number?.workspace_id as string | null) ?? null,
+    },
+    { onConflict: "call_sid" },
+  );
 }

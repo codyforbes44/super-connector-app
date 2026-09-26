@@ -1,0 +1,109 @@
+name: Mobile
+
+on:
+  pull_request:
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile-ci.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+
+  android:
+    runs-on: ubuntu-latest
+    # A healthy debug APK finishes well inside this. Without a cap the job
+    # sits for the 6 hour default when Gradle or sdkmanager waits on stdin.
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - name: Free disk space
+        # The hosted image keeps .NET, GHC, and Android emulator images.
+        # A React Native debug build with every ABI fills the disk at
+        # mergeDebugNativeLibs and the step dies with no useful log.
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost \
+            /usr/local/lib/android/sdk/system-images \
+            /usr/local/lib/android/sdk/emulator || true
+          sudo apt-get clean
+          df -h /
+
+      - name: Prebuild and compile an Android debug APK
+        run: |
+          set -euo pipefail
+          if [ -z "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}" ]; then
+            echo "GitHub-hosted runners normally set ANDROID_HOME. This job cannot compile Android without it."
+            exit 1
+          fi
+          export ANDROID_HOME="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          export CI=1
+          export EXPO_NO_TELEMETRY=1
+          # sdkmanager and Gradle ask "Accept? (y/N)" when a platform license
+          # is missing. That read blocks until the job is killed. Accept
+          # licenses up front and close stdin so a prompt fails instead.
+          SDKMANAGER=""
+          for candidate in \
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "$ANDROID_HOME/cmdline-tools/bin/sdkmanager" \
+            "$ANDROID_HOME/tools/bin/sdkmanager"
+          do
+            if [ -x "$candidate" ]; then
+              SDKMANAGER="$candidate"
+              break
+            fi
+          done
+          if [ -n "$SDKMANAGER" ]; then
+            set +o pipefail
+            yes | "$SDKMANAGER" --licenses >/dev/null || true
+            set -o pipefail
+            "$SDKMANAGER" "platforms;android-36" </dev/null || true
+          fi
+          cp google-services.example.json google-services.json
+          npx expo prebuild --platform android --no-install </dev/null
+          cd android
+          chmod +x gradlew
+          # Cap the heap. An uncapped first assembleDebug gets OOM-killed on
+          # the hosted runner; the step then looks hung and uploads no log.
+          # Leading newline: the generated file does not always end with one,
+          # and a glued line is parsed as "36org.gradle.daemon=false".
+          printf '\n%s\n' \
+            'org.gradle.daemon=false' \
+            'org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8' \
+            'org.gradle.workers.max=2' \
+            >> gradle.properties
+          # One ABI is enough to prove the native project compiles, and it
+          # keeps the merged .so files from filling the runner disk.
+          ./gradlew assembleDebug --no-daemon --console=plain \
+            -PreactNativeArchitectures=arm64-v8a </dev/null

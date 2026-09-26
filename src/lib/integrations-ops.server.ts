@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { requireAdmin } from "./app.server";
+import { publishOutboundEvent } from "./outbound-webhooks.server";
 import { appBaseUrl, emailConfigured, emailStatus, FROM_ACCOUNT, sendEmail } from "./email.server";
 import { account as accountEmail, testEmail } from "./email-templates/index";
 import * as gcal from "./gcal.server";
@@ -193,16 +194,18 @@ type NumberBookingRow = {
   booking_enabled: boolean;
   booking_slot_minutes: number;
   booking_buffer_minutes: number;
+  booking_travel_minutes?: number;
   booking_timezone: string;
   booking_hours: { start: string; end: string; days: number[] };
 };
 
+const BOOKING_COLUMNS =
+  "sid, phone_number, calendar_id, booking_enabled, booking_slot_minutes, booking_buffer_minutes, booking_travel_minutes, booking_confirm_mode, booking_timezone, booking_hours, service_area_mode, service_area_radius_miles, service_area_lat, service_area_lng, service_area_address, service_area_zips, messaging_service_sid, campaign_status, ai_language";
+
 export async function numberBookingSettings(supabase: SupabaseClient, sid: string) {
   const { data } = await supabase
     .from("phone_numbers")
-    .select(
-      "sid, phone_number, calendar_id, booking_enabled, booking_slot_minutes, booking_buffer_minutes, booking_timezone, booking_hours",
-    )
+    .select(BOOKING_COLUMNS)
     .eq("sid", sid)
     .maybeSingle();
   return data;
@@ -219,9 +222,30 @@ export async function saveBookingSettings(
     bufferMinutes: number;
     timezone: string;
     hours: { start: string; end: string; days: number[] };
+    travelMinutes?: number;
+    confirmMode?: "confirm" | "automatic";
+    serviceAreaMode?: "off" | "radius" | "zips";
+    serviceAreaRadiusMiles?: number | null;
+    serviceAreaAddress?: string | null;
+    serviceAreaLat?: number | null;
+    serviceAreaLng?: number | null;
+    serviceAreaZips?: string[];
   },
 ) {
   await requireAdmin(supabase, userId);
+  let lat = input.serviceAreaLat;
+  let lng = input.serviceAreaLng;
+  if (
+    input.serviceAreaMode === "radius" &&
+    input.serviceAreaAddress &&
+    (lat == null || lng == null) &&
+    maps.mapsConfigured()
+  ) {
+    const place = await maps.geocode(input.serviceAreaAddress);
+    if (!place) throw new Error("Couldn't place that center address on the map.");
+    lat = place.lat;
+    lng = place.lng;
+  }
   const { error } = await supabase
     .from("phone_numbers")
     .update({
@@ -231,6 +255,18 @@ export async function saveBookingSettings(
       booking_buffer_minutes: input.bufferMinutes,
       booking_timezone: input.timezone,
       booking_hours: input.hours,
+      ...(input.travelMinutes !== undefined ? { booking_travel_minutes: input.travelMinutes } : {}),
+      ...(input.confirmMode ? { booking_confirm_mode: input.confirmMode } : {}),
+      ...(input.serviceAreaMode ? { service_area_mode: input.serviceAreaMode } : {}),
+      ...(input.serviceAreaRadiusMiles !== undefined
+        ? { service_area_radius_miles: input.serviceAreaRadiusMiles }
+        : {}),
+      ...(input.serviceAreaAddress !== undefined
+        ? { service_area_address: input.serviceAreaAddress }
+        : {}),
+      ...(lat !== undefined ? { service_area_lat: lat } : {}),
+      ...(lng !== undefined ? { service_area_lng: lng } : {}),
+      ...(input.serviceAreaZips ? { service_area_zips: input.serviceAreaZips } : {}),
     })
     .eq("sid", input.sid);
   if (error) throw error;
@@ -241,7 +277,7 @@ export async function slotsForNumber(supabase: SupabaseClient, appNumber: string
   const { data } = await supabase
     .from("phone_numbers")
     .select(
-      "calendar_id, booking_enabled, booking_slot_minutes, booking_buffer_minutes, booking_timezone, booking_hours",
+      "calendar_id, booking_enabled, booking_slot_minutes, booking_buffer_minutes, booking_travel_minutes, booking_timezone, booking_hours",
     )
     .eq("phone_number", appNumber)
     .maybeSingle();
@@ -252,6 +288,7 @@ export async function slotsForNumber(supabase: SupabaseClient, appNumber: string
     calendarId,
     slotMinutes: row?.booking_slot_minutes ?? 30,
     bufferMinutes: row?.booking_buffer_minutes ?? 0,
+    travelMinutes: row?.booking_travel_minutes ?? 0,
     hours: row?.booking_hours ?? { start: "09:00", end: "17:00", days: [1, 2, 3, 4, 5] },
     timeZone: row?.booking_timezone ?? "UTC",
   });
@@ -306,6 +343,32 @@ export async function bookSlot(
     conversation_id: input.conversationId ?? null,
     created_by: userId,
   });
+
+  try {
+    let workspaceId: string | null = null;
+    const { data: owner, error: ownerError } = await supabase
+      .from("phone_numbers")
+      .select("workspace_id")
+      .eq("phone_number", input.appNumber)
+      .maybeSingle();
+    if (!ownerError) workspaceId = (owner?.workspace_id as string | null) ?? null;
+    await publishOutboundEvent(db, {
+      type: "booking.created",
+      eventId: `booking.created:${event.id}`,
+      workspaceId,
+      data: {
+        event_id: event.id,
+        app_number: input.appNumber,
+        summary: event.summary,
+        starts_at: input.start,
+        ends_at: input.end,
+        contact_number: input.contactNumber ?? null,
+        contact_email: input.contactEmail ?? null,
+      },
+    });
+  } catch (error) {
+    console.error("booking webhook publish failed", error);
+  }
 
   return event;
 }

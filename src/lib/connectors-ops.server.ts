@@ -47,42 +47,48 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
 
   const [numbers, twimlApps, email, gmailMeta, elevenlabs, pushDevices, carrier] =
     await Promise.all([
-    safe(
-      async () =>
-        ((await supabase.from("phone_numbers").select("sid, phone_number, webhook_wired, campaign_status"))
-          .data ?? []) as NumberRow[],
-      [] as NumberRow[],
-    ),
-    safe(
-      async () =>
-        ((await db.from("twiml_apps").select("sid, is_default")).data ?? []) as Array<{
-          sid: string;
-        }>,
-      [] as Array<{ sid: string }>,
-    ),
-    safe(() => emailStatus(db), {
-      connected: false,
-      domain: "",
-      verified: false,
-      domainStatus: "unavailable",
-      recent: [],
-    }),
-    safe(async () => {
-      const { getConnectionMeta } = await import("./app-user-connections.server");
-      return (await getConnectionMeta(userId, "google_mail")) as {
-        account_email?: string | null;
-      } | null;
-    }, null as { account_email?: string | null } | null),
-    safe(
-      async () => (hasElevenLabs() ? await elevenStatus() : null),
-      null as Awaited<ReturnType<typeof elevenStatus>> | null,
-    ),
-    safe(
-      async () =>
-        ((await supabase.from("push_subscriptions").select("id").eq("user_id", userId)).data ??
-          []) as Array<{ id: string }>,
-      [] as Array<{ id: string }>,
-    ),
+      safe(
+        async () =>
+          ((
+            await supabase
+              .from("phone_numbers")
+              .select("sid, phone_number, webhook_wired, campaign_status")
+          ).data ?? []) as NumberRow[],
+        [] as NumberRow[],
+      ),
+      safe(
+        async () =>
+          ((await db.from("twiml_apps").select("sid, is_default")).data ?? []) as Array<{
+            sid: string;
+          }>,
+        [] as Array<{ sid: string }>,
+      ),
+      safe(() => emailStatus(db), {
+        connected: false,
+        domain: "",
+        verified: false,
+        domainStatus: "unavailable",
+        recent: [],
+      }),
+      safe(
+        async () => {
+          const { getConnectionMeta } = await import("./app-user-connections.server");
+          return (await getConnectionMeta(userId, "google_mail")) as {
+            account_email?: string | null;
+          } | null;
+        },
+        null as { account_email?: string | null } | null,
+      ),
+      safe(
+        async () => (hasElevenLabs() ? await elevenStatus() : null),
+        null as Awaited<ReturnType<typeof elevenStatus>> | null,
+      ),
+      safe(
+        async () =>
+          ((await supabase.from("push_subscriptions").select("id").eq("user_id", userId)).data ??
+            []) as Array<{ id: string }>,
+        [] as Array<{ id: string }>,
+      ),
       safe(() => credentialHealth(), {
         gateway: "error" as const,
         direct: "error" as const,
@@ -113,7 +119,9 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       state: numbers.length ? "connected" : "action",
       detail: numbers.length
         ? `${numbers.length} number${numbers.length > 1 ? "s" : ""} · ${wired} fully wired${
-            wired < numbers.length ? ` · ${numbers.length - wired} need${numbers.length - wired === 1 ? "s" : ""} attention` : ""
+            wired < numbers.length
+              ? ` · ${numbers.length - wired} need${numbers.length - wired === 1 ? "s" : ""} attention`
+              : ""
           }`
         : "No number yet — claim one to start.",
 
@@ -138,7 +146,11 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       name: "Carrier network",
       category: "Phone",
       description: "Delivery for calls, SMS and MMS.",
-      state: carrier.healthy ? "connected" : carrier.gateway === "rejected" ? "action" : "unavailable",
+      state: carrier.healthy
+        ? "connected"
+        : carrier.gateway === "rejected"
+          ? "action"
+          : "unavailable",
       detail: carrier.healthy
         ? hasDirectCredentials()
           ? "Live — messaging, voice and verification enabled"
@@ -166,8 +178,7 @@ export async function connectorsOverview(supabase: SupabaseClient, userId: strin
       name: "AI receptionist",
       category: "AI",
       description: "Answers, screens and takes messages when you can't.",
-      state:
-        elevenlabs?.connected && !routingIncomplete ? "connected" : "action",
+      state: elevenlabs?.connected && !routingIncomplete ? "connected" : "action",
       detail: !elevenlabs?.connected
         ? "Voice engine not connected yet"
         : routingIncomplete

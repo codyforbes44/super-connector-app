@@ -17,10 +17,20 @@ export function DeviceAccess({ className }: { className?: string }) {
         <span
           className={cn(
             "grid size-9 shrink-0 place-items-center rounded-full",
-            granted ? "bg-primary/15 text-primary" : blocked ? "bg-destructive/15 text-destructive" : "surface-track text-muted-foreground",
+            granted
+              ? "bg-primary/15 text-primary"
+              : blocked
+                ? "bg-destructive/15 text-destructive"
+                : "surface-track text-muted-foreground",
           )}
         >
-          {blocked ? <MicOff className="size-4" /> : granted ? <ShieldCheck className="size-4" /> : <Mic className="size-4" />}
+          {blocked ? (
+            <MicOff className="size-4" />
+          ) : granted ? (
+            <ShieldCheck className="size-4" />
+          ) : (
+            <Mic className="size-4" />
+          )}
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-display text-base font-semibold">Microphone access</p>

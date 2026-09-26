@@ -94,7 +94,9 @@ export type MailSummary = {
 };
 
 function header(msg: GmailMessage, name: string): string {
-  return msg.payload?.headers?.find((h) => h.name.toLowerCase() === name.toLowerCase())?.value ?? "";
+  return (
+    msg.payload?.headers?.find((h) => h.name.toLowerCase() === name.toLowerCase())?.value ?? ""
+  );
 }
 
 function decode(data: string): string {
@@ -169,7 +171,10 @@ export async function getThread(userId: string, threadId: string) {
   );
   return {
     id: thread.id,
-    messages: (thread.messages ?? []).map((m) => ({ ...toSummary(m), body: extractBody(m.payload) })),
+    messages: (thread.messages ?? []).map((m) => ({
+      ...toSummary(m),
+      body: extractBody(m.payload),
+    })),
   };
 }
 
@@ -235,8 +240,7 @@ export async function replyToThread(
   const mine = me?.emailAddress?.toLowerCase() ?? "";
   // If the last message was mine, reply to whoever it went to.
   const recipient =
-    opts.to ||
-    (mine && fromHeader.toLowerCase().includes(mine) ? toHeader : replyTo || fromHeader);
+    opts.to || (mine && fromHeader.toLowerCase().includes(mine) ? toHeader : replyTo || fromHeader);
 
   const subject = header(last, "Subject") || "(no subject)";
   const messageId = header(last, "Message-ID") || header(last, "Message-Id");

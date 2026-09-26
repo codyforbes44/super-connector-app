@@ -20,12 +20,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useBootstrap } from "@/hooks/useBootstrap";
-import {
-  a2pStatus,
-  submitBrand,
-  submitBusinessProfile,
-  submitCampaign,
-} from "@/lib/a2p.functions";
+import { a2pStatus, submitBrand, submitBusinessProfile, submitCampaign } from "@/lib/a2p.functions";
+import { A2P_FEE_SCHEDULE, type A2pPath } from "@/lib/a2p-fees";
 import { errorMessage } from "@/lib/format";
 import { listMessagingServices, refreshMessagingReadiness } from "@/lib/twilio.functions";
 
@@ -170,6 +166,9 @@ function A2pScreen() {
     contactPhone: "",
     contactTitle: "Owner",
   });
+  const [registrationPath, setRegistrationPath] = useState<A2pPath>("low_volume_standard");
+  const [confirmFees, setConfirmFees] = useState(false);
+  const fees = A2P_FEE_SCHEDULE[registrationPath];
   const [camp, setCamp] = useState({
     messagingServiceSid: "",
     useCase: "MIXED",
@@ -190,7 +189,7 @@ function A2pScreen() {
   }, [status.data]);
 
   const saveBusiness = useMutation({
-    mutationFn: () => submitBusinessProfile({ data: biz }),
+    mutationFn: () => submitBusinessProfile({ data: { ...biz, registrationPath, confirmFees } }),
     onSuccess: async () => {
       await status.refetch();
       toast.success("Business profile submitted for review.");
@@ -198,7 +197,7 @@ function A2pScreen() {
     onError: (e) => toast.error(errorMessage(e)),
   });
   const saveBrand = useMutation({
-    mutationFn: () => submitBrand(),
+    mutationFn: () => submitBrand({ data: { confirmFees } }),
     onSuccess: async () => {
       await status.refetch();
       toast.success("Brand submitted to the carriers.");
@@ -206,7 +205,7 @@ function A2pScreen() {
     onError: (e) => toast.error(errorMessage(e)),
   });
   const saveCampaign = useMutation({
-    mutationFn: () => submitCampaign({ data: camp }),
+    mutationFn: () => submitCampaign({ data: { ...camp, confirmFees } }),
     onSuccess: async () => {
       await status.refetch();
       toast.success("Campaign submitted. Carrier review usually takes a day or two.");
@@ -223,11 +222,11 @@ function A2pScreen() {
   }
 
   const s = status.data;
-  const numberRows = ((readiness.data ?? []) as unknown as Array<{
+  const numberRows = (readiness.data ?? []) as unknown as Array<{
     phoneNumber: string;
     campaignStatus: string | null;
     ready: boolean;
-  }>);
+  }>;
 
   /** Plain-English reason a number still can't send US texts. */
   function readinessReason(n: { campaignStatus: string | null }): string {
@@ -342,9 +341,9 @@ function A2pScreen() {
 
       <section className="space-y-3 px-4 py-4">
         <p className="text-xs text-muted-foreground">
-          US phone companies only deliver business texts from numbers that have been approved.
-          Three short steps: tell us about the business, register the business name, then describe
-          the kind of texts you send.
+          US phone companies only deliver business texts from numbers that have been approved. Three
+          short steps: tell us about the business, register the business name, then describe the
+          kind of texts you send.
         </p>
         {s?.blocked ? (
           <p className="glass-panel rounded-2xl p-3 text-xs text-destructive">{s.blocked}</p>
@@ -360,6 +359,47 @@ function A2pScreen() {
             phones.
           </p>
         ) : null}
+      </section>
+
+      <section className="space-y-3 border-t border-border px-4 py-4">
+        <h2 className="font-display text-sm font-semibold">Registration path and fees</h2>
+        <p className="text-xs text-muted-foreground">
+          Submitting a brand charges real carrier fees. They are not refunded if vetting is
+          declined. The original SixVox workspace is already approved and does not need to submit
+          again.
+        </p>
+        <div className="space-y-1.5">
+          <Label>Path</Label>
+          <Select
+            value={registrationPath}
+            onValueChange={(value) => setRegistrationPath(value as A2pPath)}
+          >
+            <SelectTrigger className="h-11 rounded-2xl">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low_volume_standard">
+                Low-Volume Standard (EIN required)
+              </SelectItem>
+              <SelectItem value="sole_proprietor">
+                Sole Proprietor (no EIN, not for LLCs)
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <p className="glass-panel rounded-2xl p-3 text-xs text-muted-foreground">{fees.summary}</p>
+        <label className="flex items-start gap-2 text-xs">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={confirmFees}
+            onChange={(event) => setConfirmFees(event.target.checked)}
+          />
+          <span>
+            I am the workspace owner and I confirm these fees: ${fees.brandUsd.toFixed(2)} brand, $
+            {fees.vettingUsd.toFixed(2)} vetting, from ${fees.monthlyFromUsd.toFixed(2)} per month.
+          </span>
+        </label>
       </section>
 
       {/* ------------------------------------------------ step 1: business */}
@@ -380,7 +420,10 @@ function A2pScreen() {
           />
           <div className="space-y-1.5">
             <Label>Business type</Label>
-            <Select value={biz.businessType} onValueChange={(v) => setBiz({ ...biz, businessType: v })}>
+            <Select
+              value={biz.businessType}
+              onValueChange={(v) => setBiz({ ...biz, businessType: v })}
+            >
               <SelectTrigger className="h-11 rounded-2xl">
                 <SelectValue />
               </SelectTrigger>
@@ -420,7 +463,11 @@ function A2pScreen() {
             onChange={(v) => setBiz({ ...biz, website: v })}
             placeholder="https://"
           />
-          <Field label="Street" value={biz.street} onChange={(v) => setBiz({ ...biz, street: v })} />
+          <Field
+            label="Street"
+            value={biz.street}
+            onChange={(v) => setBiz({ ...biz, street: v })}
+          />
           <div className="grid grid-cols-2 gap-2">
             <Field label="City" value={biz.city} onChange={(v) => setBiz({ ...biz, city: v })} />
             <Field
@@ -472,7 +519,7 @@ function A2pScreen() {
           <Button
             className="key-signal h-11 w-full rounded-xl"
             onClick={() => saveBusiness.mutate()}
-            disabled={saveBusiness.isPending}
+            disabled={saveBusiness.isPending || !confirmFees}
           >
             {s?.business.state === "todo" ? "Submit business profile" : "Resubmit business profile"}
           </Button>
@@ -488,14 +535,12 @@ function A2pScreen() {
         <p className="text-xs text-muted-foreground">
           Sends the business profile to the carrier registry. There is a one-time carrier fee.
         </p>
-        {s?.brand.detail ? (
-          <p className="text-xs text-muted-foreground">{s.brand.detail}</p>
-        ) : null}
+        {s?.brand.detail ? <p className="text-xs text-muted-foreground">{s.brand.detail}</p> : null}
         <Button
           variant="secondary"
           className="h-11 w-full rounded-xl"
           onClick={() => saveBrand.mutate()}
-          disabled={saveBrand.isPending || s?.business.state !== "approved"}
+          disabled={saveBrand.isPending || !confirmFees || s?.business.state !== "approved"}
         >
           {s?.brand.sid ? "Resubmit brand" : "Register brand"}
         </Button>
@@ -604,7 +649,7 @@ function A2pScreen() {
           <Button
             className="key-signal h-11 w-full rounded-xl"
             onClick={() => saveCampaign.mutate()}
-            disabled={saveCampaign.isPending || s?.brand.state !== "approved"}
+            disabled={saveCampaign.isPending || !confirmFees || s?.brand.state !== "approved"}
           >
             {s?.campaign.sid ? "Resubmit campaign" : "Register campaign"}
           </Button>

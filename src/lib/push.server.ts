@@ -23,26 +23,46 @@ function vapid() {
   };
 }
 
-/** Everyone who should be alerted about activity on an app number: admins + the assignee. */
+/**
+ * People alerted about one number: assignees in that number's workspace.
+ * Never every owner in the database.
+ */
 export async function recipientsForNumber(
   admin: SupabaseClient,
   appNumber: string,
 ): Promise<string[]> {
   const ids = new Set<string>();
-
-  const { data: admins } = await admin
-    .from("user_roles")
-    .select("user_id, role")
-    .in("role", ["owner", "admin"]);
-  for (const row of admins ?? []) ids.add(row.user_id as string);
-
   const { data: number } = await admin
     .from("phone_numbers")
-    .select("assigned_to")
+    .select("id, assigned_to, workspace_id")
     .eq("phone_number", appNumber)
     .maybeSingle();
-  if (number?.assigned_to) ids.add(number.assigned_to as string);
+  if (!number) return [];
 
+  const phoneNumberId = number["id"] as string | undefined;
+  const workspaceId = (number["workspace_id"] as string | null) ?? null;
+  if (phoneNumberId) {
+    const { data: assignees, error } = await admin
+      .from("number_assignees")
+      .select("user_id, workspace_id")
+      .eq("phone_number_id", phoneNumberId);
+    if (!error) {
+      for (const row of assignees ?? []) {
+        const memberWorkspace = (row["workspace_id"] as string | null) ?? null;
+        if (workspaceId && memberWorkspace && memberWorkspace !== workspaceId) continue;
+        ids.add(row["user_id"] as string);
+      }
+    }
+  }
+  if (number["assigned_to"]) ids.add(number["assigned_to"] as string);
+  if (ids.size === 0 && workspaceId) {
+    const { data: owners } = await admin
+      .from("workspace_members")
+      .select("user_id")
+      .eq("workspace_id", workspaceId)
+      .in("role", ["owner", "admin"]);
+    for (const row of owners ?? []) ids.add(row["user_id"] as string);
+  }
   return [...ids];
 }
 

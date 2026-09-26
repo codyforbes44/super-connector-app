@@ -1,5 +1,6 @@
 import { BRAND, escapeHtml, layout, metaTable, paragraph, quote } from "./email-templates/layout";
 import { FROM_ACCOUNT, emailConfigured, sendEmail } from "./email.server";
+import { publishOutboundEvent } from "./outbound-webhooks.server";
 
 const NOTIFY_TO = "codyforbes@gmail.com";
 
@@ -13,13 +14,34 @@ export type LeadInput = {
 export async function recordLead(lead: LeadInput): Promise<{ ok: true }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  await supabaseAdmin.from("leads").insert({
-    name: lead.name,
-    email: lead.email,
-    company: lead.company || null,
-    message: lead.message,
-    source: "contact",
-  });
+  const { data: inserted } = await supabaseAdmin
+    .from("leads")
+    .insert({
+      name: lead.name,
+      email: lead.email,
+      company: lead.company || null,
+      message: lead.message,
+      source: "contact",
+    })
+    .select("id")
+    .maybeSingle();
+
+  try {
+    await publishOutboundEvent(supabaseAdmin, {
+      type: "lead.captured",
+      eventId: `lead.captured:${inserted?.id ?? lead.email}`,
+      workspaceId: null,
+      data: {
+        name: lead.name,
+        email: lead.email,
+        company: lead.company,
+        message: lead.message,
+        source: "contact",
+      },
+    });
+  } catch (error) {
+    console.error("lead webhook publish failed", error);
+  }
 
   if (emailConfigured()) {
     const body =

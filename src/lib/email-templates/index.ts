@@ -9,6 +9,7 @@ export type TemplateName =
   | "ai-summary"
   | "account"
   | "daily-digest"
+  | "weekly-missed"
   | "test";
 
 const appLink = (base: string, path: string) => `${base.replace(/\/$/, "")}${path}`;
@@ -217,7 +218,9 @@ export type DigestData = {
 export function dailyDigest(d: DigestData): RenderedEmail {
   const threadRows = d.threads
     .map(
-      (t) => `<tr><td style="padding:10px 0;border-bottom:1px solid ${BRAND.line};font:400 14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${BRAND.ink};">
+      (
+        t,
+      ) => `<tr><td style="padding:10px 0;border-bottom:1px solid ${BRAND.line};font:400 14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${BRAND.ink};">
       <a href="${escapeHtml(appLink(d.baseUrl, `/inbox/${t.id}`))}" style="color:${BRAND.ink};text-decoration:none;"><strong>${escapeHtml(t.from)}</strong><br/>
       <span style="color:${BRAND.muted};font-size:13px;">${escapeHtml(t.preview.slice(0, 90))}</span></a></td></tr>`,
     )
@@ -246,6 +249,48 @@ export function dailyDigest(d: DigestData): RenderedEmail {
       preheader: `${d.threads.length} unread threads · ${d.calls.length} calls`,
       eyebrow: "Daily digest",
       title: "Your SixVox digest",
+      body,
+    }),
+  };
+}
+
+export type WeeklyMissedData = {
+  baseUrl: string;
+  rangeLabel: string;
+  missed: Array<{ from: string; at: string; summary: string }>;
+  booked: Array<{ summary: string; when: string; contact: string }>;
+};
+
+export function weeklyMissed(d: WeeklyMissedData): RenderedEmail {
+  const missedRows = d.missed
+    .map(
+      (row) =>
+        `<tr><td style="padding:8px 0;border-bottom:1px solid ${BRAND.line};font:400 14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${BRAND.ink};"><strong>${escapeHtml(row.from)}</strong><br/><span style="color:${BRAND.muted};font-size:13px;">${escapeHtml(row.summary)} · ${escapeHtml(row.at)}</span></td></tr>`,
+    )
+    .join("");
+  const bookedRows = d.booked
+    .map(
+      (row) =>
+        `<tr><td style="padding:8px 0;border-bottom:1px solid ${BRAND.line};font:400 14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${BRAND.ink};"><strong>${escapeHtml(row.summary)}</strong><br/><span style="color:${BRAND.muted};font-size:13px;">${escapeHtml(row.when)} · ${escapeHtml(row.contact)}</span></td></tr>`,
+    )
+    .join("");
+  const body =
+    paragraph(
+      `Calls you would have missed ${escapeHtml(d.rangeLabel)}, and the jobs that got booked.`,
+    ) +
+    (missedRows
+      ? `<div style="margin-top:14px;font:600 11px/1 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:${BRAND.muted};">Calls you would have missed (${d.missed.length})</div><table role="presentation" width="100%">${missedRows}</table>`
+      : paragraph("No missed calls this week.")) +
+    (bookedRows
+      ? `<div style="margin-top:20px;font:600 11px/1 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:${BRAND.muted};">Booked jobs (${d.booked.length})</div><table role="presentation" width="100%">${bookedRows}</table>`
+      : "") +
+    button("Open calls", appLink(d.baseUrl, "/calls"));
+  return {
+    subject: `SixVox · Calls you would have missed (${d.missed.length})`,
+    html: layout({
+      preheader: `${d.missed.length} missed calls · ${d.booked.length} booked jobs`,
+      eyebrow: "Weekly report",
+      title: "Calls you would have missed",
       body,
     }),
   };

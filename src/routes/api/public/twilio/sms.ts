@@ -4,7 +4,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
         if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
@@ -36,6 +37,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
         });
 
         const body = get("Body");
+        const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+        const numberHome = await resolveWorkspaceIdForNumber(appNumber);
         await supabaseAdmin.from("messages").insert({
           conversation_id: conversationId,
           sid: get("MessageSid") || get("SmsSid") || null,
@@ -46,12 +49,29 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           body,
           media,
           status: "received",
+          ...(numberHome.workspaceId ? { workspace_id: numberHome.workspaceId } : {}),
+        } as never);
+
+        // YES / CANCEL / RESCHEDULE (and Spanish) win over carrier keywords only
+        // when a proposal is open. Bare STOP is not a booking reply, so it still
+        // opts the customer out. HELP never opts anyone out.
+        const { handleBookingReply } = await import("@/lib/booking-ops.server");
+        const bookingReply = await handleBookingReply(supabaseAdmin as never, {
+          appNumber,
+          contactNumber,
+          body: body ?? "",
         });
 
-        // Carrier-standard STOP/START keywords gate every future send.
-        const { optOutSignal } = await import("@/lib/messaging.server");
-        const signal = optOutSignal(body ?? "");
-        if (signal) {
+        const { recordInboundKeyword } = await import("@/lib/compliance/opt-out.server");
+        const signal = bookingReply.handled
+          ? null
+          : await recordInboundKeyword(supabaseAdmin as never, {
+              from: contactNumber,
+              body: body ?? "",
+              optOutType: get("OptOutType") || null,
+              messagingServiceSid: get("MessagingServiceSid") || null,
+            });
+        if (signal === "stop" || signal === "start") {
           await supabaseAdmin
             .from("conversations")
             .update({
@@ -103,6 +123,30 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
             context: { conversationId, channel },
           },
         });
+
+        try {
+          const { publishOutboundEvent } = await import("@/lib/outbound-webhooks.server");
+          const { data: line, error: lineError } = await supabaseAdmin
+            .from("phone_numbers")
+            .select("workspace_id")
+            .eq("phone_number", appNumber)
+            .maybeSingle();
+          const messageSid = get("MessageSid") || get("SmsSid") || conversationId;
+          await publishOutboundEvent(supabaseAdmin as never, {
+            type: "message.received",
+            eventId: `message.received:${messageSid}`,
+            workspaceId: lineError ? null : ((line?.workspace_id as string | null) ?? null),
+            data: {
+              message_sid: messageSid,
+              from: contactNumber,
+              to: appNumber,
+              body,
+              channel,
+            },
+          });
+        } catch (error) {
+          console.error("message webhook publish failed", error);
+        }
 
         return new Response('<?xml version="1.0" encoding="UTF-8"?><Response></Response>', {
           headers: { "Content-Type": "text/xml" },

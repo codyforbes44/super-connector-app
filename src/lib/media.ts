@@ -4,8 +4,7 @@ export type MicState = "unsupported" | "unknown" | "prompt" | "granted" | "denie
 
 export function micSupported(): boolean {
   return (
-    typeof navigator !== "undefined" &&
-    typeof navigator.mediaDevices?.getUserMedia === "function"
+    typeof navigator !== "undefined" && typeof navigator.mediaDevices?.getUserMedia === "function"
   );
 }
 
@@ -61,10 +60,7 @@ export async function ensureMicrophone(): Promise<void> {
     );
   }
   if (typeof window !== "undefined" && !window.isSecureContext) {
-    throw new MicPermissionError(
-      "Microphone access needs a secure (https) connection.",
-      "denied",
-    );
+    throw new MicPermissionError("Microphone access needs a secure (https) connection.", "denied");
   }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -78,10 +74,7 @@ export async function ensureMicrophone(): Promise<void> {
       );
     }
     if (name === "NotFoundError" || name === "OverconstrainedError") {
-      throw new MicPermissionError(
-        "No microphone was found on this device.",
-        "unsupported",
-      );
+      throw new MicPermissionError("No microphone was found on this device.", "unsupported");
     }
     throw new MicPermissionError(
       "Couldn't turn on your microphone. Close other apps using it and try again.",

@@ -1,0 +1,100 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+
+import { CAPABILITY_ROWS, SOLO_COST_ROWS } from "./compare";
+import { FEATURE_FLAGS } from "./feature-flags";
+import { PLANS, TRIAL_LIMITS, priceIdFor } from "./plans";
+import { TRADES } from "./trades";
+
+describe("plan config", () => {
+  it("keeps the current dollar amounts and Phase 1 limits", () => {
+    expect(
+      PLANS.map((plan) => [
+        plan.code,
+        plan.monthly,
+        plan.yearly,
+        plan.numbers,
+        plan.seats,
+        plan.aiCalls,
+      ]),
+    ).toEqual([
+      ["solo", 29, 290, 1, 1, 50],
+      ["team", 59, 590, 3, 5, 200],
+      ["scale", 129, 1290, 10, 20, 600],
+    ]);
+    expect(TRIAL_LIMITS).toEqual({ numbers: 1, seats: 1, aiCalls: 20 });
+  });
+
+  it("does not change Stripe price ids", () => {
+    expect(priceIdFor("solo", "month")).toBe("solo_monthly");
+    expect(priceIdFor("team", "year")).toBe("team_yearly");
+    expect(priceIdFor("scale", "month")).toBe("scale_monthly");
+  });
+
+  it("puts the receptionist and text-back on every plan", () => {
+    for (const plan of PLANS) {
+      const labels = plan.features.map((feature) => feature.label);
+      expect(labels).toContain("AI receptionist on your line");
+      expect(labels).toContain("Missed-call text-back");
+      expect(labels).toContain("A2P texting registration handled for you");
+    }
+  });
+});
+
+describe("competitor facts", () => {
+  it("uses only the Sep 2026 list prices from the plan", () => {
+    expect(SOLO_COST_ROWS.map((row) => row.monthly)).toEqual([
+      "$29",
+      "$59",
+      "$19 + $25 = $44",
+      "$18",
+      "$49 + $29 = $78 ($58 yearly)",
+    ]);
+    const quo = CAPABILITY_ROWS.find((row) => row.capability === "AI receptionist");
+    expect(quo?.quo).toBe("Sona: ~10 calls free, then $25/40 calls");
+    expect(quo?.googleVoice).toBe("No");
+    expect(quo?.grasshopper).toBe("Virtual Receptionist add-on, from $95 (3rd party)");
+  });
+});
+
+describe("coming soon flags", () => {
+  it("starts with in-flight features off", () => {
+    expect(FEATURE_FLAGS.missedCallTextBack).toBe(false);
+    expect(FEATURE_FLAGS.nativeApp).toBe(false);
+    expect(FEATURE_FLAGS.portIn).toBe(false);
+    expect(FEATURE_FLAGS.jobber).toBe(false);
+  });
+});
+
+describe("trade pages", () => {
+  it("covers the trades in the buyer description", () => {
+    expect(TRADES.map((trade) => trade.slug)).toEqual([
+      "plumbers",
+      "hvac",
+      "electricians",
+      "cleaners",
+      "handyman",
+      "landscaping",
+      "garage-doors",
+    ]);
+  });
+});
+
+describe("marketing copy", () => {
+  it("does not name the old bring-your-own-Twilio competitors", () => {
+    const files = [
+      "routes/index.tsx",
+      "routes/pricing.tsx",
+      "routes/features.tsx",
+      "routes/faq.tsx",
+      "routes/compare.tsx",
+      "routes/use-cases.tsx",
+      "routes/how-it-works.tsx",
+    ];
+    for (const file of files) {
+      const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+      expect(source).not.toMatch(/Talkyto|Toktiv|Mango/);
+      expect(source).not.toMatch(/billed at cost|usage billed/i);
+    }
+  });
+});

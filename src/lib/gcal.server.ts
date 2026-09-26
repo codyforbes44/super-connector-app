@@ -1,3 +1,4 @@
+import { findOpenSlots, type BookingHours } from "./booking/slots";
 import { connectorConfigured, gatewayRequest } from "./connectors.server";
 
 const BASE = "/calendar/v3";
@@ -124,6 +125,14 @@ export async function createEvent(opts: {
   return normalize(created);
 }
 
+export async function deleteEvent(calendarId: string, eventId: string): Promise<void> {
+  await gatewayRequest({
+    connector: "google_calendar",
+    method: "DELETE",
+    path: `${BASE}/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+  });
+}
+
 export type Slot = { start: string; end: string };
 
 /** Free slots inside the number's bookable hours over the next `days` days. */
@@ -131,7 +140,8 @@ export async function availableSlots(opts: {
   calendarId: string;
   slotMinutes: number;
   bufferMinutes?: number;
-  hours: { start: string; end: string; days: number[] };
+  travelMinutes?: number;
+  hours: BookingHours;
   timeZone: string;
   days?: number;
   limit?: number;
@@ -143,35 +153,15 @@ export async function availableSlots(opts: {
     timeMin: now.toISOString(),
     timeMax: horizon.toISOString(),
   });
-
-  const slotMs = Math.max(5, opts.slotMinutes) * 60000;
-  const bufferMs = (opts.bufferMinutes ?? 0) * 60000;
-  const [sh = 9, sm = 0] = (opts.hours.start || "09:00").split(":").map(Number);
-  const [eh = 17, em = 0] = (opts.hours.end || "17:00").split(":").map(Number);
-  const days = opts.hours.days?.length ? opts.hours.days : [1, 2, 3, 4, 5];
-  const out: Slot[] = [];
-
-  for (let d = 0; d < (opts.days ?? 7) && out.length < (opts.limit ?? 12); d += 1) {
-    const day = new Date(now.getTime() + d * 86400000);
-    if (!days.includes(day.getUTCDay())) continue;
-    const dayStart = new Date(
-      Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), sh, sm),
-    );
-    const dayEnd = new Date(
-      Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), eh, em),
-    );
-    for (
-      let t = Math.max(dayStart.getTime(), now.getTime() + 15 * 60000);
-      t + slotMs <= dayEnd.getTime() && out.length < (opts.limit ?? 12);
-      t += slotMs + bufferMs
-    ) {
-      const start = new Date(t);
-      const end = new Date(t + slotMs);
-      const clash = busy.some(
-        (b) => new Date(b.start).getTime() < end.getTime() && new Date(b.end).getTime() > t,
-      );
-      if (!clash) out.push({ start: start.toISOString(), end: end.toISOString() });
-    }
-  }
-  return out;
+  return findOpenSlots({
+    busy,
+    now,
+    slotMinutes: opts.slotMinutes,
+    hours: opts.hours,
+    timeZone: opts.timeZone,
+    ...(opts.bufferMinutes !== undefined ? { bufferMinutes: opts.bufferMinutes } : {}),
+    ...(opts.travelMinutes !== undefined ? { travelMinutes: opts.travelMinutes } : {}),
+    ...(opts.days ? { days: opts.days } : {}),
+    ...(opts.limit ? { limit: opts.limit } : {}),
+  });
 }

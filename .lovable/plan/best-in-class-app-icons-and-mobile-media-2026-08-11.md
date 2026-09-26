@@ -15,16 +15,16 @@ Today SixVox ships one 512px icon reused for everything — home screen, maskabl
 
 All derived from the existing SixVox mark so branding stays identical.
 
-| File | Size | Purpose |
-| --- | --- | --- |
-| `icon-192.png`, `icon-512.png` | 192, 512 | manifest `any` |
-| `icon-maskable-512.png` | 512 | manifest `maskable`, mark scaled to ~80% inside the safe circle on solid `#08131c` |
-| `apple-touch-icon.png` | 180 | iOS home screen, opaque background (iOS does not round transparency well) |
-| `favicon.png` | 64 | browser tab (regenerated from the same mark) |
-| `notification-badge.png` | 96 | monochrome white-on-transparent glyph for the Android status bar |
-| `og-default.jpg` | 1200x630 | shared social card for all pages |
-| `apple-splash-*.png` | 6 common iPhone/iPad sizes | iOS standalone launch screens |
-| `screenshot-mobile.png`, `screenshot-wide.png` | 1080x1920, 1920x1080 | manifest install screenshots |
+| File                                           | Size                       | Purpose                                                                            |
+| ---------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------- |
+| `icon-192.png`, `icon-512.png`                 | 192, 512                   | manifest `any`                                                                     |
+| `icon-maskable-512.png`                        | 512                        | manifest `maskable`, mark scaled to ~80% inside the safe circle on solid `#08131c` |
+| `apple-touch-icon.png`                         | 180                        | iOS home screen, opaque background (iOS does not round transparency well)          |
+| `favicon.png`                                  | 64                         | browser tab (regenerated from the same mark)                                       |
+| `notification-badge.png`                       | 96                         | monochrome white-on-transparent glyph for the Android status bar                   |
+| `og-default.jpg`                               | 1200x630                   | shared social card for all pages                                                   |
+| `apple-splash-*.png`                           | 6 common iPhone/iPad sizes | iOS standalone launch screens                                                      |
+| `screenshot-mobile.png`, `screenshot-wide.png` | 1080x1920, 1920x1080       | manifest install screenshots                                                       |
 
 Images are generated from the existing mark composited on the app gradient, and stay in `public/` since manifests and service workers need literal paths.
 

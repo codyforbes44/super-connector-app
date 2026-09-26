@@ -20,13 +20,8 @@ function OAuthReturn() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const notify = (
-      type: "appUserConnectorOAuthComplete" | "appUserConnectorOAuthFailed",
-    ) => {
-      window.opener?.postMessage(
-        { type, connectorId: "google_mail" },
-        window.location.origin,
-      );
+    const notify = (type: "appUserConnectorOAuthComplete" | "appUserConnectorOAuthFailed") => {
+      window.opener?.postMessage({ type, connectorId: "google_mail" }, window.location.origin);
       window.close();
     };
 

@@ -70,7 +70,11 @@ export function EnableNotificationsPrompt() {
           arrive. On iPhone, add SixVox to your Home Screen first.
         </DialogDescription>
         <div className="mt-2 grid gap-2">
-          <Button className="key-signal h-11 rounded-xl" disabled={busy} onClick={() => void enable()}>
+          <Button
+            className="key-signal h-11 rounded-xl"
+            disabled={busy}
+            onClick={() => void enable()}
+          >
             Enable all notifications
           </Button>
           <Button variant="ghost" className="h-11 rounded-xl" onClick={snooze}>

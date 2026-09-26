@@ -16,11 +16,11 @@ Account status (connected, tier, character usage) sits at the top so quota probl
 
 Each number picks one:
 
-| Mode | What the caller hears |
-| --- | --- |
-| AI receptionist | The agent holds a real conversation, then a summary + transcript lands on the call record |
-| AI-voiced greeting | The chosen ElevenLabs voice reads the greeting, then a normal recording is taken |
-| Classic voicemail | Standard spoken greeting plus recording (no AI) |
+| Mode               | What the caller hears                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| AI receptionist    | The agent holds a real conversation, then a summary + transcript lands on the call record |
+| AI-voiced greeting | The chosen ElevenLabs voice reads the greeting, then a normal recording is taken          |
+| Classic voicemail  | Standard spoken greeting plus recording (no AI)                                           |
 
 The mode selector, voice picker and agent picker appear both in the hub's Numbers tab and at the top of the existing per-number Assistant screen, so prompt, tone, fallback, voice and agent all live together.
 

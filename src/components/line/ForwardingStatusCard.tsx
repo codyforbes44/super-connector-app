@@ -128,8 +128,8 @@ export function ForwardingStatusCard({ row, onEdit }: { row: Row; onEdit: () => 
               }
             }}
           >
-            <RefreshCw className={`mr-2 size-3.5 ${checking ? "animate-spin" : ""}`} />
-            I made a test call — check now
+            <RefreshCw className={`mr-2 size-3.5 ${checking ? "animate-spin" : ""}`} />I made a test
+            call — check now
           </Button>
         </div>
       ) : null}

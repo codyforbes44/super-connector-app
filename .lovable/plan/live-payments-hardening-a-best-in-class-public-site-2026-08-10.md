@@ -16,6 +16,7 @@ Two halves: make the now-live Stripe setup behave correctly and safely in produc
 Same Midnight Dialer palette, typography and glass surfaces — this is a content, hierarchy and craft upgrade, not a re-skin.
 
 **Shared shell**
+
 - Header gains a subtle scroll state, keyboard-accessible mobile menu, and a single clear primary action.
 - Footer gains a compact support column and correct legal links.
 - Reusable section pieces: stat band, proof band, FAQ accordion, comparison table, CTA band — so pages stop hand-rolling layout.

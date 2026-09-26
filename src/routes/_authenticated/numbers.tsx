@@ -9,6 +9,10 @@ import { Empty, ListGroup, Screen, Section, usePagedList, LoadMore } from "@/com
 import { MessagingServicesSection } from "@/components/MessagingServices";
 import { BringYourOwnNumber } from "@/components/line/BringYourOwnNumber";
 import { EsimExplainer } from "@/components/line/EsimExplainer";
+import { LineCompliance } from "@/components/compliance/LineCompliance";
+import { BookingSettings } from "@/components/line/BookingSettings";
+import { LineAutomationSettings } from "@/components/line/LineAutomationSettings";
+import { SpamSettings } from "@/components/line/SpamSettings";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,7 +57,12 @@ export const Route = createFileRoute("/_authenticated/numbers")({
   component: NumbersScreen,
 });
 
-type Available = { phone_number: string; friendly_name: string; locality?: string; region?: string };
+type Available = {
+  phone_number: string;
+  friendly_name: string;
+  locality?: string;
+  region?: string;
+};
 
 function NumbersScreen() {
   const boot = useBootstrap();
@@ -99,7 +108,11 @@ function NumbersScreen() {
     <div>
       <ScreenHeader
         title="Your lines"
-        subtitle={boot.isAdmin ? "SixVox numbers and your own carrier line" : "Lines that ring on this phone"}
+        subtitle={
+          boot.isAdmin
+            ? "SixVox numbers and your own carrier line"
+            : "Lines that ring on this phone"
+        }
         action={
           boot.isAdmin ? (
             <Button size="icon" variant="ghost" onClick={runSync} disabled={syncing}>
@@ -111,86 +124,86 @@ function NumbersScreen() {
       />
 
       <Screen className="px-3 pt-0 sm:px-3" onRefresh={refresh}>
-      {boot.isOwner ? (
-        <div className="py-3">
-          <Button
-            className="key-signal h-12 w-full rounded-xl font-semibold"
-            onClick={() => setBuying(true)}
-          >
-            <Search className="mr-2 h-4 w-4" />
-            Find & buy a number
-          </Button>
-        </div>
-      ) : null}
+        {boot.isOwner ? (
+          <div className="py-3">
+            <Button
+              className="key-signal h-12 w-full rounded-xl font-semibold"
+              onClick={() => setBuying(true)}
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Find & buy a number
+            </Button>
+          </div>
+        ) : null}
 
-      {boot.numbers.length === 0 ? (
-        <Empty
-          icon={Hash}
-          title="No SixVox line yet"
-          description={
-            boot.isAdmin
-              ? "Sync the numbers you already own, or search and claim a new one."
-              : "An admin hasn't assigned you a number yet."
-          }
-          action={
-            boot.isAdmin ? (
-              <Button variant="secondary" onClick={runSync}>
-                Sync my numbers
-              </Button>
-            ) : undefined
-          }
-        />
-      ) : (
-        <>
-        <ListGroup>
-          {paged.items.map((n) => {
-            const owner = (team.data ?? []).find((t) => t.id === n.assigned_to);
-            return (
-              <div key={n.sid} className="px-4 py-3">
-                <button
-                  type="button"
-                  className="w-full text-left"
-                  onClick={() => boot.isAdmin && setEditing(n.sid)}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="tabular text-sm font-semibold">{formatPhone(n.phone_number)}</p>
-                    <div className="flex gap-1.5">
-                      {n.webhook_wired ? (
-                        <Badge variant="secondary" className="text-[0.6rem]">
-                          live
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-[0.6rem] text-destructive">
-                          not wired
-                        </Badge>
-                      )}
-                    </div>
+        {boot.numbers.length === 0 ? (
+          <Empty
+            icon={Hash}
+            title="No business line on this phone yet"
+            description={
+              boot.isAdmin
+                ? "Claim a local number or sync one you already have, then put it on the truck and the website."
+                : "Ask the owner to assign you a number. Until then, calls to the business line won't ring here."
+            }
+            action={
+              boot.isAdmin ? (
+                <Button variant="secondary" onClick={runSync}>
+                  Sync my numbers
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <>
+            <ListGroup>
+              {paged.items.map((n) => {
+                const owner = (team.data ?? []).find((t) => t.id === n.assigned_to);
+                return (
+                  <div key={n.sid} className="px-4 py-3">
+                    <button
+                      type="button"
+                      className="w-full text-left"
+                      onClick={() => boot.isAdmin && setEditing(n.sid)}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="tabular text-sm font-semibold">
+                          {formatPhone(n.phone_number)}
+                        </p>
+                        <div className="flex gap-1.5">
+                          {n.webhook_wired ? (
+                            <Badge variant="secondary" className="text-[0.6rem]">
+                              live
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[0.6rem] text-destructive">
+                              not wired
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {n.friendly_name || "Unnamed"}
+                        {owner ? ` · ${owner.display_name || owner.email}` : " · unassigned"}
+                      </p>
+                    </button>
                   </div>
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {n.friendly_name || "Unnamed"}
-                    {owner ? ` · ${owner.display_name || owner.email}` : " · unassigned"}
-                  </p>
-                </button>
-              </div>
-            );
-          })}
-        </ListGroup>
-        <LoadMore
-          hasMore={paged.hasMore}
-          remaining={paged.remaining}
-          onLoadMore={paged.loadMore}
-        />
-        </>
-      )}
+                );
+              })}
+            </ListGroup>
+            <LoadMore
+              hasMore={paged.hasMore}
+              remaining={paged.remaining}
+              onLoadMore={paged.loadMore}
+            />
+          </>
+        )}
 
-      <Section title="Your own phone number" className="space-y-3 pb-2">
-        <BringYourOwnNumber lines={boot.numbers.map((n) => ({ phone_number: n.phone_number }))} />
-        <EsimExplainer />
-      </Section>
+        <Section title="Your own phone number" className="space-y-3 pb-2">
+          <BringYourOwnNumber lines={boot.numbers.map((n) => ({ phone_number: n.phone_number }))} />
+          <EsimExplainer />
+        </Section>
 
-      {boot.isOwner ? (
-        <MessagingServicesSection numbers={boot.numbers} />
-      ) : null}
+        {boot.isOwner ? <MessagingServicesSection numbers={boot.numbers} /> : null}
       </Screen>
 
       {boot.isOwner ? (
@@ -338,6 +351,7 @@ type NumberRow = {
   answer_mode?: string | null;
   elevenlabs_voice_id?: string | null;
   elevenlabs_agent_id?: string | null;
+  record_calls?: boolean | null;
 };
 
 function NumberSheet({
@@ -439,7 +453,18 @@ function NumberSheet({
             />
           </div>
 
+          <LineCompliance
+            sid={number.sid}
+            phoneNumber={number.phone_number}
+            phoneLabel={formatPhone(number.phone_number)}
+            recordCalls={Boolean(number.record_calls)}
+          />
+
           <VoiceAssistant number={number} onChanged={onChanged} />
+          <BookingSettings sid={number.sid} />
+          <SpamSettings />
+
+          <LineAutomationSettings sid={number.sid} />
 
           <Button
             className="key-signal h-12 w-full rounded-xl font-semibold"
@@ -462,7 +487,6 @@ function NumberSheet({
                   toast.error(errorMessage(error));
                 }
               }}
-
             >
               <Link2 className="mr-2 h-4 w-4" />
               Wire webhooks

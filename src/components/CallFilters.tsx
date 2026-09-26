@@ -10,7 +10,10 @@ export type CallFilterState = {
   device: "all" | "app" | "phone";
 };
 
-const GROUPS: { key: keyof Omit<CallFilterState, "q">; options: { value: string; label: string }[] }[] = [
+const GROUPS: {
+  key: keyof Omit<CallFilterState, "q">;
+  options: { value: string; label: string }[];
+}[] = [
   {
     key: "direction",
     options: [

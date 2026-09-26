@@ -127,7 +127,6 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-
   const requestMic = useCallback(async () => {
     try {
       await ensureMicrophone();
@@ -371,29 +370,25 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     };
   }, [callState]);
 
-  const selectOutput = useCallback(
-    async (id: string) => {
-      const audio = deviceRef.current?.audio;
-      const ok = await setOutputDevice(audio, id);
-      if (!ok) {
-        toast.warning("Couldn't switch audio output", {
-          description: "Your browser refused the change — the call is still connected.",
-        });
-        return;
-      }
-      outputRef.current = id;
-      setOutputDeviceId(id);
-      const choice = listOutputDevices(audio).find((d) => d.id === id);
-      setSpeakerOn(choice?.kind === "speaker");
-    },
-    [],
-  );
+  const selectOutput = useCallback(async (id: string) => {
+    const audio = deviceRef.current?.audio;
+    const ok = await setOutputDevice(audio, id);
+    if (!ok) {
+      toast.warning("Couldn't switch audio output", {
+        description: "Your browser refused the change — the call is still connected.",
+      });
+      return;
+    }
+    outputRef.current = id;
+    setOutputDeviceId(id);
+    const choice = listOutputDevices(audio).find((d) => d.id === id);
+    setSpeakerOn(choice?.kind === "speaker");
+  }, []);
 
   const toggleSpeaker = useCallback(async () => {
     if (!audioOutputSupported) {
       toast.info("iOS controls the speaker", {
-        description:
-          "Use your phone's own speaker control during the call, or connect a headset.",
+        description: "Use your phone's own speaker control during the call, or connect a headset.",
       });
       return;
     }
@@ -401,7 +396,10 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     const devices = listOutputDevices(audio);
     setOutputDevices(devices);
     const speaker = devices.find((d) => d.kind === "speaker");
-    const normal = devices.find((d) => d.kind === "earpiece") ?? devices.find((d) => d.id === "default") ?? devices[0];
+    const normal =
+      devices.find((d) => d.kind === "earpiece") ??
+      devices.find((d) => d.id === "default") ??
+      devices[0];
     const target = speakerOn ? normal : (speaker ?? normal);
     if (!target || (!speakerOn && !speaker)) {
       toast.info("No separate loudspeaker on this device", {

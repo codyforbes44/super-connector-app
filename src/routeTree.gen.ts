@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
@@ -32,34 +33,50 @@ import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedEsimRouteImport } from './routes/_authenticated/esim'
 import { Route as AuthenticatedInboxRouteRouteImport } from './routes/_authenticated/inbox/route'
 import { Route as AuthenticatedInsightsRouteImport } from './routes/_authenticated/insights'
+import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
 import { Route as AuthenticatedNumbersRouteImport } from './routes/_authenticated/numbers'
 import { Route as AuthenticatedReceptionistRouteImport } from './routes/_authenticated/receptionist'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSubscribersRouteImport } from './routes/_authenticated/subscribers'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
+import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
+import { Route as DevComplianceRouteImport } from './routes/dev/compliance'
+import { Route as DevPreviewRouteImport } from './routes/dev.preview'
+import { Route as DevReceptionistPreviewRouteImport } from './routes/dev.receptionist-preview'
+import { Route as DevelopersWebhooksRouteImport } from './routes/developers/webhooks'
+import { Route as ForTradeRouteImport } from './routes/for/$trade'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
+import { Route as PayReturnRouteImport } from './routes/pay.return'
 import { Route as AuthenticatedAdminUserIdRouteImport } from './routes/_authenticated/admin.$userId'
 import { Route as AuthenticatedAssistantSidRouteImport } from './routes/_authenticated/assistant.$sid'
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
+import { Route as ApiMobileSplatRouteImport } from './routes/api/mobile/$'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
+import { Route as OauthJobberReturnRouteImport } from './routes/oauth/jobber/return'
 import { Route as ApiPublicAgentPostCallRouteImport } from './routes/api/public/agent/post-call'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent/token'
 import { Route as ApiPublicAgentTranscriptRouteImport } from './routes/api/public/agent/transcript'
 import { Route as ApiPublicDigestRunRouteImport } from './routes/api/public/digest/run'
 import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/public/elevenlabs/post-call'
+import { Route as ApiPublicPaymentsConnectWebhookRouteImport } from './routes/api/public/payments/connect-webhook'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicReportsWeeklyRouteImport } from './routes/api/public/reports/weekly'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend/webhook'
 import { Route as ApiPublicTwilioAppVoiceRouteImport } from './routes/api/public/twilio/app-voice'
+import { Route as ApiPublicTwilioDialActionRouteImport } from './routes/api/public/twilio/dial-action'
 import { Route as ApiPublicTwilioErrorRouteImport } from './routes/api/public/twilio/error'
+import { Route as ApiPublicTwilioPortInRouteImport } from './routes/api/public/twilio/port-in'
 import { Route as ApiPublicTwilioRecordingRouteImport } from './routes/api/public/twilio/recording'
+import { Route as ApiPublicTwilioRecordingNoticeRouteImport } from './routes/api/public/twilio/recording-notice'
 import { Route as ApiPublicTwilioSmsRouteImport } from './routes/api/public/twilio/sms'
 import { Route as ApiPublicTwilioStatusRouteImport } from './routes/api/public/twilio/status'
 import { Route as ApiPublicTwilioVoiceRouteImport } from './routes/api/public/twilio/voice'
 import { Route as ApiPublicTwilioVoiceFallbackRouteImport } from './routes/api/public/twilio/voice-fallback'
 import { Route as ApiPublicAgentToolNameRouteImport } from './routes/api/public/agent/tool/$name'
+import { Route as ApiPublicElevenlabsToolNameRouteImport } from './routes/api/public/elevenlabs/tool/$name'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -73,6 +90,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -175,6 +197,12 @@ const AuthenticatedInsightsRoute = AuthenticatedInsightsRouteImport.update({
   path: '/insights',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedIntegrationsRoute =
+  AuthenticatedIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedNumbersRoute = AuthenticatedNumbersRouteImport.update({
   id: '/numbers',
   path: '/numbers',
@@ -202,10 +230,40 @@ const AuthenticatedToolsRoute = AuthenticatedToolsRouteImport.update({
   path: '/tools',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTrustRoute = AuthenticatedTrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const DevComplianceRoute = DevComplianceRouteImport.update({
+  id: '/dev/compliance',
+  path: '/dev/compliance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevPreviewRoute = DevPreviewRouteImport.update({
+  id: '/dev/preview',
+  path: '/dev/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevReceptionistPreviewRoute = DevReceptionistPreviewRouteImport.update({
+  id: '/dev/receptionist-preview',
+  path: '/dev/receptionist-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersWebhooksRoute = DevelopersWebhooksRouteImport.update({
+  id: '/developers/webhooks',
+  path: '/developers/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForTradeRoute = ForTradeRouteImport.update({
+  id: '/for/$trade',
+  path: '/for/$trade',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
   id: '/legal/privacy',
@@ -215,6 +273,11 @@ const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
 const LegalTermsRoute = LegalTermsRouteImport.update({
   id: '/legal/terms',
   path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayReturnRoute = PayReturnRouteImport.update({
+  id: '/pay/return',
+  path: '/pay/return',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminUserIdRoute =
@@ -239,9 +302,19 @@ const AuthenticatedInboxIdRoute = AuthenticatedInboxIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedInboxRouteRoute,
 } as any)
+const ApiMobileSplatRoute = ApiMobileSplatRouteImport.update({
+  id: '/api/mobile/$',
+  path: '/api/mobile/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
   id: '/oauth/google/return',
   path: '/oauth/google/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthJobberReturnRoute = OauthJobberReturnRouteImport.update({
+  id: '/oauth/jobber/return',
+  path: '/oauth/jobber/return',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAgentPostCallRoute = ApiPublicAgentPostCallRouteImport.update({
@@ -271,12 +344,23 @@ const ApiPublicElevenlabsPostCallRoute =
     path: '/api/public/elevenlabs/post-call',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaymentsConnectWebhookRoute =
+  ApiPublicPaymentsConnectWebhookRouteImport.update({
+    id: '/api/public/payments/connect-webhook',
+    path: '/api/public/payments/connect-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicReportsWeeklyRoute = ApiPublicReportsWeeklyRouteImport.update({
+  id: '/api/public/reports/weekly',
+  path: '/api/public/reports/weekly',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicResendWebhookRoute = ApiPublicResendWebhookRouteImport.update({
   id: '/api/public/resend/webhook',
   path: '/api/public/resend/webhook',
@@ -287,15 +371,32 @@ const ApiPublicTwilioAppVoiceRoute = ApiPublicTwilioAppVoiceRouteImport.update({
   path: '/api/public/twilio/app-voice',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTwilioDialActionRoute =
+  ApiPublicTwilioDialActionRouteImport.update({
+    id: '/api/public/twilio/dial-action',
+    path: '/api/public/twilio/dial-action',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTwilioErrorRoute = ApiPublicTwilioErrorRouteImport.update({
   id: '/api/public/twilio/error',
   path: '/api/public/twilio/error',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTwilioPortInRoute = ApiPublicTwilioPortInRouteImport.update({
+  id: '/api/public/twilio/port-in',
+  path: '/api/public/twilio/port-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicTwilioRecordingRoute =
   ApiPublicTwilioRecordingRouteImport.update({
     id: '/api/public/twilio/recording',
     path: '/api/public/twilio/recording',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicTwilioRecordingNoticeRoute =
+  ApiPublicTwilioRecordingNoticeRouteImport.update({
+    id: '/api/public/twilio/recording-notice',
+    path: '/api/public/twilio/recording-notice',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicTwilioSmsRoute = ApiPublicTwilioSmsRouteImport.update({
@@ -324,10 +425,17 @@ const ApiPublicAgentToolNameRoute = ApiPublicAgentToolNameRouteImport.update({
   path: '/api/public/agent/tool/$name',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicElevenlabsToolNameRoute =
+  ApiPublicElevenlabsToolNameRouteImport.update({
+    id: '/api/public/elevenlabs/tool/$name',
+    path: '/api/public/elevenlabs/tool/$name',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -348,38 +456,55 @@ export interface FileRoutesByFullPath {
   '/contacts': typeof AuthenticatedContactsRoute
   '/esim': typeof AuthenticatedEsimRoute
   '/insights': typeof AuthenticatedInsightsRoute
+  '/integrations': typeof AuthenticatedIntegrationsRoute
   '/numbers': typeof AuthenticatedNumbersRoute
   '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
+  '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/compliance': typeof DevComplianceRoute
+  '/dev/preview': typeof DevPreviewRoute
+  '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
+  '/developers/webhooks': typeof DevelopersWebhooksRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/pay/return': typeof PayReturnRoute
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
+  '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/inbox/': typeof AuthenticatedInboxIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
+  '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reports/weekly': typeof ApiPublicReportsWeeklyRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
+  '/api/public/twilio/port-in': typeof ApiPublicTwilioPortInRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
+  '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
   '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
+  '/api/public/elevenlabs/tool/$name': typeof ApiPublicElevenlabsToolNameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -399,40 +524,57 @@ export interface FileRoutesByTo {
   '/contacts': typeof AuthenticatedContactsRoute
   '/esim': typeof AuthenticatedEsimRoute
   '/insights': typeof AuthenticatedInsightsRoute
+  '/integrations': typeof AuthenticatedIntegrationsRoute
   '/numbers': typeof AuthenticatedNumbersRoute
   '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
+  '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/compliance': typeof DevComplianceRoute
+  '/dev/preview': typeof DevPreviewRoute
+  '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
+  '/developers/webhooks': typeof DevelopersWebhooksRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/pay/return': typeof PayReturnRoute
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
+  '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/inbox': typeof AuthenticatedInboxIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
+  '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reports/weekly': typeof ApiPublicReportsWeeklyRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
+  '/api/public/twilio/port-in': typeof ApiPublicTwilioPortInRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
+  '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
   '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
+  '/api/public/elevenlabs/tool/$name': typeof ApiPublicElevenlabsToolNameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -453,40 +595,57 @@ export interface FileRoutesById {
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/esim': typeof AuthenticatedEsimRoute
   '/_authenticated/insights': typeof AuthenticatedInsightsRoute
+  '/_authenticated/integrations': typeof AuthenticatedIntegrationsRoute
   '/_authenticated/numbers': typeof AuthenticatedNumbersRoute
   '/_authenticated/receptionist': typeof AuthenticatedReceptionistRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/subscribers': typeof AuthenticatedSubscribersRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
+  '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/compliance': typeof DevComplianceRoute
+  '/dev/preview': typeof DevPreviewRoute
+  '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
+  '/developers/webhooks': typeof DevelopersWebhooksRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/pay/return': typeof PayReturnRoute
   '/_authenticated/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/_authenticated/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
+  '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
+  '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/reports/weekly': typeof ApiPublicReportsWeeklyRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
+  '/api/public/twilio/port-in': typeof ApiPublicTwilioPortInRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
+  '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
   '/api/public/twilio/sms': typeof ApiPublicTwilioSmsRoute
   '/api/public/twilio/status': typeof ApiPublicTwilioStatusRoute
   '/api/public/twilio/voice': typeof ApiPublicTwilioVoiceRoute
   '/api/public/twilio/voice-fallback': typeof ApiPublicTwilioVoiceFallbackRoute
   '/api/public/agent/tool/$name': typeof ApiPublicAgentToolNameRoute
+  '/api/public/elevenlabs/tool/$name': typeof ApiPublicElevenlabsToolNameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -507,38 +666,55 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/esim'
     | '/insights'
+    | '/integrations'
     | '/numbers'
     | '/receptionist'
     | '/settings'
     | '/subscribers'
     | '/tools'
+    | '/trust'
     | '/welcome'
+    | '/dev/compliance'
+    | '/dev/preview'
+    | '/dev/receptionist-preview'
+    | '/developers/webhooks'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/pay/return'
     | '/admin/$userId'
     | '/assistant/$sid'
     | '/inbox/$id'
+    | '/api/mobile/$'
     | '/oauth/google/return'
+    | '/oauth/jobber/return'
     | '/inbox/'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
+    | '/api/public/payments/connect-webhook'
     | '/api/public/payments/webhook'
+    | '/api/public/reports/weekly'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/dial-action'
     | '/api/public/twilio/error'
+    | '/api/public/twilio/port-in'
     | '/api/public/twilio/recording'
+    | '/api/public/twilio/recording-notice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
     | '/api/public/agent/tool/$name'
+    | '/api/public/elevenlabs/tool/$name'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -558,39 +734,56 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/esim'
     | '/insights'
+    | '/integrations'
     | '/numbers'
     | '/receptionist'
     | '/settings'
     | '/subscribers'
     | '/tools'
+    | '/trust'
     | '/welcome'
+    | '/dev/compliance'
+    | '/dev/preview'
+    | '/dev/receptionist-preview'
+    | '/developers/webhooks'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/pay/return'
     | '/admin/$userId'
     | '/assistant/$sid'
     | '/inbox/$id'
+    | '/api/mobile/$'
     | '/oauth/google/return'
+    | '/oauth/jobber/return'
     | '/inbox'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
+    | '/api/public/payments/connect-webhook'
     | '/api/public/payments/webhook'
+    | '/api/public/reports/weekly'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/dial-action'
     | '/api/public/twilio/error'
+    | '/api/public/twilio/port-in'
     | '/api/public/twilio/recording'
+    | '/api/public/twilio/recording-notice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
     | '/api/public/agent/tool/$name'
+    | '/api/public/elevenlabs/tool/$name'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -611,40 +804,57 @@ export interface FileRouteTypes {
     | '/_authenticated/contacts'
     | '/_authenticated/esim'
     | '/_authenticated/insights'
+    | '/_authenticated/integrations'
     | '/_authenticated/numbers'
     | '/_authenticated/receptionist'
     | '/_authenticated/settings'
     | '/_authenticated/subscribers'
     | '/_authenticated/tools'
+    | '/_authenticated/trust'
     | '/_authenticated/welcome'
+    | '/dev/compliance'
+    | '/dev/preview'
+    | '/dev/receptionist-preview'
+    | '/developers/webhooks'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/pay/return'
     | '/_authenticated/admin/$userId'
     | '/_authenticated/assistant/$sid'
     | '/_authenticated/inbox/$id'
+    | '/api/mobile/$'
     | '/oauth/google/return'
+    | '/oauth/jobber/return'
     | '/_authenticated/inbox/'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
+    | '/api/public/payments/connect-webhook'
     | '/api/public/payments/webhook'
+    | '/api/public/reports/weekly'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/dial-action'
     | '/api/public/twilio/error'
+    | '/api/public/twilio/port-in'
     | '/api/public/twilio/recording'
+    | '/api/public/twilio/recording-notice'
     | '/api/public/twilio/sms'
     | '/api/public/twilio/status'
     | '/api/public/twilio/voice'
     | '/api/public/twilio/voice-fallback'
     | '/api/public/agent/tool/$name'
+    | '/api/public/elevenlabs/tool/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
@@ -654,24 +864,38 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   UseCasesRoute: typeof UseCasesRoute
+  DevComplianceRoute: typeof DevComplianceRoute
+  DevPreviewRoute: typeof DevPreviewRoute
+  DevReceptionistPreviewRoute: typeof DevReceptionistPreviewRoute
+  DevelopersWebhooksRoute: typeof DevelopersWebhooksRoute
+  ForTradeRoute: typeof ForTradeRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  PayReturnRoute: typeof PayReturnRoute
+  ApiMobileSplatRoute: typeof ApiMobileSplatRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
+  OauthJobberReturnRoute: typeof OauthJobberReturnRoute
   ApiPublicAgentPostCallRoute: typeof ApiPublicAgentPostCallRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicAgentTranscriptRoute: typeof ApiPublicAgentTranscriptRoute
   ApiPublicDigestRunRoute: typeof ApiPublicDigestRunRoute
   ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
+  ApiPublicPaymentsConnectWebhookRoute: typeof ApiPublicPaymentsConnectWebhookRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicReportsWeeklyRoute: typeof ApiPublicReportsWeeklyRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
   ApiPublicTwilioAppVoiceRoute: typeof ApiPublicTwilioAppVoiceRoute
+  ApiPublicTwilioDialActionRoute: typeof ApiPublicTwilioDialActionRoute
   ApiPublicTwilioErrorRoute: typeof ApiPublicTwilioErrorRoute
+  ApiPublicTwilioPortInRoute: typeof ApiPublicTwilioPortInRoute
   ApiPublicTwilioRecordingRoute: typeof ApiPublicTwilioRecordingRoute
+  ApiPublicTwilioRecordingNoticeRoute: typeof ApiPublicTwilioRecordingNoticeRoute
   ApiPublicTwilioSmsRoute: typeof ApiPublicTwilioSmsRoute
   ApiPublicTwilioStatusRoute: typeof ApiPublicTwilioStatusRoute
   ApiPublicTwilioVoiceRoute: typeof ApiPublicTwilioVoiceRoute
   ApiPublicTwilioVoiceFallbackRoute: typeof ApiPublicTwilioVoiceFallbackRoute
   ApiPublicAgentToolNameRoute: typeof ApiPublicAgentToolNameRoute
+  ApiPublicElevenlabsToolNameRoute: typeof ApiPublicElevenlabsToolNameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -695,6 +919,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -837,6 +1068,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInsightsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/integrations': {
+      id: '/_authenticated/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof AuthenticatedIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/numbers': {
       id: '/_authenticated/numbers'
       path: '/numbers'
@@ -872,12 +1110,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedToolsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/trust': {
+      id: '/_authenticated/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof AuthenticatedTrustRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/welcome': {
       id: '/_authenticated/welcome'
       path: '/welcome'
       fullPath: '/welcome'
       preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/dev/compliance': {
+      id: '/dev/compliance'
+      path: '/dev/compliance'
+      fullPath: '/dev/compliance'
+      preLoaderRoute: typeof DevComplianceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/preview': {
+      id: '/dev/preview'
+      path: '/dev/preview'
+      fullPath: '/dev/preview'
+      preLoaderRoute: typeof DevPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/receptionist-preview': {
+      id: '/dev/receptionist-preview'
+      path: '/dev/receptionist-preview'
+      fullPath: '/dev/receptionist-preview'
+      preLoaderRoute: typeof DevReceptionistPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developers/webhooks': {
+      id: '/developers/webhooks'
+      path: '/developers/webhooks'
+      fullPath: '/developers/webhooks'
+      preLoaderRoute: typeof DevelopersWebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/$trade': {
+      id: '/for/$trade'
+      path: '/for/$trade'
+      fullPath: '/for/$trade'
+      preLoaderRoute: typeof ForTradeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/legal/privacy': {
       id: '/legal/privacy'
@@ -891,6 +1171,13 @@ declare module '@tanstack/react-router' {
       path: '/legal/terms'
       fullPath: '/legal/terms'
       preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pay/return': {
+      id: '/pay/return'
+      path: '/pay/return'
+      fullPath: '/pay/return'
+      preLoaderRoute: typeof PayReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/$userId': {
@@ -921,11 +1208,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInboxIdRouteImport
       parentRoute: typeof AuthenticatedInboxRouteRoute
     }
+    '/api/mobile/$': {
+      id: '/api/mobile/$'
+      path: '/api/mobile/$'
+      fullPath: '/api/mobile/$'
+      preLoaderRoute: typeof ApiMobileSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/oauth/google/return': {
       id: '/oauth/google/return'
       path: '/oauth/google/return'
       fullPath: '/oauth/google/return'
       preLoaderRoute: typeof OauthGoogleReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/jobber/return': {
+      id: '/oauth/jobber/return'
+      path: '/oauth/jobber/return'
+      fullPath: '/oauth/jobber/return'
+      preLoaderRoute: typeof OauthJobberReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/agent/post-call': {
@@ -963,11 +1264,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicElevenlabsPostCallRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/connect-webhook': {
+      id: '/api/public/payments/connect-webhook'
+      path: '/api/public/payments/connect-webhook'
+      fullPath: '/api/public/payments/connect-webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsConnectWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
       fullPath: '/api/public/payments/webhook'
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/reports/weekly': {
+      id: '/api/public/reports/weekly'
+      path: '/api/public/reports/weekly'
+      fullPath: '/api/public/reports/weekly'
+      preLoaderRoute: typeof ApiPublicReportsWeeklyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/resend/webhook': {
@@ -984,6 +1299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTwilioAppVoiceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/twilio/dial-action': {
+      id: '/api/public/twilio/dial-action'
+      path: '/api/public/twilio/dial-action'
+      fullPath: '/api/public/twilio/dial-action'
+      preLoaderRoute: typeof ApiPublicTwilioDialActionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/twilio/error': {
       id: '/api/public/twilio/error'
       path: '/api/public/twilio/error'
@@ -991,11 +1313,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTwilioErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/twilio/port-in': {
+      id: '/api/public/twilio/port-in'
+      path: '/api/public/twilio/port-in'
+      fullPath: '/api/public/twilio/port-in'
+      preLoaderRoute: typeof ApiPublicTwilioPortInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/twilio/recording': {
       id: '/api/public/twilio/recording'
       path: '/api/public/twilio/recording'
       fullPath: '/api/public/twilio/recording'
       preLoaderRoute: typeof ApiPublicTwilioRecordingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/twilio/recording-notice': {
+      id: '/api/public/twilio/recording-notice'
+      path: '/api/public/twilio/recording-notice'
+      fullPath: '/api/public/twilio/recording-notice'
+      preLoaderRoute: typeof ApiPublicTwilioRecordingNoticeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/twilio/sms': {
@@ -1033,6 +1369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAgentToolNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/elevenlabs/tool/$name': {
+      id: '/api/public/elevenlabs/tool/$name'
+      path: '/api/public/elevenlabs/tool/$name'
+      fullPath: '/api/public/elevenlabs/tool/$name'
+      preLoaderRoute: typeof ApiPublicElevenlabsToolNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1064,11 +1407,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedEsimRoute: typeof AuthenticatedEsimRoute
   AuthenticatedInsightsRoute: typeof AuthenticatedInsightsRoute
+  AuthenticatedIntegrationsRoute: typeof AuthenticatedIntegrationsRoute
   AuthenticatedNumbersRoute: typeof AuthenticatedNumbersRoute
   AuthenticatedReceptionistRoute: typeof AuthenticatedReceptionistRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubscribersRoute: typeof AuthenticatedSubscribersRoute
   AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
+  AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
   AuthenticatedWelcomeRoute: typeof AuthenticatedWelcomeRoute
   AuthenticatedAdminUserIdRoute: typeof AuthenticatedAdminUserIdRoute
   AuthenticatedAssistantSidRoute: typeof AuthenticatedAssistantSidRoute
@@ -1086,11 +1431,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedEsimRoute: AuthenticatedEsimRoute,
   AuthenticatedInsightsRoute: AuthenticatedInsightsRoute,
+  AuthenticatedIntegrationsRoute: AuthenticatedIntegrationsRoute,
   AuthenticatedNumbersRoute: AuthenticatedNumbersRoute,
   AuthenticatedReceptionistRoute: AuthenticatedReceptionistRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubscribersRoute: AuthenticatedSubscribersRoute,
   AuthenticatedToolsRoute: AuthenticatedToolsRoute,
+  AuthenticatedTrustRoute: AuthenticatedTrustRoute,
   AuthenticatedWelcomeRoute: AuthenticatedWelcomeRoute,
   AuthenticatedAdminUserIdRoute: AuthenticatedAdminUserIdRoute,
   AuthenticatedAssistantSidRoute: AuthenticatedAssistantSidRoute,
@@ -1103,6 +1450,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
@@ -1112,24 +1460,38 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   UseCasesRoute: UseCasesRoute,
+  DevComplianceRoute: DevComplianceRoute,
+  DevPreviewRoute: DevPreviewRoute,
+  DevReceptionistPreviewRoute: DevReceptionistPreviewRoute,
+  DevelopersWebhooksRoute: DevelopersWebhooksRoute,
+  ForTradeRoute: ForTradeRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
+  PayReturnRoute: PayReturnRoute,
+  ApiMobileSplatRoute: ApiMobileSplatRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
+  OauthJobberReturnRoute: OauthJobberReturnRoute,
   ApiPublicAgentPostCallRoute: ApiPublicAgentPostCallRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicAgentTranscriptRoute: ApiPublicAgentTranscriptRoute,
   ApiPublicDigestRunRoute: ApiPublicDigestRunRoute,
   ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
+  ApiPublicPaymentsConnectWebhookRoute: ApiPublicPaymentsConnectWebhookRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicReportsWeeklyRoute: ApiPublicReportsWeeklyRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,
   ApiPublicTwilioAppVoiceRoute: ApiPublicTwilioAppVoiceRoute,
+  ApiPublicTwilioDialActionRoute: ApiPublicTwilioDialActionRoute,
   ApiPublicTwilioErrorRoute: ApiPublicTwilioErrorRoute,
+  ApiPublicTwilioPortInRoute: ApiPublicTwilioPortInRoute,
   ApiPublicTwilioRecordingRoute: ApiPublicTwilioRecordingRoute,
+  ApiPublicTwilioRecordingNoticeRoute: ApiPublicTwilioRecordingNoticeRoute,
   ApiPublicTwilioSmsRoute: ApiPublicTwilioSmsRoute,
   ApiPublicTwilioStatusRoute: ApiPublicTwilioStatusRoute,
   ApiPublicTwilioVoiceRoute: ApiPublicTwilioVoiceRoute,
   ApiPublicTwilioVoiceFallbackRoute: ApiPublicTwilioVoiceFallbackRoute,
   ApiPublicAgentToolNameRoute: ApiPublicAgentToolNameRoute,
+  ApiPublicElevenlabsToolNameRoute: ApiPublicElevenlabsToolNameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

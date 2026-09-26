@@ -1,10 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, Lightbulb } from "lucide-react";
+import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/screen";
+import { Button } from "@/components/ui/button";
+import { errorMessage } from "@/lib/format";
 import { getInsights } from "@/lib/intelligence.functions";
+import { emailWeeklyReport, previewWeeklyReport } from "@/lib/receptionist.functions";
 
 const DESCRIPTION =
   "See how your week went: calls answered and missed, busiest hours, and what people called about.";
@@ -54,7 +58,9 @@ function InsightsScreen() {
       );
     }
     if (data.urgent > 0) {
-      nudges.push(`${data.urgent} caller${data.urgent === 1 ? "" : "s"} sounded urgent — worth a look.`);
+      nudges.push(
+        `${data.urgent} caller${data.urgent === 1 ? "" : "s"} sounded urgent — worth a look.`,
+      );
     }
     if (data.inbound > 0 && data.analysed === 0) {
       nudges.push(
@@ -123,12 +129,17 @@ function InsightsScreen() {
         </section>
       ) : null}
 
+      <WeeklyReport />
+
       {nudges.length ? (
         <section className="space-y-2 px-4 pt-5">
           <h2 className="font-display text-sm font-semibold">Worth doing</h2>
           <ul className="space-y-1.5">
             {nudges.map((nudge) => (
-              <li key={nudge} className="glass-panel flex items-start gap-2.5 rounded-2xl px-3.5 py-3">
+              <li
+                key={nudge}
+                className="glass-panel flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
+              >
                 <Lightbulb className="mt-0.5 size-4 shrink-0 text-primary" />
                 <p className="text-sm text-muted-foreground">{nudge}</p>
               </li>
@@ -137,5 +148,40 @@ function InsightsScreen() {
         </section>
       ) : null}
     </div>
+  );
+}
+
+function WeeklyReport() {
+  const preview = useQuery({
+    queryKey: ["weekly-report-preview"],
+    queryFn: () => previewWeeklyReport(),
+  });
+  const send = useMutation({
+    mutationFn: () => emailWeeklyReport(),
+    onSuccess: (result) =>
+      toast.success(
+        result.sent ? "Weekly report emailed." : (result.error ?? "Email was not sent."),
+      ),
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+  return (
+    <section className="space-y-2 px-4 pt-5" aria-label="Weekly report">
+      <h2 className="font-display text-sm font-semibold">Calls you would have missed</h2>
+      <p className="text-xs text-muted-foreground">
+        A weekly email of missed calls and the jobs that got booked. Sent through Resend.
+      </p>
+      {preview.data?.html ? (
+        <iframe
+          title="Weekly report email"
+          className="h-80 w-full rounded-2xl border border-border bg-white"
+          srcDoc={preview.data.html}
+        />
+      ) : (
+        <p className="text-xs text-muted-foreground">The preview loads from this week's calls.</p>
+      )}
+      <Button className="h-11 rounded-xl" disabled={send.isPending} onClick={() => send.mutate()}>
+        Email me this week
+      </Button>
+    </section>
   );
 }

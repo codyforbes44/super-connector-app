@@ -141,8 +141,8 @@ export function InboxList({ activeId }: { activeId?: string }) {
         empty={
           <Empty
             icon={Inbox}
-            title="No messages yet — share your SixVox number"
-            description="Give customers your SixVox number and their texts land here. You can also pull in recent history from your carrier."
+            title="No texts yet"
+            description="Put your SixVox number on the truck, the website, and the voicemail greeting. Customer texts show up here, newest first, with a count when you haven't read them."
             action={
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>
@@ -181,9 +181,11 @@ export function InboxList({ activeId }: { activeId?: string }) {
                     to="/inbox/$id"
                     params={{ id: c.id }}
                     className={cn(
-                      "flex min-h-[4.5rem] items-center gap-3 px-4 py-3 transition-colors active:bg-accent",
+                      "flex min-h-[4.75rem] items-center gap-3 border-l-[3px] px-4 py-3 transition-colors active:bg-accent",
                       activeId === c.id ? "bg-accent" : "bg-background hover:bg-accent/50",
+                      c.unread_count > 0 ? "border-l-primary bg-primary/8" : "border-l-transparent",
                     )}
+                    aria-current={activeId === c.id ? "page" : undefined}
                   >
                     <span
                       className={cn(
@@ -217,7 +219,8 @@ export function InboxList({ activeId }: { activeId?: string }) {
                           {c.last_message_preview || "No messages yet"}
                         </span>
                         {c.unread_count > 0 ? (
-                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[0.65rem] font-bold text-primary-foreground">
+                          <span className="ml-auto flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
+                            <span className="sr-only">Unread messages: </span>
                             {c.unread_count}
                           </span>
                         ) : null}

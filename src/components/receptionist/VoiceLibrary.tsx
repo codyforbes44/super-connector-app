@@ -113,9 +113,7 @@ export function VoiceLibrary({
               type="button"
               onClick={() => setLabel(label === value ? null : value)}
               className={`shrink-0 rounded-full px-3 py-1.5 text-xs capitalize transition ${
-                label === value
-                  ? "key-raised text-foreground"
-                  : "bg-muted/40 text-muted-foreground"
+                label === value ? "key-raised text-foreground" : "bg-muted/40 text-muted-foreground"
               }`}
             >
               {value}
@@ -149,7 +147,10 @@ export function VoiceLibrary({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{voice.name}</p>
                 <p className="truncate text-xs capitalize text-muted-foreground">
-                  {Object.values(voice.labels ?? {}).filter(Boolean).slice(0, 3).join(" · ") ||
+                  {Object.values(voice.labels ?? {})
+                    .filter(Boolean)
+                    .slice(0, 3)
+                    .join(" · ") ||
                     voice.category ||
                     "Voice"}
                 </p>

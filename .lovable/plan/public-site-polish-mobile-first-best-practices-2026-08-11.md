@@ -14,21 +14,26 @@ The public pages already share the Midnight Dialer layout, one H1 each, alt text
 ## What changes
 
 ### Pricing
+
 Replace the wide comparison table on phones with a stacked per-plan card list (each feature as a labelled row), keeping the real table from `md:` up. Grow the billing toggle to a 44px segmented control.
 
 ### Contact
+
 Inputs, textarea and select grow to a 48px touch height with 16px text so iOS never zooms on focus. Errors get `aria-invalid` plus `aria-describedby` wired to the message, and the form announces its result through a polite live region rather than only a toast.
 
 ### Auth
+
 Wrap the card in `main`, give the sign-in/sign-up switch a 44px target, add an autocomplete set (`email`, `current-password`, `new-password`) so password managers work, and match the marketing gradient's safe-area padding.
 
 ### Shared marketing shell
+
 - Header and footer links get 44px minimum touch height without changing their visual size.
 - Glow orbs get clipped explicitly so they can never affect layout width.
 - Add a compact sticky bottom CTA bar on phones only (appears after the hero scrolls past, respects the safe-area inset, hides on `/contact` and `/auth`), so the trial CTA is always one tap away.
 - Section rhythm tightened for small screens: consistent vertical spacing scale and `text-balance` on headings so titles break cleanly at 375px.
 
 ### Performance and metadata
+
 - Hero image gets explicit width/height plus `fetchpriority="high"`; all below-the-fold imagery stays lazy with `decoding="async"`.
 - Preconnect the font origins earlier and confirm each public route keeps its self-referencing canonical, `og:url` and unique title/description (already true — verified, not re-derived).
 

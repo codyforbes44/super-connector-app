@@ -12,9 +12,10 @@ import { ConciergeMount } from "@/components/concierge/ConciergeMount";
 
 const NAV = [
   { to: "/features", label: "Features" },
-  { to: "/use-cases", label: "Use Cases" },
-  { to: "/how-it-works", label: "How it works" },
+  { to: "/use-cases", label: "For trades" },
+  { to: "/compare", label: "Compare" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/how-it-works", label: "How it works" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
 ] as const;
@@ -68,7 +69,9 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
     if (!sheet) return;
     const focusables = () =>
       Array.from(
-        sheet.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+        sheet.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
       ).filter((el) => el.offsetParent !== null);
 
     focusables()[0]?.focus();
@@ -143,7 +146,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <span className="font-display text-base font-semibold tracking-tight">SixVox</span>
           </Link>
 
-          <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Main" className="hidden items-center gap-0.5 lg:flex">
             {NAV.map((item) => (
               <Link
                 key={item.to}
@@ -166,13 +169,12 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               aria-expanded={open}
               aria-controls="marketing-mobile-nav"
               onClick={() => setOpen((value) => !value)}
-              className="surface-row flex h-11 w-11 items-center justify-center rounded-xl md:hidden"
+              className="surface-row flex h-11 w-11 items-center justify-center rounded-xl lg:hidden"
             >
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
         </div>
-
       </header>
 
       {/* Full-height mobile sheet. Kept outside the blurred header so it is not
@@ -184,24 +186,24 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"
-          className="fixed inset-0 top-[4.25rem] z-50 overflow-y-auto overscroll-contain bg-background px-4 pt-3 [scrollbar-gutter:stable] md:hidden"
+          className="fixed inset-0 top-[4.25rem] z-50 overflow-y-auto overscroll-contain bg-background px-4 pt-3 [scrollbar-gutter:stable] lg:hidden"
         >
           <nav aria-label="Mobile">
-          <ul className="grid gap-1.5">
-            {NAV.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  onClick={() => setOpen(false)}
-                  className="surface-row flex min-h-14 items-center justify-between rounded-2xl px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
-                  activeProps={{ className: "text-foreground border-primary/40" }}
-                >
-                  {item.label}
-                  <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" aria-hidden />
-                </Link>
-              </li>
-            ))}
-          </ul>
+            <ul className="grid gap-1.5">
+              {NAV.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    onClick={() => setOpen(false)}
+                    className="surface-row flex min-h-14 items-center justify-between rounded-2xl px-4 text-base font-medium text-muted-foreground active:scale-[0.99]"
+                    activeProps={{ className: "text-foreground border-primary/40" }}
+                  >
+                    {item.label}
+                    <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" aria-hidden />
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </nav>
           <div className="safe-bottom mt-4 grid gap-2 pb-6">
             <AccountActions stacked />
@@ -260,7 +262,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               search={{ mode: "signup" }}
               className="key-signal flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-xl text-sm font-semibold"
             >
-              Start free
+              Start free trial
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           )}
@@ -268,7 +270,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       </div>
 
       <footer className="relative mt-20 border-t border-border/60 md:mt-24">
-        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-2 md:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-2 lg:grid-cols-5">
           <div>
             <div className="flex items-center gap-2">
               <img
@@ -284,23 +286,35 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               <span className="font-display text-sm font-semibold">SixVox</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              Business calls, texts, voicemail and an AI receptionist — in one
-              mobile app.
+              Your business line that picks up when you can&apos;t. Built for plumbers, HVAC,
+              electricians, and other small crews.
             </p>
           </div>
           <FooterCol
             title="Product"
             links={[
               { to: "/features", label: "Features" },
-              { to: "/use-cases", label: "Use Cases" },
+              { to: "/use-cases", label: "For trades" },
+              { to: "/compare", label: "Compare" },
               { to: "/how-it-works", label: "How it works" },
               { to: "/pricing", label: "Pricing" },
+            ]}
+          />
+          <FooterCol
+            title="Trades"
+            links={[
+              { to: "/for/plumbers", label: "Plumbers" },
+              { to: "/for/hvac", label: "HVAC" },
+              { to: "/for/electricians", label: "Electricians" },
+              { to: "/for/cleaners", label: "Cleaners" },
+              { to: "/use-cases", label: "All trades" },
             ]}
           />
           <FooterCol
             title="Company"
             links={[
               { to: "/faq", label: "FAQ" },
+              { to: "/developers/webhooks", label: "Webhooks" },
               { to: "/contact", label: "Contact" },
               { to: "/legal/privacy", label: "Privacy" },
               { to: "/legal/terms", label: "Terms" },
@@ -354,13 +368,7 @@ function FooterCol({
   );
 }
 
-export function Section({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function Section({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <section className={cn("mx-auto max-w-6xl px-5 py-12 md:py-20", className)}>{children}</section>
   );
@@ -375,11 +383,7 @@ export function Eyebrow({ children }: { children: ReactNode }) {
   );
 }
 
-export function StatBand({
-  stats,
-}: {
-  stats: Array<{ value: string; label: string }>;
-}) {
+export function StatBand({ stats }: { stats: Array<{ value: string; label: string }> }) {
   return (
     <dl className="glass-panel grid grid-cols-2 divide-x divide-y divide-border/60 overflow-hidden rounded-3xl md:grid-cols-4 md:divide-y-0">
       {stats.map((stat) => (

@@ -1,30 +1,35 @@
 name: PWA / TWA artifacts
 
+# Play uploads run on a version tag (twa-v* or v*) or a manual dispatch.
+# A tag that does not touch the path filters below will not start this
+# workflow; use workflow_dispatch for those releases. Pushes to main never
+# upload to Google Play.
 on:
   push:
     branches: [main]
+    tags: ["twa-v*", "v*"]
     paths:
-      - 'public/manifest.webmanifest'
-      - 'twa-manifest.json'
-      - 'scripts/sync-twa-manifest.mjs'
-      - '.github/workflows/pwa-twa.yml'
+      - "public/manifest.webmanifest"
+      - "twa-manifest.json"
+      - "scripts/sync-twa-manifest.mjs"
+      - ".github/workflows/pwa-twa.yml"
   pull_request:
     paths:
-      - 'public/manifest.webmanifest'
-      - 'twa-manifest.json'
+      - "public/manifest.webmanifest"
+      - "twa-manifest.json"
   workflow_dispatch:
     inputs:
       release:
-        description: 'Create a GitHub Release with the AAB'
+        description: "Create a GitHub Release with the AAB"
         type: boolean
         default: false
       play_track:
-        description: 'Google Play track to upload to'
+        description: "Google Play track to upload to"
         type: choice
         default: internal
         options: [none, internal, alpha, beta, production]
       play_status:
-        description: 'Release status on that track'
+        description: "Release status on that track"
         type: choice
         default: draft
         options: [draft, inProgress, halted, completed]
@@ -54,7 +59,13 @@ jobs:
           java-version: 17
 
       - name: Install dependencies
-        run: npm ci
+        # package-lock.json is behind package.json. `npm ci` on the Node 20
+        # runner (npm 10) crashes with "Cannot read properties of null
+        # (reading 'edgesOut')" instead of reporting the mismatch. npm 11
+        # reports the mismatch, and rewriting the lock from this tree still
+        # left `npm ci` out of sync. The main CI job already installs the
+        # same way.
+        run: npm install --no-audit --no-fund --legacy-peer-deps
 
       - name: Sync TWA manifest from web manifest
         run: node scripts/sync-twa-manifest.mjs
@@ -162,13 +173,11 @@ jobs:
           if [ -z "$TRACK" ]; then TRACK="internal"; fi
           STATUS="${{ inputs.play_status }}"
           if [ -z "$STATUS" ]; then STATUS="draft"; fi
-          # Pushes to main always go to the internal testing track as a completed release.
-          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            TRACK="internal"
-            STATUS="completed"
-          fi
-          ENABLED=true
-          [ "${{ github.event_name }}" = "pull_request" ] && ENABLED=false
+          REF="${{ github.ref }}"
+          EVENT="${{ github.event_name }}"
+          ENABLED=false
+          if [ "$EVENT" = "workflow_dispatch" ]; then ENABLED=true; fi
+          if [ "$EVENT" = "push" ] && [ "${REF#refs/tags/}" != "$REF" ]; then ENABLED=true; fi
           [ "$TRACK" = "none" ] && ENABLED=false
           [ -z "$SA_JSON" ] && ENABLED=false
           [ ! -f app-release-bundle.aab ] && ENABLED=false

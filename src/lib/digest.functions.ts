@@ -35,7 +35,10 @@ export const saveDigestSettings = createServerFn({ method: "POST" })
     if (typeof data.hour === "number")
       patch.digest_hour = Math.min(23, Math.max(0, Math.round(data.hour)));
     if (!Object.keys(patch).length) return { ok: true };
-    const { error } = await context.supabase.from("profiles").update(patch).eq("id", context.userId);
+    const { error } = await context.supabase
+      .from("profiles")
+      .update(patch)
+      .eq("id", context.userId);
     if (error) throw error;
     return { ok: true };
   });

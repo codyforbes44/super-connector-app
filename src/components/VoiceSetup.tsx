@@ -32,7 +32,13 @@ export function VoiceSetup() {
   const apps = useQuery({ queryKey: ["twiml-apps"], queryFn: () => listTwimlApps() });
 
   const info = status.data as unknown as
-    | { hasApiKey: boolean; hasDefault?: boolean; voiceUrl: string; statusUrl: string; smsUrl: string }
+    | {
+        hasApiKey: boolean;
+        hasDefault?: boolean;
+        voiceUrl: string;
+        statusUrl: string;
+        smsUrl: string;
+      }
     | undefined;
   const rows = (apps.data ?? []) as unknown as AppRow[];
 
@@ -86,7 +92,9 @@ export function VoiceSetup() {
         <Button
           className="rounded-full"
           disabled={busy || !name.trim()}
-          onClick={() => run(() => createTwimlApp({ data: { name: name.trim() } }), "TwiML App created.")}
+          onClick={() =>
+            run(() => createTwimlApp({ data: { name: name.trim() } }), "TwiML App created.")
+          }
         >
           Create
         </Button>

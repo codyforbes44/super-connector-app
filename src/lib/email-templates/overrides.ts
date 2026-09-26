@@ -55,6 +55,12 @@ export const TEMPLATE_CATALOG: Array<{
     variables: ["rangeLabel"],
   },
   {
+    template: "weekly-missed",
+    label: "Weekly missed-call report",
+    description: "Calls you would have missed, plus jobs the receptionist booked.",
+    variables: ["rangeLabel"],
+  },
+  {
     template: "test",
     label: "Test email",
     description: "Delivery test from Settings.",

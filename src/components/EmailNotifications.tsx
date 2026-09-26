@@ -45,7 +45,10 @@ type FormState = Record<string, unknown> & {
 export function EmailNotifications() {
   const qc = useQueryClient();
   const prefs = useQuery({ queryKey: ["notif-prefs"], queryFn: () => getNotificationPrefs() });
-  const status = useQuery({ queryKey: ["integration-status"], queryFn: () => getIntegrationStatus() });
+  const status = useQuery({
+    queryKey: ["integration-status"],
+    queryFn: () => getIntegrationStatus(),
+  });
 
   const [form, setForm] = useState<FormState>({
     email_address: "",
@@ -188,7 +191,11 @@ export function EmailNotifications() {
           disabled={test.isPending || !form.email_address}
           onClick={() => test.mutate()}
         >
-          {test.isPending ? <Loader2 className="size-4 animate-spin" /> : <MailCheck className="size-4" />}
+          {test.isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <MailCheck className="size-4" />
+          )}
         </Button>
       </div>
 

@@ -3,18 +3,21 @@
  * Imported by both UI components and server code, so keep it dependency-free.
  */
 
-const STOP_WORDS = ["stop", "stopall", "unsubscribe", "cancel", "end", "quit", "revoke", "optout", "opt-out"];
-const START_WORDS = ["start", "unstop", "yes", "optin", "opt-in"];
+import { campaignReady } from "./automated-text";
+import { keywordSignal } from "./compliance/opt-out";
 
 export type OptOutSignal = "stop" | "start" | null;
 
-/** Carrier-standard keyword in an inbound message, if any. */
+/** Campaign states Twilio treats as cleared to send. Client-safe. */
+export function campaignApproved(status: string | null | undefined): boolean {
+  return campaignReady(status);
+}
+
+/** Carrier-standard keyword in an inbound message, if any. HELP is not an opt-out. */
 export function optOutSignal(body: string): OptOutSignal {
-  const word = body.trim().toLowerCase().replace(/[^a-z-]/g, "");
-  if (!word) return null;
-  if (STOP_WORDS.includes(word)) return "stop";
-  if (START_WORDS.includes(word)) return "start";
-  return null;
+  const signal = keywordSignal(body);
+  if (signal === "help" || signal === null) return null;
+  return signal;
 }
 
 /* --------------------------------------------------------- error copy */

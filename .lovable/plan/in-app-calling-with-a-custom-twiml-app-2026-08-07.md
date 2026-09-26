@@ -32,12 +32,14 @@ app — no bridging through your personal phone.
 ## Technical detail
 
 **Database** (one migration)
+
 - `twiml_apps` table: `sid`, `friendly_name`, `voice_url`, `sms_url`,
   `is_default`, timestamps. Admin-managed, readable by authenticated users,
   with grants and RLS per project convention.
 - `calls`: add `client_identity` and `answered_in_app` columns.
 
 **Server layer**
+
 - `twilio-ops.server.ts`: `listTwimlApps`, `createTwimlApp` (POST
   `/Applications.json` with `VoiceUrl` / `VoiceFallbackUrl` / `StatusCallback`
   pointing at `/api/public/twilio/app-voice`, and `SmsUrl` / `SmsFallbackUrl` /
@@ -54,6 +56,7 @@ app — no bridging through your personal phone.
   admin-only TwiML App CRUD functions.
 
 **Webhook** — new `src/routes/api/public/twilio/app-voice.ts`
+
 - Signature-verified like the other webhooks.
 - Outbound leg (`From` starts with `client:`): resolve the caller identity to a
   Signalbox user, verify they may use the requested caller-ID number, return
@@ -64,6 +67,7 @@ app — no bridging through your personal phone.
 - The existing `voice.ts` route stays for numbers wired the old way.
 
 **Client**
+
 - Add `@twilio/voice-sdk`. New `src/lib/voice-device.ts` hook: lazy-loads the
   SDK client-side only, fetches a token, registers the Device, refreshes on
   `tokenWillExpire`, and exposes call state.
@@ -79,6 +83,7 @@ app — no bridging through your personal phone.
   default) plus a mic-permission and device-registered status row.
 
 **Verification**
+
 - Create the TwiML App against the live account and confirm its URLs read back.
 - Mint a token and assert the JWT decodes with the right grant and app SID.
 - Signature-test `app-voice` for both the client-outbound and inbound branches.

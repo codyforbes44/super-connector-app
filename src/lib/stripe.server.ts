@@ -74,17 +74,11 @@ export function getStripeErrorMessage(error: unknown): string {
   return "Stripe request failed";
 }
 
-export async function verifyWebhook(
-  req: Request,
-  env: StripeEnv,
-): Promise<{ type: string; data: { object: any } }> {
-  const signature = req.headers.get("stripe-signature");
-  const body = await req.text();
-  const secret =
-    env === "sandbox"
-      ? getEnv("PAYMENTS_SANDBOX_WEBHOOK_SECRET")
-      : getEnv("PAYMENTS_LIVE_WEBHOOK_SECRET");
-
+export async function verifyStripeSignature(
+  body: string,
+  signature: string | null,
+  secret: string,
+): Promise<unknown> {
   if (!signature || !body) throw new Error("Missing signature or body");
 
   let timestamp: string | undefined;
@@ -115,4 +109,21 @@ export async function verifyWebhook(
   if (!v1Signatures.includes(expected)) throw new Error("Invalid webhook signature");
 
   return JSON.parse(body);
+}
+
+export async function verifyWebhook(
+  req: Request,
+  env: StripeEnv,
+): Promise<{ type: string; data: { object: unknown } }> {
+  const signature = req.headers.get("stripe-signature");
+  const body = await req.text();
+  const secret =
+    env === "sandbox"
+      ? getEnv("PAYMENTS_SANDBOX_WEBHOOK_SECRET")
+      : getEnv("PAYMENTS_LIVE_WEBHOOK_SECRET");
+
+  return (await verifyStripeSignature(body, signature, secret)) as {
+    type: string;
+    data: { object: unknown };
+  };
 }

@@ -15,13 +15,17 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader, useScreenFab } from "@/components/AppShell";
+import { E911Disclosure } from "@/components/marketing/Disclosures";
 import { AsyncList, Empty, ListGroup, Screen } from "@/components/screen";
 import { AiCallTranscript } from "@/components/AiCallTranscript";
 import { CallSummaryCard } from "@/components/intelligence/CallSummaryCard";
+import { PendingBookings } from "@/components/line/PendingBookings";
 import { CallerContextCard } from "@/components/intelligence/CallerContextCard";
 import { CallFilters, type CallFilterState } from "@/components/CallFilters";
 import { CallReadiness } from "@/components/CallReadiness";
+import { DialerE911Warning } from "@/components/compliance/DialerE911Warning";
 import { Dialpad } from "@/components/Dialpad";
+import { getE911Gate } from "@/lib/compliance.functions";
 import { markAnswerIntent } from "@/lib/call-answer-intent";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -111,6 +115,11 @@ export const Route = createFileRoute("/_authenticated/calls")({
 
 function CallsScreen() {
   const boot = useBootstrap();
+  const e911 = useQuery({
+    queryKey: ["e911-gate"],
+    queryFn: () => getE911Gate(),
+  });
+  const e911Acknowledged = e911.data?.acknowledged === true;
   const queryClient = useQueryClient();
   const voice = useVoice();
   const search = Route.useSearch();
@@ -219,6 +228,10 @@ function CallsScreen() {
 
   async function dial(event: React.FormEvent) {
     event.preventDefault();
+    if (!e911Acknowledged) {
+      toast.error("Acknowledge the 911 limitations before placing a call.");
+      return;
+    }
     try {
       if (voice.ready) {
         await voice.call(to.trim(), from);
@@ -257,6 +270,10 @@ function CallsScreen() {
   async function callBack(call: CallRow) {
     const target = otherParty(call);
     if (!target) return;
+    if (!e911Acknowledged) {
+      toast.error("Acknowledge the 911 limitations before placing a call.");
+      return;
+    }
     const line =
       boot.numbers.find((n) => n.phone_number === call.app_number)?.phone_number ||
       from ||
@@ -287,7 +304,7 @@ function CallsScreen() {
     <div className="min-w-0 overflow-x-clip">
       <ScreenHeader
         title="Calls"
-        subtitle="Click-to-call, history, recordings"
+        subtitle="Missed calls stay at the top of the story"
         action={
           <Button size="icon" variant="ghost" onClick={sync} disabled={syncing}>
             <RefreshCw className={cn("h-4 w-4", syncing && "animate-spin")} />
@@ -297,6 +314,8 @@ function CallsScreen() {
       />
 
       <CallFilters value={filters} onChange={setFilters} />
+
+      <PendingBookings />
 
       <Screen onRefresh={sync}>
         <CallReadiness />
@@ -309,7 +328,6 @@ function CallsScreen() {
 
         {audio ? (
           <div className="mb-3 rounded-2xl border border-border bg-card p-3">
-            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             <audio className="w-full" controls autoPlay src={audio} />
           </div>
         ) : null}
@@ -335,9 +353,16 @@ function CallsScreen() {
                 filters.range !== "all" ||
                 filters.device !== "all"
                   ? "No matching calls"
-                  : "No calls yet"
+                  : "No calls on this line yet"
               }
-              description="Place a call, adjust your filters, or pull your recent call history into the app."
+              description={
+                filters.q ||
+                filters.direction !== "all" ||
+                filters.range !== "all" ||
+                filters.device !== "all"
+                  ? "Clear a filter or search a different number."
+                  : "When a customer calls while you're on a job, it shows up here. Missed calls are marked in red so you can call them back first."
+              }
               action={
                 <Button variant="secondary" onClick={sync} disabled={syncing}>
                   Sync call history
@@ -349,89 +374,94 @@ function CallsScreen() {
           {(pageCalls) => (
             <ListGroup className="min-w-0">
               {pageCalls.map((call) => {
-              const inbound = call.direction === "inbound";
-              const other = inbound ? call.from_number : call.to_number;
-              const redialTo = otherParty(call);
-              const missed = ["no-answer", "failed", "busy", "canceled"].includes(
-                call.status ?? "",
-              );
-              return (
-                <div
-                  key={call.id}
-                  className="flex min-h-[4.5rem] min-w-0 items-center gap-2.5 px-4 py-3 sm:gap-3"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setDetail(call)}
-                    className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
+                const inbound = call.direction === "inbound";
+                const other = inbound ? call.from_number : call.to_number;
+                const redialTo = otherParty(call);
+                const missed = ["no-answer", "failed", "busy", "canceled"].includes(
+                  call.status ?? "",
+                );
+                return (
+                  <div
+                    key={call.id}
+                    className="flex min-h-[4.5rem] min-w-0 items-center gap-2.5 px-4 py-3 sm:gap-3"
                   >
-                    <span
-                      className={cn(
-                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
-                        missed
-                          ? "bg-destructive/15 text-destructive"
-                          : inbound
-                            ? "bg-success/15 text-success"
-                            : "bg-primary/15 text-primary",
-                      )}
+                    <button
+                      type="button"
+                      onClick={() => setDetail(call)}
+                      className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
                     >
-                      {inbound ? (
-                        <ArrowDownLeft className="h-4 w-4" />
-                      ) : (
-                        <ArrowUpRight className="h-4 w-4" />
-                      )}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="flex min-w-0 items-center gap-1.5 text-[0.95rem] font-medium">
-                        <span className="truncate">{formatPhone(other)}</span>
-                        {call.answered_in_app ? (
-                          <Smartphone
-                            className="h-3 w-3 shrink-0 text-primary"
-                            aria-label="Answered in app"
-                          />
-                        ) : null}
-                        <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
-                          {relativeTime(call.started_at)}
-                        </span>
-                      </p>
-                      <p className="flex min-w-0 items-center gap-1.5 truncate text-[0.78rem] text-muted-foreground">
-                        {missed ? (
-                          <span className="shrink-0 rounded-full bg-destructive/15 px-2 py-0.5 text-[0.65rem] font-semibold text-destructive">
-                            Missed
+                      <span
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+                          missed
+                            ? "bg-destructive/15 text-destructive"
+                            : inbound
+                              ? "bg-success/15 text-success"
+                              : "bg-primary/15 text-primary",
+                        )}
+                      >
+                        {inbound ? (
+                          <ArrowDownLeft className="h-4 w-4" />
+                        ) : (
+                          <ArrowUpRight className="h-4 w-4" />
+                        )}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={cn(
+                            "flex min-w-0 items-center gap-1.5 text-[0.95rem]",
+                            missed ? "font-semibold" : "font-medium",
+                          )}
+                        >
+                          <span className="truncate">{formatPhone(other)}</span>
+                          {call.answered_in_app ? (
+                            <Smartphone
+                              className="h-3 w-3 shrink-0 text-primary"
+                              aria-label="Answered in app"
+                            />
+                          ) : null}
+                          <span className="tabular ml-auto shrink-0 pl-1 text-[0.7rem] font-normal text-muted-foreground">
+                            {relativeTime(call.started_at)}
                           </span>
-                        ) : call.recording_url ? (
-                          <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[0.65rem] font-semibold text-primary">
-                            Voicemail
+                        </p>
+                        <p className="flex min-w-0 items-center gap-1.5 truncate text-[0.78rem] text-muted-foreground">
+                          {missed ? (
+                            <span className="shrink-0 rounded-full bg-destructive/15 px-2 py-0.5 text-[0.65rem] font-semibold text-destructive">
+                              Missed call
+                            </span>
+                          ) : call.recording_url ? (
+                            <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[0.65rem] font-semibold text-primary">
+                              Voicemail
+                            </span>
+                          ) : null}
+                          <span className={cn("truncate", missed && "text-destructive")}>
+                            {callStory(call)}
                           </span>
-                        ) : null}
-                        <span className={cn("truncate", missed && "text-destructive")}>
-                          {callStory(call)}
-                        </span>
-                        {call.duration ? (
-                          <span className="tabular"> · {duration(call.duration)}</span>
-                        ) : null}
-                      </p>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => playVoicemail(call.sid)}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
-                  >
-                    <Play className="h-4 w-4" />
-                    <span className="sr-only">Play voicemail</span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!redialTo}
-                    onClick={() => void callBack(call)}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
-                  >
-                    <PhoneCall className="h-4 w-4" />
-                    <span className="sr-only">Call back {redialTo || "unavailable"}</span>
-                  </button>
-                </div>
-              );
+                          {call.duration ? (
+                            <span className="tabular"> · {duration(call.duration)}</span>
+                          ) : null}
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => playVoicemail(call.sid)}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-foreground"
+                    >
+                      <Play className="h-4 w-4" />
+                      <span className="sr-only">Play voicemail</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!redialTo}
+                      onClick={() => void callBack(call)}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success disabled:opacity-40"
+                    >
+                      <PhoneCall className="h-4 w-4" />
+                      <span className="sr-only">Call back {redialTo || "unavailable"}</span>
+                    </button>
+                  </div>
+                );
               })}
             </ListGroup>
           )}
@@ -515,7 +545,9 @@ function CallsScreen() {
             <SheetTitle className="font-display text-center">Dialer</SheetTitle>
           </SheetHeader>
           <form onSubmit={dial} className="space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+            <DialerE911Warning acknowledged={e911Acknowledged} />
             <Dialpad value={to} onChange={setTo} />
+            <E911Disclosure className="text-center text-[0.7rem] leading-relaxed text-muted-foreground" />
 
             <div className="space-y-1.5">
               <Label className="text-[0.7rem] tracking-wide text-muted-foreground uppercase">
@@ -552,7 +584,7 @@ function CallsScreen() {
               </button>
               <button
                 type="submit"
-                disabled={!to.trim()}
+                disabled={!to.trim() || !e911Acknowledged}
                 className="key-call flex h-16 w-16 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-40"
               >
                 <PhoneCall className="h-6 w-6" />

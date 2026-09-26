@@ -13,17 +13,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { errorMessage, formatPhone } from "@/lib/format";
-import {
-  deleteCallerRule,
-  listCallerRules,
-  saveCallerRule,
-} from "@/lib/intelligence.functions";
+import { deleteCallerRule, listCallerRules, saveCallerRule } from "@/lib/intelligence.functions";
 
 type Behavior = "vip" | "screen" | "block";
 
 const META: Record<Behavior, { label: string; hint: string; icon: typeof Star }> = {
   vip: { label: "Always ring me", hint: "Rings through, even in quiet hours", icon: Star },
-  screen: { label: "Screen first", hint: "Assistant answers and asks who's calling", icon: ShieldQuestion },
+  screen: {
+    label: "Screen first",
+    hint: "Assistant answers and asks who's calling",
+    icon: ShieldQuestion,
+  },
   block: { label: "Decline silently", hint: "Never rings your phone", icon: Ban },
 };
 
@@ -92,7 +92,10 @@ export function CallerRules() {
           const meta = META[(rule.behavior as Behavior) ?? "screen"] ?? META.screen;
           const Icon = meta.icon;
           return (
-            <li key={rule.id} className="glass-panel flex items-center gap-3 rounded-2xl px-3.5 py-2.5">
+            <li
+              key={rule.id}
+              className="glass-panel flex items-center gap-3 rounded-2xl px-3.5 py-2.5"
+            >
               <Icon className="size-4 shrink-0 text-primary" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">

@@ -6,15 +6,18 @@ export const Route = createFileRoute("/api/public/elevenlabs/post-call")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const url = new URL(request.url);
-        const expected = process.env["TWILIO_WEBHOOK_TOKEN"] ?? "";
-        if (!expected || url.searchParams.get("t") !== expected) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const raw = await request.text();
+        const { verifyElevenLabsRequest } = await import("@/lib/elevenlabs-signature.server");
+        const auth = await verifyElevenLabsRequest(request, raw);
+        if (!auth.ok) return new Response("Unauthorized", { status: 401 });
 
-        const payload = (await request.json().catch(() => null)) as {
-          data?: Record<string, unknown>;
-        } | null;
+        const payload = (() => {
+          try {
+            return JSON.parse(raw) as { data?: Record<string, unknown> };
+          } catch {
+            return null;
+          }
+        })();
         if (!payload) return new Response("Bad request", { status: 400 });
 
         const data = (payload.data ?? payload) as Record<string, unknown>;
@@ -51,10 +54,7 @@ export const Route = createFileRoute("/api/public/elevenlabs/post-call")({
         );
 
         if (summary) {
-          await supabaseAdmin
-            .from("calls")
-            .update({ transcription: summary })
-            .eq("sid", callSid);
+          await supabaseAdmin.from("calls").update({ transcription: summary }).eq("sid", callSid);
         }
 
         if (appNumber) {

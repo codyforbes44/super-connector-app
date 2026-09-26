@@ -18,6 +18,7 @@ optional instead of required.
 ## Dialer copy
 
 The helper line under the dial keys reflects which path will run:
+
 - "In-app call — connects right here using your caller ID."
 - "We'll ring <your number> first, then connect the contact."
 - "Direct call — dialing the contact from <caller ID>. Add a callback number in

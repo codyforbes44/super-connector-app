@@ -104,7 +104,10 @@ export const reanalyseCall = createServerFn({ method: "POST" })
       .select("full_text, app_number, contact_number")
       .eq("call_sid", data.callSid);
 
-    const text = (transcripts ?? []).map((row) => row.full_text as string).join("\n").trim();
+    const text = (transcripts ?? [])
+      .map((row) => row.full_text as string)
+      .join("\n")
+      .trim();
     if (!text) {
       const { data: call } = await context.supabase
         .from("calls")
@@ -373,6 +376,7 @@ export const applySuggestedAction = createServerFn({ method: "POST" })
         to: data.contactNumber,
         body: data.value ?? "",
         channel: "sms",
+        kind: "automated",
       });
       return { ok: true, message: "Message sent." };
     }

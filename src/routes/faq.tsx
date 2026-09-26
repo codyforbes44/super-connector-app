@@ -7,99 +7,93 @@ import {
   MarketingLayout,
   Section,
 } from "@/components/MarketingLayout";
-import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
+import { E911Disclosure, TextingDisclosure } from "@/components/marketing/Disclosures";
+import { TRIAL_DAYS, TRIAL_LIMITS } from "@/lib/plans";
+import { SITE_URL, breadcrumbLd, faqLd, pageHead } from "@/lib/seo";
 
-const TITLE = "FAQ — SixVox questions answered";
+const TITLE = "FAQ — SixVox for tradespeople";
 const DESCRIPTION =
-  "Answers on trials, pricing, numbers, the AI receptionist, data ownership and how SixVox compares to other business phone apps.";
+  "Trials, canceling, forwarding a number, the AI receptionist, call recording, 911 on a VoIP line, and US texting registration.";
 
 const GROUPS = [
   {
     heading: "Getting started",
     items: [
       {
-        q: "Do I need anything before I start?",
-        a: "No. Sign up with an email address and your 14-day trial starts immediately — no card, no setup call. Your numbers, data and usage always stay yours.",
+        q: "Who is SixVox for?",
+        a: "A US owner-operator or a crew of 2–5 in plumbing, HVAC, electrical, handyman, cleaning, landscaping, or garage doors. You run the business from your phone and miss calls while you're on a job.",
       },
       {
-        q: "Does it work on mobile?",
-        a: "SixVox is mobile-first and installable to your home screen. Calls ring inside the app, and push notifications alert you even when the app is in the background.",
+        q: "Do I need a card to start?",
+        a: `You can create an account without paying. Choosing a plan collects payment details and starts the ${TRIAL_DAYS}-day trial. Nothing is charged until it ends. The trial includes ${TRIAL_LIMITS.numbers} number, ${TRIAL_LIMITS.seats} seat, and ${TRIAL_LIMITS.aiCalls} AI receptionist calls.`,
       },
       {
-        q: "How long does setup take?",
-        a: "Most workspaces are sending and receiving within a couple of minutes. Wiring an existing number is one tap; carrier forwarding takes a short code you dial once.",
+        q: "Does it work on my phone?",
+        a: "The app runs in the browser, and Android can install it. Calls use web push when the app is in the background. A native iPhone and Android calling app is coming soon — there is no iPhone app today.",
       },
     ],
   },
   {
-    heading: "Billing and plans",
+    heading: "Billing",
     items: [
       {
-        q: "When am I charged?",
-        a: "Never during the trial. When you pick a plan you're charged immediately, then automatically each month or year until you cancel.",
+        q: "How do I cancel?",
+        a: "Open Billing and tap Cancel plan. You keep access until the end of the period you've already paid for.",
+      },
+      {
+        q: "Is the AI receptionist extra?",
+        a: "No. It is on Solo, Team, and Scale. Solo includes 50 AI calls, Team 200, and Scale 600. The trial includes 20.",
       },
       {
         q: "Is tax included?",
-        a: "Prices are in USD excluding tax. Applicable sales tax or VAT is calculated at checkout from your billing address and shown before you pay.",
-      },
-      {
-        q: "Can I cancel any time?",
-        a: "Yes. Manage or cancel your subscription from Billing at any point; access continues until the end of the paid period and you won't be charged again.",
-      },
-      {
-        q: "Do you offer refunds?",
-        a: "Fees already paid aren't refunded except where required by law — that's why the trial gives you the full product for 14 days first. If something went wrong with a charge, contact us and we'll sort it out.",
-      },
-      {
-        q: "How is usage billed?",
-        a: "Calls, messages and AI minutes are billed at cost with no markup, itemised on your invoice alongside your plan fee.",
+        a: "Prices are in USD before tax. Sales tax or VAT is calculated at checkout.",
       },
     ],
   },
   {
-    heading: "Numbers and porting",
+    heading: "Your number and texts",
     items: [
       {
-        q: "Can I keep my existing numbers?",
-        a: "Absolutely. Numbers already on your account appear as soon as you connect, and one tap wires their voice and messaging webhooks to SixVox.",
+        q: "Can I keep the number on my truck?",
+        a: "Yes. Forward it to SixVox and callers keep dialing the same digits. Porting the number in is coming soon.",
       },
       {
-        q: "What if I don't want to port?",
-        a: "Leave the number with your carrier and forward calls to SixVox. Callers keep dialling the same digits, and SixVox handles answering, voicemail and transcription.",
-      },
-      {
-        q: "Do I need A2P registration to text US numbers?",
-        a: "Yes — US carriers require it. SixVox walks you through 10DLC brand and campaign registration inside the app and tracks approval status for you.",
+        q: "Do I need carrier registration to text?",
+        a: "Yes. US carriers filter unregistered business texts. SixVox handles A2P 10DLC registration on every plan. Texts may not deliver until the carrier approves it.",
       },
     ],
   },
   {
-    heading: "AI receptionist",
+    heading: "Answering and recording",
     items: [
       {
-        q: "How do the AI voicemail assistants work?",
-        a: "Each number can play a lifelike synthesized greeting or hand the caller to a conversational agent with your own prompt, tone, language, time limit and fallback behaviour. Transcripts and summaries land on the call record.",
+        q: "What happens when I can't pick up?",
+        a: "If that number is set to the AI receptionist, it answers and leaves a transcript. Voicemail is the fallback. Missed-call text-back is included on every plan and is coming soon.",
       },
       {
-        q: "What happens if the AI can't help?",
-        a: "It falls back cleanly — taking a message, transferring to you, or offering a booking slot, depending on how you configure the number.",
+        q: "Are calls recorded?",
+        a: "Call recording is off for each line until you turn it on. When it is on, everyone on the call hears a recording notice before recording starts, including voicemail and the AI receptionist.",
+      },
+      {
+        q: "Will it book the job by itself?",
+        a: "Not yet. Google Calendar is a tool in the app. Booking that checks real availability and waits for you to approve the time is coming soon.",
       },
     ],
   },
   {
-    heading: "Privacy, data and control",
+    heading: "Emergencies and other products",
     items: [
+      {
+        q: "Can I call 911 from SixVox?",
+        a: "SixVox is a VoIP line. 911 can fail if power, the internet, or SixVox is down, and responders are sent to the service address registered for that number, not to wherever the handset is. Registering that address is $0.75 per number per month. A 911 call with no registered address is $75 and goes to a national emergency center. Use a traditional phone when you can.",
+      },
       {
         q: "Who owns my data?",
-        a: "You do. Messages, voicemail, transcripts and contacts belong to your workspace, and roles are enforced at the database level so agents only see what's assigned to them. Calls are only recorded if you turn on transcription for a line, and callers hear a recording notice first.",
+        a: "You do. Messages, voicemail, transcripts and contacts belong to your workspace, and roles are enforced at the database level so agents only see what's assigned to them. Call recording is off for each line until you turn it on. When it is on, everyone on the call hears a recording notice before recording starts, including voicemail and the AI receptionist.",
       },
       {
-        q: "What is the unrestricted API console?",
-        a: "An admin-only screen with direct access to every messaging, voice, verification and number endpoint on your account. Nothing is walled off behind our feature list.",
-      },
-      {
-        q: "How is this different from Talkyto, Toktiv or Mango?",
-        a: "Those apps expose a slice of what a business line can do. SixVox covers messaging, calling, numbers, AI answering, and connected mail, calendar and maps tools in one place, with real roles for teams.",
+        q: "How is this different from Quo, Grasshopper, Google Voice, or Jobber Receptionist?",
+        a: "Those comparisons, with list prices as of Sep 2026, are on the compare page. SixVox is the business line and inbox, with the AI receptionist included on Solo. It is not a field-service CRM.",
       },
     ],
   },
@@ -116,18 +110,7 @@ export const Route = createFileRoute("/faq")({
       image: `${SITE_URL}/og-faq.jpg`,
     }),
     scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: ALL_FAQS.map((item) => ({
-            "@type": "Question",
-            name: item.q,
-            acceptedAnswer: { "@type": "Answer", text: item.a },
-          })),
-        }),
-      },
+      { type: "application/ld+json", children: JSON.stringify(faqLd(ALL_FAQS)) },
       {
         type: "application/ld+json",
         children: JSON.stringify(
@@ -145,44 +128,44 @@ export const Route = createFileRoute("/faq")({
 function FaqPage() {
   return (
     <MarketingLayout>
-      <Section className="pb-8">
-        <Eyebrow>Questions, answered</Eyebrow>
-        <h1 className="font-display mt-5 text-[2rem] leading-[1.06] font-semibold text-balance sm:text-4xl md:text-5xl">
-          Frequently asked questions
+      <Section className="pb-6">
+        <Eyebrow>Straight answers</Eyebrow>
+        <h1 className="font-display mt-5 text-[2rem] leading-[1.08] font-semibold sm:text-5xl">
+          Questions from the truck
         </h1>
+        <Link
+          to="/auth"
+          search={{ mode: "signup" }}
+          className="key-signal mt-6 inline-flex min-h-14 w-full items-center justify-center rounded-xl px-6 text-base font-semibold sm:w-auto"
+        >
+          Start free trial
+        </Link>
       </Section>
-
-      <Section className="py-4">
-        <div className="space-y-8">
-          {GROUPS.map((group) => (
-            <div key={group.heading}>
-              <h2 className="font-display text-sm font-semibold tracking-wide text-primary uppercase">
-                {group.heading}
-              </h2>
-              <div className="mt-4">
-                <FaqAccordion items={group.items} />
-              </div>
+      <Section className="space-y-8 py-4">
+        {GROUPS.map((group) => (
+          <div key={group.heading}>
+            <h2 className="font-display text-sm font-semibold tracking-wide text-primary uppercase">
+              {group.heading}
+            </h2>
+            <div className="mt-3">
+              <FaqAccordion items={group.items} />
             </div>
-          ))}
-        </div>
-
-        <p className="mt-8 text-sm text-muted-foreground">
+          </div>
+        ))}
+        <TextingDisclosure className="text-sm leading-relaxed text-muted-foreground" />
+        <E911Disclosure className="text-sm leading-relaxed text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">
           Still stuck?{" "}
-          <Link
-            to="/contact"
-            className="inline-flex min-h-11 items-center text-primary underline"
-          >
-            Talk to us
+          <Link to="/contact" className="font-semibold text-primary underline">
+            Contact the team
           </Link>
           .
         </p>
-
-        <div className="mt-8">
-          <CtaBand
-            title="Answers are easier with the app open."
-            body="Start the free trial and see how SixVox handles your line before you decide anything."
-          />
-        </div>
+        <CtaBand
+          title="See it on your own number."
+          body="Start the trial and forward the line customers already call."
+          label="Start free trial"
+        />
       </Section>
     </MarketingLayout>
   );

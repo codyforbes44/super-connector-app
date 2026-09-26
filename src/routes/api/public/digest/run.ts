@@ -13,18 +13,14 @@ export const Route = createFileRoute("/api/public/digest/run")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        const { supabaseAdmin } =
-          await import("@/integrations/supabase/client.server");
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { runDueDigests } = await import("@/lib/digest.server");
         try {
           const result = await runDueDigests(supabaseAdmin as never);
           return Response.json({ ok: true, ...result });
         } catch (error) {
           console.error("digest run failed", error);
-          return Response.json(
-            { ok: false, error: "digest run failed" },
-            { status: 500 },
-          );
+          return Response.json({ ok: false, error: "digest run failed" }, { status: 500 });
         }
       },
     },

@@ -29,6 +29,7 @@ Everyone shares the platform Twilio account; subscribers are assigned numbers fr
 Desktop-responsive and SEO-tuned, using the existing Midnight Dialer palette. The app keeps its mobile shell; marketing pages get a wide layout with a real header and footer.
 
 Pages:
+
 - **Home** - hero with product shot, the problem (Talkyto, Toktiv and Mango are closed boxes), six capability cards, proof band, CTAs to pricing.
 - **Features** - deep sections for the inbox, calling and the TwiML app, numbers, AI voicemail assistants, Verify and Lookup, integrations (Gmail, Calendar, Maps, email alerts) and the unrestricted API console.
 - **Pricing** - three plan cards with a monthly/yearly toggle, comparison table, and per-plan checkout buttons that go straight to Stripe.

@@ -33,10 +33,16 @@ export async function mintVoiceToken(opts: {
   userId: string;
   applicationSid: string;
   ttlSeconds?: number;
+  /** Twilio Push Credential SID (CRxxxx). Omitted for browser tokens. */
+  pushCredentialSid?: string;
+  /** Subaccount the Voice SDK must use. Falls back to the parent env credentials. */
+  accountSid?: string;
+  apiKeySid?: string;
+  apiKeySecret?: string;
 }): Promise<VoiceTokenResult> {
-  const accountSid = process.env["TWILIO_ACCOUNT_SID"];
-  const keySid = process.env["TWILIO_API_KEY_SID"];
-  const keySecret = process.env["TWILIO_API_KEY_SECRET"];
+  const accountSid = opts.accountSid ?? process.env["TWILIO_ACCOUNT_SID"];
+  const keySid = opts.apiKeySid ?? process.env["TWILIO_API_KEY_SID"];
+  const keySecret = opts.apiKeySecret ?? process.env["TWILIO_API_KEY_SECRET"];
   if (!accountSid || !keySid || !keySecret) {
     throw new Error(
       "In-app calling needs a Twilio API Key. Ask an admin to finish the voice setup in Settings.",
@@ -60,6 +66,7 @@ export async function mintVoiceToken(opts: {
       voice: {
         incoming: { allow: true },
         outgoing: { application_sid: opts.applicationSid },
+        ...(opts.pushCredentialSid ? { push_credential_sid: opts.pushCredentialSid } : {}),
       },
     },
   };

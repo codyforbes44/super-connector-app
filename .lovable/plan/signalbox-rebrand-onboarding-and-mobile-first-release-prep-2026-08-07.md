@@ -8,15 +8,15 @@ Every user-visible mention of Twilio, ElevenLabs, Resend, Stripe and Google APIs
 
 Naming map used consistently everywhere:
 
-| Today | Becomes |
-| --- | --- |
-| Twilio number / caller ID | SignalBox number / your number |
-| Twilio Messaging Service | Sender pool |
-| TwiML App / Voice SDK | In-app calling |
-| Verify / Lookup | Verification / Number intelligence |
-| ElevenLabs agent | AI receptionist / AI voice |
-| Resend email log | Email delivery |
-| Twilio API Console | Provider API Console (super-admin only, kept as an escape hatch) |
+| Today                     | Becomes                                                          |
+| ------------------------- | ---------------------------------------------------------------- |
+| Twilio number / caller ID | SignalBox number / your number                                   |
+| Twilio Messaging Service  | Sender pool                                                      |
+| TwiML App / Voice SDK     | In-app calling                                                   |
+| Verify / Lookup           | Verification / Number intelligence                               |
+| ElevenLabs agent          | AI receptionist / AI voice                                       |
+| Resend email log          | Email delivery                                                   |
+| Twilio API Console        | Provider API Console (super-admin only, kept as an escape hatch) |
 
 Also updated: page titles and meta descriptions on all public routes, marketing footer ("Built on Twilio" removed), manifest name, email template copy and sender labels, error and empty-state strings, settings help text, FAQ and How-it-works content. The "Bring your own Twilio account" positioning is replaced with plan-based messaging so the value prop no longer leaks the provider.
 

@@ -65,8 +65,7 @@ export function CalendarSettingsPanel() {
       timezone: (row["timezone"] as string) ?? DEFAULTS.timezone,
       lookbackDays: (row["lookback_days"] as number) ?? DEFAULTS.lookbackDays,
       lookaheadDays: (row["lookahead_days"] as number) ?? DEFAULTS.lookaheadDays,
-      eventTitleTemplate:
-        (row["event_title_template"] as string) ?? DEFAULTS.eventTitleTemplate,
+      eventTitleTemplate: (row["event_title_template"] as string) ?? DEFAULTS.eventTitleTemplate,
       defaultDurationMinutes:
         (row["default_duration_minutes"] as number) ?? DEFAULTS.defaultDurationMinutes,
       bufferMinutes: (row["buffer_minutes"] as number) ?? DEFAULTS.bufferMinutes,
@@ -179,9 +178,7 @@ export function CalendarSettingsPanel() {
             <Input
               type="number"
               value={form.defaultDurationMinutes}
-              onChange={(e) =>
-                setForm({ ...form, defaultDurationMinutes: Number(e.target.value) })
-              }
+              onChange={(e) => setForm({ ...form, defaultDurationMinutes: Number(e.target.value) })}
             />
           </div>
           <div className="space-y-1">
@@ -224,7 +221,11 @@ export function CalendarSettingsPanel() {
         </div>
       </div>
 
-      <Button className="w-full rounded-full" disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button
+        className="w-full rounded-full"
+        disabled={save.isPending}
+        onClick={() => save.mutate()}
+      >
         {save.isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (

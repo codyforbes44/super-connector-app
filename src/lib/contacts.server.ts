@@ -26,7 +26,8 @@ export async function listContacts(supabase: SB, userId: string, search?: string
     .limit(500);
 
   const term = clean(search);
-  if (term) query = query.or(`name.ilike.%${term}%,phone_number.ilike.%${term}%,email.ilike.%${term}%`);
+  if (term)
+    query = query.or(`name.ilike.%${term}%,phone_number.ilike.%${term}%,email.ilike.%${term}%`);
 
   const { data, error } = await query;
   if (error) throw error;
@@ -77,11 +78,7 @@ export async function deleteContact(supabase: SB, userId: string, id: string) {
 }
 
 /** Bulk merge from the device address book: adds new numbers, fills blank fields. */
-export async function importContacts(
-  supabase: SB,
-  userId: string,
-  entries: ContactInput[],
-) {
+export async function importContacts(supabase: SB, userId: string, entries: ContactInput[]) {
   const byPhone = new Map<string, ContactInput>();
   for (const entry of entries) {
     const phone = normalizePhone(entry.phoneNumber ?? "");

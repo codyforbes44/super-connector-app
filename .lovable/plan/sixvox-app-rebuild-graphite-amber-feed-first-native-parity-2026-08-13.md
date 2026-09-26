@@ -30,6 +30,7 @@ Navigation: feed-first single column, bottom tab bar (Inbox, Calls, Dialer, Tool
 All in one sweep, grouped by how they get used.
 
 Daily drivers
+
 - Inbox list: virtualized threads, unread state, swipe to archive/call, search, realtime updates.
 - Conversation: sticky composer with attachments, day separators, delivery status, keyboard-safe layout, contact context header.
 - Calls: segmented filters, grouped-by-day rows, one-tap call back, recording/transcript inline.
@@ -37,10 +38,12 @@ Daily drivers
 - Contacts: sectioned A-Z list, fast search, device import, detail sheet with call/text/mail actions.
 
 Setup and config
+
 - Numbers, receptionist, A2P, calling settings, tools, connectors: rebuilt as settings feeds with grouped rows, per-row status pills, and sheet-based editors instead of inline panels.
 - Every long form becomes stepped or grouped, with saved-state feedback.
 
 Account and admin
+
 - Settings, billing, subscribers, console, insights, eSIM, welcome: same framework, tables become card lists on phones and return to tables at `md:`.
 
 ## 4. Data layer standardization

@@ -18,13 +18,7 @@ const KEYS = [
   { digit: "#", letters: "" },
 ] as const;
 
-export function Dialpad({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-}) {
+export function Dialpad({ value, onChange }: { value: string; onChange: (next: string) => void }) {
   return (
     <div className="space-y-4">
       <div className="flex min-h-14 items-center justify-center gap-2">
@@ -51,7 +45,7 @@ export function Dialpad({
         ) : null}
       </div>
 
-      <div className="mx-auto grid max-w-[17rem] grid-cols-3 gap-3">
+      <div className="mx-auto grid max-w-[18.5rem] grid-cols-3 gap-3.5">
         {KEYS.map((key) => (
           <button
             key={key.digit}
@@ -61,7 +55,8 @@ export function Dialpad({
               playDtmf(key.digit);
             }}
             onClick={() => onChange((value + key.digit).slice(0, 20))}
-            className="key-raised mx-auto flex h-16 w-16 flex-col items-center justify-center rounded-full transition-transform duration-75 active:scale-95"
+            aria-label={key.letters ? `${key.digit}, ${key.letters}` : `Digit ${key.digit}`}
+            className="key-raised mx-auto flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full transition-transform duration-75 active:scale-95"
           >
             <span className="font-display text-xl leading-none font-semibold">{key.digit}</span>
             {key.letters ? (

@@ -39,8 +39,8 @@ export function EsimExplainer() {
             <Globe className="mt-0.5 size-4 shrink-0 text-primary" />
             <span>
               <span className="block font-semibold text-foreground">Travelling abroad</span>
-              Any local Wi-Fi or travel data plan is enough. Your SixVox number keeps ringing with no
-              roaming charges on the call itself.
+              Any local Wi-Fi or travel data plan is enough. Your SixVox number keeps ringing with
+              no roaming charges on the call itself.
             </span>
           </li>
         </ul>

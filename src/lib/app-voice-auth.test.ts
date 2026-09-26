@@ -12,6 +12,7 @@ const state = vi.hoisted(() => ({
     outbound_caller_id: string | null;
   } | null,
   params: {} as Record<string, string>,
+  acknowledged: true,
   rpc: vi.fn(() => {
     throw new Error("is_admin must not be called");
   }),
@@ -42,6 +43,9 @@ vi.mock("@/integrations/supabase/client.server", () => ({
       if (table === "phone_numbers") return chain({ data: state.number, error: null });
       if (table === "user_roles") return chain({ data: state.roles, error: state.roleError });
       if (table === "calls") return chain({ data: null, error: null });
+      if (table === "e911_acknowledgments") {
+        return chain({ data: state.acknowledged ? { id: "ack" } : null, error: null });
+      }
       throw new Error(`unexpected table ${table}`);
     },
     rpc: state.rpc,
@@ -75,9 +79,15 @@ const userId = "11111111-1111-4111-8111-111111111111";
 const otherId = "22222222-2222-4222-8222-222222222222";
 const callerId = "+15550001111";
 
-async function place(roles: string[], assignedTo: string | null, numberOnAccount = true) {
+async function place(
+  roles: string[],
+  assignedTo: string | null,
+  numberOnAccount = true,
+  acknowledged = true,
+) {
   state.roles = roles.map((role) => ({ role }));
   state.roleError = null;
+  state.acknowledged = acknowledged;
   state.number = numberOnAccount
     ? { phone_number: callerId, assigned_to: assignedTo, outbound_caller_id: null }
     : null;
@@ -164,5 +174,11 @@ describe("app-voice outbound authorization", () => {
   it("rejects an owner when the caller ID is not on the account", async () => {
     const body = await place(["owner"], null, false);
     expect(body).toContain("You are not allowed to call from that number.");
+  });
+
+  it("blocks an authorized caller until they acknowledge the 911 limitations", async () => {
+    const body = await place(["owner"], otherId, true, false);
+    expect(body).toContain("acknowledge the 911 service limitations");
+    expect(body).not.toContain("<Dial");
   });
 });

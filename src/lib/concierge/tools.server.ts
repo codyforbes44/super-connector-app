@@ -8,7 +8,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { PLANS, TRIAL_DAYS, planByCode } from "@/lib/plans";
+import { PLANS, TRIAL_DAYS, TRIAL_LIMITS, featureLabel, planByCode } from "@/lib/plans";
 import type { ToolName } from "./tool-defs";
 import { alertTeam, logToolCall, type ConversationRow } from "./store.server";
 
@@ -28,11 +28,13 @@ function pricing(args: Args): ToolResult {
     monthly_usd: plan.monthly,
     yearly_usd: plan.yearly,
     included_numbers: plan.numbers,
-    seats: plan.seats ?? "unlimited",
-    features: plan.features,
+    seats: plan.seats,
+    included_ai_calls: plan.aiCalls,
+    features: plan.features.map(featureLabel),
   });
   return {
     trial_days: TRIAL_DAYS,
+    trial_limits: TRIAL_LIMITS,
     billing: "Monthly or yearly, cancel any time. Yearly is about two months cheaper.",
     plans: one ? [shape(one)] : PLANS.map(shape),
   };

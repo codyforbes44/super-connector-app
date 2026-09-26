@@ -222,7 +222,6 @@
   color: var(--foreground);
 }
 
-
 @layer base {
   * {
     border-color: var(--border);
@@ -378,11 +377,8 @@
   position: relative;
   isolation: isolate;
   border-block: 1px solid var(--panel-border);
-  background-image: radial-gradient(
-      110% 70% at 78% 8%,
-      oklch(0.635 0.184 259 / 18%),
-      transparent 62%
-    ),
+  background-image:
+    radial-gradient(110% 70% at 78% 8%, oklch(0.635 0.184 259 / 18%), transparent 62%),
     radial-gradient(90% 60% at 8% 100%, oklch(0.635 0.184 259 / 10%), transparent 60%);
 }
 

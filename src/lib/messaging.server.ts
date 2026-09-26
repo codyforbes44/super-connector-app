@@ -9,8 +9,11 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { twilioRequest } from "./twilio.server";
 import { webhookUrl } from "./app.server";
+import { campaignApproved } from "./message-status";
+import { twilioRequest } from "./twilio.server";
+
+export { campaignApproved };
 
 type SB = SupabaseClient;
 
@@ -21,12 +24,6 @@ export type NumberMessagingState = {
   campaignStatus: string | null;
   ready: boolean;
 };
-
-/** Campaign states Twilio treats as cleared to send. */
-export function campaignApproved(status: string | null | undefined): boolean {
-  const value = (status ?? "").toUpperCase();
-  return value === "VERIFIED" || value === "APPROVED" || value === "REGISTERED";
-}
 
 type ServiceRow = { sid: string; friendly_name?: string };
 
@@ -105,8 +102,6 @@ export async function serviceInboundByNumber(): Promise<Map<string, boolean>> {
   return map;
 }
 
-
-
 /**
  * Walk every Messaging Service, map its sender pool, and record the campaign
  * status against each local number. Returns the resulting state per number.
@@ -122,7 +117,10 @@ export async function syncMessagingReadiness(admin: SB): Promise<NumberMessaging
   const ownNumbers = new Set((ownRows ?? []).map((row) => row["phone_number"] as string));
 
   // phone number -> best known state (an approved campaign always wins)
-  const byNumber = new Map<string, { sid: string; campaignId: string | null; status: string | null }>();
+  const byNumber = new Map<
+    string,
+    { sid: string; campaignId: string | null; status: string | null }
+  >();
 
   for (const service of services.services ?? []) {
     const [pool, compliance] = await Promise.all([
@@ -190,11 +188,16 @@ const STALE_MS = 6 * 60 * 60 * 1000;
  * Messaging state for one number, refreshing from Twilio when the cached row is
  * missing or stale. Never throws — an API hiccup degrades to the cached value.
  */
-export async function messagingStateFor(admin: SB, phoneNumber: string): Promise<NumberMessagingState> {
+export async function messagingStateFor(
+  admin: SB,
+  phoneNumber: string,
+): Promise<NumberMessagingState> {
   const read = async (): Promise<NumberMessagingState | null> => {
     const { data } = await admin
       .from("phone_numbers")
-      .select("phone_number, messaging_service_sid, campaign_id, campaign_status, messaging_checked_at")
+      .select(
+        "phone_number, messaging_service_sid, campaign_id, campaign_status, messaging_checked_at",
+      )
       .eq("phone_number", phoneNumber)
       .maybeSingle();
     if (!data) return null;

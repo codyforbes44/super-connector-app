@@ -3,9 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage, LEGAL_UPDATED } from "@/components/LegalPage";
 import { pageHead } from "@/lib/seo";
 
-const TITLE = "Privacy Policy — SixVox";
+const TITLE = "Privacy Policy — SixVox business phone";
 const DESCRIPTION =
-  "How SixVox collects, uses, stores and protects your account, call, message and contact data.";
+  "How SixVox handles account, call, message, voicemail, and contact data for your business line, including when calls are recorded.";
 
 export const Route = createFileRoute("/legal/privacy")({
   head: () => pageHead({ path: "/legal/privacy", title: TITLE, description: DESCRIPTION }),
@@ -17,12 +17,53 @@ function Privacy() {
     <LegalPage title="Privacy Policy" updated={LEGAL_UPDATED}>
       <h2>What we collect</h2>
       <p>
-        We collect the account details you give us (name, email address and workspace name), the
+        We collect the account details you give us (name, email address, and workspace name), the
         business communications you send and receive through SixVox (call metadata, messages,
-        voicemail recordings and their transcripts, and call recordings when transcription is turned
-        on for a line), the contacts you save, and technical data such as device type and push
-        notification tokens. Calls are only recorded if you turn on transcription for a line, and
-        callers hear a recording notice first. Voicemail a caller chooses to leave is also stored.
+        voicemail recordings and their transcripts, and live call recordings when recording is
+        turned on for a line), the contacts you save, the emergency service address you register for
+        a number, and technical data such as device type and push notification tokens. Call
+        recording is off for each line until you turn it on. When it is on, everyone on the call
+        hears a recording notice before recording starts, including voicemail and the AI
+        receptionist. Voicemail a caller chooses to leave is also stored.
+      </p>
+
+      <h2>Emergency calling</h2>
+      <p>
+        If you register an emergency address, SixVox sends that address to Twilio so 911 responders
+        are directed to it. The address, its validation result, and each user&apos;s acknowledgment
+        of the VoIP 911 limitations (47 CFR 9.11) are stored with your account. Registering an
+        address costs $0.75 per number per month, billed by Twilio. A 911 call from a number with no
+        registered address is routed to a national emergency call center at $75 per call.
+      </p>
+
+      <h2>Call recording</h2>
+      <p>
+        Recording of live calls is off until an admin turns it on for that line. Voicemail is always
+        recorded. When a live call is recorded, SixVox plays “This call may be recorded and
+        transcribed for note taking” to every party before the recording starts, including inbound
+        calls, outbound calls, and the AI receptionist. The assistant&apos;s first message
+        identifies it as an automated assistant, and includes the recording notice when that line
+        records calls. SixVox uses this all-party notice everywhere, including one-party-consent
+        states.
+      </p>
+
+      <h2>Text messages and opt-out</h2>
+      <p>
+        If someone texts STOP, STOPALL, UNSUBSCRIBE, CANCEL, END, QUIT, REVOKE, or OPTOUT, SixVox
+        stops automated and app-sent texts to that number until they text START, UNSTOP, YES, or
+        OPTIN. HELP and INFO are logged and are not treated as opt-out. Quiet hours, when you turn
+        them on, hold follow-up, review, and marketing texts. A text you send yourself from the
+        inbox is not held for quiet hours. Review and marketing texts also require a consent record
+        for that number. SixVox does not place outbound AI voice calls. If that feature is added, it
+        will stay blocked unless a prior-consent record exists for the number.
+      </p>
+
+      <h2>AI receptionist</h2>
+      <p>
+        If you turn on the AI receptionist for a number, the audio of that call is processed to
+        generate the spoken reply and a transcript. That processing is used to run the feature you
+        enabled. We do not sell those conversations and we do not use them to advertise to your
+        callers.
       </p>
 
       <h2>How we use it</h2>

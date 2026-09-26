@@ -17,6 +17,7 @@ Business profile  ->  Brand  ->  Campaign  ->  Number in pool  ->  Approved
 Each step shows live status from Twilio (draft / pending / approved / failed) with the failure reason when Twilio rejects one.
 
 **3. Submit registration from the app**
+
 - Business profile: legal business name, EIN/Tax ID, business type and industry, address, website, and an authorized contact.
 - Brand: submitted from the business profile; low-volume standard by default (cheapest, no vetting wait) with an option for standard brand.
 - Campaign: use case (e.g. customer care / 2FA / mixed), campaign description, two sample messages, opt-in details and help/stop keyword handling.

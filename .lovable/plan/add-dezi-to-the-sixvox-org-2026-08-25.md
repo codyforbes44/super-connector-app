@@ -5,6 +5,7 @@ Dezi (dezifab26@gmail.com) already has an account with admin access, but she's s
 ## What changes
 
 **Account setup (data changes)**
+
 - Assign (580) 745-0045 to Dezi and make it her default number.
 - Keep her admin role (full app access).
 - Mark her plan as comped and active under your org so she never sees billing or trial prompts.
@@ -15,6 +16,7 @@ Dezi (dezifab26@gmail.com) already has an account with admin access, but she's s
 Note: (580) 745-0045 is the A2P-approved SMS number and is currently yours. Reassigning it moves that line to Dezi — you keep (580) 217-8444 and (817) 533-8844. Admin still sees all numbers.
 
 **First-run welcome**
+
 - A one-time welcome card appears the first time she opens the app: "Welcome to SixVox, Dezi", a short line about her number being live, and quick links to the dialer, inbox and settings.
 - Dismissing it clears the flag so it never shows again. It only appears for users carrying the welcome flag, so nothing changes for you.
 

@@ -9,7 +9,10 @@
  * the duration of the call.
  */
 
-type WakeLockSentinel = { release: () => Promise<void>; addEventListener: (t: string, cb: () => void) => void };
+type WakeLockSentinel = {
+  release: () => Promise<void>;
+  addEventListener: (t: string, cb: () => void) => void;
+};
 
 let sentinel: WakeLockSentinel | null = null;
 
@@ -120,11 +123,19 @@ export type DeviceAudio = {
 function preferredId(devices: Map<string, MediaDeviceInfo> | undefined): string | null {
   if (!devices || devices.size === 0) return null;
   const ids = Array.from(devices.keys());
-  return ids.find((id) => id === "communications") ?? ids.find((id) => id === "default") ?? ids[0] ?? null;
+  return (
+    ids.find((id) => id === "communications") ??
+    ids.find((id) => id === "default") ??
+    ids[0] ??
+    null
+  );
 }
 
 /** Human label for a device id, falling back to something we can show a user. */
-function labelFor(devices: Map<string, MediaDeviceInfo> | undefined, id: string | null): string | null {
+function labelFor(
+  devices: Map<string, MediaDeviceInfo> | undefined,
+  id: string | null,
+): string | null {
   if (!id) return null;
   const label = devices?.get(id)?.label?.trim();
   if (label) return label;
@@ -213,7 +224,8 @@ export async function rebindAudioDevices(
       : null;
   const outputId = explicitStillPresent ?? preferredId(audio.availableOutputDevices);
   const changed =
-    (inputId !== null && inputId !== lastInputId) || (outputId !== null && outputId !== lastOutputId);
+    (inputId !== null && inputId !== lastInputId) ||
+    (outputId !== null && outputId !== lastOutputId);
   try {
     if (inputId && audio.setInputDevice) {
       // Re-setting the same id forces a fresh getUserMedia on the live device.
@@ -239,7 +251,8 @@ export async function rebindAudioDevices(
 
 /** Fire `cb` whenever the set of audio devices changes (headset, Bluetooth). */
 export function watchAudioDevices(cb: () => void): () => void {
-  if (typeof navigator === "undefined" || !navigator.mediaDevices?.addEventListener) return () => {};
+  if (typeof navigator === "undefined" || !navigator.mediaDevices?.addEventListener)
+    return () => {};
   navigator.mediaDevices.addEventListener("devicechange", cb);
   return () => navigator.mediaDevices.removeEventListener("devicechange", cb);
 }

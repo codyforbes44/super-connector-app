@@ -8,7 +8,8 @@ export const Route = createFileRoute("/api/public/twilio/recording")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
         if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/api/public/twilio/recording")({
         try {
           const { data: call } = await supabaseAdmin
             .from("calls")
-            .select("app_number, from_number, to_number, direction")
+            .select("app_number, from_number, to_number, direction, answer_path")
             .eq("sid", callSid)
             .maybeSingle();
 
@@ -52,6 +53,37 @@ export const Route = createFileRoute("/api/public/twilio/recording")({
               source: "stt",
               turns: [{ speaker: "caller", text }],
             });
+          }
+
+          const answerPath = (call?.answer_path as string | null) ?? null;
+          const voicemail =
+            answerPath === "voicemail" || answerPath === "classic" || answerPath === "ai_greeting";
+          if (voicemail && text) {
+            try {
+              const { publishOutboundEvent } = await import("@/lib/outbound-webhooks.server");
+              const { data: line, error: lineError } = appNumber
+                ? await supabaseAdmin
+                    .from("phone_numbers")
+                    .select("workspace_id")
+                    .eq("phone_number", appNumber)
+                    .maybeSingle()
+                : { data: null, error: null };
+              await publishOutboundEvent(supabaseAdmin as never, {
+                type: "voicemail.transcribed",
+                eventId: `voicemail.transcribed:${callSid}`,
+                workspaceId: lineError ? null : ((line?.workspace_id as string | null) ?? null),
+                data: {
+                  call_sid: callSid,
+                  from: (call?.from_number as string | null) ?? "",
+                  to: (call?.to_number as string | null) ?? "",
+                  app_number: appNumber,
+                  transcript: text,
+                  recording_url: recordingUrl,
+                },
+              });
+            } catch (publishError) {
+              console.error("voicemail webhook publish failed", publishError);
+            }
           }
         } catch (error) {
           console.error("recording transcription failed", error);

@@ -17,11 +17,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage, formatPhone } from "@/lib/format";
+import { smsTemplate } from "@/lib/answering/language";
 import {
   getAssistantProfile,
   listElevenLabsAgents,
   saveAssistantProfile,
 } from "@/lib/elevenlabs.functions";
+import { prepareReceptionistTools } from "@/lib/receptionist.functions";
 
 export const Route = createFileRoute("/_authenticated/assistant/$sid")({
   head: () => ({
@@ -54,6 +56,7 @@ const TONES = [
 ];
 
 const LANGUAGES = [
+  ["auto", "English, detect Spanish"],
   ["en", "English"],
   ["es", "Spanish"],
   ["fr", "French"],
@@ -264,6 +267,35 @@ function AssistantConfigScreen() {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">
+                {language === "es" || language === "auto"
+                  ? "Spanish callers are answered and booked in Spanish. Confirmation texts use the Spanish template."
+                  : "This line stays in English, including confirmation texts."}
+              </p>
+              <p className="rounded-2xl bg-muted/30 p-3 text-xs text-muted-foreground">
+                {smsTemplate("confirmed", language === "es" ? "es" : "en", {
+                  job: language === "es" ? "el trabajo" : "the job",
+                  when: language === "es" ? "el horario elegido" : "the time you pick",
+                  address: language === "es" ? "la dirección" : "the job address",
+                })}
+              </p>
+              <Button
+                type="button"
+                variant="secondary"
+                className="h-11 w-full rounded-xl"
+                onClick={() => {
+                  void prepareReceptionistTools({
+                    data: {
+                      language,
+                      agentId: (row?.["elevenlabs_agent_id"] as string | null) ?? null,
+                    },
+                  })
+                    .then((result) => toast.message(result.reason))
+                    .catch((error: unknown) => toast.error(errorMessage(error)));
+                }}
+              >
+                Prepare booking tools
+              </Button>
             </div>
           </section>
 
