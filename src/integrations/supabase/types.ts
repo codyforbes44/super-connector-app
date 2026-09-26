@@ -541,9 +541,11 @@ export type Database = {
           recording_url: string | null
           sid: string
           started_at: string
+          dial_status: string | null
           status: string | null
           to_number: string
           transcription: string | null
+          workspace_id: string | null
         }
         Insert: {
           answer_path?: string | null
@@ -560,10 +562,12 @@ export type Database = {
           price?: string | null
           recording_url?: string | null
           sid: string
+          dial_status?: string | null
           started_at?: string
           status?: string | null
           to_number: string
           transcription?: string | null
+          workspace_id?: string | null
         }
         Update: {
           answer_path?: string | null
@@ -579,11 +583,13 @@ export type Database = {
           id?: string
           price?: string | null
           recording_url?: string | null
+          dial_status?: string | null
           sid?: string
           started_at?: string
           status?: string | null
           to_number?: string
           transcription?: string | null
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -1442,6 +1448,19 @@ export type Database = {
           sid: string
           voicemail_greeting: string | null
           webhook_wired: boolean
+          workspace_id: string | null
+          text_back_enabled: boolean
+          text_back_template: string
+          text_back_on_ai: boolean
+          text_back_on_voicemail: boolean
+          text_back_dedupe_minutes: number
+          business_hours_enabled: boolean
+          business_timezone: string
+          business_hours: Json
+          business_holidays: Json
+          after_hours_route: string
+          emergency_keywords: Json
+          emergency_transfer_number: string | null
         }
         Insert: {
           ai_fallback?: string
@@ -1479,6 +1498,19 @@ export type Database = {
           sid: string
           voicemail_greeting?: string | null
           webhook_wired?: boolean
+          workspace_id?: string | null
+          text_back_enabled?: boolean
+          text_back_template?: string
+          text_back_on_ai?: boolean
+          text_back_on_voicemail?: boolean
+          text_back_dedupe_minutes?: number
+          business_hours_enabled?: boolean
+          business_timezone?: string
+          business_hours?: Json
+          business_holidays?: Json
+          after_hours_route?: string
+          emergency_keywords?: Json
+          emergency_transfer_number?: string | null
         }
         Update: {
           ai_fallback?: string
@@ -1516,6 +1548,19 @@ export type Database = {
           sid?: string
           voicemail_greeting?: string | null
           webhook_wired?: boolean
+          workspace_id?: string | null
+          text_back_enabled?: boolean
+          text_back_template?: string
+          text_back_on_ai?: boolean
+          text_back_on_voicemail?: boolean
+          text_back_dedupe_minutes?: number
+          business_hours_enabled?: boolean
+          business_timezone?: string
+          business_hours?: Json
+          business_holidays?: Json
+          after_hours_route?: string
+          emergency_keywords?: Json
+          emergency_transfer_number?: string | null
         }
         Relationships: [
           {
@@ -1957,6 +2002,140 @@ export type Database = {
           payload?: Json
           source?: string
           url?: string | null
+        }
+        Relationships: []
+      }
+      missed_call_textbacks: {
+        Row: {
+          app_number: string
+          body: string | null
+          call_sid: string
+          contact_number: string
+          created_at: string
+          id: string
+          message_sid: string | null
+          skip_reason: string | null
+          status: string
+          workspace_id: string | null
+        }
+        Insert: {
+          app_number: string
+          body?: string | null
+          call_sid: string
+          contact_number: string
+          created_at?: string
+          id?: string
+          message_sid?: string | null
+          skip_reason?: string | null
+          status?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          app_number?: string
+          body?: string | null
+          call_sid?: string
+          contact_number?: string
+          created_at?: string
+          id?: string
+          message_sid?: string | null
+          skip_reason?: string | null
+          status?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
+      outbound_webhook_deliveries: {
+        Row: {
+          attempt_count: number
+          body: string
+          created_at: string
+          delivered_at: string | null
+          endpoint_id: string
+          event_id: string
+          event_type: string
+          id: string
+          last_error: string | null
+          last_status_code: number | null
+          next_attempt_at: string | null
+          payload: Json
+          status: string
+          workspace_id: string | null
+        }
+        Insert: {
+          attempt_count?: number
+          body: string
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id: string
+          event_id: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          last_status_code?: number | null
+          next_attempt_at?: string | null
+          payload?: Json
+          status?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          attempt_count?: number
+          body?: string
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          last_status_code?: number | null
+          next_attempt_at?: string | null
+          payload?: Json
+          status?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outbound_webhook_deliveries_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "outbound_webhook_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outbound_webhook_endpoints: {
+        Row: {
+          created_at: string
+          description: string | null
+          enabled: boolean
+          events: string[]
+          id: string
+          secret: string
+          updated_at: string
+          url: string
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          events?: string[]
+          id?: string
+          secret: string
+          updated_at?: string
+          url: string
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          events?: string[]
+          id?: string
+          secret?: string
+          updated_at?: string
+          url?: string
+          workspace_id?: string | null
         }
         Relationships: []
       }

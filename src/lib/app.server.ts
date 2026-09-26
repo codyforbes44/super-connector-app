@@ -11,7 +11,8 @@ export function webhookUrl(
     | "app-voice"
     | "voice-fallback"
     | "recording"
-    | "recording-notice",
+    | "recording-notice"
+    | "dial-action",
 ): string {
   const token = process.env["TWILIO_WEBHOOK_TOKEN"] ?? "";
   return `${PUBLIC_BASE_URL}/api/public/twilio/${kind}?t=${encodeURIComponent(token)}`;

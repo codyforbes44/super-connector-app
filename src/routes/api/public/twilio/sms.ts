@@ -108,6 +108,30 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           },
         });
 
+        try {
+          const { publishOutboundEvent } = await import("@/lib/outbound-webhooks.server");
+          const { data: line, error: lineError } = await supabaseAdmin
+            .from("phone_numbers")
+            .select("workspace_id")
+            .eq("phone_number", appNumber)
+            .maybeSingle();
+          const messageSid = get("MessageSid") || get("SmsSid") || conversationId;
+          await publishOutboundEvent(supabaseAdmin as never, {
+            type: "message.received",
+            eventId: `message.received:${messageSid}`,
+            workspaceId: lineError ? null : ((line?.workspace_id as string | null) ?? null),
+            data: {
+              message_sid: messageSid,
+              from: contactNumber,
+              to: appNumber,
+              body,
+              channel,
+            },
+          });
+        } catch (error) {
+          console.error("message webhook publish failed", error);
+        }
+
         return new Response('<?xml version="1.0" encoding="UTF-8"?><Response></Response>', {
           headers: { "Content-Type": "text/xml" },
         });

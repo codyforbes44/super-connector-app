@@ -40,6 +40,7 @@ import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
 import { Route as DevComplianceRouteImport } from './routes/dev/compliance'
+import { Route as DevelopersWebhooksRouteImport } from './routes/developers/webhooks'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as AuthenticatedAdminUserIdRouteImport } from './routes/_authenticated/admin.$userId'
@@ -55,6 +56,7 @@ import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/pu
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend/webhook'
 import { Route as ApiPublicTwilioAppVoiceRouteImport } from './routes/api/public/twilio/app-voice'
+import { Route as ApiPublicTwilioDialActionRouteImport } from './routes/api/public/twilio/dial-action'
 import { Route as ApiPublicTwilioErrorRouteImport } from './routes/api/public/twilio/error'
 import { Route as ApiPublicTwilioRecordingRouteImport } from './routes/api/public/twilio/recording'
 import { Route as ApiPublicTwilioRecordingNoticeRouteImport } from './routes/api/public/twilio/recording-notice'
@@ -220,6 +222,11 @@ const DevComplianceRoute = DevComplianceRouteImport.update({
   path: '/dev/compliance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevelopersWebhooksRoute = DevelopersWebhooksRouteImport.update({
+  id: '/developers/webhooks',
+  path: '/developers/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
   id: '/legal/privacy',
   path: '/legal/privacy',
@@ -300,6 +307,12 @@ const ApiPublicTwilioAppVoiceRoute = ApiPublicTwilioAppVoiceRouteImport.update({
   path: '/api/public/twilio/app-voice',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTwilioDialActionRoute =
+  ApiPublicTwilioDialActionRouteImport.update({
+    id: '/api/public/twilio/dial-action',
+    path: '/api/public/twilio/dial-action',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTwilioErrorRoute = ApiPublicTwilioErrorRouteImport.update({
   id: '/api/public/twilio/error',
   path: '/api/public/twilio/error',
@@ -375,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
   '/dev/compliance': typeof DevComplianceRoute
+  '/developers/webhooks': typeof DevelopersWebhooksRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -390,6 +404,7 @@ export interface FileRoutesByFullPath {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
   '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
@@ -429,6 +444,7 @@ export interface FileRoutesByTo {
   '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
   '/dev/compliance': typeof DevComplianceRoute
+  '/developers/webhooks': typeof DevelopersWebhooksRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -444,6 +460,7 @@ export interface FileRoutesByTo {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
   '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
@@ -486,6 +503,7 @@ export interface FileRoutesById {
   '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
   '/dev/compliance': typeof DevComplianceRoute
+  '/developers/webhooks': typeof DevelopersWebhooksRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/_authenticated/admin/$userId': typeof AuthenticatedAdminUserIdRoute
@@ -501,6 +519,7 @@ export interface FileRoutesById {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/resend/webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/twilio/app-voice': typeof ApiPublicTwilioAppVoiceRoute
+  '/api/public/twilio/dial-action': typeof ApiPublicTwilioDialActionRoute
   '/api/public/twilio/error': typeof ApiPublicTwilioErrorRoute
   '/api/public/twilio/recording': typeof ApiPublicTwilioRecordingRoute
   '/api/public/twilio/recording-notice': typeof ApiPublicTwilioRecordingNoticeRoute
@@ -543,6 +562,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/welcome'
     | '/dev/compliance'
+    | '/developers/webhooks'
     | '/legal/privacy'
     | '/legal/terms'
     | '/admin/$userId'
@@ -558,6 +578,7 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/dial-action'
     | '/api/public/twilio/error'
     | '/api/public/twilio/recording'
     | '/api/public/twilio/recording-notice'
@@ -597,6 +618,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/welcome'
     | '/dev/compliance'
+    | '/developers/webhooks'
     | '/legal/privacy'
     | '/legal/terms'
     | '/admin/$userId'
@@ -612,6 +634,7 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/dial-action'
     | '/api/public/twilio/error'
     | '/api/public/twilio/recording'
     | '/api/public/twilio/recording-notice'
@@ -653,6 +676,7 @@ export interface FileRouteTypes {
     | '/_authenticated/trust'
     | '/_authenticated/welcome'
     | '/dev/compliance'
+    | '/developers/webhooks'
     | '/legal/privacy'
     | '/legal/terms'
     | '/_authenticated/admin/$userId'
@@ -668,6 +692,7 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/resend/webhook'
     | '/api/public/twilio/app-voice'
+    | '/api/public/twilio/dial-action'
     | '/api/public/twilio/error'
     | '/api/public/twilio/recording'
     | '/api/public/twilio/recording-notice'
@@ -692,6 +717,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UseCasesRoute: typeof UseCasesRoute
   DevComplianceRoute: typeof DevComplianceRoute
+  DevelopersWebhooksRoute: typeof DevelopersWebhooksRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
@@ -703,6 +729,7 @@ export interface RootRouteChildren {
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
   ApiPublicTwilioAppVoiceRoute: typeof ApiPublicTwilioAppVoiceRoute
+  ApiPublicTwilioDialActionRoute: typeof ApiPublicTwilioDialActionRoute
   ApiPublicTwilioErrorRoute: typeof ApiPublicTwilioErrorRoute
   ApiPublicTwilioRecordingRoute: typeof ApiPublicTwilioRecordingRoute
   ApiPublicTwilioRecordingNoticeRoute: typeof ApiPublicTwilioRecordingNoticeRoute
@@ -932,6 +959,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevComplianceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/developers/webhooks': {
+      id: '/developers/webhooks'
+      path: '/developers/webhooks'
+      fullPath: '/developers/webhooks'
+      preLoaderRoute: typeof DevelopersWebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal/privacy': {
       id: '/legal/privacy'
       path: '/legal/privacy'
@@ -1035,6 +1069,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/twilio/app-voice'
       fullPath: '/api/public/twilio/app-voice'
       preLoaderRoute: typeof ApiPublicTwilioAppVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/twilio/dial-action': {
+      id: '/api/public/twilio/dial-action'
+      path: '/api/public/twilio/dial-action'
+      fullPath: '/api/public/twilio/dial-action'
+      preLoaderRoute: typeof ApiPublicTwilioDialActionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/twilio/error': {
@@ -1175,6 +1216,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UseCasesRoute: UseCasesRoute,
   DevComplianceRoute: DevComplianceRoute,
+  DevelopersWebhooksRoute: DevelopersWebhooksRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
@@ -1186,6 +1228,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,
   ApiPublicTwilioAppVoiceRoute: ApiPublicTwilioAppVoiceRoute,
+  ApiPublicTwilioDialActionRoute: ApiPublicTwilioDialActionRoute,
   ApiPublicTwilioErrorRoute: ApiPublicTwilioErrorRoute,
   ApiPublicTwilioRecordingRoute: ApiPublicTwilioRecordingRoute,
   ApiPublicTwilioRecordingNoticeRoute: ApiPublicTwilioRecordingNoticeRoute,
@@ -1198,13 +1241,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

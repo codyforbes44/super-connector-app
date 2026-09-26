@@ -10,6 +10,7 @@ import { MessagingServicesSection } from "@/components/MessagingServices";
 import { BringYourOwnNumber } from "@/components/line/BringYourOwnNumber";
 import { EsimExplainer } from "@/components/line/EsimExplainer";
 import { LineCompliance } from "@/components/compliance/LineCompliance";
+import { LineAutomationSettings } from "@/components/line/LineAutomationSettings";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -449,6 +450,8 @@ function NumberSheet({
           />
 
           <VoiceAssistant number={number} onChanged={onChanged} />
+
+          <LineAutomationSettings sid={number.sid} />
 
           <Button
             className="key-signal h-12 w-full rounded-xl font-semibold"

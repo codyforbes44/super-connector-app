@@ -1,0 +1,73 @@
+{
+  "name": "SixVox voicemail.transcribed to Slack",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": { "parameters": { "hook": { "data": { "editable": "true" } } } }
+      }
+    },
+    {
+      "id": 2,
+      "module": "code:ExecuteCode",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "voicemail.transcribed with signature headers",
+        "conditions": [
+          [
+            { "a": "{{1.headers.`x-sixvox-signature`}}", "o": "exist" },
+            { "a": "{{1.headers.`x-sixvox-timestamp`}}", "o": "exist" },
+            { "a": "{{1.type}}", "b": "voicemail.transcribed", "o": "text:equal" }
+          ]
+        ]
+      },
+      "mapper": {
+        "language": "javascript",
+        "inputFormat": "editor",
+        "codeEditorJavascript": "const crypto = require(\"crypto\");\nconst rawBody = String(input.rawBody || \"\");\nconst timestamp = String(input.timestamp || \"\");\nconst signature = String(input.signature || \"\");\nconst secret = String(input.secret || \"\");\nconst stamped = Number(timestamp);\nconst now = Math.floor(Date.now() / 1000);\nif (!Number.isFinite(stamped) || Math.abs(now - stamped) > 300) {\n  throw new Error(\"timestamp outside replay window\");\n}\nconst payload = timestamp + \".\" + rawBody;\nconst expected = \"v1=\" + crypto.createHmac(\"sha256\", secret).update(payload).digest(\"hex\");\nif (expected.length !== signature.length) throw new Error(\"signature mismatch\");\nlet diff = 0;\nfor (let i = 0; i < expected.length; i += 1) diff |= expected.charCodeAt(i) ^ signature.charCodeAt(i);\nif (diff !== 0) throw new Error(\"signature mismatch\");\nconst event = JSON.parse(rawBody);\nif (event.type !== \"voicemail.transcribed\") throw new Error(\"unexpected event type\");\nreturn event;\n",
+        "input": [
+          { "name": "rawBody", "value": "{{1.rawBody}}" },
+          { "name": "signature", "value": "{{1.headers.`x-sixvox-signature`}}" },
+          { "name": "timestamp", "value": "{{1.headers.`x-sixvox-timestamp`}}" },
+          { "name": "secret", "value": "REPLACE_WITH_WEBHOOK_SECRET" }
+        ]
+      },
+      "metadata": { "designer": { "x": 300, "y": 0 } }
+    },
+    {
+      "id": 3,
+      "module": "slack:CreateMessage",
+      "version": 4,
+      "parameters": { "__IMTCONN__": null },
+      "mapper": {
+        "channelWType": "manualy",
+        "channel": "#voicemail",
+        "text": "Voicemail from {{2.data.from}} on {{2.data.app_number}}: {{2.data.transcript}}"
+      },
+      "metadata": { "designer": { "x": 600, "y": 0 } }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] }
+  }
+}

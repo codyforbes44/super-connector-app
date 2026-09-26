@@ -60,6 +60,7 @@ describe("recording notice", () => {
     });
     expect(plain).not.toMatch(/<Record|<Start>|\srecord="/);
     expect(plain).not.toContain(RECORDING_CONSENT);
+    expect(plain).toContain("/api/public/twilio/dial-action");
   });
 
   it("starts outbound, inbound, and bridge recordings with the notice", () => {
