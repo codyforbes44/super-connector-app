@@ -25,17 +25,22 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
         // the logic below falls through to a plain greeting + recording rather
         // than Twilio's generic "an application error has occurred".
         try {
-          await supabaseAdmin.from("calls").upsert(
-            {
-              sid: get("CallSid"),
-              direction: "inbound",
-              from_number: get("From"),
-              to_number: get("To"),
-              app_number: appNumber,
-              status: get("CallStatus") || "ringing",
-            },
-            { onConflict: "sid" },
-          );
+          const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+          const { workspaceId } = await resolveWorkspaceIdForNumber(appNumber);
+          if (workspaceId) {
+            await supabaseAdmin.from("calls").upsert(
+              {
+                sid: get("CallSid"),
+                direction: "inbound",
+                from_number: get("From"),
+                to_number: get("To"),
+                app_number: appNumber,
+                status: get("CallStatus") || "ringing",
+                workspace_id: workspaceId,
+              },
+              { onConflict: "sid" },
+            );
+          }
 
           const { VOICE_CONFIG_COLUMNS } = await import("@/lib/voice-answer.server");
           try {

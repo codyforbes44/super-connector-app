@@ -83,20 +83,26 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           const { resolveOutboundCallerId } = await import("@/lib/twilio-ops.server");
           const presentedId = await resolveOutboundCallerId(supabaseAdmin, callerId, to);
 
-          await supabaseAdmin.from("calls").upsert(
-            {
-              sid: callSid,
-              direction: "outbound",
-              from_number: callerId,
-              to_number: to,
-              app_number: callerId,
-              status: "in-progress",
-              client_identity: from.slice("client:".length),
-              answered_in_app: true,
-              answered_by: userId,
-            },
-            { onConflict: "sid" },
-          );
+          const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+          const { workspaceId: outboundWorkspaceId } =
+            await resolveWorkspaceIdForNumber(callerId);
+          if (outboundWorkspaceId) {
+            await supabaseAdmin.from("calls").upsert(
+              {
+                sid: callSid,
+                direction: "outbound",
+                from_number: callerId,
+                to_number: to,
+                app_number: callerId,
+                status: "in-progress",
+                client_identity: from.slice("client:".length),
+                answered_in_app: true,
+                answered_by: userId,
+                workspace_id: outboundWorkspaceId,
+              },
+              { onConflict: "sid" },
+            );
+          }
 
           const { lineRecordsCalls } = await import("@/lib/compliance/recording.server");
           const { outboundAppDialTwiml } = await import("@/lib/voice-answer.server");
@@ -129,17 +135,22 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           return xml("<Hangup />");
         }
 
-        await supabaseAdmin.from("calls").upsert(
-          {
-            sid: callSid,
-            direction: "inbound",
-            from_number: from,
-            to_number: get("To"),
-            app_number: appNumber,
-            status: get("CallStatus") || "ringing",
-          },
-          { onConflict: "sid" },
-        );
+        const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+        const { workspaceId: inboundWorkspaceId } = await resolveWorkspaceIdForNumber(appNumber);
+        if (inboundWorkspaceId) {
+          await supabaseAdmin.from("calls").upsert(
+            {
+              sid: callSid,
+              direction: "inbound",
+              from_number: from,
+              to_number: get("To"),
+              app_number: appNumber,
+              status: get("CallStatus") || "ringing",
+              workspace_id: inboundWorkspaceId,
+            },
+            { onConflict: "sid" },
+          );
+        }
 
         const { VOICE_CONFIG_COLUMNS } = await import("@/lib/voice-answer.server");
         // A line someone forwards their personal number to counts as verified
