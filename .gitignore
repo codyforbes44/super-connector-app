@@ -16,6 +16,22 @@ dist-ssr
 .nitro
 *.local
 
+# Native app (mobile/) — generated projects and secrets stay off the web deploy
+mobile/node_modules
+mobile/.expo
+mobile/android
+mobile/ios
+mobile/dist
+mobile/google-services.json
+mobile/.env
+mobile/.env.*
+!mobile/.env.example
+mobile/*.jks
+mobile/*.keystore
+mobile/*.p8
+mobile/*.p12
+mobile/*.pem
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

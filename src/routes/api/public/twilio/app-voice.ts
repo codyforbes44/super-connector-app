@@ -202,6 +202,9 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
           RINGBACK_CYCLE_SECONDS,
           forwardedCallTwiml,
           inboundClientDialTwiml,
+          liveRecordingPrefix,
+          recordingNoticeWebhook,
+          escapeXml,
         } = await import("@/lib/voice-answer.server");
         const { lineRecordsCalls } = await import("@/lib/compliance/recording.server");
         const recordCalls = await lineRecordsCalls(supabaseAdmin as never, appNumber);
@@ -258,6 +261,54 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
             actionUrl: stageUrl(nextStage),
             clientIdentities: identities.slice(0, 10),
           });
+        const noticeAttr = recordCalls
+          ? ` url="${escapeXml(recordingNoticeWebhook())}" method="POST"`
+          : "";
+        const clients = identities
+          .slice(0, 10)
+          .map((identity) => `<Client${noticeAttr}>${esc(identity)}</Client>`)
+          .join("");
+        const recordPrefix = recordCalls ? liveRecordingPrefix() : "";
+
+        // Native ring fallback. Off unless MOBILE_PSTN_FALLBACK is set, so this
+        // returns the same TwiML as before until the owner turns it on.
+        const { planPstnFallback, pstnFallbackEnabled, ACK_STAGE } =
+          await import("@/lib/mobile-ring");
+        const fallbackEnabled = pstnFallbackEnabled();
+        let acked: boolean | null = null;
+        let ownerCell: string | null = null;
+        if (fallbackEnabled && stage === ACK_STAGE) {
+          const { inboundDeviceAcked, ownerCellForNumber } =
+            await import("@/lib/mobile-ring.server");
+          acked = await inboundDeviceAcked(supabaseAdmin, callSid);
+          if (acked === false) {
+            ownerCell = await ownerCellForNumber(supabaseAdmin, {
+              assignedTo: (number?.assigned_to as string | null) ?? null,
+            });
+          }
+        }
+        const pstnPlan = planPstnFallback({
+          enabled: fallbackEnabled,
+          stage,
+          ringSeconds: RING_SECONDS,
+          acked,
+          ownerCell,
+          caller: from,
+        });
+        switch (pstnPlan.action) {
+          case "clients":
+            return xml(dialClients(pstnPlan.timeout, pstnPlan.nextStage));
+          case "clients-and-cell":
+            return xml(
+              `${recordPrefix}<Dial callerId="${esc(appNumber)}" timeout="${pstnPlan.timeout}" ringTone="us" answerOnBridge="true" action="${esc(stageUrl(pstnPlan.nextStage))}" method="POST">${clients}<Number${noticeAttr}>${esc(pstnPlan.cell)}</Number></Dial>`,
+            );
+          case "skip":
+            break;
+          default: {
+            const _exhaustive: never = pstnPlan;
+            return _exhaustive;
+          }
+        }
 
         // First pass: ring every signed-in device.
         if (!stage) return xml(dialClients(RING_SECONDS, "after-dial"));

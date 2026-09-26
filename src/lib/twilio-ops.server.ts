@@ -1013,12 +1013,15 @@ export async function startCall(
     const { voiceIdentityFor } = await import("./voice-token.server");
     const identity = voiceIdentityFor(userId);
     const since = new Date(Date.now() - 120_000).toISOString();
-    const { data: presence } = await supabase
+    // Any fresh row counts: the browser uses the Twilio identity, and each
+    // native install writes its own row (see mobilePresenceIdentity).
+    const { data: presenceRows } = await supabase
       .from("voice_presence")
       .select("identity")
-      .eq("identity", identity)
+      .eq("user_id", userId)
       .gt("last_seen_at", since)
-      .maybeSingle();
+      .limit(1);
+    const presence = presenceRows?.[0];
 
     twiml = presence
       ? `<?xml version="1.0" encoding="UTF-8"?><Response>${inboundClientDialTwiml({
@@ -1608,7 +1611,11 @@ export async function deleteTwimlApp(supabase: SB, userId: string, data: { sid: 
 /* ------------------------------------------------------------ voice token */
 
 /** Short-lived Voice SDK token for the signed-in user's device. */
-export async function voiceToken(supabase: SB, userId: string) {
+export async function voiceToken(
+  supabase: SB,
+  userId: string,
+  opts?: { pushCredentialSid?: string | null },
+) {
   const admin = await adminClient();
   const appSid = await defaultTwimlAppSid(admin);
   if (!appSid) {
@@ -1619,7 +1626,19 @@ export async function voiceToken(supabase: SB, userId: string) {
   }
   await allowedNumbers(supabase, userId);
   const { mintVoiceToken } = await import("./voice-token.server");
-  return { ok: true as const, grant: asJson(await mintVoiceToken({ userId, applicationSid: appSid })) };
+  const pushCredentialSid = opts?.pushCredentialSid ?? undefined;
+  const grant = await mintVoiceToken({
+    userId,
+    applicationSid: appSid,
+    ...(pushCredentialSid ? { pushCredentialSid } : {}),
+  });
+  // Browser callers omit opts, so their response shape stays the same.
+  if (!opts) return { ok: true as const, grant: asJson(grant) };
+  return {
+    ok: true as const,
+    grant: asJson(grant),
+    pushCredentialConfigured: Boolean(pushCredentialSid),
+  };
 }
 
 export async function voiceSetupStatus(supabase: SB, userId: string) {
@@ -1651,7 +1670,9 @@ export async function setVoicePresence(supabase: SB, userId: string, online: boo
   const { voiceIdentityFor } = await import("./voice-token.server");
   const identity = voiceIdentityFor(userId);
   if (!online) {
-    await admin.from("voice_presence").delete().eq("user_id", userId);
+    // Only this browser. A native install has its own voice_presence row and
+    // must keep ringing after the web app signs out.
+    await admin.from("voice_presence").delete().eq("user_id", userId).eq("identity", identity);
     return asJson({ ok: true, online: false });
   }
   await admin
