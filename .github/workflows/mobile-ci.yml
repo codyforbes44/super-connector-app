@@ -85,7 +85,9 @@ jobs:
           chmod +x gradlew
           # Cap the heap. An uncapped first assembleDebug gets OOM-killed on
           # the hosted runner; the step then looks hung and uploads no log.
-          printf '%s\n' \
+          # Leading newline: the generated file does not always end with one,
+          # and a glued line is parsed as "36org.gradle.daemon=false".
+          printf '\n%s\n' \
             'org.gradle.daemon=false' \
             'org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8' \
             'org.gradle.workers.max=2' \
