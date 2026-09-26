@@ -41,9 +41,10 @@ function Privacy() {
         Recording of live calls is off until an admin turns it on for that line. Voicemail is always
         recorded. When a live call is recorded, SixVox plays “This call may be recorded and
         transcribed for note taking” to every party before the recording starts, including inbound
-        calls, outbound calls, and the AI receptionist. The assistant&apos;s first message identifies
-        it as an automated assistant, and includes the recording notice when that line records calls.
-        SixVox uses this all-party notice everywhere, including one-party-consent states.
+        calls, outbound calls, and the AI receptionist. The assistant&apos;s first message
+        identifies it as an automated assistant, and includes the recording notice when that line
+        records calls. SixVox uses this all-party notice everywhere, including one-party-consent
+        states.
       </p>
 
       <h2>Text messages and opt-out</h2>

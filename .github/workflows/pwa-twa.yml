@@ -59,7 +59,13 @@ jobs:
           java-version: 17
 
       - name: Install dependencies
-        run: npm ci
+        # package-lock.json is behind package.json. `npm ci` on the Node 20
+        # runner (npm 10) crashes with "Cannot read properties of null
+        # (reading 'edgesOut')" instead of reporting the mismatch. npm 11
+        # reports the mismatch, and rewriting the lock from this tree still
+        # left `npm ci` out of sync. The main CI job already installs the
+        # same way.
+        run: npm install --no-audit --no-fund --legacy-peer-deps
 
       - name: Sync TWA manifest from web manifest
         run: node scripts/sync-twa-manifest.mjs

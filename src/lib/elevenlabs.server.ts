@@ -241,7 +241,11 @@ export async function updateAgent(agentId: string, input: AgentInput): Promise<{
   }
   const body = agentBody(input);
   let promptText = input.prompt;
-  if (preservedBlock && !promptText.includes("[sixvox-emergency]") && tools?.["transfer_to_number"]) {
+  if (
+    preservedBlock &&
+    !promptText.includes("[sixvox-emergency]") &&
+    tools?.["transfer_to_number"]
+  ) {
     promptText = `${promptText}\n\n${preservedBlock}`.trim();
   }
   body.conversation_config.agent.prompt.prompt = promptText;

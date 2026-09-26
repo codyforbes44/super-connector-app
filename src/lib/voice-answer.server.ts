@@ -120,10 +120,7 @@ export function inboundClientDialTwiml(input: {
 }): string {
   const prefix = input.record ? liveRecordingPrefix() : "";
   const clients = input.clientIdentities
-    .map(
-      (identity) =>
-        `<Client${partyNoticeUrl(input.record)}>${escapeXml(identity)}</Client>`,
-    )
+    .map((identity) => `<Client${partyNoticeUrl(input.record)}>${escapeXml(identity)}</Client>`)
     .join("");
   return `${prefix}<Dial callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us" answerOnBridge="true" action="${escapeXml(input.actionUrl)}" method="POST">${clients}</Dial>`;
 }
@@ -134,7 +131,9 @@ export function bridgeCallTwiml(input: {
   callerId: string;
   destination: string;
 }): string {
-  const prefix = input.record ? liveRecordingPrefix() : `<Say voice="alice">Connecting your call.</Say>`;
+  const prefix = input.record
+    ? liveRecordingPrefix()
+    : `<Say voice="alice">Connecting your call.</Say>`;
   return `${prefix}<Dial callerId="${escapeXml(input.callerId)}"><Number${partyNoticeUrl(input.record)}>${escapeXml(input.destination)}</Number></Dial>`;
 }
 

@@ -180,10 +180,7 @@ export async function saveAssistantProfile(
     .from("phone_numbers")
     .update({
       ai_prompt: args.prompt?.trim() || null,
-      ai_first_message: composeAiFirstMessage(
-        args.firstMessage,
-        Boolean(line?.["record_calls"]),
-      ),
+      ai_first_message: composeAiFirstMessage(args.firstMessage, Boolean(line?.["record_calls"])),
       ai_tone: args.tone,
       ai_language: args.language,
       ai_fallback: args.fallback,

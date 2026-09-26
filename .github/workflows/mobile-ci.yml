@@ -31,6 +31,9 @@ jobs:
 
   android:
     runs-on: ubuntu-latest
+    # A healthy debug APK finishes well inside this. Without a cap the job
+    # sits for the 6 hour default when Gradle or sdkmanager waits on stdin.
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: mobile
@@ -54,8 +57,37 @@ jobs:
             exit 1
           fi
           export ANDROID_HOME="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          export CI=1
+          export EXPO_NO_TELEMETRY=1
+          # sdkmanager and Gradle ask "Accept? (y/N)" when a platform license
+          # is missing. That read blocks until the job is killed. Accept
+          # licenses up front and close stdin so a prompt fails instead.
+          SDKMANAGER=""
+          for candidate in \
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "$ANDROID_HOME/cmdline-tools/bin/sdkmanager" \
+            "$ANDROID_HOME/tools/bin/sdkmanager"
+          do
+            if [ -x "$candidate" ]; then
+              SDKMANAGER="$candidate"
+              break
+            fi
+          done
+          if [ -n "$SDKMANAGER" ]; then
+            set +o pipefail
+            yes | "$SDKMANAGER" --licenses >/dev/null || true
+            set -o pipefail
+            "$SDKMANAGER" "platforms;android-36" </dev/null || true
+          fi
           cp google-services.example.json google-services.json
-          npx expo prebuild --platform android --no-install
+          npx expo prebuild --platform android --no-install </dev/null
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          # Cap the heap. An uncapped first assembleDebug gets OOM-killed on
+          # the hosted runner; the step then looks hung and uploads no log.
+          printf '%s\n' \
+            'org.gradle.daemon=false' \
+            'org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8' \
+            'org.gradle.workers.max=2' \
+            >> gradle.properties
+          ./gradlew assembleDebug --no-daemon --console=plain </dev/null
