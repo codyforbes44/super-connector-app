@@ -160,9 +160,10 @@ function NumbersScreen() {
                 const owner = (team.data ?? []).find((t) => t.id === n.assigned_to);
                 return (
                   <div key={n.sid} className="px-4 py-3">
-                    <button
+                    <Button
                       type="button"
-                      className="w-full text-left"
+                      variant="ghost"
+                      className="h-auto min-h-12 w-full flex-col items-stretch gap-0 overflow-hidden rounded-lg px-0 py-0 text-left hover:bg-transparent"
                       onClick={() => boot.isAdmin && setEditing(n.sid)}
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -185,7 +186,7 @@ function NumbersScreen() {
                         {n.friendly_name || "Unnamed"}
                         {owner ? ` · ${owner.display_name || owner.email}` : " · unassigned"}
                       </p>
-                    </button>
+                    </Button>
                   </div>
                 );
               })}
@@ -264,7 +265,7 @@ function BuySheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="app-gradient max-h-[85dvh] overflow-y-auto rounded-t-[2rem] border-border"
+        className="max-h-[85dvh] overflow-y-auto rounded-t-lg border-border bg-card"
       >
         <SheetHeader className="px-0">
           <SheetTitle className="font-display">Find a number</SheetTitle>
@@ -315,7 +316,7 @@ function BuySheet({
             {results.map((r) => (
               <li
                 key={r.phone_number}
-                className="glass-panel flex items-center gap-3 rounded-2xl px-3.5 py-2.5"
+                className="flex items-center gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5"
               >
                 <div className="min-w-0 flex-1">
                   <p className="tabular text-sm font-semibold">{formatPhone(r.phone_number)}</p>
@@ -399,7 +400,7 @@ function NumberSheet({
     <Sheet open onOpenChange={(v) => !v && onClose()}>
       <SheetContent
         side="bottom"
-        className="app-gradient max-h-[88dvh] overflow-y-auto rounded-t-[2rem] border-border"
+        className="max-h-[88dvh] overflow-y-auto rounded-t-lg border-border bg-card"
       >
         <SheetHeader className="px-0">
           <SheetTitle className="font-display tabular">
@@ -493,7 +494,9 @@ function NumberSheet({
             </Button>
             <Button
               variant="ghost"
-              className="key-end rounded-full"
+              className="key-end min-w-11 rounded-lg"
+              aria-label="Release number"
+              title="Release number"
               onClick={async () => {
                 if (!confirm("Release this number? This cannot be undone.")) return;
                 try {

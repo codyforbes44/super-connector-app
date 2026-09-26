@@ -350,13 +350,13 @@ function CallsScreen() {
         <CallReadiness />
 
         {ringHint && voice.callState === "idle" ? (
-          <p className="mb-3 rounded-2xl border border-border bg-card px-3.5 py-2.5 text-xs text-muted-foreground">
+          <p className="mb-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs text-muted-foreground">
             Connecting the incoming call to this device…
           </p>
         ) : null}
 
         {audio ? (
-          <div className="mb-3 rounded-2xl border border-border bg-card p-3">
+          <div className="mb-3 rounded-lg border border-border bg-card p-3">
             <audio className="w-full" controls autoPlay src={audio} />
           </div>
         ) : null}
@@ -408,7 +408,7 @@ function CallsScreen() {
       <Sheet open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
         <SheetContent
           side="bottom"
-          className="max-h-[85dvh] overflow-y-auto rounded-t-3xl border-border bg-card pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+          className="max-h-[85dvh] overflow-y-auto rounded-t-lg border-border bg-card pb-[calc(env(safe-area-inset-bottom)+1rem)]"
         >
           <SheetHeader className="px-0">
             <SheetTitle className="font-display text-center">Call details</SheetTitle>
@@ -443,7 +443,7 @@ function CallsScreen() {
               ].map(([label, value]) => (
                 <div
                   key={label as string}
-                  className="flex items-start justify-between gap-3 rounded-2xl border border-border bg-secondary/40 px-3.5 py-2.5"
+                  className="flex items-start justify-between gap-3 border-b border-border px-3.5 py-2.5 last:border-0"
                 >
                   <dt className="shrink-0 text-[0.7rem] tracking-wide text-muted-foreground uppercase">
                     {label}
@@ -491,7 +491,7 @@ function CallsScreen() {
       </Sheet>
 
       <Sheet open={dialing} onOpenChange={setDialing}>
-        <SheetContent side="bottom" className="rounded-t-3xl border-border bg-card">
+        <SheetContent side="bottom" className="rounded-t-lg border-border bg-card">
           <SheetHeader className="px-0">
             <SheetTitle className="font-display text-center">Dialer</SheetTitle>
           </SheetHeader>
@@ -525,22 +525,24 @@ function CallsScreen() {
             </div>
 
             <div className="flex items-center justify-center gap-8">
-              <button
+              <Button
                 type="button"
                 onClick={() => setDialing(false)}
-                className="key-end flex h-16 w-16 items-center justify-center rounded-full transition-transform active:scale-95"
+                aria-label="Close dialer"
+                title="Close dialer"
+                className="key-end h-16 w-16 rounded-full transition-transform active:scale-95"
               >
                 <PhoneOff className="h-6 w-6" />
-                <span className="sr-only">Close dialer</span>
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={!to.trim() || !e911Acknowledged}
-                className="key-call flex h-16 w-16 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-40"
+                aria-label="Connect call"
+                title="Connect call"
+                className="key-call h-16 w-16 rounded-full transition-transform active:scale-95 disabled:opacity-40"
               >
                 <PhoneCall className="h-6 w-6" />
-                <span className="sr-only">Connect call</span>
-              </button>
+              </Button>
             </div>
 
             <p className="text-center text-xs text-muted-foreground">

@@ -240,7 +240,7 @@
   h3,
   .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 
   .tabular {
@@ -372,14 +372,12 @@
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
-/* Marketing hero band: slate slab with a single electric blue signal wash. */
+/* Marketing hero band: flat slate surface to let the product and type lead. */
 @utility hero-band {
   position: relative;
   isolation: isolate;
   border-block: 1px solid var(--panel-border);
-  background-image:
-    radial-gradient(110% 70% at 78% 8%, oklch(0.635 0.184 259 / 18%), transparent 62%),
-    radial-gradient(90% 60% at 8% 100%, oklch(0.635 0.184 259 / 10%), transparent 60%);
+  background-color: var(--background);
 }
 
 /* Concentric "signal" rings behind the handset — pure CSS, no image weight. */

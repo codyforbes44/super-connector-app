@@ -3,6 +3,7 @@ import { ChevronRight, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type Tone = "cyan" | "green" | "violet" | "amber" | "red";
 
@@ -32,7 +33,7 @@ export function SettingsGroup({
       {description ? (
         <p className="px-1 pb-2 text-xs text-muted-foreground">{description}</p>
       ) : null}
-      <div className="hairline-list overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="hairline-list overflow-hidden rounded-lg border border-border bg-card">
         {children}
       </div>
     </section>
@@ -74,7 +75,7 @@ function Body({
 }
 
 const ROW =
-  "flex min-h-14 w-full items-center gap-3 px-3.5 py-2.5 transition-colors hover:bg-accent active:bg-accent";
+  "flex min-h-14 w-full items-center justify-start gap-3 rounded-none px-3.5 py-2.5 text-foreground transition-colors hover:bg-accent active:bg-accent";
 
 export function SettingsLink({
   to,
@@ -109,8 +110,8 @@ export function SettingsButton({
   value?: string;
 }) {
   return (
-    <button type="button" onClick={onClick} className={ROW}>
+    <Button type="button" variant="ghost" onClick={onClick} className={ROW}>
       <Body {...rest} />
-    </button>
+    </Button>
   );
 }

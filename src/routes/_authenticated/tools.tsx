@@ -56,7 +56,7 @@ function ToolsScreen() {
       <ScreenHeader title="Tools" subtitle="Verify · Lookup · Mail · Calendar · Maps" />
       <Screen onRefresh={() => queryClient.invalidateQueries()}>
         <Tabs defaultValue="verify">
-          <TabsList className="flex w-full gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">
+          <TabsList className="no-scrollbar flex h-auto w-full max-w-full justify-start gap-1 overflow-x-auto rounded-lg border border-border bg-card p-1">
             <TabsTrigger value="verify" className="rounded-lg text-xs">
               Verify
             </TabsTrigger>
