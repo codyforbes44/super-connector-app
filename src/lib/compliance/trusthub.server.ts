@@ -95,9 +95,12 @@ export async function confirmTrustHub(supabase: SB, userId: string, input: Trust
   };
   const calls = buildTrustHubCalls(draft);
   const admin = await adminClient();
+  const { requireWorkspace } = await import("@/lib/workspace.server");
+  const workspace = await requireWorkspace(userId);
   const { error } = await admin.from("trust_hub_registrations").upsert(
     {
       user_id: userId,
+      workspace_id: workspace.id,
       customer_profile_sid: loaded.customerProfileSid,
       cnam_display_name: input.cnamDisplayName,
       business_id_type: idType,

@@ -90,8 +90,24 @@ export async function audit(
   actor: string | null,
   action: string,
   detail: Record<string, unknown> = {},
+  workspaceId?: string | null,
 ) {
-  await admin.from("audit_log").insert({ actor, action, detail });
+  let workspace = workspaceId ?? null;
+  if (!workspace && actor) {
+    try {
+      const { resolveWorkspaceForUser } = await import("./workspace.server");
+      workspace = (await resolveWorkspaceForUser(actor))?.id ?? null;
+    } catch (error) {
+      console.error("audit workspace lookup failed", error);
+    }
+  }
+  const { error } = await admin.from("audit_log").insert({
+    actor,
+    action,
+    detail,
+    ...(workspace ? { workspace_id: workspace } : {}),
+  });
+  if (error) console.error("audit log failed", action, error.message);
 }
 
 /** Find or create the conversation row for a message. */

@@ -112,7 +112,14 @@ export async function queueDigestEvent(
   payload: Record<string, unknown>,
 ): Promise<void> {
   try {
-    await admin.from("digest_queue").insert({ user_id: userId, kind, payload });
+    const { resolveWorkspaceForUser } = await import("./workspace.server");
+    const workspace = await resolveWorkspaceForUser(userId);
+    await admin.from("digest_queue").insert({
+      user_id: userId,
+      kind,
+      payload,
+      ...(workspace ? { workspace_id: workspace.id } : {}),
+    });
   } catch (error) {
     console.error("digest queue insert failed", error);
   }

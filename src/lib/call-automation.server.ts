@@ -165,6 +165,16 @@ async function sendMissedCallText(
 ): Promise<void> {
   const caller = normalizePhone(input.caller);
   const line = normalizePhone(input.appNumber);
+  if (!input.workspaceId) {
+    const { logWebhookError } = await import("@/lib/webhook-errors.server");
+    await logWebhookError(admin, {
+      source: "missed-call-text",
+      message: "no workspace for missed-call text-back",
+      callSid: input.callSid,
+      appNumber: line,
+    });
+    return;
+  }
   const { data: existing } = await admin
     .from("missed_call_textbacks")
     .select("id")
@@ -221,6 +231,7 @@ async function sendMissedCallText(
     channel: "sms",
     appNumber: line,
     contactNumber: caller,
+    workspaceId: input.workspaceId,
   });
   await admin.from("messages").insert({
     conversation_id: conversationId,
@@ -231,6 +242,7 @@ async function sendMissedCallText(
     to_number: caller,
     body,
     status: sent.status,
+    workspace_id: input.workspaceId,
   });
   await admin
     .from("conversations")

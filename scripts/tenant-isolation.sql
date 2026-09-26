@@ -1,7 +1,7 @@
 -- Proves a member of workspace A cannot read workspace B rows.
 -- Self-contained: stubs auth.uid() and applies the same membership policies
--- as supabase/migrations/20260926120000_phase1_workspaces.sql and
--- 20260927040000_phase1_backfill_sibling_workspace_id.sql.
+-- as supabase/migrations/20260926101804_02d5a13c-8098-4f4d-a585-20d59cac3f32.sql and
+-- 20260926102207_e6b52639-d659-4a11-b859-e7974da49a35.sql.
 -- Run as a superuser against an empty database (CI postgres service).
 
 CREATE SCHEMA IF NOT EXISTS auth;

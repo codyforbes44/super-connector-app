@@ -492,8 +492,7 @@ export async function syncJobber(supabase: SB, userId: string, fields: TradeCall
   if (ctx.conversation) {
     const { resolveWorkspaceIdForNumber } = await import("../workspace.server");
     const noteWorkspaceId =
-      workspaceId ??
-      (await resolveWorkspaceIdForNumber(ctx.conversation.app_number)).workspaceId;
+      workspaceId ?? (await resolveWorkspaceIdForNumber(ctx.conversation.app_number)).workspaceId;
     if (noteWorkspaceId) {
       await admin.from("messages").insert({
         conversation_id: ctx.conversation.id,

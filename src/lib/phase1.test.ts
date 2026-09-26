@@ -195,9 +195,12 @@ describe("onboarding greeting", () => {
 
 describe("tenant isolation contract", () => {
   const migration = [
-    readFileSync("supabase/migrations/20260926120000_phase1_workspaces.sql", "utf8"),
     readFileSync(
-      "supabase/migrations/20260927040000_phase1_backfill_sibling_workspace_id.sql",
+      "supabase/migrations/20260926101804_02d5a13c-8098-4f4d-a585-20d59cac3f32.sql",
+      "utf8",
+    ),
+    readFileSync(
+      "supabase/migrations/20260926102207_e6b52639-d659-4a11-b859-e7974da49a35.sql",
       "utf8",
     ),
   ].join("\n");

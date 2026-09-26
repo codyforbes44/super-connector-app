@@ -26,11 +26,21 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
         // than Twilio's generic "an application error has occurred".
         try {
           const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
+          const { logWebhookError } = await import("@/lib/webhook-errors.server");
           const { workspaceId } = await resolveWorkspaceIdForNumber(appNumber);
-          if (workspaceId) {
-            await supabaseAdmin.from("calls").upsert(
+          const callSid = get("CallSid");
+          if (!workspaceId) {
+            await logWebhookError(supabaseAdmin as never, {
+              source: "voice",
+              message: "no workspace for inbound number",
+              url: url.toString(),
+              callSid,
+              appNumber,
+            });
+          } else {
+            const { error: callError } = await supabaseAdmin.from("calls").upsert(
               {
-                sid: get("CallSid"),
+                sid: callSid,
                 direction: "inbound",
                 from_number: get("From"),
                 to_number: get("To"),
@@ -40,6 +50,16 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
               },
               { onConflict: "sid" },
             );
+            if (callError) {
+              await logWebhookError(supabaseAdmin as never, {
+                source: "voice",
+                message: callError.message,
+                url: url.toString(),
+                callSid,
+                appNumber,
+                workspaceId,
+              });
+            }
           }
 
           const { VOICE_CONFIG_COLUMNS } = await import("@/lib/voice-answer.server");
