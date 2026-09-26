@@ -31,7 +31,7 @@ export function Screen({
     <div
       className={cn(
         // Keep line lengths readable on wide displays; phones are unaffected.
-        "mx-auto w-full max-w-3xl px-3 pt-1 pb-6 sm:px-4 lg:max-w-4xl",
+        "mx-auto w-full max-w-6xl px-3 pt-1 pb-6 sm:px-5 lg:px-6",
         className,
       )}
     >

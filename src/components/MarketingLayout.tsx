@@ -2,8 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import logoMark from "@/assets/sixvox-logo.png?w=72&format=webp";
-import logoMarkSrcSet from "@/assets/sixvox-logo.png?w=36;72;108&format=webp&as=srcset";
+import logoMark from "@/assets/sixvox-logo-signal.png?w=72&format=webp";
+import logoMarkSrcSet from "@/assets/sixvox-logo-signal.png?w=36;72;108&format=webp&as=srcset";
 import { cn } from "@/lib/utils";
 import { AccountActions } from "@/components/AccountMenu";
 import { useSession } from "@/hooks/useSession";
@@ -117,20 +117,14 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       >
         Skip to content
       </a>
-      {/* Decorative glows, clipped to the shell so they can never widen the page. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 right-[-10%] h-[28rem] w-[28rem] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute top-[45rem] left-[-15%] h-[26rem] w-[26rem] rounded-full bg-primary/8 blur-3xl" />
-      </div>
-
-      {/* Detached, floating pill chrome — matches the in-app header language. */}
+      {/* Navigation stays visible while the page scrolls. */}
       <header className="sticky top-0 z-40 px-3 pt-2 pb-1 transition-all duration-300 sm:px-5 sm:pt-3">
         <div
           className={cn(
-            "mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-full px-3 py-2 transition-all duration-300 sm:gap-4 sm:px-4",
+            "mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-3 py-2 transition-all duration-300 sm:gap-4 sm:px-4 lg:grid-cols-[auto_minmax(0,1fr)_auto]",
             scrolled
-              ? "glass-panel shadow-lg backdrop-blur-xl"
-              : "border border-transparent bg-background/30 backdrop-blur-md",
+              ? "border border-border bg-background shadow-sm"
+              : "border border-transparent bg-background",
           )}
         >
           <Link to="/" aria-label="SixVox home" className="flex min-h-11 items-center gap-2">
@@ -146,7 +140,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <span className="font-display text-base font-semibold tracking-tight">SixVox</span>
           </Link>
 
-          <nav aria-label="Main" className="hidden items-center gap-0.5 lg:flex">
+          <nav aria-label="Main" className="hidden min-w-0 items-center justify-center gap-0.5 lg:flex">
             {NAV.map((item) => (
               <Link
                 key={item.to}
@@ -159,7 +153,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle />
             <AccountActions />
             <button
@@ -224,7 +218,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           pastHero && !open && pathname !== "/contact" ? "translate-y-0" : "translate-y-[130%]",
         )}
       >
-        <div className="glass-panel flex items-center gap-2 rounded-full p-1.5 backdrop-blur-xl">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1.5 shadow-sm">
           {signedIn ? (
             <Link
               to="/pricing"
@@ -415,7 +409,7 @@ export function CtaBand({
   note?: string;
 }) {
   return (
-    <div className="glass-panel flex flex-col items-start gap-4 rounded-[2rem] p-6 sm:p-8 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col items-start gap-4 border-y border-border bg-card p-6 sm:p-8 md:flex-row md:items-center md:justify-between">
       <div>
         <h2 className="font-display text-2xl font-semibold">{title}</h2>
         <p className="mt-2 max-w-xl text-sm text-muted-foreground">{body}</p>

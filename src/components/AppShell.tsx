@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 import { TrialBanner } from "@/components/TrialBanner";
 import { useForcedDarkTheme } from "@/lib/theme";
 import { ConciergeMount } from "@/components/concierge/ConciergeMount";
+import brandLogo from "@/assets/sixvox-logo-signal.png?w=96&format=webp";
+import { Button } from "@/components/ui/button";
 
 const TABS = [
   { to: "/inbox", label: "Inbox", icon: Inbox },
@@ -55,10 +57,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     <FabContext.Provider value={fabValue}>
       <div className="app-gradient flex min-h-dvh w-full flex-col lg:flex-row">
         {/* Desktop / tablet side rail */}
-        <aside className="sticky top-0 hidden h-dvh shrink-0 flex-col gap-2 border-r border-sidebar-border bg-sidebar px-3 py-6 backdrop-blur-xl lg:flex lg:w-[15rem]">
-          <p className="font-display text-glow mb-4 px-3 text-lg font-semibold text-primary">
+        <aside className="sticky top-0 hidden h-dvh shrink-0 flex-col gap-2 border-r border-sidebar-border bg-sidebar px-3 py-6 lg:flex lg:w-[15rem]">
+          <Link to="/inbox" className="mb-4 flex min-h-11 items-center gap-2 px-2 font-display text-lg font-semibold text-foreground" aria-label="SixVox inbox">
+            <img src={brandLogo} alt="" width={36} height={36} className="size-9 object-contain" />
             SixVox
-          </p>
+          </Link>
           {TABS.map((tab) => {
             const active = pathname.startsWith(tab.to);
             const Icon = tab.icon;
@@ -67,9 +70,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={tab.to}
                 to={tab.to}
                 className={cn(
-                  "flex min-h-11 items-center gap-3 rounded-2xl px-3 text-sm font-medium transition-colors",
+                  "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
                   active
-                    ? "bg-sidebar-accent text-primary ring-glow"
+                    ? "bg-sidebar-accent text-primary ring-1 ring-sidebar-border"
                     : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
                 )}
               >
@@ -85,7 +88,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <TrialBanner />
-          <main className="mx-auto w-full max-w-lg min-w-0 flex-1 overflow-x-clip pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:max-w-3xl lg:max-w-5xl lg:pb-10 xl:max-w-7xl">
+          <main className="mx-auto w-full max-w-lg min-w-0 flex-1 overflow-x-clip pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:max-w-none lg:pb-10">
             {children}
           </main>
           <ConciergeMount placement="left" />
@@ -128,27 +131,29 @@ export function AppShell({ children }: { children: ReactNode }) {
             </ul>
           </nav>
           {fab ? (
-            <button
+            <Button
               type="button"
               onClick={fab.onClick}
-              className="key-call pointer-events-auto absolute right-4 bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg transition-transform active:scale-95"
+              aria-label={fab.label}
+              title={fab.label}
+              className="key-call pointer-events-auto absolute right-4 bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] flex h-14 w-14 items-center justify-center rounded-lg transition-transform active:scale-95"
             >
               <FabIcon className="h-6 w-6" />
-              <span className="sr-only">{fab.label}</span>
-            </button>
+            </Button>
           ) : null}
         </div>
 
         {/* Desktop: the same primary action floats bottom-right */}
         {fab ? (
-          <button
+          <Button
             type="button"
             onClick={fab.onClick}
-            className="key-call fixed right-8 bottom-8 z-40 hidden h-14 w-14 items-center justify-center rounded-xl transition-transform active:scale-95 lg:flex"
+            aria-label={fab.label}
+            title={fab.label}
+            className="key-call fixed right-8 bottom-8 z-40 hidden h-14 w-14 items-center justify-center rounded-lg transition-transform active:scale-95 lg:flex"
           >
             <FabIcon className="h-6 w-6" />
-            <span className="sr-only">{fab.label}</span>
-          </button>
+          </Button>
         ) : null}
       </div>
     </FabContext.Provider>
@@ -166,7 +171,7 @@ export function ScreenHeader({
 }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 px-4 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 backdrop-blur sm:px-5 lg:pt-5">
-      <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 lg:max-w-4xl">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
         <div className="min-w-0">
           <h1 className="font-display truncate text-xl leading-tight font-semibold tracking-tight sm:text-[1.35rem]">
             {title}
