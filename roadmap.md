@@ -1,3 +1,3 @@
 # Current work
-- [ ] Apply the approved mobile-first web experience refactor across public and signed-in pages; verify on multiple devices.
-- [ ] Create and implement a new SixVox logo throughout the web experience.
+- [ ] Complete the approved mobile-first web experience refactor across every public and signed-in page; shared layouts, navigation, primary work pages, and initial cross-device checks are done, but the remaining secondary pages need individual review.
+- [x] Create and implement a new SixVox logo throughout the web experience.
