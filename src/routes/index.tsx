@@ -83,10 +83,6 @@ function Landing() {
     <MarketingLayout>
       <div className="theme-dark hero-band -mt-px">
         <Section className="relative overflow-hidden pt-7 pb-10 md:pt-12 md:pb-14">
-          <div
-            aria-hidden
-            className="signal-rings pointer-events-none absolute top-[-6rem] right-[-8rem] -z-10 hidden size-[36rem] md:block"
-          />
           <div className="grid gap-8 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-10">
             <div>
               <Eyebrow>For solo trades and crews of 2–5</Eyebrow>
@@ -144,7 +140,7 @@ function Landing() {
         </p>
         <ul className="mt-6 grid gap-3 md:grid-cols-3">
           {EXAMPLES.map((example) => (
-            <li key={example.when} className="surface-row h-full rounded-3xl p-5">
+            <li key={example.when} className="surface-row h-full rounded-lg p-5">
               <p className="text-xs font-semibold tracking-wide text-primary uppercase">Example</p>
               <h3 className="font-display mt-2 text-lg font-semibold">{example.when}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{example.body}</p>
@@ -251,7 +247,7 @@ function Landing() {
           {PLANS.map((plan) => (
             <article
               key={plan.code}
-              className={cn("glass-panel rounded-3xl p-5", plan.highlighted && "border-primary/50")}
+              className={cn("glass-panel rounded-lg p-5", plan.highlighted && "border-primary/50")}
             >
               <h3 className="font-display text-lg font-semibold">{plan.name}</h3>
               <p className="text-sm text-muted-foreground">{plan.tagline}</p>
