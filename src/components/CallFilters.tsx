@@ -1,6 +1,7 @@
 import { Search, X } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { hasCallFilters, type CallScreening } from "@/lib/call-spam";
 import { cn } from "@/lib/utils";
 
 export type CallFilterState = {
@@ -8,6 +9,7 @@ export type CallFilterState = {
   direction: "all" | "inbound" | "outbound";
   range: "all" | "today" | "7d" | "30d";
   device: "all" | "app" | "phone";
+  screening: CallScreening;
 };
 
 const GROUPS: {
@@ -39,6 +41,14 @@ const GROUPS: {
       { value: "phone", label: "Phone" },
     ],
   },
+  {
+    key: "screening",
+    options: [
+      { value: "all", label: "Any screening" },
+      { value: "spam", label: "Spam blocked" },
+      { value: "normal", label: "Not spam" },
+    ],
+  },
 ];
 
 export function CallFilters({
@@ -48,8 +58,7 @@ export function CallFilters({
   value: CallFilterState;
   onChange: (patch: Partial<CallFilterState>) => void;
 }) {
-  const dirty =
-    value.q !== "" || value.direction !== "all" || value.range !== "all" || value.device !== "all";
+  const dirty = hasCallFilters(value);
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-2.5 px-4 pb-3 lg:max-w-4xl">
@@ -94,7 +103,9 @@ export function CallFilters({
         {dirty ? (
           <button
             type="button"
-            onClick={() => onChange({ q: "", direction: "all", range: "all", device: "all" })}
+            onClick={() =>
+              onChange({ q: "", direction: "all", range: "all", device: "all", screening: "all" })
+            }
             className="glass-panel flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-[0.72rem] text-muted-foreground"
           >
             <X className="h-3 w-3" />

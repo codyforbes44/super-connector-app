@@ -41,6 +41,7 @@ import { Route as AuthenticatedSubscribersRouteImport } from './routes/_authenti
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
 import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
+import { Route as DevCallsPreviewRouteImport } from './routes/dev.calls-preview'
 import { Route as DevComplianceRouteImport } from './routes/dev/compliance'
 import { Route as DevPreviewRouteImport } from './routes/dev.preview'
 import { Route as DevReceptionistPreviewRouteImport } from './routes/dev.receptionist-preview'
@@ -239,6 +240,11 @@ const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const DevCallsPreviewRoute = DevCallsPreviewRouteImport.update({
+  id: '/dev/calls-preview',
+  path: '/dev/calls-preview',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DevComplianceRoute = DevComplianceRouteImport.update({
   id: '/dev/compliance',
@@ -464,6 +470,7 @@ export interface FileRoutesByFullPath {
   '/tools': typeof AuthenticatedToolsRoute
   '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/calls-preview': typeof DevCallsPreviewRoute
   '/dev/compliance': typeof DevComplianceRoute
   '/dev/preview': typeof DevPreviewRoute
   '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
@@ -532,6 +539,7 @@ export interface FileRoutesByTo {
   '/tools': typeof AuthenticatedToolsRoute
   '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/calls-preview': typeof DevCallsPreviewRoute
   '/dev/compliance': typeof DevComplianceRoute
   '/dev/preview': typeof DevPreviewRoute
   '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
@@ -603,6 +611,7 @@ export interface FileRoutesById {
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
   '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
+  '/dev/calls-preview': typeof DevCallsPreviewRoute
   '/dev/compliance': typeof DevComplianceRoute
   '/dev/preview': typeof DevPreviewRoute
   '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
@@ -674,6 +683,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/trust'
     | '/welcome'
+    | '/dev/calls-preview'
     | '/dev/compliance'
     | '/dev/preview'
     | '/dev/receptionist-preview'
@@ -742,6 +752,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/trust'
     | '/welcome'
+    | '/dev/calls-preview'
     | '/dev/compliance'
     | '/dev/preview'
     | '/dev/receptionist-preview'
@@ -812,6 +823,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tools'
     | '/_authenticated/trust'
     | '/_authenticated/welcome'
+    | '/dev/calls-preview'
     | '/dev/compliance'
     | '/dev/preview'
     | '/dev/receptionist-preview'
@@ -864,6 +876,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   UseCasesRoute: typeof UseCasesRoute
+  DevCallsPreviewRoute: typeof DevCallsPreviewRoute
   DevComplianceRoute: typeof DevComplianceRoute
   DevPreviewRoute: typeof DevPreviewRoute
   DevReceptionistPreviewRoute: typeof DevReceptionistPreviewRoute
@@ -1123,6 +1136,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/welcome'
       preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/dev/calls-preview': {
+      id: '/dev/calls-preview'
+      path: '/dev/calls-preview'
+      fullPath: '/dev/calls-preview'
+      preLoaderRoute: typeof DevCallsPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dev/compliance': {
       id: '/dev/compliance'
@@ -1460,6 +1480,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   UseCasesRoute: UseCasesRoute,
+  DevCallsPreviewRoute: DevCallsPreviewRoute,
   DevComplianceRoute: DevComplianceRoute,
   DevPreviewRoute: DevPreviewRoute,
   DevReceptionistPreviewRoute: DevReceptionistPreviewRoute,

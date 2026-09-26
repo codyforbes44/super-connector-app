@@ -67,7 +67,10 @@ export function WelcomeDialog() {
         </DialogDescription>
         <div className="mt-2 grid gap-2">
           <Button asChild onClick={() => void dismiss()}>
-            <Link to="/calls" search={{ q: "", direction: "all", range: "all", device: "all" }}>
+            <Link
+              to="/calls"
+              search={{ q: "", direction: "all", range: "all", device: "all", screening: "all" }}
+            >
               Open the dialer
             </Link>
           </Button>
