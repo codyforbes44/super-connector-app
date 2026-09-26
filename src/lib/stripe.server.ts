@@ -77,7 +77,7 @@ export function getStripeErrorMessage(error: unknown): string {
 export async function verifyWebhook(
   req: Request,
   env: StripeEnv,
-): Promise<{ type: string; data: { object: any } }> {
+): Promise<{ type: string; data: { object: unknown } }> {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
   const secret =

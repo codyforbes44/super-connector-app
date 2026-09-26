@@ -309,7 +309,6 @@ function CallsScreen() {
 
         {audio ? (
           <div className="mb-3 rounded-2xl border border-border bg-card p-3">
-            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             <audio className="w-full" controls autoPlay src={audio} />
           </div>
         ) : null}
