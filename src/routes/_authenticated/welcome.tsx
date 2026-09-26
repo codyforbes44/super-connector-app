@@ -43,7 +43,12 @@ export const Route = createFileRoute("/_authenticated/welcome")({
 const STEPS = ["Workspace", "Number", "Alerts", "First call"] as const;
 const TARGET_SECONDS = 120;
 
-type Available = { phone_number: string; friendly_name?: string; locality?: string; region?: string };
+type Available = {
+  phone_number: string;
+  friendly_name?: string;
+  locality?: string;
+  region?: string;
+};
 
 function useElapsed() {
   const start = useRef(Date.now());
@@ -192,7 +197,7 @@ function Welcome() {
   const onPace = elapsed <= TARGET_SECONDS;
 
   return (
-    <div className="px-4 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-10">
+    <div className="mx-auto w-full max-w-lg px-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
       <div className="mb-4 flex items-center justify-between">
         <p className="text-xs font-medium text-muted-foreground">
           Step {step + 1} of {STEPS.length}
@@ -234,10 +239,10 @@ function Welcome() {
             <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-xl">
               <Sparkles className="h-6 w-6" />
             </span>
-            <h1 className="font-display text-2xl font-semibold">Welcome to SixVox</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Four quick steps and you&apos;ll be taking calls. Start with a name for your
-              workspace — you can change it later.
+            <h1 className="font-display text-2xl font-semibold">Name the business</h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Use the name customers know — the one on the truck, not your personal cell. You can
+              change it later.
             </p>
             <div className="mt-6 space-y-1.5">
               <Label htmlFor="workspace">Workspace name</Label>
@@ -245,7 +250,7 @@ function Welcome() {
                 id="workspace"
                 value={workspace}
                 onChange={(event) => setWorkspace(event.target.value)}
-                placeholder="Acme Plumbing"
+                placeholder="Ridge Plumbing"
                 className="h-12 rounded-xl px-4"
                 maxLength={80}
               />
@@ -258,11 +263,11 @@ function Welcome() {
             <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-xl">
               <Hash className="h-6 w-6" />
             </span>
-            <h1 className="font-display text-2xl font-semibold">Your business number</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <h1 className="font-display text-2xl font-semibold">Get a number</h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {hasNumber
                 ? "You already have a line connected. You can add more any time."
-                : "Pick an area code and claim a number — it goes live the moment you tap it."}
+                : "Search an area code and claim a local number. If this account can't buy one yet, forward the number customers already call."}
             </p>
 
             {hasNumber ? (
@@ -316,7 +321,8 @@ function Welcome() {
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold">{formatPhone(option.phone_number)}</p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {[option.locality, option.region].filter(Boolean).join(", ") || "Local line"}
+                        {[option.locality, option.region].filter(Boolean).join(", ") ||
+                          "Local line"}
                       </p>
                     </div>
                     {claiming === option.phone_number ? (
@@ -344,9 +350,9 @@ function Welcome() {
             <span className="key-signal mb-4 flex h-14 w-14 items-center justify-center rounded-xl">
               <BellRing className="h-6 w-6" />
             </span>
-            <h1 className="font-display text-2xl font-semibold">Never miss a customer</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Turn on alerts so new messages and missed calls reach you instantly.
+            <h1 className="font-display text-2xl font-semibold">Hear it when you're on a job</h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Turn on alerts so a missed call or a new text reaches you when the app isn't open.
             </p>
             <div className="mt-5">
               <PushNotifications />
@@ -404,7 +410,7 @@ function Welcome() {
         ) : null}
 
         <Button
-          className="key-call mt-7 h-12 w-full rounded-xl text-sm font-semibold"
+          className="key-call mt-7 h-14 w-full rounded-xl text-base font-semibold"
           disabled={busy}
           onClick={() => void next()}
         >

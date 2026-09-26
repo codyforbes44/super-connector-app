@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { Loader2, Mail, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,9 +12,9 @@ import { errorMessage } from "@/lib/format";
 import { submitLead } from "@/lib/payments.functions";
 import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
-const TITLE = "Contact SixVox — talk to the team";
+const TITLE = "Contact SixVox — help with your business line";
 const DESCRIPTION =
-  "Questions about plans, moving your existing numbers, the AI receptionist or team rollout? Send the SixVox team a message.";
+  "Ask about plans, forwarding the number on your truck, the AI receptionist, or billing. The SixVox team replies by email.";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -111,13 +111,21 @@ function ContactPage() {
   return (
     <MarketingLayout>
       <Section className="pb-8">
-        <Eyebrow>A person replies, usually same day</Eyebrow>
+        <Eyebrow>We reply by email</Eyebrow>
         <h1 className="font-display mt-5 text-[2rem] leading-[1.06] font-semibold text-balance sm:text-4xl md:text-5xl">
           Talk to the team
         </h1>
         <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
-          Moving a busy business line, rolling SixVox out to a team, or curious what the AI
-          assistants can handle? Tell us what you need.
+          Questions about forwarding the number on your truck, the AI receptionist, or a bill. Ready
+          to try it?{" "}
+          <Link
+            to="/auth"
+            search={{ mode: "signup" }}
+            className="font-semibold text-primary underline"
+          >
+            Start a free trial
+          </Link>
+          .
         </p>
       </Section>
 
@@ -213,7 +221,11 @@ function ContactPage() {
             ) : null}
           </div>
           <Button type="submit" className="key-signal min-h-12 w-full rounded-xl" disabled={busy}>
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+            {busy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <MessageSquare className="h-4 w-4" />
+            )}
             Send message
           </Button>
           <p aria-live="polite" className="sr-only">

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
@@ -44,6 +45,7 @@ import { Route as DevComplianceRouteImport } from './routes/dev/compliance'
 import { Route as DevPreviewRouteImport } from './routes/dev.preview'
 import { Route as DevReceptionistPreviewRouteImport } from './routes/dev.receptionist-preview'
 import { Route as DevelopersWebhooksRouteImport } from './routes/developers/webhooks'
+import { Route as ForTradeRouteImport } from './routes/for/$trade'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as PayReturnRouteImport } from './routes/pay.return'
@@ -87,6 +89,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -250,6 +257,11 @@ const DevReceptionistPreviewRoute = DevReceptionistPreviewRouteImport.update({
 const DevelopersWebhooksRoute = DevelopersWebhooksRouteImport.update({
   id: '/developers/webhooks',
   path: '/developers/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForTradeRoute = ForTradeRouteImport.update({
+  id: '/for/$trade',
+  path: '/for/$trade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
@@ -417,6 +429,7 @@ const ApiPublicElevenlabsToolNameRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -449,6 +462,7 @@ export interface FileRoutesByFullPath {
   '/dev/preview': typeof DevPreviewRoute
   '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
   '/developers/webhooks': typeof DevelopersWebhooksRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/pay/return': typeof PayReturnRoute
@@ -483,6 +497,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -514,6 +529,7 @@ export interface FileRoutesByTo {
   '/dev/preview': typeof DevPreviewRoute
   '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
   '/developers/webhooks': typeof DevelopersWebhooksRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/pay/return': typeof PayReturnRoute
@@ -550,6 +566,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -582,6 +599,7 @@ export interface FileRoutesById {
   '/dev/preview': typeof DevPreviewRoute
   '/dev/receptionist-preview': typeof DevReceptionistPreviewRoute
   '/developers/webhooks': typeof DevelopersWebhooksRoute
+  '/for/$trade': typeof ForTradeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/pay/return': typeof PayReturnRoute
@@ -618,6 +636,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -650,6 +669,7 @@ export interface FileRouteTypes {
     | '/dev/preview'
     | '/dev/receptionist-preview'
     | '/developers/webhooks'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
     | '/pay/return'
@@ -684,6 +704,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -715,6 +736,7 @@ export interface FileRouteTypes {
     | '/dev/preview'
     | '/dev/receptionist-preview'
     | '/developers/webhooks'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
     | '/pay/return'
@@ -750,6 +772,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/compare'
     | '/contact'
     | '/faq'
     | '/features'
@@ -782,6 +805,7 @@ export interface FileRouteTypes {
     | '/dev/preview'
     | '/dev/receptionist-preview'
     | '/developers/webhooks'
+    | '/for/$trade'
     | '/legal/privacy'
     | '/legal/terms'
     | '/pay/return'
@@ -818,6 +842,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
@@ -831,6 +856,7 @@ export interface RootRouteChildren {
   DevPreviewRoute: typeof DevPreviewRoute
   DevReceptionistPreviewRoute: typeof DevReceptionistPreviewRoute
   DevelopersWebhooksRoute: typeof DevelopersWebhooksRoute
+  ForTradeRoute: typeof ForTradeRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   PayReturnRoute: typeof PayReturnRoute
@@ -880,6 +906,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -1104,6 +1137,13 @@ declare module '@tanstack/react-router' {
       path: '/developers/webhooks'
       fullPath: '/developers/webhooks'
       preLoaderRoute: typeof DevelopersWebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/$trade': {
+      id: '/for/$trade'
+      path: '/for/$trade'
+      fullPath: '/for/$trade'
+      preLoaderRoute: typeof ForTradeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/legal/privacy': {
@@ -1390,6 +1430,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
@@ -1403,6 +1444,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevPreviewRoute: DevPreviewRoute,
   DevReceptionistPreviewRoute: DevReceptionistPreviewRoute,
   DevelopersWebhooksRoute: DevelopersWebhooksRoute,
+  ForTradeRoute: ForTradeRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   PayReturnRoute: PayReturnRoute,
