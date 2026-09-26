@@ -9,21 +9,19 @@ export const Route = createFileRoute("/api/public/twilio/error")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const url = new URL(request.url);
-        const expected = process.env["TWILIO_WEBHOOK_TOKEN"];
-        if (expected && url.searchParams.get("t") !== expected) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const { verifyTwilioWebhook, rejectWebhook } =
+          await import("@/lib/twilio-signature.server");
+        const auth = await verifyTwilioWebhook(request);
+        if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
-        const body = await request.text();
-        const params: Record<string, string> = {};
-        for (const [key, value] of new URLSearchParams(body)) params[key] = value;
+        const params = auth.params;
+        const rawPayload = params["Payload"];
 
         let payload: Record<string, unknown> = {};
         try {
-          payload = params["Payload"] ? JSON.parse(params["Payload"]) : {};
+          payload = rawPayload ? (JSON.parse(rawPayload) as Record<string, unknown>) : {};
         } catch {
-          payload = { raw: params["Payload"] ?? body.slice(0, 2000) };
+          payload = { raw: (rawPayload ?? "").slice(0, 2000) };
         }
 
         const webhook = (payload["webhook"] ?? {}) as Record<string, unknown>;

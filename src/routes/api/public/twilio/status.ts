@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/public/twilio/status")({
       POST: async ({ request }) => {
         const { verifyTwilioWebhook, rejectWebhook } = await import("@/lib/twilio-signature.server");
         const auth = await verifyTwilioWebhook(request);
-        if (!auth.ok) return rejectWebhook(request, auth.reason);
+        if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
         const get = (key: string) => auth.params[key] ?? "";
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
