@@ -106,13 +106,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <Link
                       to={tab.to}
                       className={cn(
-                        "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[0.6rem] font-medium transition-colors",
+                         "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-[0.65rem] font-medium transition-colors",
                         active ? "text-primary" : "text-muted-foreground hover:text-primary/80",
                       )}
                     >
                       <span
                         className={cn(
-                          "flex h-8 w-11 items-center justify-center rounded-xl transition-colors",
+                           "flex h-8 w-11 items-center justify-center rounded-lg transition-colors",
                           active
                             ? "bg-primary/15 text-primary ring-1 ring-primary/30"
                             : "opacity-80",
