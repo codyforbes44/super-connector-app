@@ -170,6 +170,10 @@ function ComparePage() {
           stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the
           server.
         </p>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          Housecall Pro: save a MAX-plan API key under Integrations, then create a customer and lead
+          from a call thread. Basic and Essentials cannot use the public API.
+        </p>
       </Section>
 
       <Section className="py-6">

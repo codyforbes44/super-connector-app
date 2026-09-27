@@ -73,6 +73,10 @@ const GROUPS = [
         q: "Can I send a call into Jobber?",
         a: "Yes. Connect Jobber under Integrations, then create or match a client and open a request from the call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server.",
       },
+      {
+        q: "Can I send a call into Housecall Pro?",
+        a: "Yes, on a MAX plan. Save the API key under Integrations, then create a customer and lead from the call thread. Basic and Essentials cannot use the public API.",
+      },
     ],
   },
   {

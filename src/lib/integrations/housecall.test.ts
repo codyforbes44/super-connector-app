@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buildHousecallCustomer, buildHousecallLead, housecallPhone } from "./housecall";
+import {
+  HOUSECALL_ZAPIER_COPY,
+  buildHousecallCustomer,
+  buildHousecallLead,
+  housecallPhone,
+} from "./housecall";
 
 const CALL = {
   firstName: "Dana",
@@ -13,6 +18,14 @@ const CALL = {
   zip: "74103",
   summary: "Garage door spring broke. Needs a same-day look.",
 };
+
+describe("Housecall Pro non-MAX copy", () => {
+  it("points at Settings outbound webhooks instead of a future sender", () => {
+    expect(HOUSECALL_ZAPIER_COPY).toMatch(/Settings → Outbound webhooks/);
+    expect(HOUSECALL_ZAPIER_COPY).toMatch(/HMAC-SHA256/);
+    expect(HOUSECALL_ZAPIER_COPY).not.toMatch(/being added separately/i);
+  });
+});
 
 describe("Housecall Pro payload mapping", () => {
   it("maps a call to a customer with a service address", () => {

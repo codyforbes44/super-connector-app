@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { CAPABILITY_ROWS, SOLO_COST_ROWS } from "./compare";
 import { FEATURE_FLAGS } from "./feature-flags";
+import { HOUSECALL_ZAPIER_COPY } from "./integrations/housecall";
 import { PLANS, TRIAL_LIMITS, priceIdFor } from "./plans";
 import { TRADES } from "./trades";
 
@@ -65,6 +66,7 @@ describe("coming soon flags", () => {
     expect(FEATURE_FLAGS.nativeApp).toBe(false);
     expect(FEATURE_FLAGS.portIn).toBe(false);
     expect(FEATURE_FLAGS.jobber).toBe(true);
+    expect(FEATURE_FLAGS.housecall).toBe(true);
     expect(FEATURE_FLAGS.reviewRequests).toBe(true);
     expect(FEATURE_FLAGS.paymentLinks).toBe(true);
   });
@@ -89,6 +91,12 @@ describe("coming soon flags", () => {
     expect(cell("CRM / FSM integrations")).toMatch(/JOBBER_CLIENT_ID/);
     expect(cell("CRM / FSM integrations")).toMatch(/JOBBER_CLIENT_SECRET/);
     expect(cell("CRM / FSM integrations")).toMatch(/Tokens stay on the server/);
+    expect(cell("CRM / FSM integrations")).toMatch(/Housecall Pro/);
+    expect(cell("CRM / FSM integrations")).toMatch(/API key/);
+    expect(cell("CRM / FSM integrations")).toMatch(/customer/);
+    expect(cell("CRM / FSM integrations")).toMatch(/lead/);
+    expect(cell("CRM / FSM integrations")).toMatch(/MAX/);
+    expect(cell("CRM / FSM integrations")).toMatch(/Basic and Essentials/);
     expect(cell("CRM / FSM integrations")).not.toMatch(/coming soon/i);
     expect(cell("Porting")).toMatch(/coming soon/i);
     expect(cell("Review requests")).toMatch(/Mark job done/i);
@@ -103,7 +111,24 @@ describe("coming soon flags", () => {
     expect(cell("Payment links")).not.toMatch(/coming soon/i);
   });
 
-  it("does not call review requests, payment links, or Jobber coming soon in marketing copy", () => {
+  it("describes the Housecall Pro Integrations path and MAX gate on the features page", () => {
+    const source = readFileSync(new URL("../routes/features.tsx", import.meta.url), "utf8");
+    expect(source).toMatch(/flag: "housecall"/);
+    expect(source).toMatch(/Save a MAX-plan API key under Integrations/);
+    expect(source).toMatch(/create a customer and lead from a call thread/);
+    expect(source).toMatch(/Basic and Essentials cannot use the public API/);
+    expect(source).not.toMatch(/housecall[^.]{0,180}coming soon/i);
+  });
+
+  it("points non-MAX Housecall users at shipped outbound webhooks", () => {
+    expect(HOUSECALL_ZAPIER_COPY).toMatch(/Settings → Outbound webhooks/);
+    expect(HOUSECALL_ZAPIER_COPY).toMatch(/HMAC-SHA256/);
+    expect(HOUSECALL_ZAPIER_COPY).toMatch(/Zapier or Make/);
+    expect(HOUSECALL_ZAPIER_COPY).not.toMatch(/being added separately/i);
+    expect(HOUSECALL_ZAPIER_COPY).not.toMatch(/coming soon/i);
+  });
+
+  it("does not call review requests, payment links, Jobber, or Housecall Pro coming soon in marketing copy", () => {
     const files = [
       "routes/index.tsx",
       "routes/pricing.tsx",
@@ -121,6 +146,7 @@ describe("coming soon flags", () => {
       expect(source, file).not.toMatch(/review (requests|texts|link)[^.]{0,120}coming soon/i);
       expect(source, file).not.toMatch(/payment links?[^.]{0,120}coming soon/i);
       expect(source, file).not.toMatch(/jobber[^.]{0,180}coming soon/i);
+      expect(source, file).not.toMatch(/housecall[^.]{0,180}coming soon/i);
     }
   });
 });

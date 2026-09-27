@@ -7,7 +7,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "How SixVox works for a trades business line";
 const DESCRIPTION =
-  "Sign up, forward the number customers already call or claim one, and turn on the AI receptionist. Missed-call text-back is in line settings. Review requests, payment links, and Jobber are in the app. Port-in and the native app are marked coming soon.";
+  "Sign up, forward the number customers already call or claim one, and turn on the AI receptionist. Missed-call text-back is in line settings. Review requests, payment links, Jobber, and Housecall Pro are in the app. Port-in and the native app are marked coming soon.";
 
 const STEPS = [
   {
@@ -101,6 +101,11 @@ function HowItWorksPage() {
             Jobber: connect under Integrations, then create or match a client and request from a
             call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set.
             Tokens stay on the server. <ComingSoonBadge flag="jobber" />
+          </li>
+          <li className="flex flex-wrap items-center gap-2">
+            Housecall Pro: save a MAX-plan API key under Integrations, then create a customer and
+            lead from a call thread. Basic and Essentials cannot use the public API.{" "}
+            <ComingSoonBadge flag="housecall" />
           </li>
           <li className="flex flex-wrap items-center gap-2">
             Port-in for the old number <ComingSoonBadge flag="portIn" />

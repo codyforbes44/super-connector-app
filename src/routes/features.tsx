@@ -3,6 +3,7 @@ import {
   BellRing,
   Bot,
   CalendarClock,
+  HardHat,
   Hash,
   Inbox,
   MapPin,
@@ -24,7 +25,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Features — a business line that answers for trades";
 const DESCRIPTION =
-  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, and approval booking are in line settings. Review requests, payment links, and Jobber are in the app. A native app is marked coming soon.";
+  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, and approval booking are in line settings. Review requests, payment links, Jobber, and Housecall Pro are in the app. A native app is marked coming soon.";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -116,6 +117,12 @@ const GROUPS: Array<{
         title: "Jobber",
         body: "Connect Jobber under Integrations, then create or match a client and open a request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server.",
         flag: "jobber",
+      },
+      {
+        icon: HardHat,
+        title: "Housecall Pro",
+        body: "Save a MAX-plan API key under Integrations, then create a customer and lead from a call thread. Basic and Essentials cannot use the public API.",
+        flag: "housecall",
       },
     ],
   },
