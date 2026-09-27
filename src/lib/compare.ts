@@ -154,9 +154,9 @@ export type MatrixRow = {
  * SixVox cells follow section 3.1 except the contradictions section 2
  * says to fix, plus later shipped line controls: text-back, business-hours
  * routing, approval booking, E911 address registration, per-workspace roles,
- * review requests, payment links, and Jobber (connect under Integrations, then
- * create or match a client and request from a call thread). Competitor cells on the two new rows
- * were not in those tables, so they stay unverified.
+ * review requests, payment links, Spanish answering, and Jobber (connect under
+ * Integrations, then create or match a client and request from a call thread).
+ * Competitor cells on the newer rows were not in those tables, so they stay unverified.
  */
 export const CAPABILITY_ROWS: MatrixRow[] = [
   {
@@ -182,6 +182,15 @@ export const CAPABILITY_ROWS: MatrixRow[] = [
     quo: "Business+ (Starter: Sona calls only)",
     grasshopper: "Solo Plus+",
     googleVoice: "Standard ($20)+",
+    jobber: "Not stated in the Sep 2026 sources used here",
+  },
+  {
+    capability: "Spanish answering",
+    sixvox:
+      "Per line, on the receptionist number sheet or in line settings: English only, Spanish only, or Auto-detect. Spanish only updates the AI agent prompt language. Auto-detect keeps the agent language in English and instructs a switch when the caller speaks Spanish. Default missed-call text-back and booking texts can use Spanish when the line is Spanish, or when auto and the transcript is Spanish. A custom template stays as saved.",
+    quo: "n/v",
+    grasshopper: "n/v",
+    googleVoice: "n/v",
     jobber: "Not stated in the Sep 2026 sources used here",
   },
   {

@@ -43,8 +43,14 @@ const textBack: PlanFeature = {
   flag: "missedCallTextBack",
 };
 
+const spanishAnswering: PlanFeature = {
+  label: "Per-line Spanish answering",
+  flag: "spanishAnswering",
+};
+
 const sharedSoloFeatures: PlanFeature[] = [
   { label: "AI receptionist on your line" },
+  spanishAnswering,
   textBack,
   { label: "SMS, MMS, and in-app calling" },
   { label: "Voicemail with transcription" },
@@ -111,6 +117,13 @@ export const PLANS: PlanMeta[] = [
   },
 ];
 
+/** "1 number · 1 seat · 50 AI calls" — singular when the count is 1. */
+export function planAllowanceLabel(plan: Pick<PlanMeta, "numbers" | "seats" | "aiCalls">): string {
+  const numbers = `${plan.numbers} number${plan.numbers === 1 ? "" : "s"}`;
+  const seats = `${plan.seats} seat${plan.seats === 1 ? "" : "s"}`;
+  return `${numbers} · ${seats} · ${plan.aiCalls} AI calls`;
+}
+
 export function planByCode(code?: string | null): PlanMeta | undefined {
   return PLANS.find((p) => p.code === code);
 }
@@ -157,6 +170,12 @@ export const FEATURE_MATRIX: Array<{ label: string; solo: string; team: string; 
     solo: matrixValue("missedCallTextBack"),
     team: matrixValue("missedCallTextBack"),
     scale: matrixValue("missedCallTextBack"),
+  },
+  {
+    label: "Spanish answering",
+    solo: matrixValue("spanishAnswering"),
+    team: matrixValue("spanishAnswering"),
+    scale: matrixValue("spanishAnswering"),
   },
   { label: "SMS, MMS and voice", solo: "Yes", team: "Yes", scale: "Yes" },
   { label: "Included AI calls", solo: "50", team: "200", scale: "600" },

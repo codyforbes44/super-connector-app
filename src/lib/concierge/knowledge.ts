@@ -62,6 +62,11 @@ Core capabilities
 - Jobber is available today. Connect under Integrations, then create or match a client and open
   a request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET
   are set. Tokens stay on the server. Do not say a Jobber account is already connected.
+- Spanish answering is available today. On the receptionist number sheet or in line settings, the
+  owner sets English only, Spanish only, or Auto-detect. Spanish only updates the AI agent prompt
+  language. Auto-detect keeps the agent language in English and instructs a switch when the caller
+  speaks Spanish. Default missed-call text-back and booking texts can use Spanish when the line is
+  Spanish, or when auto and the transcript is Spanish. A custom template stays as saved.
 - Number port-in and a native calling app are coming soon. Do not say those are live.
 - Alerts: push notifications and email for missed calls, voicemail, inbound messages and AI
   summaries, with quiet hours and a daily digest.
@@ -138,6 +143,13 @@ A: Yes. Connect Jobber under Integrations, then create or match a client and ope
 the call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens
 stay on the server. Do not say the account is connected until the owner connects it.
 
+Q: Can the receptionist answer in Spanish?
+A: Yes. On the receptionist number sheet or in line settings, choose English only, Spanish only, or
+Auto-detect. Spanish only updates the AI agent prompt language. Auto-detect keeps the agent language
+in English and tells it to switch when the caller speaks Spanish. The default missed-call text and
+booking texts can use Spanish when the line is Spanish, or when auto and the transcript is Spanish.
+A custom template stays as saved.
+
 Q: Do you support international calling?
 A: Yes for outbound calling and messaging where the destination is permitted; availability and
 rates depend on the destination.
@@ -157,6 +169,11 @@ export const POSITIONING_DOC: KnowledgeDoc = {
   the product; the admin controls are there when you want them.
 - The AI receptionist is included on every plan, including Solo. It is configurable per number.
   Approval booking is available in line settings. Automatic booking is an optional setting on that line.
+- Spanish answering is available today on the receptionist number sheet and in line settings:
+  English only, Spanish only, or Auto-detect. Spanish only updates the AI agent prompt language.
+  Auto-detect keeps the agent language in English and switches when the caller speaks Spanish.
+  Default missed-call text-back and booking texts can use Spanish when the line is Spanish, or when
+  auto and the transcript is Spanish. A custom template stays as saved.
 - Call intelligence turns every call into a summary and one-tap follow-ups.
 - It works in the browser and as an Android app. A native iPhone app is coming soon.
 - Review requests and payment links are in the app. Review texts go out after Mark job done when a

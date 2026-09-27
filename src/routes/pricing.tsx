@@ -20,6 +20,7 @@ import {
   PLANS,
   TRIAL_DAYS,
   featureIsSoon,
+  planAllowanceLabel,
   type BillingInterval,
 } from "@/lib/plans";
 import { SITE_URL, breadcrumbLd, faqLd, pageHead } from "@/lib/seo";
@@ -139,8 +140,9 @@ function PricingPage() {
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
           Solo is ${PLANS[0]?.monthly}/mo, Team is ${PLANS[1]?.monthly}/mo, Scale is $
-          {PLANS[2]?.monthly}/mo. Missed-call text-back and carrier texting registration are on
-          every plan.
+          {PLANS[2]?.monthly}/mo. Missed-call text-back, carrier texting registration, and Spanish
+          answering are on every plan. On the receptionist number sheet or in line settings, choose
+          English only, Spanish only, or Auto-detect.
         </p>
         <Link
           to="/auth"
@@ -191,10 +193,7 @@ function PricingPage() {
                   /{interval === "month" ? "mo" : "yr"}
                 </span>
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {plan.numbers} number{plan.numbers === 1 ? "" : "s"} · {plan.seats} seats ·{" "}
-                {plan.aiCalls} AI calls
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{planAllowanceLabel(plan)}</p>
               <Link
                 to="/auth"
                 search={{ mode: "signup", plan: plan.code, interval }}

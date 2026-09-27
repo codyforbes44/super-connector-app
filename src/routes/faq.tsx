@@ -83,6 +83,10 @@ const GROUPS = [
         a: "If that number is set to the AI receptionist, it answers and leaves a transcript. Voicemail is the fallback. Missed-call text-back is included on every plan. Turn it on in that line's settings and an unanswered inbound call gets a text from that number.",
       },
       {
+        q: "Can it answer in Spanish?",
+        a: "Yes. On the receptionist number sheet or in line settings, choose English only, Spanish only, or Auto-detect. Spanish only updates the AI agent prompt language. Auto-detect keeps the agent language in English and tells it to switch when the caller speaks Spanish. The default missed-call text and booking texts can use Spanish when the line is Spanish, or when auto and that call's transcript is Spanish. A text you wrote yourself stays as you saved it.",
+      },
+      {
         q: "Are calls recorded?",
         a: "Call recording is off for each line until you turn it on. When it is on, everyone on the call hears a recording notice before recording starts, including voicemail and the AI receptionist.",
       },

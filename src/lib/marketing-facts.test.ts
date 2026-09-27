@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { CAPABILITY_ROWS, SOLO_COST_ROWS } from "./compare";
 import { FEATURE_FLAGS } from "./feature-flags";
-import { PLANS, TRIAL_LIMITS, priceIdFor } from "./plans";
+import { PLANS, TRIAL_LIMITS, planAllowanceLabel, priceIdFor } from "./plans";
 import { TRADES } from "./trades";
 
 describe("plan config", () => {
@@ -36,6 +36,7 @@ describe("plan config", () => {
       const labels = plan.features.map((feature) => feature.label);
       expect(labels).toContain("AI receptionist on your line");
       expect(labels).toContain("Missed-call text-back");
+      expect(labels).toContain("Per-line Spanish answering");
       expect(labels).toContain("A2P texting registration handled for you");
     }
   });
@@ -67,6 +68,7 @@ describe("coming soon flags", () => {
     expect(FEATURE_FLAGS.jobber).toBe(true);
     expect(FEATURE_FLAGS.reviewRequests).toBe(true);
     expect(FEATURE_FLAGS.paymentLinks).toBe(true);
+    expect(FEATURE_FLAGS.spanishAnswering).toBe(true);
   });
 
   it("matches SixVox compare cells to what is in the app", () => {
@@ -101,9 +103,17 @@ describe("coming soon flags", () => {
     expect(cell("Payment links")).toMatch(/test mode/i);
     expect(cell("Payment links")).toMatch(/connected account/i);
     expect(cell("Payment links")).not.toMatch(/coming soon/i);
+    expect(cell("Spanish answering")).toMatch(/English only/);
+    expect(cell("Spanish answering")).toMatch(/Spanish only/);
+    expect(cell("Spanish answering")).toMatch(/Auto-detect/);
+    expect(cell("Spanish answering")).toMatch(/prompt language/);
+    expect(cell("Spanish answering")).toMatch(/transcript is Spanish/);
+    expect(cell("Spanish answering")).toMatch(/custom template stays as saved/i);
+    expect(cell("Spanish answering")).not.toMatch(/coming soon/i);
+    expect(cell("Spanish answering")).not.toMatch(/unlimited/i);
   });
 
-  it("does not call review requests, payment links, or Jobber coming soon in marketing copy", () => {
+  it("does not call review requests, payment links, Jobber, or Spanish answering coming soon in marketing copy", () => {
     const files = [
       "routes/index.tsx",
       "routes/pricing.tsx",
@@ -121,6 +131,7 @@ describe("coming soon flags", () => {
       expect(source, file).not.toMatch(/review (requests|texts|link)[^.]{0,120}coming soon/i);
       expect(source, file).not.toMatch(/payment links?[^.]{0,120}coming soon/i);
       expect(source, file).not.toMatch(/jobber[^.]{0,180}coming soon/i);
+      expect(source, file).not.toMatch(/spanish answering[^.]{0,220}coming soon/i);
     }
   });
 });
@@ -136,6 +147,20 @@ describe("trade pages", () => {
       "landscaping",
       "garage-doors",
     ]);
+  });
+});
+
+describe("pricing seat label", () => {
+  it("pluralizes one seat the same way numbers pluralize", () => {
+    expect(planAllowanceLabel({ numbers: 1, seats: 1, aiCalls: 50 })).toBe(
+      "1 number · 1 seat · 50 AI calls",
+    );
+    expect(planAllowanceLabel({ numbers: 3, seats: 5, aiCalls: 200 })).toBe(
+      "3 numbers · 5 seats · 200 AI calls",
+    );
+    expect(planAllowanceLabel(PLANS.find((plan) => plan.code === "solo")!)).toBe(
+      "1 number · 1 seat · 50 AI calls",
+    );
   });
 });
 
