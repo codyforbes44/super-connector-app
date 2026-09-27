@@ -38,12 +38,6 @@ function unsignedRequest() {
   });
 }
 
-function skipWarnings(warn: ReturnType<typeof vi.spyOn>) {
-  return warn.mock.calls.filter(
-    (call: readonly unknown[]) => call[0] === "Skipped webhook_errors insert",
-  );
-}
-
 afterEach(() => {
   state.inserts = [];
   state.workspaceByNumber.clear();
@@ -51,25 +45,27 @@ afterEach(() => {
 });
 
 describe("webhook error logging without a workspace", () => {
-  it("skips the insert for an unsigned request with no To and still returns 401", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+  it("records an unsigned request without a To as a system error and still returns 401", async () => {
     const response = await rejectWebhook(unsignedRequest(), "missing signature", {
       CallSid: "CA-unsigned",
     });
 
     expect(response.status).toBe(401);
     expect(await response.text()).toBe("Unauthorized");
-    expect(state.inserts).toEqual([]);
-    expect(skipWarnings(warn)).toEqual([
-      ["Skipped webhook_errors insert", { source: "voice", reason: "missing app number" }],
+    expect(state.inserts).toEqual([
+      expect.objectContaining({
+        table: "webhook_errors",
+        source: "voice",
+        workspace_id: null,
+        app_number: null,
+        call_sid: "CA-unsigned",
+      }),
     ]);
-    expect(JSON.stringify(warn.mock.calls)).not.toContain(TOKEN);
-    expect(JSON.stringify(warn.mock.calls)).not.toContain("CallSid");
+    expect(JSON.stringify(state.inserts)).not.toContain(TOKEN);
   });
 
   it("inserts a known number with its workspace_id and still returns 401", async () => {
     state.workspaceByNumber.set(NUMBER, WORKSPACE);
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const response = await rejectWebhook(unsignedRequest(), "signature mismatch", {
       To: NUMBER,
       CallSid: "CA-known",
@@ -77,7 +73,6 @@ describe("webhook error logging without a workspace", () => {
 
     expect(response.status).toBe(401);
     expect(await response.text()).toBe("Unauthorized");
-    expect(skipWarnings(warn)).toEqual([]);
     expect(state.inserts).toEqual([
       expect.objectContaining({
         table: "webhook_errors",
@@ -89,5 +84,22 @@ describe("webhook error logging without a workspace", () => {
     ]);
     expect(JSON.stringify(warn.mock.calls)).not.toContain(TOKEN);
     expect(JSON.stringify(state.inserts)).not.toContain(TOKEN);
+  });
+
+  it("records an unmapped number without assigning it to another workspace", async () => {
+    const response = await rejectWebhook(unsignedRequest(), "signature mismatch", {
+      To: "+15555550100",
+      CallSid: "CA-unmapped",
+    });
+
+    expect(response.status).toBe(401);
+    expect(state.inserts).toEqual([
+      expect.objectContaining({
+        table: "webhook_errors",
+        workspace_id: null,
+        app_number: "+15555550100",
+        call_sid: "CA-unmapped",
+      }),
+    ]);
   });
 });

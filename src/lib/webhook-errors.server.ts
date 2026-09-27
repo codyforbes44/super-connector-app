@@ -30,21 +30,19 @@ export async function logWebhookError(
     if (!workspaceId && appNumber) {
       workspaceId = (await resolveWorkspaceIdForNumber(appNumber)).workspaceId;
     }
-    // webhook_errors.workspace_id is NOT NULL. The assign_workspace_id trigger
-    // fills it only for a signed-in user, so a service-role insert with no
-    // workspace is rejected and the failure never lands in the table.
-    if (!workspaceId) {
-      console.warn("Skipped webhook_errors insert", {
-        source,
-        reason: appNumber ? "unresolved app number" : "missing app number",
-      });
-      return;
+    // Unmatched carrier events are system diagnostics (visible only to the
+    // platform super admin); never attribute them to another workspace.
+    let safeUrl = input.url ?? null;
+    if (safeUrl) {
+      const parsed = new URL(safeUrl);
+      parsed.searchParams.delete("t");
+      safeUrl = parsed.toString();
     }
     const { error } = await admin.from("webhook_errors").insert({
       source,
       error_code: input.errorCode ?? null,
       message: input.message ? String(input.message).slice(0, 2000) : null,
-      url: input.url ?? null,
+      url: safeUrl,
       call_sid: input.callSid ?? null,
       app_number: input.appNumber ?? null,
       payload: (input.payload ?? {}) as never,
