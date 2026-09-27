@@ -295,9 +295,9 @@ export function ErrorState({
       <p className="font-display text-sm font-semibold text-foreground">{title}</p>
       {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {onRetry ? (
-      <Button type="button" variant="secondary" onClick={onRetry} className="mt-4">
+        <Button type="button" variant="secondary" onClick={onRetry} className="mt-4">
           Try again
-      </Button>
+        </Button>
       ) : null}
     </div>
   );
@@ -385,9 +385,16 @@ export function LoadMore({
   if (!hasMore) return null;
   return (
     <div ref={ref} className={cn("flex justify-center py-4", className)}>
-          <Button type="button" variant="secondary" onClick={() => { haptic("light"); onLoadMore(); }}>
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={() => {
+          haptic("light");
+          onLoadMore();
+        }}
+      >
         {remaining ? `Load ${remaining > 25 ? "25 more" : `${remaining} more`}` : "Load more"}
-          </Button>
+      </Button>
     </div>
   );
 }

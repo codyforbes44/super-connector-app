@@ -58,7 +58,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="app-gradient flex min-h-dvh w-full flex-col lg:flex-row">
         {/* Desktop / tablet side rail */}
         <aside className="sticky top-0 hidden h-dvh shrink-0 flex-col gap-2 border-r border-sidebar-border bg-sidebar px-3 py-6 lg:flex lg:w-[15rem]">
-          <Link to="/inbox" className="mb-4 flex min-h-11 items-center gap-2 px-2 font-display text-lg font-semibold text-foreground" aria-label="SixVox inbox">
+          <Link
+            to="/inbox"
+            className="mb-4 flex min-h-11 items-center gap-2 px-2 font-display text-lg font-semibold text-foreground"
+            aria-label="SixVox inbox"
+          >
             <img src={brandLogo} alt="" width={36} height={36} className="size-9 object-contain" />
             SixVox
           </Link>
@@ -106,13 +110,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <Link
                       to={tab.to}
                       className={cn(
-                         "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-[0.65rem] font-medium transition-colors",
+                        "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-[0.65rem] font-medium transition-colors",
                         active ? "text-primary" : "text-muted-foreground hover:text-primary/80",
                       )}
                     >
                       <span
                         className={cn(
-                           "flex h-8 w-11 items-center justify-center rounded-lg transition-colors",
+                          "flex h-8 w-11 items-center justify-center rounded-lg transition-colors",
                           active
                             ? "bg-primary/15 text-primary ring-1 ring-primary/30"
                             : "opacity-80",
@@ -170,14 +174,14 @@ export function ScreenHeader({
   action?: ReactNode;
 }) {
   return (
-     <header className="sticky top-0 z-30 border-b border-border bg-background px-4 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 sm:px-5 lg:pt-5">
+    <header className="sticky top-0 z-30 border-b border-border bg-background px-4 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 sm:px-5 lg:pt-5">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
         <div className="min-w-0">
           <h1 className="font-display truncate text-xl leading-tight font-semibold tracking-tight sm:text-[1.35rem]">
             {title}
           </h1>
           {subtitle ? (
-          <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">{subtitle}</p>
+            <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">{subtitle}</p>
           ) : null}
         </div>
         {action ? <div className="flex shrink-0 items-center gap-1">{action}</div> : null}

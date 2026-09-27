@@ -11,8 +11,8 @@ export const FEATURE_FLAGS = {
   /** Line settings plus Calls: Google Calendar proposal the owner approves. Automatic is optional. */
   aiBookingWithApproval: true,
   jobber: false,
-  reviewRequests: false,
-  paymentLinks: false,
+  reviewRequests: true,
+  paymentLinks: true,
   nativeApp: false,
   portIn: false,
 } as const;

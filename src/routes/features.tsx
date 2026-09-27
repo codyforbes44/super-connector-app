@@ -23,7 +23,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Features — a business line that answers for trades";
 const DESCRIPTION =
-  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, and approval booking are in line settings. Jobber and a native app are marked coming soon.";
+  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, and approval booking are in line settings. Review requests and payment links are in the inbox. Jobber and a native app are marked coming soon.";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -98,6 +98,18 @@ const GROUPS: Array<{
         body: "Turn it on per line. The receptionist can propose a time from your Google Calendar availability. You approve it with one tap before it is booked. Automatic booking is an optional setting.",
         flag: "aiBookingWithApproval",
       },
+      {
+        icon: Star,
+        title: "Review requests",
+        body: "Save a Google review link in Integrations, with quiet hours and a cooldown. Mark job done on a thread sends one review text when that setting is on. The text includes STOP.",
+        flag: "reviewRequests",
+      },
+      {
+        icon: Wallet,
+        title: "Payment links",
+        body: "From a conversation, open Payment link and text an amount. Stripe Connect is test mode. The charge is created on the connected account, not on SixVox.",
+        flag: "paymentLinks",
+      },
     ],
   },
   {
@@ -120,18 +132,6 @@ const GROUPS: Array<{
         title: "Jobber",
         body: "Send the caller, the address, and the call summary into Jobber when you already use it.",
         flag: "jobber",
-      },
-      {
-        icon: Star,
-        title: "Review requests",
-        body: "Text a review link after the job is marked done, with a way for the customer to opt out.",
-        flag: "reviewRequests",
-      },
-      {
-        icon: Wallet,
-        title: "Payment links",
-        body: "Text a link so the customer pays you, not SixVox.",
-        flag: "paymentLinks",
       },
     ],
   },

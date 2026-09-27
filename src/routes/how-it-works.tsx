@@ -7,7 +7,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "How SixVox works for a trades business line";
 const DESCRIPTION =
-  "Sign up, forward the number customers already call or claim one, and turn on the AI receptionist. Missed-call text-back is in line settings. Port-in and the native app are marked coming soon.";
+  "Sign up, forward the number customers already call or claim one, and turn on the AI receptionist. Missed-call text-back is in line settings. Review requests and payment links are in the inbox. Port-in and the native app are marked coming soon.";
 
 const STEPS = [
   {
@@ -87,6 +87,15 @@ function HowItWorksPage() {
           <li className="flex flex-wrap items-center gap-2">
             Missed-call text-back is in line settings. Turn it on and an unanswered inbound call
             gets a text from that number. <ComingSoonBadge flag="missedCallTextBack" />
+          </li>
+          <li className="flex flex-wrap items-center gap-2">
+            Review requests: save a Google review link in Integrations, then Mark job done on a
+            thread. Quiet hours, a cooldown, and STOP are checked first.{" "}
+            <ComingSoonBadge flag="reviewRequests" />
+          </li>
+          <li className="flex flex-wrap items-center gap-2">
+            Payment links: from a conversation, text a Stripe Connect link in test mode. The charge
+            lands on the connected account. <ComingSoonBadge flag="paymentLinks" />
           </li>
           <li className="flex flex-wrap items-center gap-2">
             Port-in for the old number <ComingSoonBadge flag="portIn" />

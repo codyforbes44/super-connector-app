@@ -141,7 +141,10 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             <span className="font-display text-base font-semibold tracking-tight">SixVox</span>
           </Link>
 
-          <nav aria-label="Main" className="hidden min-w-0 items-center justify-center gap-0.5 lg:flex">
+          <nav
+            aria-label="Main"
+            className="hidden min-w-0 items-center justify-center gap-0.5 lg:flex"
+          >
             {NAV.map((item) => (
               <Link
                 key={item.to}
@@ -217,7 +220,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
       {/* Thumb-reach conversion bar: phones only, once the hero has scrolled away. */}
       <div
         className={cn(
-           "safe-bottom fixed inset-x-0 bottom-0 z-30 bg-background px-3 pt-3 transition-transform duration-300 md:hidden",
+          "safe-bottom fixed inset-x-0 bottom-0 z-30 bg-background px-3 pt-3 transition-transform duration-300 md:hidden",
           pastHero && !open && pathname !== "/contact" ? "translate-y-0" : "translate-y-[130%]",
         )}
       >

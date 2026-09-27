@@ -65,8 +65,8 @@ describe("coming soon flags", () => {
     expect(FEATURE_FLAGS.nativeApp).toBe(false);
     expect(FEATURE_FLAGS.portIn).toBe(false);
     expect(FEATURE_FLAGS.jobber).toBe(false);
-    expect(FEATURE_FLAGS.reviewRequests).toBe(false);
-    expect(FEATURE_FLAGS.paymentLinks).toBe(false);
+    expect(FEATURE_FLAGS.reviewRequests).toBe(true);
+    expect(FEATURE_FLAGS.paymentLinks).toBe(true);
   });
 
   it("matches SixVox compare cells to what is in the app", () => {
@@ -85,6 +85,36 @@ describe("coming soon flags", () => {
     expect(cell("Native iOS/Android calling")).toMatch(/coming soon/i);
     expect(cell("CRM / FSM integrations")).toMatch(/Jobber integration is coming soon/);
     expect(cell("Porting")).toMatch(/coming soon/i);
+    expect(cell("Review requests")).toMatch(/Mark job done/i);
+    expect(cell("Review requests")).toMatch(/Integrations/i);
+    expect(cell("Review requests")).toMatch(/quiet hours/i);
+    expect(cell("Review requests")).toMatch(/cooldown/i);
+    expect(cell("Review requests")).toMatch(/STOP/);
+    expect(cell("Review requests")).not.toMatch(/coming soon/i);
+    expect(cell("Payment links")).toMatch(/Stripe Connect/i);
+    expect(cell("Payment links")).toMatch(/test mode/i);
+    expect(cell("Payment links")).toMatch(/connected account/i);
+    expect(cell("Payment links")).not.toMatch(/coming soon/i);
+  });
+
+  it("does not call review requests or payment links coming soon in marketing copy", () => {
+    const files = [
+      "routes/index.tsx",
+      "routes/pricing.tsx",
+      "routes/features.tsx",
+      "routes/faq.tsx",
+      "routes/compare.tsx",
+      "routes/use-cases.tsx",
+      "routes/how-it-works.tsx",
+      "lib/compare.ts",
+      "lib/concierge/knowledge.ts",
+      "lib/concierge/prompt.ts",
+    ];
+    for (const file of files) {
+      const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+      expect(source, file).not.toMatch(/review (requests|texts|link)[^.]{0,120}coming soon/i);
+      expect(source, file).not.toMatch(/payment links?[^.]{0,120}coming soon/i);
+    }
   });
 });
 
