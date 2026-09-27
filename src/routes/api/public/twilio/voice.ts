@@ -125,6 +125,8 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
             ringbackTwiml,
             RING_SECONDS,
             forwardedCallTwiml,
+            inboundClientDialTwiml,
+            inboundRingActionUrl,
           } = await import("@/lib/voice-answer.server");
 
           // Hours are a separate read so a missing migration cannot change routing.
@@ -176,43 +178,76 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
             return xml(ringbackTwiml() + answer);
           }
 
-          if (number?.forward_to && !aiAnswering) {
-            return xml(
-              forwardedCallTwiml({
-                record: recordCalls,
-                callerId: appNumber,
-                destination: number.forward_to as string,
-                timeoutSeconds: RING_SECONDS,
-              }),
-            );
+          // Open hours: ring present in-app clients, then the owner's cell, then
+          // the AI or voicemail. After-hours already returned above.
+          const { loadInboundRing } = await import("@/lib/ring-targets.server");
+          const { chooseInboundAnswer } = await import("@/lib/inbound-ring");
+          const ring = await loadInboundRing(supabaseAdmin as never, {
+            appNumber,
+            aiEnabled: Boolean(aiAnswering),
+            forwardTo: (number?.forward_to as string | null) ?? null,
+          });
+          const choice = chooseInboundAnswer(ring);
+          const caller = get("From").replace(/^whatsapp:/, "") || appNumber;
+
+          const stampAnswer = async (answerPath: string) => {
+            try {
+              await supabaseAdmin
+                .from("calls")
+                .update({ answer_path: answerPath })
+                .eq("sid", get("CallSid"));
+            } catch {
+              // bookkeeping only
+            }
+          };
+
+          switch (choice.kind) {
+            case "clients":
+              await stampAnswer("in_app");
+              return xml(
+                inboundClientDialTwiml({
+                  record: recordCalls,
+                  callerId: caller,
+                  timeoutSeconds: RING_SECONDS,
+                  actionUrl: inboundRingActionUrl("clients"),
+                  clientIdentities: choice.identities,
+                }),
+              );
+            case "owner_cell":
+              await stampAnswer("owner_cell");
+              return xml(
+                forwardedCallTwiml({
+                  record: recordCalls,
+                  callerId: appNumber,
+                  destination: choice.cell,
+                  timeoutSeconds: RING_SECONDS,
+                  actionUrl: inboundRingActionUrl("owner_cell"),
+                }),
+              );
+            case "ai": {
+              const answer = await voicemailTwiml(
+                supabaseAdmin as never,
+                { ...(number ?? {}), record_calls: recordCalls },
+                {
+                  callSid: get("CallSid"),
+                  from: get("From"),
+                  appNumber,
+                },
+              );
+
+              // Callers always hear four rings first — including before the AI
+              // hand-off, which would otherwise pick up instantly. Voicemail
+              // recording, when used, speaks the notice inside the answer TwiML.
+              const handOff = answer.includes("<Redirect");
+              const twiml = ringbackTwiml() + answer;
+              await stampAnswer(handOff ? "ai_agent" : (number?.answer_mode ?? "voicemail"));
+              return xml(twiml);
+            }
+            default: {
+              const _exhaustive: never = choice;
+              return _exhaustive;
+            }
           }
-
-          const answer = await voicemailTwiml(
-            supabaseAdmin as never,
-            { ...(number ?? {}), record_calls: recordCalls },
-            {
-              callSid: get("CallSid"),
-              from: get("From"),
-              appNumber,
-            },
-          );
-
-          // Callers always hear four rings first — including before the AI
-          // hand-off, which would otherwise pick up instantly. Voicemail
-          // recording, when used, speaks the notice inside the answer TwiML.
-          const handOff = answer.includes("<Redirect");
-          const twiml = ringbackTwiml() + answer;
-
-          try {
-            await supabaseAdmin
-              .from("calls")
-              .update({ answer_path: handOff ? "ai_agent" : (number?.answer_mode ?? "voicemail") })
-              .eq("sid", get("CallSid"));
-          } catch {
-            // bookkeeping only
-          }
-
-          return xml(twiml);
         } catch (error) {
           console.error(`Inbound voice handler failed for ${appNumber}:`, error);
           try {

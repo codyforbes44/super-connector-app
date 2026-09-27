@@ -15,7 +15,8 @@ const state = vi.hoisted(() => ({
 function chain(table: string) {
   const builder: Record<string, unknown> = {};
   const self = () => builder;
-  for (const method of ["select", "eq", "in", "order", "limit", "gte"]) builder[method] = self;
+  for (const method of ["select", "eq", "in", "order", "limit", "gte", "gt"])
+    builder[method] = self;
   const record = (op: string) => (row: Record<string, unknown>) => {
     state.writes.push({ table, op, row });
     return builder;
@@ -92,6 +93,7 @@ vi.mock("@/lib/voice-answer.server", () => ({
   fallbackVoicemailTwiml: () => "<Say>fallback</Say>",
   outboundAppDialTwiml: () => "<Dial/>",
   inboundClientDialTwiml: () => "<Dial/>",
+  inboundRingActionUrl: () => "https://sixvox.3bi.io/api/public/twilio/dial-action?leg=clients",
   liveRecordingPrefix: () => "",
   recordingNoticeWebhook: () => "https://sixvox.3bi.io/notice",
   escapeXml: (value: string) => value,

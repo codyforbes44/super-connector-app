@@ -226,6 +226,9 @@ export function CallingSettings() {
         <p className="text-[0.7rem] text-muted-foreground">
           When in-app calling is unavailable, we call you here first, then connect the contact.
         </p>
+        <p className="text-[0.7rem] text-muted-foreground">
+          When the app is open, we ring you there first, then your cell, then the AI or voicemail.
+        </p>
       </div>
 
       <div className="space-y-1.5">
