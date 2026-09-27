@@ -61,6 +61,14 @@ const GROUPS = [
         q: "Do I need carrier registration to text?",
         a: "Yes. US carriers filter unregistered business texts. SixVox handles A2P 10DLC registration on every plan. Texts may not deliver until the carrier approves it.",
       },
+      {
+        q: "Can I text a Google review request after a job?",
+        a: "Yes. Save the Google review link in Integrations, along with quiet hours and a cooldown. On a thread, Mark job done sends one review text when that setting is on. The text includes STOP. Quiet hours and the cooldown can hold it.",
+      },
+      {
+        q: "Can I text a payment link from a conversation?",
+        a: "Yes. Open Payment link on the thread, enter the amount, and text it. Stripe Connect is test mode. The charge is created on the connected account, not on SixVox.",
+      },
     ],
   },
   {

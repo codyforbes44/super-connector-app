@@ -191,7 +191,7 @@ function SettingsScreen() {
                         }
                       }}
                     >
-          <SelectTrigger className="h-11 w-28 rounded-lg px-3">
+                      <SelectTrigger className="h-11 w-28 rounded-lg px-3">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
