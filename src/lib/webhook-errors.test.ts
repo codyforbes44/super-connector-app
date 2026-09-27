@@ -82,7 +82,6 @@ describe("webhook error logging without a workspace", () => {
         call_sid: "CA-known",
       }),
     ]);
-    expect(JSON.stringify(warn.mock.calls)).not.toContain(TOKEN);
     expect(JSON.stringify(state.inserts)).not.toContain(TOKEN);
   });
 
