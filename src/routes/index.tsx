@@ -218,6 +218,11 @@ function Landing() {
               Payment link from a conversation
               <ComingSoonBadge flag="paymentLinks" />
             </li>
+            <li className="flex items-center gap-2">
+              <Wrench className="h-4 w-4 text-primary" aria-hidden />
+              Jobber client and request from a call thread
+              <ComingSoonBadge flag="jobber" />
+            </li>
           </ul>
         </div>
       </Section>

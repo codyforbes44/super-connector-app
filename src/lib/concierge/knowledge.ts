@@ -59,7 +59,10 @@ Core capabilities
 - Payment links: from a conversation, text a payment link. Stripe Connect is test mode only. The
   charge is created on the connected account, not on SixVox. This is available today. Do not say
   live card payments are on.
-- Jobber, number port-in, and a native calling app are coming soon. Do not say those are live.
+- Jobber is available today. Connect under Integrations, then create or match a client and open
+  a request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET
+  are set. Tokens stay on the server. Do not say a Jobber account is already connected.
+- Number port-in and a native calling app are coming soon. Do not say those are live.
 - Alerts: push notifications and email for missed calls, voicemail, inbound messages and AI
   summaries, with quiet hours and a daily digest.
 - Travel data eSIM: buy a data eSIM for travel inside the app and install it by QR code.
@@ -130,6 +133,11 @@ Q: Can I text a payment link?
 A: Yes, from a conversation. Stripe Connect is test mode. The charge is created on the connected
 account, not on SixVox. Do not describe this as live payments.
 
+Q: Can I send a call into Jobber?
+A: Yes. Connect Jobber under Integrations, then create or match a client and open a request from
+the call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens
+stay on the server. Do not say the account is connected until the owner connects it.
+
 Q: Do you support international calling?
 A: Yes for outbound calling and messaging where the destination is permitted; availability and
 rates depend on the destination.
@@ -153,7 +161,9 @@ export const POSITIONING_DOC: KnowledgeDoc = {
 - It works in the browser and as an Android app. A native iPhone app is coming soon.
 - Review requests and payment links are in the app. Review texts go out after Mark job done when a
   Google review link is saved in Integrations. Payment links are Stripe Connect test mode, and the
-  money stays on the connected account. Jobber and port-in are still coming soon.
+  money stays on the connected account. Port-in is still coming soon. Jobber is in the app:
+  connect under Integrations, then create or match a client and request from a call thread.
+  Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server.
 
 Objection handling
 - "Too expensive": compare to a missed job. Point at the ${TRIAL_DAYS}-day trial and monthly billing.

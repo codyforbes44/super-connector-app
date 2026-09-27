@@ -69,6 +69,10 @@ const GROUPS = [
         q: "Can I text a payment link from a conversation?",
         a: "Yes. Open Payment link on the thread, enter the amount, and text it. Stripe Connect is test mode. The charge is created on the connected account, not on SixVox.",
       },
+      {
+        q: "Can I send a call into Jobber?",
+        a: "Yes. Connect Jobber under Integrations, then create or match a client and open a request from the call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server.",
+      },
     ],
   },
   {
