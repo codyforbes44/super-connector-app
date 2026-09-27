@@ -73,7 +73,7 @@ export const Route = createFileRoute("/")({
       path: "/",
       title: TITLE,
       description: DESCRIPTION,
-      image: `${SITE_URL}/og-home.jpg`,
+       image: `${SITE_URL}/og-home-2026.jpg`,
     }),
     scripts: [
       { type: "application/ld+json", children: JSON.stringify(softwareApplicationLd(DESCRIPTION)) },
