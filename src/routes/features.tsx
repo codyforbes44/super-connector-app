@@ -5,6 +5,7 @@ import {
   CalendarClock,
   Hash,
   Inbox,
+  Languages,
   MapPin,
   MessageSquare,
   PhoneCall,
@@ -24,7 +25,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Features — a business line that answers for trades";
 const DESCRIPTION =
-  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, and approval booking are in line settings. Review requests, payment links, and Jobber are in the app. A native app is marked coming soon.";
+  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, approval booking, and Spanish answering are in line settings. Review requests, payment links, and Jobber are in the app. A native app is marked coming soon.";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -70,6 +71,12 @@ const GROUPS: Array<{
         icon: Bot,
         title: "AI receptionist",
         body: "An ElevenLabs voice answers when you set a number to the assistant. It uses your greeting and instructions, then leaves a transcript on the call. Included on Solo, Team, and Scale.",
+      },
+      {
+        icon: Languages,
+        title: "Spanish answering",
+        body: "On the receptionist number sheet or in line settings, choose English only, Spanish only, or Auto-detect. Spanish only updates the AI agent prompt language. Auto-detect keeps the agent language in English and tells it to switch when the caller speaks Spanish. The default missed-call text and booking texts can use Spanish when the line is Spanish, or when auto and that call's transcript is Spanish. A text you wrote yourself stays as you saved it.",
+        flag: "spanishAnswering",
       },
       {
         icon: Inbox,

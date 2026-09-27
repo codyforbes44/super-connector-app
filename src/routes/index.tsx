@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Bot,
   Check,
+  Languages,
   MessageSquare,
   PhoneCall,
   Star,
@@ -20,7 +21,7 @@ import {
 } from "@/components/MarketingLayout";
 import { LivePhoneDemo } from "@/components/marketing/LivePhoneDemo";
 import { TextingDisclosure } from "@/components/marketing/Disclosures";
-import { PLANS, POSITIONING_LINE, featureIsSoon } from "@/lib/plans";
+import { PLANS, POSITIONING_LINE, featureIsSoon, planAllowanceLabel } from "@/lib/plans";
 import { SITE_URL, faqLd, organizationLd, pageHead, softwareApplicationLd } from "@/lib/seo";
 import { TRADES } from "@/lib/trades";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,10 @@ const HOME_FAQS = [
   {
     q: "What if I'm on a roof or under a sink?",
     a: "The AI receptionist is on every plan, including Solo. It answers, asks what the job is, and leaves the summary in your inbox. Missed-call text-back is included on every plan. Turn it on in that line's settings and an unanswered inbound call gets a text from that number.",
+  },
+  {
+    q: "Can it answer in Spanish?",
+    a: "Yes. On the receptionist number sheet or in line settings, choose English only, Spanish only, or Auto-detect. Spanish only updates the AI agent prompt language. Auto-detect keeps the agent language in English and tells it to switch when the caller speaks Spanish. The default missed-call text and booking texts can use Spanish when the line is Spanish, or when auto and that call's transcript is Spanish. A text you wrote yourself stays as you saved it.",
   },
   {
     q: "Are calls recorded?",
@@ -73,7 +78,7 @@ export const Route = createFileRoute("/")({
       path: "/",
       title: TITLE,
       description: DESCRIPTION,
-       image: `${SITE_URL}/og-home-2026.jpg`,
+      image: `${SITE_URL}/og-home-2026.jpg`,
     }),
     scripts: [
       { type: "application/ld+json", children: JSON.stringify(softwareApplicationLd(DESCRIPTION)) },
@@ -186,7 +191,10 @@ function Landing() {
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             It greets callers in a voice you pick, follows your instructions, and leaves a
-            transcript on the call. You turn it on per number.
+            transcript on the call. You turn it on per number. On the receptionist number sheet or
+            in line settings, choose English only, Spanish only, or Auto-detect. Spanish only
+            updates the AI agent prompt language. Auto-detect keeps the agent language in English
+            and tells it to switch when the caller speaks Spanish.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Call recording is off for each line until you turn it on. When it is on, everyone on the
@@ -197,6 +205,11 @@ function Landing() {
             <li className="flex items-center gap-2">
               <Bot className="h-4 w-4 text-primary" aria-hidden />
               Included on Solo, Team, and Scale
+            </li>
+            <li className="flex items-center gap-2">
+              <Languages className="h-4 w-4 text-primary" aria-hidden />
+              Spanish answering on the line
+              <ComingSoonBadge flag="spanishAnswering" />
             </li>
             <li className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-primary" aria-hidden />
@@ -251,10 +264,7 @@ function Landing() {
                 ${plan.monthly}
                 <span className="text-sm font-normal text-muted-foreground">/mo</span>
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {plan.numbers} number{plan.numbers === 1 ? "" : "s"} · {plan.seats} seat
-                {plan.seats === 1 ? "" : "s"} · {plan.aiCalls} AI calls
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{planAllowanceLabel(plan)}</p>
               <Link
                 to="/auth"
                 search={{ mode: "signup", plan: plan.code, interval: "month" }}

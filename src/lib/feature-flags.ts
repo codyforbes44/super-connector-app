@@ -14,6 +14,8 @@ export const FEATURE_FLAGS = {
   jobber: true,
   reviewRequests: true,
   paymentLinks: true,
+  /** Receptionist sheet and line settings: English only, Spanish only, or auto-detect. */
+  spanishAnswering: true,
   nativeApp: false,
   portIn: false,
 } as const;
