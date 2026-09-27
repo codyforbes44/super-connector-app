@@ -153,7 +153,9 @@ export type MatrixRow = {
  * ("n/v" included). Jobber cells come only from sections 3.2 and 3.3.
  * SixVox cells follow section 3.1 except the contradictions section 2
  * says to fix, plus later shipped line controls: text-back, business-hours
- * routing, approval booking, E911 address registration, and per-workspace roles.
+ * routing, approval booking, E911 address registration, per-workspace roles,
+ * review requests, and payment links. Competitor cells on the two new rows
+ * were not in those tables, so they stay unverified.
  */
 export const CAPABILITY_ROWS: MatrixRow[] = [
   {
@@ -243,6 +245,24 @@ export const CAPABILITY_ROWS: MatrixRow[] = [
     capability: "E911",
     sixvox:
       "Address registration and a dialer disclosure are in the app. A number is covered after you register its service address.",
+    quo: "n/v",
+    grasshopper: "n/v",
+    googleVoice: "n/v",
+    jobber: "Not stated in the Sep 2026 sources used here",
+  },
+  {
+    capability: "Review requests",
+    sixvox:
+      "Mark job done on a thread. If review requests are on and a Google review link is saved in Integrations, SixVox texts that link. Quiet hours, a per-contact cooldown, and STOP are checked first.",
+    quo: "n/v",
+    grasshopper: "n/v",
+    googleVoice: "n/v",
+    jobber: "Not stated in the Sep 2026 sources used here",
+  },
+  {
+    capability: "Payment links",
+    sixvox:
+      "From a conversation, open Payment link and text an amount. Stripe Connect is test mode. The charge is created on the connected account, not on SixVox.",
     quo: "n/v",
     grasshopper: "n/v",
     googleVoice: "n/v",

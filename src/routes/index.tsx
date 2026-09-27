@@ -1,5 +1,14 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, Bot, Check, MessageSquare, PhoneCall, Wrench } from "lucide-react";
+import {
+  ArrowRight,
+  Bot,
+  Check,
+  MessageSquare,
+  PhoneCall,
+  Star,
+  Wallet,
+  Wrench,
+} from "lucide-react";
 
 import { ComingSoonBadge } from "@/components/ComingSoonBadge";
 import {
@@ -198,6 +207,16 @@ function Landing() {
               <PhoneCall className="h-4 w-4 text-primary" aria-hidden />
               Native iPhone and Android calling
               <ComingSoonBadge flag="nativeApp" />
+            </li>
+            <li className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-primary" aria-hidden />
+              Review request after Mark job done
+              <ComingSoonBadge flag="reviewRequests" />
+            </li>
+            <li className="flex items-center gap-2">
+              <Wallet className="h-4 w-4 text-primary" aria-hidden />
+              Payment link from a conversation
+              <ComingSoonBadge flag="paymentLinks" />
             </li>
           </ul>
         </div>

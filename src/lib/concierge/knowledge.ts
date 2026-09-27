@@ -53,6 +53,13 @@ Core capabilities
   (name, address, date, amount, callback number, email) and one-tap follow-up actions.
 - Contacts: stored contacts with notes, plus optional device contact import.
 - Tools: Gmail, Google Calendar and Google Maps connections, plus branded email from SixVox.
+- Review requests: save a Google review link in Integrations. Mark job done on a thread sends one
+  review text when that setting is on. Quiet hours, a per-contact cooldown, and STOP are checked
+  first. This is available today.
+- Payment links: from a conversation, text a payment link. Stripe Connect is test mode only. The
+  charge is created on the connected account, not on SixVox. This is available today. Do not say
+  live card payments are on.
+- Jobber, number port-in, and a native calling app are coming soon. Do not say those are live.
 - Alerts: push notifications and email for missed calls, voicemail, inbound messages and AI
   summaries, with quiet hours and a daily digest.
 - Travel data eSIM: buy a data eSIM for travel inside the app and install it by QR code.
@@ -114,6 +121,15 @@ A: Yes, ${TRIAL_DAYS} days on any plan.
 Q: Can I text photos?
 A: Yes, MMS is supported.
 
+Q: Can I text a Google review request after a job?
+A: Yes. Save the Google review link in Integrations, with quiet hours and a cooldown. Mark job done
+on a thread sends one review text when that setting is on. The text includes STOP. Quiet hours and
+the cooldown can hold it.
+
+Q: Can I text a payment link?
+A: Yes, from a conversation. Stripe Connect is test mode. The charge is created on the connected
+account, not on SixVox. Do not describe this as live payments.
+
 Q: Do you support international calling?
 A: Yes for outbound calling and messaging where the destination is permitted; availability and
 rates depend on the destination.
@@ -135,6 +151,9 @@ export const POSITIONING_DOC: KnowledgeDoc = {
   Approval booking is available in line settings. Automatic booking is an optional setting on that line.
 - Call intelligence turns every call into a summary and one-tap follow-ups.
 - It works in the browser and as an Android app. A native iPhone app is coming soon.
+- Review requests and payment links are in the app. Review texts go out after Mark job done when a
+  Google review link is saved in Integrations. Payment links are Stripe Connect test mode, and the
+  money stays on the connected account. Jobber and port-in are still coming soon.
 
 Objection handling
 - "Too expensive": compare to a missed job. Point at the ${TRIAL_DAYS}-day trial and monthly billing.

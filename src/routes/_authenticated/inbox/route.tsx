@@ -4,14 +4,22 @@ import { InboxList } from "@/components/inbox/InboxList";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/inbox")({
-  head: () => ({ meta: [
-    { title: "Messages — SixVox" },
-    { name: "description", content: "Read and reply to conversations across your SixVox business lines." },
-    { property: "og:title", content: "Messages — SixVox" },
-    { property: "og:description", content: "Read and reply to conversations across your SixVox business lines." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary_large_image" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Messages — SixVox" },
+      {
+        name: "description",
+        content: "Read and reply to conversations across your SixVox business lines.",
+      },
+      { property: "og:title", content: "Messages — SixVox" },
+      {
+        property: "og:description",
+        content: "Read and reply to conversations across your SixVox business lines.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: InboxLayout,
 });
 
