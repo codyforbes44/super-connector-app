@@ -85,6 +85,15 @@ export function dialActionUrl(): string {
   return webhookUrl("dial-action");
 }
 
+/** Which inbound ring leg just finished, so dial-action can continue the chain. */
+export type InboundRingLeg = "clients" | "owner_cell";
+
+export function inboundRingActionUrl(leg: InboundRingLeg): string {
+  const url = new URL(dialActionUrl());
+  url.searchParams.set("leg", leg);
+  return url.toString();
+}
+
 /**
  * Forwarded two-party dial. When recording is on, the file starts with the notice.
  * The dial action is what missed-call text-back listens to.
@@ -94,9 +103,11 @@ export function forwardedCallTwiml(input: {
   callerId: string;
   destination: string;
   timeoutSeconds: number;
+  actionUrl?: string;
 }): string {
   const prefix = input.record ? liveRecordingPrefix() : "";
-  return `${prefix}<Dial action="${escapeXml(dialActionUrl())}" method="POST" callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us"><Number${partyNoticeUrl(input.record)}>${escapeXml(input.destination)}</Number></Dial>`;
+  const action = input.actionUrl ?? dialActionUrl();
+  return `${prefix}<Dial action="${escapeXml(action)}" method="POST" callerId="${escapeXml(input.callerId)}" timeout="${input.timeoutSeconds}" ringTone="us"><Number${partyNoticeUrl(input.record)}>${escapeXml(input.destination)}</Number></Dial>`;
 }
 
 /** Outbound in-app dial. The app user hears the notice; the callee hears the whisper. */
