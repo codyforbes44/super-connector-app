@@ -3811,7 +3811,7 @@ export type Database = {
           payload: Json
           source: string
           url: string | null
-          workspace_id: string
+          workspace_id: string | null
         }
         Insert: {
           app_number?: string | null
@@ -3823,7 +3823,7 @@ export type Database = {
           payload?: Json
           source?: string
           url?: string | null
-          workspace_id: string
+          workspace_id?: string | null
         }
         Update: {
           app_number?: string | null
@@ -3835,7 +3835,7 @@ export type Database = {
           payload?: Json
           source?: string
           url?: string | null
-          workspace_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
