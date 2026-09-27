@@ -5,6 +5,7 @@ import {
   Check,
   MessageSquare,
   PhoneCall,
+  HardHat,
   Star,
   Wallet,
   Wrench,
@@ -73,7 +74,7 @@ export const Route = createFileRoute("/")({
       path: "/",
       title: TITLE,
       description: DESCRIPTION,
-       image: `${SITE_URL}/og-home-2026.jpg`,
+      image: `${SITE_URL}/og-home-2026.jpg`,
     }),
     scripts: [
       { type: "application/ld+json", children: JSON.stringify(softwareApplicationLd(DESCRIPTION)) },
@@ -222,6 +223,11 @@ function Landing() {
               <Wrench className="h-4 w-4 text-primary" aria-hidden />
               Jobber client and request from a call thread
               <ComingSoonBadge flag="jobber" />
+            </li>
+            <li className="flex items-center gap-2">
+              <HardHat className="h-4 w-4 text-primary" aria-hidden />
+              Housecall Pro customer and lead from a call thread
+              <ComingSoonBadge flag="housecall" />
             </li>
           </ul>
         </div>

@@ -62,6 +62,10 @@ Core capabilities
 - Jobber is available today. Connect under Integrations, then create or match a client and open
   a request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET
   are set. Tokens stay on the server. Do not say a Jobber account is already connected.
+- Housecall Pro is available today on a MAX plan. Save the API key under Integrations, then
+  create a customer and lead from a call thread. Basic and Essentials cannot use the public API.
+  If you are not on MAX, Settings → Outbound webhooks sends HMAC-SHA256 events that Zapier or Make
+  can use. Do not say a Housecall Pro account is already connected.
 - Number port-in and a native calling app are coming soon. Do not say those are live.
 - Alerts: push notifications and email for missed calls, voicemail, inbound messages and AI
   summaries, with quiet hours and a daily digest.
@@ -138,6 +142,11 @@ A: Yes. Connect Jobber under Integrations, then create or match a client and ope
 the call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens
 stay on the server. Do not say the account is connected until the owner connects it.
 
+Q: Can I send a call into Housecall Pro?
+A: Yes, on a MAX plan. Save the API key under Integrations, then create a customer and lead from
+the call thread. Basic and Essentials cannot use the public API. Do not say the account is
+connected until the owner saves a key.
+
 Q: Do you support international calling?
 A: Yes for outbound calling and messaging where the destination is permitted; availability and
 rates depend on the destination.
@@ -164,6 +173,8 @@ export const POSITIONING_DOC: KnowledgeDoc = {
   money stays on the connected account. Port-in is still coming soon. Jobber is in the app:
   connect under Integrations, then create or match a client and request from a call thread.
   Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server.
+  Housecall Pro is in the app on a MAX plan: save an API key under Integrations, then create a
+  customer and lead from a call thread. Basic and Essentials cannot use the public API.
 
 Objection handling
 - "Too expensive": compare to a missed job. Point at the ${TRIAL_DAYS}-day trial and monthly billing.

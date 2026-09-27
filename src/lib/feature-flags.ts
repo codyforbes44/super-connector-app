@@ -12,6 +12,8 @@ export const FEATURE_FLAGS = {
   aiBookingWithApproval: true,
   /** Integrations: connect Jobber, then create or match a client and request from a call thread. */
   jobber: true,
+  /** Integrations: save a Housecall Pro MAX-plan API key, then create a customer and lead from a call thread. */
+  housecall: true,
   reviewRequests: true,
   paymentLinks: true,
   nativeApp: false,

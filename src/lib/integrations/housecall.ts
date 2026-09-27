@@ -11,7 +11,7 @@ export const HOUSECALL_MAX_PLAN_COPY =
   "Housecall Pro's public API is available only on the MAX plan. Basic and Essentials accounts cannot create customers or leads with an API key.";
 
 export const HOUSECALL_ZAPIER_COPY =
-  "If you are not on MAX, use Zapier or Make. SixVox will send signed outbound webhooks (call.completed, lead.captured, and the rest) that those tools can turn into a Housecall Pro lead. That webhook sender is being added separately.";
+  "If you are not on MAX, open Settings → Outbound webhooks. SixVox signs those events with HMAC-SHA256, including call.completed and lead.captured. Zapier or Make can use those events to create a Housecall Pro lead.";
 
 export type HousecallCallInput = {
   firstName?: string | null | undefined;

@@ -154,8 +154,10 @@ export type MatrixRow = {
  * SixVox cells follow section 3.1 except the contradictions section 2
  * says to fix, plus later shipped line controls: text-back, business-hours
  * routing, approval booking, E911 address registration, per-workspace roles,
- * review requests, payment links, and Jobber (connect under Integrations, then
- * create or match a client and request from a call thread). Competitor cells on the two new rows
+ * review requests, payment links, Jobber (connect under Integrations, then
+ * create or match a client and request from a call thread), and Housecall Pro
+ * (save a MAX-plan API key under Integrations, then create a customer and lead
+ * from a call thread). Competitor cells on the two new rows
  * were not in those tables, so they stay unverified.
  */
 export const CAPABILITY_ROWS: MatrixRow[] = [
@@ -221,7 +223,7 @@ export const CAPABILITY_ROWS: MatrixRow[] = [
   {
     capability: "CRM / FSM integrations",
     sixvox:
-      "Gmail, Calendar, Maps. Connect Jobber under Integrations, then create or match a client and request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server.",
+      "Gmail, Calendar, Maps. Connect Jobber under Integrations, then create or match a client and request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server. Save a Housecall Pro MAX-plan API key under Integrations, then create a customer and lead from a call thread. Basic and Essentials cannot use the public API.",
     quo: "HubSpot, Salesforce, Jobber, Zapier, Make, webhooks (beta)",
     grasshopper: "n/v",
     googleVoice: "Google Workspace",

@@ -296,6 +296,10 @@ function PricingPage() {
             Tokens stay on the server.
           </p>
           <p>
+            Save a Housecall Pro MAX-plan API key under Integrations, then create a customer and
+            lead from a call thread. Basic and Essentials cannot use the public API.
+          </p>
+          <p>
             <Link to="/compare" className="font-semibold text-primary underline">
               Compare these prices with Quo, Grasshopper, Google Voice, and Jobber Receptionist
             </Link>
