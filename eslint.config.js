@@ -14,6 +14,7 @@ export default tseslint.config(
       "mobile",
       // Lovable regenerates these. Don't fail CI on their formatting.
       "src/integrations/supabase/types.ts",
+      "src/integrations/supabase/previewAuthStorage.ts",
       "src/routeTree.gen.ts",
     ],
   },
