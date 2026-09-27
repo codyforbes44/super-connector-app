@@ -12,6 +12,7 @@ import {
   Smartphone,
   Star,
   Wallet,
+  Wrench,
 } from "lucide-react";
 
 import { ComingSoonBadge } from "@/components/ComingSoonBadge";
@@ -23,7 +24,7 @@ import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
 
 const TITLE = "Features — a business line that answers for trades";
 const DESCRIPTION =
-  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, and approval booking are in line settings. Review requests and payment links are in the inbox. Jobber and a native app are marked coming soon.";
+  "In-app calling, texts, voicemail, and an ElevenLabs AI receptionist on every SixVox plan. Missed-call text-back, business hours, and approval booking are in line settings. Review requests, payment links, and Jobber are in the app. A native app is marked coming soon.";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -110,6 +111,12 @@ const GROUPS: Array<{
         body: "From a conversation, open Payment link and text an amount. Stripe Connect is test mode. The charge is created on the connected account, not on SixVox.",
         flag: "paymentLinks",
       },
+      {
+        icon: Wrench,
+        title: "Jobber",
+        body: "Connect Jobber under Integrations, then create or match a client and open a request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server.",
+        flag: "jobber",
+      },
     ],
   },
   {
@@ -126,12 +133,6 @@ const GROUPS: Array<{
         title: "Port your number in",
         body: "Forwarding works now. A guided port-in, with status you can see in the app, is next.",
         flag: "portIn",
-      },
-      {
-        icon: ShieldCheck,
-        title: "Jobber",
-        body: "Send the caller, the address, and the call summary into Jobber when you already use it.",
-        flag: "jobber",
       },
     ],
   },

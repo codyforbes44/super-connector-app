@@ -10,7 +10,8 @@ export const FEATURE_FLAGS = {
   businessHours: true,
   /** Line settings plus Calls: Google Calendar proposal the owner approves. Automatic is optional. */
   aiBookingWithApproval: true,
-  jobber: false,
+  /** Integrations: connect Jobber, then create or match a client and request from a call thread. */
+  jobber: true,
   reviewRequests: true,
   paymentLinks: true,
   nativeApp: false,

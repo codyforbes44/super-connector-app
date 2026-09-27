@@ -291,6 +291,11 @@ function PricingPage() {
           <TextingDisclosure />
           <E911Disclosure />
           <p>
+            Connect Jobber under Integrations, then create or match a client and request from a call
+            thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set.
+            Tokens stay on the server.
+          </p>
+          <p>
             <Link to="/compare" className="font-semibold text-primary underline">
               Compare these prices with Quo, Grasshopper, Google Voice, and Jobber Receptionist
             </Link>

@@ -64,7 +64,7 @@ describe("coming soon flags", () => {
     expect(FEATURE_FLAGS.aiBookingWithApproval).toBe(true);
     expect(FEATURE_FLAGS.nativeApp).toBe(false);
     expect(FEATURE_FLAGS.portIn).toBe(false);
-    expect(FEATURE_FLAGS.jobber).toBe(false);
+    expect(FEATURE_FLAGS.jobber).toBe(true);
     expect(FEATURE_FLAGS.reviewRequests).toBe(true);
     expect(FEATURE_FLAGS.paymentLinks).toBe(true);
   });
@@ -83,7 +83,13 @@ describe("coming soon flags", () => {
     expect(cell("Shared inbox + roles")).toMatch(/per workspace/i);
     expect(cell("Shared inbox + roles")).not.toMatch(/global roles/i);
     expect(cell("Native iOS/Android calling")).toMatch(/coming soon/i);
-    expect(cell("CRM / FSM integrations")).toMatch(/Jobber integration is coming soon/);
+    expect(cell("CRM / FSM integrations")).toMatch(/Integrations/);
+    expect(cell("CRM / FSM integrations")).toMatch(/create or match a client/);
+    expect(cell("CRM / FSM integrations")).toMatch(/request/);
+    expect(cell("CRM / FSM integrations")).toMatch(/JOBBER_CLIENT_ID/);
+    expect(cell("CRM / FSM integrations")).toMatch(/JOBBER_CLIENT_SECRET/);
+    expect(cell("CRM / FSM integrations")).toMatch(/Tokens stay on the server/);
+    expect(cell("CRM / FSM integrations")).not.toMatch(/coming soon/i);
     expect(cell("Porting")).toMatch(/coming soon/i);
     expect(cell("Review requests")).toMatch(/Mark job done/i);
     expect(cell("Review requests")).toMatch(/Integrations/i);
@@ -97,7 +103,7 @@ describe("coming soon flags", () => {
     expect(cell("Payment links")).not.toMatch(/coming soon/i);
   });
 
-  it("does not call review requests or payment links coming soon in marketing copy", () => {
+  it("does not call review requests, payment links, or Jobber coming soon in marketing copy", () => {
     const files = [
       "routes/index.tsx",
       "routes/pricing.tsx",
@@ -114,6 +120,7 @@ describe("coming soon flags", () => {
       const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
       expect(source, file).not.toMatch(/review (requests|texts|link)[^.]{0,120}coming soon/i);
       expect(source, file).not.toMatch(/payment links?[^.]{0,120}coming soon/i);
+      expect(source, file).not.toMatch(/jobber[^.]{0,180}coming soon/i);
     }
   });
 });

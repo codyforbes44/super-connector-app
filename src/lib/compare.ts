@@ -154,7 +154,8 @@ export type MatrixRow = {
  * SixVox cells follow section 3.1 except the contradictions section 2
  * says to fix, plus later shipped line controls: text-back, business-hours
  * routing, approval booking, E911 address registration, per-workspace roles,
- * review requests, and payment links. Competitor cells on the two new rows
+ * review requests, payment links, and Jobber (connect under Integrations, then
+ * create or match a client and request from a call thread). Competitor cells on the two new rows
  * were not in those tables, so they stay unverified.
  */
 export const CAPABILITY_ROWS: MatrixRow[] = [
@@ -219,7 +220,8 @@ export const CAPABILITY_ROWS: MatrixRow[] = [
   },
   {
     capability: "CRM / FSM integrations",
-    sixvox: "Gmail, Calendar, Maps. Jobber integration is coming soon.",
+    sixvox:
+      "Gmail, Calendar, Maps. Connect Jobber under Integrations, then create or match a client and request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server.",
     quo: "HubSpot, Salesforce, Jobber, Zapier, Make, webhooks (beta)",
     grasshopper: "n/v",
     googleVoice: "Google Workspace",

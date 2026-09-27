@@ -165,8 +165,10 @@ function ComparePage() {
         </ul>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
           For a shop already committed to Jobber, their receptionist is the in-platform option.
-          SixVox is the line and inbox when you don't want to buy the whole platform. A Jobber
-          connection is coming soon.
+          SixVox is the line and inbox when you don't want to buy the whole platform. Connect Jobber
+          under Integrations, then create or match a client and request from a call thread. Connect
+          stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the
+          server.
         </p>
       </Section>
 

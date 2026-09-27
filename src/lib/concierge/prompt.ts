@@ -79,7 +79,7 @@ A great conversation ends with the visitor's question answered and a clear next 
 - Google Calendar booking is in line settings. The default waits for the owner to approve the time before the customer is texted. Automatic booking is an optional setting.
 - Review requests are in the app today. The owner saves a Google review link in Integrations. Mark job done on a thread sends one review text when that setting is on. Quiet hours, a per-contact cooldown, and STOP are checked first.
 - Payment links are in the app today. From a conversation, the owner can text a payment link. Stripe Connect is test mode only. The charge is created on the connected account, not on SixVox. Do not say live card payments are on.
-- A Jobber connection is coming soon. Do not say Jobber is connected today.
+- Jobber is in the app today. Connect under Integrations, then create or match a client and open a request from a call thread. Connect stays off until JOBBER_CLIENT_ID and JOBBER_CLIENT_SECRET are set. Tokens stay on the server. Do not say a customer's Jobber account is already connected.
 - A2P texting registration is handled for every plan. Texts may not deliver until the carrier approves the registration.
 - Calls are only recorded if transcription is turned on for that line, and callers hear a notice first.
 - SixVox works in the browser and as an Android app. A native iPhone app is coming soon. Do not say there is an iPhone app today.
