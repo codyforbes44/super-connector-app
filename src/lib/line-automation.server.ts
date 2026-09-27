@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { parseLineLanguage, type LineLanguage } from "@/lib/answering/language";
 import { requireAdmin } from "@/lib/app.server";
 import { campaignReady, UNREGISTERED_TEXTING_COPY } from "@/lib/automated-text";
 import {
@@ -13,12 +14,16 @@ import {
   type WeeklySchedule,
 } from "@/lib/business-hours";
 import { DEFAULT_EMERGENCY_KEYWORDS, parseEmergencyKeywords } from "@/lib/emergency-keywords";
-import { syncEmergencyTransfer } from "@/lib/elevenlabs.server";
-import { DEFAULT_TEXT_BACK_DEDUPE_MINUTES, DEFAULT_TEXT_BACK_TEMPLATE } from "@/lib/missed-call";
+import { syncAnsweringLanguage, syncEmergencyTransfer } from "@/lib/elevenlabs.server";
+import {
+  DEFAULT_TEXT_BACK_DEDUPE_MINUTES,
+  DEFAULT_TEXT_BACK_TEMPLATE,
+  resolveTextBackTemplate,
+} from "@/lib/missed-call";
 import { normalizePhone } from "@/lib/twilio.server";
 
 const LINE_COLUMNS =
-  "sid, phone_number, friendly_name, elevenlabs_agent_id, messaging_service_sid, campaign_status, workspace_id, text_back_enabled, text_back_template, text_back_on_ai, text_back_on_voicemail, text_back_dedupe_minutes, business_hours_enabled, business_timezone, business_hours, business_holidays, after_hours_route, emergency_keywords, emergency_transfer_number";
+  "sid, phone_number, friendly_name, elevenlabs_agent_id, messaging_service_sid, campaign_status, workspace_id, text_back_enabled, text_back_template, text_back_on_ai, text_back_on_voicemail, text_back_dedupe_minutes, business_hours_enabled, business_timezone, business_hours, business_holidays, after_hours_route, emergency_keywords, emergency_transfer_number, ai_language";
 
 export type LineAutomationView = {
   sid: string;
@@ -39,7 +44,10 @@ export type LineAutomationView = {
   afterHours: AfterHoursDestination;
   emergencyKeywords: string[];
   emergencyTransferNumber: string | null;
+  language: LineLanguage;
 };
+
+export type LanguageSync = { synced: boolean; detail: string };
 
 export type LineAutomationInput = {
   sid: string;
@@ -55,6 +63,7 @@ export type LineAutomationInput = {
   afterHours: AfterHoursDestination;
   emergencyKeywords: string[];
   emergencyTransferNumber: string | null;
+  language: LineLanguage;
 };
 
 function asView(row: Record<string, unknown>): LineAutomationView {
@@ -63,6 +72,7 @@ function asView(row: Record<string, unknown>): LineAutomationView {
   const registered = Boolean(messagingServiceSid) && campaignReady(campaignStatus);
   const afterHours = row["after_hours_route"] === "voicemail" ? "voicemail" : "ai";
   const keywords = parseEmergencyKeywords(row["emergency_keywords"]);
+  const language = parseLineLanguage(row["ai_language"]);
   return {
     sid: row["sid"] as string,
     phoneNumber: row["phone_number"] as string,
@@ -71,7 +81,11 @@ function asView(row: Record<string, unknown>): LineAutomationView {
     messagingServiceSid,
     campaignStatus,
     textBackEnabled: Boolean(row["text_back_enabled"]),
-    textBackTemplate: (row["text_back_template"] as string | null) || DEFAULT_TEXT_BACK_TEMPLATE,
+    textBackTemplate: resolveTextBackTemplate({
+      stored: row["text_back_template"] as string | null,
+      lineLanguage: language,
+      callerSpokeSpanish: false,
+    }),
     textBackOnAi: Boolean(row["text_back_on_ai"]),
     textBackOnVoicemail: Boolean(row["text_back_on_voicemail"]),
     textBackDedupeMinutes:
@@ -83,6 +97,7 @@ function asView(row: Record<string, unknown>): LineAutomationView {
     afterHours,
     emergencyKeywords: keywords.length > 0 ? keywords : [...DEFAULT_EMERGENCY_KEYWORDS],
     emergencyTransferNumber: (row["emergency_transfer_number"] as string | null) ?? null,
+    language,
   };
 }
 
@@ -106,7 +121,7 @@ export async function saveLineAutomation(
   supabase: SupabaseClient,
   userId: string,
   input: LineAutomationInput,
-): Promise<LineAutomationView & { transferSync: { synced: boolean; detail: string } }> {
+): Promise<LineAutomationView & { transferSync: LanguageSync; languageSync: LanguageSync }> {
   await requireAdmin(supabase, userId);
   if (!zonedParts(new Date(), input.businessTimezone)) {
     throw new Error("Pick a valid timezone.");
@@ -124,6 +139,7 @@ export async function saveLineAutomation(
   }
   const holidays = parseHolidayDates(input.holidays);
   const schedule = parseWeeklySchedule(input.schedule);
+  const language = parseLineLanguage(input.language);
 
   const { data: existing, error: readError } = await supabaseAdmin
     .from("phone_numbers")
@@ -148,17 +164,46 @@ export async function saveLineAutomation(
       after_hours_route: input.afterHours,
       emergency_keywords: keywords.length > 0 ? keywords : [...DEFAULT_EMERGENCY_KEYWORDS],
       emergency_transfer_number: transfer,
+      ai_language: language,
     })
     .eq("sid", input.sid);
   if (error) throw error;
 
+  const agentId = (existing.elevenlabs_agent_id as string | null) ?? null;
   const transferSync = await syncEmergencyTransfer({
-    agentId: (existing.elevenlabs_agent_id as string | null) ?? null,
+    agentId,
     keywords: keywords.length > 0 ? keywords : [...DEFAULT_EMERGENCY_KEYWORDS],
     phone: transfer,
   });
+  const languageSync = await syncAnsweringLanguage({ agentId, language });
   const view = await getLineAutomation(supabase, userId, input.sid);
-  return { ...view, transferSync };
+  return { ...view, transferSync, languageSync };
+}
+
+export async function saveLineAnsweringLanguage(
+  supabase: SupabaseClient,
+  userId: string,
+  input: { sid: string; language: LineLanguage },
+): Promise<{ language: LineLanguage; languageSync: LanguageSync }> {
+  await requireAdmin(supabase, userId);
+  const language = parseLineLanguage(input.language);
+  const { data: existing, error: readError } = await supabaseAdmin
+    .from("phone_numbers")
+    .select("elevenlabs_agent_id")
+    .eq("sid", input.sid)
+    .maybeSingle();
+  if (readError) throw readError;
+  if (!existing) throw new Error("Number not found.");
+  const { error } = await supabaseAdmin
+    .from("phone_numbers")
+    .update({ ai_language: language })
+    .eq("sid", input.sid);
+  if (error) throw error;
+  const languageSync = await syncAnsweringLanguage({
+    agentId: (existing.elevenlabs_agent_id as string | null) ?? null,
+    language,
+  });
+  return { language, languageSync };
 }
 
 export { DEFAULT_WEEKLY_SCHEDULE };

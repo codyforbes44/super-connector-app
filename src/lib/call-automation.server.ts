@@ -9,9 +9,9 @@ import { upsertConversation } from "@/lib/app.server";
 import { sendAutomatedText } from "@/lib/automated-text.server";
 import {
   DEFAULT_TEXT_BACK_DEDUPE_MINUTES,
-  DEFAULT_TEXT_BACK_TEMPLATE,
   isDuplicateTextBack,
   isUnansweredCall,
+  missedCallTemplateForLine,
   missedCallTextDecision,
   renderTextBackTemplate,
   type MissedCallFacts,
@@ -28,6 +28,7 @@ type LineRow = {
   text_back_on_voicemail: boolean | null;
   text_back_dedupe_minutes: number | null;
   friendly_name: string | null;
+  ai_language: string | null;
 };
 
 const TERMINAL = new Set(["completed", "no-answer", "busy", "failed", "canceled"]);
@@ -68,14 +69,14 @@ export async function handleInboundCallUpdate(
 
   const { data: ai } = await admin
     .from("ai_conversations")
-    .select("call_sid")
+    .select("call_sid, transcript, summary")
     .eq("call_sid", callSid)
     .maybeSingle();
 
   const { data: line } = await admin
     .from("phone_numbers")
     .select(
-      "workspace_id, text_back_enabled, text_back_template, text_back_on_ai, text_back_on_voicemail, text_back_dedupe_minutes, friendly_name",
+      "workspace_id, text_back_enabled, text_back_template, text_back_on_ai, text_back_on_voicemail, text_back_dedupe_minutes, friendly_name, ai_language",
     )
     .eq("phone_number", appNumber)
     .maybeSingle();
@@ -105,7 +106,12 @@ export async function handleInboundCallUpdate(
       appNumber,
       caller: fromNumber,
       lineLabel: settings?.friendly_name || appNumber,
-      template: settings?.text_back_template || DEFAULT_TEXT_BACK_TEMPLATE,
+      template: missedCallTemplateForLine({
+        stored: settings?.text_back_template,
+        lineLanguage: settings?.ai_language,
+        transcript: ai?.transcript,
+        summary: (ai?.summary as string | null) ?? null,
+      }),
       dedupeMinutes: settings?.text_back_dedupe_minutes ?? DEFAULT_TEXT_BACK_DEDUPE_MINUTES,
       workspaceId,
       reason: decision.reason,

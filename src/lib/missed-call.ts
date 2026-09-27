@@ -7,12 +7,22 @@
  * failed, or canceled. https://www.twilio.com/docs/voice/twiml/dial
  */
 
+import {
+  detectCallerLanguage,
+  parseLineLanguage,
+  transcriptUtterance,
+  type LineLanguage,
+} from "@/lib/answering/language";
+
 export const UNANSWERED_DIAL_STATUSES = ["no-answer", "busy", "failed", "canceled"] as const;
 export const ANSWERED_DIAL_STATUSES = ["completed", "answered"] as const;
 export const UNANSWERED_CALL_STATUSES = ["no-answer", "busy", "failed", "canceled"] as const;
 
 export const DEFAULT_TEXT_BACK_TEMPLATE =
   "Sorry we missed your call. Text us back on this number and we'll help as soon as we can.";
+
+export const DEFAULT_TEXT_BACK_TEMPLATE_ES =
+  "Disculpe, no pudimos contestar su llamada. Responda a este número y le ayudamos en cuanto podamos.";
 
 export const DEFAULT_TEXT_BACK_DEDUPE_MINUTES = 60;
 
@@ -154,6 +164,86 @@ export function missedCallTextDecision(
     return { send: false, reason: "in_progress" };
   }
   return { send: false, reason: "not_missed" };
+}
+
+export function isDefaultTextBackTemplate(template: string | null | undefined): boolean {
+  const trimmed = (template ?? "").trim();
+  return (
+    !trimmed || trimmed === DEFAULT_TEXT_BACK_TEMPLATE || trimmed === DEFAULT_TEXT_BACK_TEMPLATE_ES
+  );
+}
+
+/**
+ * Spanish default when the line is Spanish, or auto and this conversation is already Spanish.
+ * A template the owner wrote is returned unchanged.
+ */
+export function resolveTextBackTemplate(args: {
+  stored: string | null | undefined;
+  lineLanguage: LineLanguage;
+  callerSpokeSpanish: boolean;
+}): string {
+  const stored = (args.stored ?? "").trim();
+  if (stored && !isDefaultTextBackTemplate(stored)) return stored;
+  const spanish = missedCallDefaultsToSpanish(args.lineLanguage, args.callerSpokeSpanish);
+  return spanish ? DEFAULT_TEXT_BACK_TEMPLATE_ES : DEFAULT_TEXT_BACK_TEMPLATE;
+}
+
+function missedCallDefaultsToSpanish(language: LineLanguage, callerSpokeSpanish: boolean): boolean {
+  switch (language) {
+    case "es":
+      return true;
+    case "auto":
+      return callerSpokeSpanish;
+    case "en":
+      return false;
+    default: {
+      const _never: never = language;
+      return _never;
+    }
+  }
+}
+
+/** Template chosen for this call. Does not write the stored template. */
+export function missedCallTemplateForLine(args: {
+  stored: string | null | undefined;
+  lineLanguage: string | null | undefined;
+  transcript?: unknown;
+  summary?: string | null;
+}): string {
+  const lineLanguage = parseLineLanguage(args.lineLanguage);
+  const callerSpokeSpanish =
+    lineLanguage === "auto" &&
+    detectCallerLanguage(transcriptUtterance(args.transcript, args.summary)) === "es";
+  return resolveTextBackTemplate({
+    stored: args.stored,
+    lineLanguage,
+    callerSpokeSpanish,
+  });
+}
+
+/** Body actually texted. Does not write the stored template. */
+export function missedCallTextBody(args: {
+  stored: string | null | undefined;
+  lineLanguage: string | null | undefined;
+  transcript?: unknown;
+  summary?: string | null;
+  lineLabel: string;
+  caller: string;
+}): string {
+  return renderTextBackTemplate(missedCallTemplateForLine(args), {
+    line: args.lineLabel,
+    caller: args.caller,
+  });
+}
+
+/** Swap the editor text when the owner changes language and has not customized it. */
+export function textBackDraftForLanguage(current: string, language: LineLanguage): string {
+  if (!isDefaultTextBackTemplate(current)) return current;
+  return resolveTextBackTemplate({
+    stored: current,
+    lineLanguage: language,
+    callerSpokeSpanish: false,
+  });
 }
 
 export function renderTextBackTemplate(

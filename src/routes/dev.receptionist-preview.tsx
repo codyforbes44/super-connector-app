@@ -1,10 +1,20 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { CallSummaryCard } from "@/components/intelligence/CallSummaryCard";
+import { AnsweringLanguageControl } from "@/components/line/AnsweringLanguageControl";
 import { BookingSettings } from "@/components/line/BookingSettings";
+import { LineAutomationSettings } from "@/components/line/LineAutomationSettings";
 import { PendingBookings } from "@/components/line/PendingBookings";
 import { SpamSettings } from "@/components/line/SpamSettings";
+import type { LineLanguage } from "@/lib/answering/language";
+import { DEFAULT_BUSINESS_TIMEZONE, DEFAULT_WEEKLY_SCHEDULE } from "@/lib/business-hours";
 import { weeklyMissed } from "@/lib/email-templates/index";
+import { DEFAULT_EMERGENCY_KEYWORDS } from "@/lib/emergency-keywords";
+import {
+  DEFAULT_TEXT_BACK_DEDUPE_MINUTES,
+  DEFAULT_TEXT_BACK_TEMPLATE,
+  DEFAULT_TEXT_BACK_TEMPLATE_ES,
+} from "@/lib/missed-call";
 
 export const Route = createFileRoute("/dev/receptionist-preview")({
   beforeLoad: () => {
@@ -32,10 +42,48 @@ const email = weeklyMissed({
   ],
 });
 
+const LANGUAGE_OPTIONS = ["en", "es", "auto"] as const satisfies readonly LineLanguage[];
+
+function linePreview(language: LineLanguage) {
+  return {
+    textBackEnabled: true,
+    textBackTemplate:
+      language === "es" ? DEFAULT_TEXT_BACK_TEMPLATE_ES : DEFAULT_TEXT_BACK_TEMPLATE,
+    textBackOnAi: false,
+    textBackOnVoicemail: false,
+    textBackDedupeMinutes: DEFAULT_TEXT_BACK_DEDUPE_MINUTES,
+    businessHoursEnabled: false,
+    businessTimezone: DEFAULT_BUSINESS_TIMEZONE,
+    schedule: DEFAULT_WEEKLY_SCHEDULE,
+    holidays: "",
+    afterHours: "ai" as const,
+    emergencyKeywords: DEFAULT_EMERGENCY_KEYWORDS.join("\n"),
+    emergencyTransferNumber: "",
+    textingNotice: null,
+    textingRegistered: true,
+    language,
+  };
+}
+
 function ReceptionistPreview() {
   return (
     <main className="mx-auto max-w-lg space-y-6 bg-background px-4 py-6 text-foreground">
       <h1 className="font-display text-lg font-semibold">Receptionist preview</h1>
+      {LANGUAGE_OPTIONS.map((language) => (
+        <section
+          key={language}
+          data-testid={`language-sheet-${language}`}
+          className="space-y-3 rounded-3xl border border-border bg-card p-4"
+        >
+          <p className="text-xs font-medium text-muted-foreground">AI receptionist</p>
+          <h2 className="font-display text-base font-semibold">+1 (580) 555-0142</h2>
+          <AnsweringLanguageControl value={language} onChange={() => undefined} />
+        </section>
+      ))}
+      <section data-testid="line-settings-language" className="space-y-2">
+        <p className="text-xs font-medium text-muted-foreground">Line settings</p>
+        <LineAutomationSettings sid="preview" preview={linePreview("en")} />
+      </section>
       <BookingSettings
         preview={{
           enabled: true,

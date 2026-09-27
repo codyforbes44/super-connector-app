@@ -3,6 +3,15 @@
 export type LineLanguage = "en" | "es" | "auto";
 export type SpokenLanguage = "en" | "es";
 
+export const ANSWERING_LANGUAGE_START = "[sixvox-language]";
+export const ANSWERING_LANGUAGE_END = "[/sixvox-language]";
+
+/** Stored on `phone_numbers.ai_language`. Anything else behaves as English. */
+export function parseLineLanguage(value: unknown): LineLanguage {
+  if (value === "es" || value === "auto") return value;
+  return "en";
+}
+
 const SPANISH =
   /\b(hola|buenos|buenas|gracias|necesito|quiero|plomero|fuga|cita|mañana|hoy|emergencia|dirección|número|por favor|servicio)\b/i;
 
@@ -95,4 +104,67 @@ export function bookingSpokenLine(
     /\{\{(\w+)\}\}/g,
     (_match, key: string) => vars[key]?.trim() || "",
   );
+}
+
+/** ElevenLabs `agent.language` is a single code. Auto stays English and the prompt switches. */
+export function elevenLabsAgentLanguage(language: string): string {
+  if (language === "auto") return "en";
+  const trimmed = language.trim();
+  return trimmed || "en";
+}
+
+function languageInstructions(language: string): string | null {
+  if (language === "es") {
+    return [
+      "Answer this entire call in Spanish, including booking, the address check, and the goodbye.",
+      "If a tool result is in English, say the same thing in Spanish.",
+      "Never invent an open time. If a tool says the time is taken or the address is outside the service area, say that and offer another option.",
+      "The default is booking-by-confirmation: the owner confirms, then the caller gets a text.",
+      "Only say the job is booked when the tool result says booked.",
+    ].join(" ");
+  }
+  if (language === "auto") {
+    return [
+      "Detect the caller's language on the first turn.",
+      "If they speak Spanish, continue the whole call in Spanish, including booking, the address check, and the goodbye.",
+      "If they speak English, stay in English.",
+      "Never invent an open time. If a tool says the time is taken or the address is outside the service area, say that in the caller's language and offer another option.",
+      "The default is booking-by-confirmation: the owner confirms, then the caller gets a text.",
+      "Only say the job is booked when the tool result says booked.",
+    ].join(" ");
+  }
+  return null;
+}
+
+/** Insert or remove the Spanish block without touching the rest of the agent prompt. */
+export function mergeAnsweringLanguagePrompt(prompt: string, language: string): string {
+  const stripped = prompt
+    .replace(
+      new RegExp(
+        `\\s*${escapeRegExp(ANSWERING_LANGUAGE_START)}[\\s\\S]*?${escapeRegExp(ANSWERING_LANGUAGE_END)}\\s*`,
+        "g",
+      ),
+      "\n",
+    )
+    .trim();
+  const instructions = languageInstructions(language);
+  if (!instructions) return stripped;
+  return `${stripped}\n\n${ANSWERING_LANGUAGE_START}\n${instructions}\n${ANSWERING_LANGUAGE_END}`.trim();
+}
+
+/** Join an ElevenLabs transcript (and summary) so language detection can read it. */
+export function transcriptUtterance(transcript: unknown, summary?: string | null): string {
+  const turns = Array.isArray(transcript)
+    ? transcript.map((turn) => {
+        if (!turn || typeof turn !== "object") return "";
+        const row = turn as Record<string, unknown>;
+        const message = row["message"] ?? row["text"];
+        return typeof message === "string" ? message : "";
+      })
+    : [];
+  return [summary ?? "", ...turns].filter(Boolean).join(" ");
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
