@@ -75,7 +75,7 @@ export function AccountActions({ className, stacked }: { className?: string; sta
         to="/auth"
         search={{ mode: "signup" }}
         className={cn(
-          "key-call items-center justify-center gap-2 rounded-full px-4 font-semibold",
+          "key-signal items-center justify-center gap-2 rounded-lg px-4 font-semibold",
           stacked ? "flex min-h-14 text-base" : "hidden min-h-11 text-sm sm:inline-flex",
         )}
       >

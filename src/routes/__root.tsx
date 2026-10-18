@@ -86,7 +86,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -137,14 +137,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Run your business number, inbox, calls and AI receptionist from one mobile app built for teams.",
       },
-      { name: "theme-color", content: "#0C1017" },
+      { name: "theme-color", content: "#030B12" },
       { name: "color-scheme", content: "dark light" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "SixVox" },
       { name: "application-name", content: "SixVox" },
-      { name: "msapplication-TileColor", content: "#0C1017" },
+      { name: "msapplication-TileColor", content: "#030B12" },
       { name: "msapplication-TileImage", content: "/favicon-192x192.png" },
       { name: "msapplication-config", content: "/browserconfig.xml" },
       { property: "og:title", content: "SixVox — business calls, texts and AI receptionist" },
@@ -161,7 +161,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
       },
       {
         rel: "stylesheet",
