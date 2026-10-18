@@ -93,7 +93,7 @@ function Landing() {
             <div>
               <Eyebrow>For solo trades and crews of 2–5</Eyebrow>
               <h1 className="font-display mt-5 text-[2rem] leading-[1.08] font-semibold text-balance sm:text-5xl">
-                SixVox
+                Six<span className="text-highlight">Vox</span>
               </h1>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-pretty text-muted-foreground">
                 {POSITIONING_LINE} Built for plumbers, HVAC, electricians, cleaners, and other
