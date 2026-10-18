@@ -75,7 +75,7 @@ export const Route = createFileRoute("/_authenticated")({
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-lg px-6 py-20 text-center">
       <h1 className="font-display text-lg font-semibold">Something went wrong</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Unexpected error"}</p>
     </div>
   ),
   notFoundComponent: () => (
