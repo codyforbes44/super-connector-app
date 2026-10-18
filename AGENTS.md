@@ -11,6 +11,6 @@
 
 <!-- LOVABLE:END -->
 
-SixVox web branding uses `src/assets/sixvox-logo-signal.png` and derived public/favicon, install, and mobile icons; keep them derived from the same source so the brand remains consistent.
+SixVox branding derives from the user-supplied 3BI mark (vector master `src/assets/sixvox-logo.svg`, raster source `src/assets/sixvox-logo-signal.png`); regenerate every favicon, app icon, splash, notification, shortcut, and share image with `scripts/regen-brand.py` instead of hand-editing them, so all instances stay consistent.
 The mobile-first page system is defined by semantic colors in `src/styles.css`, shared page primitives in `src/components/screen.tsx`, and the signed-in navigation in `src/components/AppShell.tsx`; reuse these so pages retain consistent sizing and accessibility.
 Unattributed carrier webhook errors retain a null workspace and are visible only to platform super admins; assigning an unknown number to a tenant would leak diagnostics across workspaces.
