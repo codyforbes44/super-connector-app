@@ -1,3 +1,13 @@
+"""Regenerate every SixVox brand asset from the 3BI mark.
+
+Prerequisites (render before running):
+  nix run nixpkgs#resvg -- --width 1024 --height 1024 \
+    <(sed 's/viewBox="0 0 64 64"/viewBox="-3 -3 70 70"/' src/assets/sixvox-logo.svg) /tmp/zbi-1024.png
+  # white monochrome variant (rounded-square outline + dot) -> /tmp/zbi-mono-512.png
+  # Space Grotesk variable TTF (fonts.google.com) -> /tmp/SpaceGrotesk-Bold.ttf
+Regenerates: favicons, PWA icons, maskable, monochrome, Android launcher/notification/status,
+iOS AppIcons, mobile app icons, apple splashes, OG images, and Play feature graphic.
+"""
 from PIL import Image, ImageDraw, ImageFont
 import os, glob, shutil
 
