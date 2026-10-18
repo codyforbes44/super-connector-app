@@ -138,7 +138,12 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               height={36}
               className="h-9 w-9 object-contain"
             />
-            <span className="font-display text-base font-semibold tracking-tight">SixVox</span>
+            <span className="font-display text-base font-semibold tracking-tight">
+              SixVox
+              <span className="ml-1 text-sm font-medium text-muted-foreground">
+                by <span className="text-xs font-semibold">3BI</span>
+              </span>
+            </span>
           </Link>
 
           <nav
@@ -283,7 +288,12 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
                 loading="lazy"
                 className="h-8 w-8 object-contain"
               />
-              <span className="font-display text-sm font-semibold">SixVox</span>
+              <span className="font-display text-sm font-semibold">
+                SixVox
+                <span className="ml-1 text-xs font-medium text-muted-foreground">
+                  by <span className="text-[0.62rem] font-semibold">3BI</span>
+                </span>
+              </span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
               Your business line that picks up when you can&apos;t. Built for plumbers, HVAC,
