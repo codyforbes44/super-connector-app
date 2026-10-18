@@ -299,6 +299,29 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               Your business line that picks up when you can&apos;t. Built for plumbers, HVAC,
               electricians, and other small crews.
             </p>
+            <ul className="mt-4 space-y-1.5 text-xs text-muted-foreground">
+              <li>
+                <a href="tel:+15802384777" className="hover:text-foreground">
+                  Call or text 580-238-4777
+                </a>
+              </li>
+              <li>
+                <a href="mailto:support@3bi.io" className="hover:text-foreground">
+                  support@3bi.io
+                </a>
+              </li>
+              <li>Durant, OK — serving Bryan County &amp; Texoma</li>
+              <li>
+                <a
+                  href="https://3bi.io"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-foreground"
+                >
+                  Part of 3BI — 3bi.io
+                </a>
+              </li>
+            </ul>
           </div>
           <FooterCol
             title="Product"
@@ -345,7 +368,9 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             Prices are shown in USD. Applicable sales tax or VAT is calculated at checkout.
             Subscriptions renew automatically until cancelled.
           </p>
-          <p>© {new Date().getFullYear()} SixVox. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} SixVox, a 3BI product · Durant, OK. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>
