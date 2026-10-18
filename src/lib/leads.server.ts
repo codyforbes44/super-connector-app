@@ -2,7 +2,7 @@ import { BRAND, escapeHtml, layout, metaTable, paragraph, quote } from "./email-
 import { FROM_ACCOUNT, emailConfigured, sendEmail } from "./email.server";
 import { publishOutboundEvent } from "./outbound-webhooks.server";
 
-const NOTIFY_TO = "codyforbes@gmail.com";
+const NOTIFY_TO = "support@3bi.io";
 
 export type LeadInput = {
   name: string;

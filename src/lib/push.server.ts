@@ -17,7 +17,7 @@ type NotifyPayload = {
 
 function vapid() {
   return {
-    subject: process.env["VAPID_SUBJECT"] ?? "mailto:push@sixvox.app",
+    subject: process.env["VAPID_SUBJECT"] ?? "mailto:support@3bi.io",
     publicKey: process.env["VAPID_PUBLIC_KEY"],
     privateKey: process.env["VAPID_PRIVATE_KEY"],
   };
