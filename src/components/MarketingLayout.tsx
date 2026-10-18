@@ -140,9 +140,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             />
             <span className="font-display text-base font-semibold tracking-tight">
               SixVox
-              <span className="ml-1 text-sm font-medium tracking-wide text-muted-foreground">
-                by{" "}
-                <span className="[font-variant-caps:small-caps]">3bi</span>
+              <span className="ml-1 text-sm font-medium text-muted-foreground">
+                by <span className="text-xs font-semibold">3BI</span>
               </span>
             </span>
           </Link>
@@ -291,9 +290,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               />
               <span className="font-display text-sm font-semibold">
                 SixVox
-                <span className="ml-1 text-xs font-medium tracking-wide text-muted-foreground">
-                  by{" "}
-                  <span className="[font-variant-caps:small-caps]">3bi</span>
+                <span className="ml-1 text-xs font-medium text-muted-foreground">
+                  by <span className="text-[0.62rem] font-semibold">3BI</span>
                 </span>
               </span>
             </div>
