@@ -66,8 +66,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <img src={brandLogo} alt="" width={36} height={36} className="size-9 object-contain" />
             <span>
               SixVox
-              <span className="ml-1 text-xs font-medium tracking-normal text-muted-foreground">
-                by 3ʙɪ
+              <span className="ml-1 text-sm font-medium tracking-wide text-muted-foreground [font-variant-caps:small-caps]">
+                by 3BI
               </span>
             </span>
           </Link>
