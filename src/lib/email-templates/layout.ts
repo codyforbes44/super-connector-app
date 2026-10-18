@@ -6,7 +6,7 @@
 
 export const BRAND = {
   name: "SixVox",
-  domain: "bookme.bet",
+  domain: "3bi.io",
   gradient: "linear-gradient(135deg,#0b1b34 0%,#123a5c 55%,#0e5f6b 100%)",
   accent: "#3ddad7",
   ink: "#0b1b34",

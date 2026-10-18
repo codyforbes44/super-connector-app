@@ -108,7 +108,7 @@ function Privacy() {
       <h2>Your rights</h2>
       <p>
         You can request a copy of your data, correct it, or ask us to delete it by emailing{" "}
-        <a href="mailto:privacy@bookme.bet">privacy@bookme.bet</a>. Children under 16 may not use
+        <a href="mailto:support@3bi.io">support@3bi.io</a>. Children under 16 may not use
         SixVox.
       </p>
 

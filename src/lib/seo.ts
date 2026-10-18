@@ -45,6 +45,20 @@ export function organizationLd(description: string) {
     url: SITE_URL,
     logo: `${SITE_URL}/icon-512.png`,
     description,
+    telephone: "+1-580-238-4777",
+    email: "support@3bi.io",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Durant",
+      addressRegion: "OK",
+      addressCountry: "US",
+    },
+    areaServed: ["Bryan County OK", "Texoma"],
+    parentOrganization: {
+      "@type": "Organization",
+      name: "3BI",
+      url: "https://3bi.io",
+    },
   };
 }
 

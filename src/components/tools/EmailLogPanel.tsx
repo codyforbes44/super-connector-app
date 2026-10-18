@@ -76,7 +76,7 @@ export function EmailLogPanel() {
   return (
     <div className="space-y-3">
       <div className="glass-panel rounded-2xl p-4 text-sm">
-        <p className="font-medium">Resend · {email?.domain ?? "bookme.bet"}</p>
+        <p className="font-medium">Resend · {email?.domain ?? "3bi.io"}</p>
         <p className="text-xs text-muted-foreground">
           {email
             ? email.verified

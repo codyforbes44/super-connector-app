@@ -127,6 +127,21 @@ function ContactPage() {
           </Link>
           .
         </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button asChild className="min-h-11 rounded-full px-5">
+            <a href="tel:+15802384777">Call 580-238-4777</a>
+          </Button>
+          <Button asChild variant="secondary" className="min-h-11 rounded-full px-5">
+            <a href="sms:+15802384777">Text us</a>
+          </Button>
+          <Button asChild variant="secondary" className="min-h-11 rounded-full px-5">
+            <a href="mailto:support@3bi.io">support@3bi.io</a>
+          </Button>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          SixVox is a 3BI product, based in Durant, OK — serving Bryan County and the Texoma
+          region.
+        </p>
       </Section>
 
       <Section className="grid gap-4 py-4 md:grid-cols-[1.4fr_1fr]">
