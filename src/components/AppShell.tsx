@@ -64,7 +64,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             aria-label="SixVox inbox"
           >
             <img src={brandLogo} alt="" width={36} height={36} className="size-9 object-contain" />
-            SixVox
+            <span>
+              SixVox
+              <span className="ml-1 text-xs font-medium tracking-normal text-muted-foreground">
+                by 3ʙɪ
+              </span>
+            </span>
           </Link>
           {TABS.map((tab) => {
             const active = pathname.startsWith(tab.to);
