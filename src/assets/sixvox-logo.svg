@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" fill="none" role="img" aria-label="ƷBI Logo">
+  <defs>
+    <!-- Teal Conic Ring Simulation -->
+    <linearGradient id="zbi-teal-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#17B8D0"/>
+      <stop offset="50%" stop-color="#44D1E5"/>
+      <stop offset="100%" stop-color="#0E7490"/>
+    </linearGradient>
+    <!-- Center Radial Glow -->
+    <radialGradient id="zbi-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#17B8D0" stop-opacity="0.6"/>
+      <stop offset="70%" stop-color="#17B8D0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outer Rounded Square Border -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#050A10" stroke="url(#zbi-teal-1)" stroke-width="5"/>
+  
+  <!-- Inner Ambient Glow -->
+  <rect x="7" y="7" width="50" height="50" rx="12" fill="url(#zbi-glow)"/>
+  
+  <!-- Center Core Dot -->
+  <circle cx="32" cy="32" r="6" fill="#17B8D0"/>
+</svg>
