@@ -6,11 +6,11 @@ import { colors, space } from "@/theme";
 import { Banner, Button, Field } from "@/ui";
 
 export default function SignInScreen() {
-  const { signIn, signInWithGoogle, configured } = useAuth();
+  const { signIn, signInWithGoogle, signInWithApple, configured } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"password" | "google" | null>(null);
+  const [busy, setBusy] = useState<"password" | "google" | "apple" | null>(null);
 
   async function submitPassword() {
     setBusy("password");
