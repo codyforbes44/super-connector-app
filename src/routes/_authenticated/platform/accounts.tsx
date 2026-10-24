@@ -4,7 +4,6 @@ import { Gift, ShieldCheck, UserX } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { ScreenHeader } from "@/components/AppShell";
 import { AsyncList, Empty, Screen } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +11,10 @@ import { errorMessage } from "@/lib/format";
 import { listSubscribers, updateSubscriber } from "@/lib/payments.functions";
 import { planByCode } from "@/lib/plans";
 
-export const Route = createFileRoute("/_authenticated/subscribers")({
+export const Route = createFileRoute("/_authenticated/platform/accounts")({
   head: () => ({
     meta: [
-      { title: "Subscribers — SixVox" },
+      { title: "Accounts — SixVox Platform" },
       { name: "description", content: "Manage SixVox subscribers, plans and access." },
     ],
   }),
@@ -52,7 +51,6 @@ function SubscribersScreen() {
 
   return (
     <div className="min-w-0">
-      <ScreenHeader title="Subscribers" subtitle="Super admin only" />
       <Screen
         className="space-y-3"
         onRefresh={() => queryClient.invalidateQueries({ queryKey: ["subscribers"] })}
