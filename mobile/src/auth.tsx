@@ -21,6 +21,7 @@ type AuthValue = {
   refreshAccount: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -105,7 +106,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setPreviewSignedOut(false);
       return;
     }
-    await googleSignIn();
+    await signInWithOauthProvider("google");
+  }, []);
+
+  const signInWithApple = useCallback(async () => {
+    if (previewMode()) {
+      setPreviewSignedOut(false);
+      return;
+    }
+    await signInWithOauthProvider("apple");
   }, []);
 
   const signOut = useCallback(async () => {
