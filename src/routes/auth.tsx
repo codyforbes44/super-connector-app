@@ -178,15 +178,26 @@ function AuthScreen() {
             : "14 days free. Nothing is charged until the trial ends."}
         </p>
 
-        <Button
-          type="button"
-          variant="secondary"
-          className="mt-7 h-12 w-full rounded-xl text-sm font-semibold"
-          disabled={busy}
-          onClick={handleGoogle}
-        >
-          Continue with Google
-        </Button>
+        <div className="mt-7 grid gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            className="h-12 w-full rounded-xl text-sm font-semibold"
+            disabled={busy}
+            onClick={() => void handleSocial("google")}
+          >
+            Continue with Google
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            className="h-12 w-full rounded-xl text-sm font-semibold"
+            disabled={busy}
+            onClick={() => void handleSocial("apple")}
+          >
+            Continue with Apple
+          </Button>
+        </div>
 
         <div className="my-5 flex items-center gap-3 text-[0.7rem] tracking-wide text-muted-foreground uppercase">
           <span className="h-px flex-1 bg-border" />

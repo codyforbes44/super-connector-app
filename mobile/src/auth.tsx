@@ -4,7 +4,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { api } from "@/api";
 import { previewMode, supabaseConfig } from "@/config";
 import { previewBootstrap } from "@/preview-data";
-import { getSupabase, signInWithGoogle as googleSignIn, supabaseConfigured } from "@/supabase";
+import {
+  getSupabase,
+  signInWithOauthProvider,
+  supabaseConfigured,
+} from "@/supabase";
 import type { Bootstrap } from "@/types";
 
 type AuthValue = {
