@@ -140,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshAccount,
       signIn,
       signInWithGoogle,
+      signInWithApple,
       signOut,
     }),
     [
@@ -151,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshAccount,
       signIn,
       signInWithGoogle,
+      signInWithApple,
       signOut,
     ],
   );
