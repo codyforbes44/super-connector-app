@@ -37,7 +37,6 @@ import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authent
 import { Route as AuthenticatedNumbersRouteImport } from './routes/_authenticated/numbers'
 import { Route as AuthenticatedReceptionistRouteImport } from './routes/_authenticated/receptionist'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AuthenticatedSubscribersRouteImport } from './routes/_authenticated/subscribers'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
 import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
@@ -54,6 +53,7 @@ import { Route as AuthenticatedAdminUserIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAssistantSidRouteImport } from './routes/_authenticated/assistant.$sid'
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
+import { Route as AuthenticatedPlatformAccountsRouteImport } from './routes/_authenticated/platform/accounts'
 import { Route as ApiMobileSplatRouteImport } from './routes/api/mobile/$'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as OauthJobberReturnRouteImport } from './routes/oauth/jobber/return'
@@ -220,12 +220,6 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSubscribersRoute =
-  AuthenticatedSubscribersRouteImport.update({
-    id: '/subscribers',
-    path: '/subscribers',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedToolsRoute = AuthenticatedToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
@@ -308,6 +302,12 @@ const AuthenticatedInboxIdRoute = AuthenticatedInboxIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedInboxRouteRoute,
 } as any)
+const AuthenticatedPlatformAccountsRoute =
+  AuthenticatedPlatformAccountsRouteImport.update({
+    id: '/platform/accounts',
+    path: '/platform/accounts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiMobileSplatRoute = ApiMobileSplatRouteImport.update({
   id: '/api/mobile/$',
   path: '/api/mobile/$',
@@ -466,7 +466,6 @@ export interface FileRoutesByFullPath {
   '/numbers': typeof AuthenticatedNumbersRoute
   '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
   '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
@@ -482,6 +481,7 @@ export interface FileRoutesByFullPath {
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/platform/accounts': typeof AuthenticatedPlatformAccountsRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
@@ -535,7 +535,6 @@ export interface FileRoutesByTo {
   '/numbers': typeof AuthenticatedNumbersRoute
   '/receptionist': typeof AuthenticatedReceptionistRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/subscribers': typeof AuthenticatedSubscribersRoute
   '/tools': typeof AuthenticatedToolsRoute
   '/trust': typeof AuthenticatedTrustRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
@@ -551,6 +550,7 @@ export interface FileRoutesByTo {
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/platform/accounts': typeof AuthenticatedPlatformAccountsRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
@@ -607,7 +607,6 @@ export interface FileRoutesById {
   '/_authenticated/numbers': typeof AuthenticatedNumbersRoute
   '/_authenticated/receptionist': typeof AuthenticatedReceptionistRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
-  '/_authenticated/subscribers': typeof AuthenticatedSubscribersRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
   '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
@@ -623,6 +622,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/_authenticated/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/_authenticated/platform/accounts': typeof AuthenticatedPlatformAccountsRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
@@ -679,7 +679,6 @@ export interface FileRouteTypes {
     | '/numbers'
     | '/receptionist'
     | '/settings'
-    | '/subscribers'
     | '/tools'
     | '/trust'
     | '/welcome'
@@ -695,6 +694,7 @@ export interface FileRouteTypes {
     | '/admin/$userId'
     | '/assistant/$sid'
     | '/inbox/$id'
+    | '/platform/accounts'
     | '/api/mobile/$'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
@@ -748,7 +748,6 @@ export interface FileRouteTypes {
     | '/numbers'
     | '/receptionist'
     | '/settings'
-    | '/subscribers'
     | '/tools'
     | '/trust'
     | '/welcome'
@@ -764,6 +763,7 @@ export interface FileRouteTypes {
     | '/admin/$userId'
     | '/assistant/$sid'
     | '/inbox/$id'
+    | '/platform/accounts'
     | '/api/mobile/$'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
@@ -819,7 +819,6 @@ export interface FileRouteTypes {
     | '/_authenticated/numbers'
     | '/_authenticated/receptionist'
     | '/_authenticated/settings'
-    | '/_authenticated/subscribers'
     | '/_authenticated/tools'
     | '/_authenticated/trust'
     | '/_authenticated/welcome'
@@ -835,6 +834,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/$userId'
     | '/_authenticated/assistant/$sid'
     | '/_authenticated/inbox/$id'
+    | '/_authenticated/platform/accounts'
     | '/api/mobile/$'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
@@ -1109,13 +1109,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/subscribers': {
-      id: '/_authenticated/subscribers'
-      path: '/subscribers'
-      fullPath: '/subscribers'
-      preLoaderRoute: typeof AuthenticatedSubscribersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/tools': {
       id: '/_authenticated/tools'
       path: '/tools'
@@ -1227,6 +1220,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/inbox/$id'
       preLoaderRoute: typeof AuthenticatedInboxIdRouteImport
       parentRoute: typeof AuthenticatedInboxRouteRoute
+    }
+    '/_authenticated/platform/accounts': {
+      id: '/_authenticated/platform/accounts'
+      path: '/platform/accounts'
+      fullPath: '/platform/accounts'
+      preLoaderRoute: typeof AuthenticatedPlatformAccountsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/mobile/$': {
       id: '/api/mobile/$'
@@ -1431,12 +1431,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNumbersRoute: typeof AuthenticatedNumbersRoute
   AuthenticatedReceptionistRoute: typeof AuthenticatedReceptionistRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
-  AuthenticatedSubscribersRoute: typeof AuthenticatedSubscribersRoute
   AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
   AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
   AuthenticatedWelcomeRoute: typeof AuthenticatedWelcomeRoute
   AuthenticatedAdminUserIdRoute: typeof AuthenticatedAdminUserIdRoute
   AuthenticatedAssistantSidRoute: typeof AuthenticatedAssistantSidRoute
+  AuthenticatedPlatformAccountsRoute: typeof AuthenticatedPlatformAccountsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1455,12 +1455,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNumbersRoute: AuthenticatedNumbersRoute,
   AuthenticatedReceptionistRoute: AuthenticatedReceptionistRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
-  AuthenticatedSubscribersRoute: AuthenticatedSubscribersRoute,
   AuthenticatedToolsRoute: AuthenticatedToolsRoute,
   AuthenticatedTrustRoute: AuthenticatedTrustRoute,
   AuthenticatedWelcomeRoute: AuthenticatedWelcomeRoute,
   AuthenticatedAdminUserIdRoute: AuthenticatedAdminUserIdRoute,
   AuthenticatedAssistantSidRoute: AuthenticatedAssistantSidRoute,
+  AuthenticatedPlatformAccountsRoute: AuthenticatedPlatformAccountsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
