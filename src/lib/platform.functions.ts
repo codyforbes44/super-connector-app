@@ -108,7 +108,8 @@ export const platformHealth = createServerFn({ method: "POST" })
     ]);
     const failed = (deliveries ?? []).filter((d) => {
       const row = d as Record<string, unknown>;
-      return row.status === "failed" || (typeof row.response_status === "number" && row.response_status >= 400);
+      const code = row["response_status"];
+      return row["status"] === "failed" || (typeof code === "number" && code >= 400);
     });
     return {
       errors: (errors ?? []).map((e) => ({
