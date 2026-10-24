@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAssignable, parseRole } from "@/lib/platform-assign";
 import { PLANS } from "@/lib/plans";
 import { isElPrimaryNumber } from "@/lib/wiring";
 
@@ -141,4 +142,115 @@ export const platformAudit = createServerFn({ method: "POST" })
       detail: JSON.stringify(r.detail ?? {}),
       at: r.created_at as string,
     }));
+  });
+
+// ---------- Number assignment (super admin) ----------
+
+async function audit(admin: Awaited<ReturnType<typeof requireSuper>>, actor: string, workspaceId: string, action: string, detail: Record<string, unknown>) {
+  await admin.from("audit_log").insert({ actor, workspace_id: workspaceId, action, detail: detail as never });
+}
+
+export const platformNumberDetail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => d)
+  .handler(async ({ data, context }) => {
+    const admin = await requireSuper(context as unknown as Ctx);
+    const { data: n, error } = await admin.from("phone_numbers").select("id, phone_number, workspace_id").eq("id", data.id).single();
+    if (error || !n) throw new Error("Number not found");
+    const [{ data: ws }, { data: members }, { data: assignees }, { data: profiles }] = await Promise.all([
+      admin.from("workspaces").select("id, name, business_name").order("name"),
+      admin.from("workspace_members").select("user_id, role").eq("workspace_id", n.workspace_id),
+      admin.from("number_assignees").select("user_id").eq("phone_number_id", n.id),
+      admin.from("profiles").select("id, email"),
+    ]);
+    const email = new Map((profiles ?? []).map((p) => [p.id as string, (p.email as string) ?? ""]));
+    const assigned = new Set((assignees ?? []).map((a) => a.user_id as string));
+    return {
+      id: n.id as string,
+      number: n.phone_number as string,
+      workspaceId: n.workspace_id as string,
+      teams: (ws ?? []).map((w) => ({ id: w.id as string, name: (w.business_name || w.name) as string })),
+      members: (members ?? []).map((m) => ({
+        userId: m.user_id as string,
+        email: email.get(m.user_id as string) ?? "",
+        role: m.role as string,
+        assigned: assigned.has(m.user_id as string),
+      })),
+    };
+  });
+
+export const platformMoveNumber = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; workspaceId: string }) => d)
+  .handler(async ({ data, context }) => {
+    const admin = await requireSuper(context as unknown as Ctx);
+    const { data: n } = await admin.from("phone_numbers").select("phone_number, workspace_id").eq("id", data.id).single();
+    if (!n) throw new Error("Number not found");
+    assertAssignable(n.phone_number as string);
+    if (n.workspace_id === data.workspaceId) return { ok: true };
+    const { data: ws } = await admin.from("workspaces").select("id").eq("id", data.workspaceId).maybeSingle();
+    if (!ws) throw new Error("Team not found");
+    await admin.from("number_assignees").delete().eq("phone_number_id", data.id);
+    const { error } = await admin.from("phone_numbers").update({ workspace_id: data.workspaceId }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await audit(admin, context.userId, data.workspaceId, "platform.number_moved", { number: n.phone_number, from: n.workspace_id, to: data.workspaceId });
+    return { ok: true };
+  });
+
+export const platformSetAssignee = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; userId: string; assigned: boolean }) => d)
+  .handler(async ({ data, context }) => {
+    const admin = await requireSuper(context as unknown as Ctx);
+    const { data: n } = await admin.from("phone_numbers").select("phone_number, workspace_id").eq("id", data.id).single();
+    if (!n) throw new Error("Number not found");
+    assertAssignable(n.phone_number as string);
+    if (data.assigned) {
+      const { error } = await admin.from("number_assignees").upsert(
+        { phone_number_id: data.id, user_id: data.userId, workspace_id: n.workspace_id },
+        { onConflict: "phone_number_id,user_id" },
+      );
+      if (error) throw new Error(error.message);
+    } else {
+      await admin.from("number_assignees").delete().eq("phone_number_id", data.id).eq("user_id", data.userId);
+    }
+    await audit(admin, context.userId, n.workspace_id as string, data.assigned ? "platform.number_assigned" : "platform.number_unassigned", { number: n.phone_number, user: data.userId });
+    return { ok: true };
+  });
+
+/** Add a person (by email) to the number's team — or a brand-new team of their own — and give them the number. */
+export const platformAddPerson = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; email: string; role: string; newTeamName?: string; comp?: boolean }) => d)
+  .handler(async ({ data, context }) => {
+    const admin = await requireSuper(context as unknown as Ctx);
+    const role = parseRole(data.role);
+    const { data: n } = await admin.from("phone_numbers").select("phone_number, workspace_id").eq("id", data.id).single();
+    if (!n) throw new Error("Number not found");
+    assertAssignable(n.phone_number as string);
+    const { data: person } = await admin.from("profiles").select("id").ilike("email", data.email.trim()).maybeSingle();
+    if (!person) throw new Error("No SixVox account with that email. Ask them to sign up first.");
+    let workspaceId = n.workspace_id as string;
+    const teamName = data.newTeamName?.trim();
+    if (teamName) {
+      const { data: ws, error } = await admin.from("workspaces").insert({ name: teamName, business_name: teamName }).select("id").single();
+      if (error || !ws) throw new Error(error?.message ?? "Couldn't create team");
+      workspaceId = ws.id as string;
+      await admin.from("number_assignees").delete().eq("phone_number_id", data.id);
+      await admin.from("phone_numbers").update({ workspace_id: workspaceId }).eq("id", data.id);
+      if (data.comp) {
+        await admin.from("workspace_entitlements").upsert({ workspace_id: workspaceId, plan_code: "team", status: "active" } as never, { onConflict: "workspace_id" });
+      }
+    }
+    const { error: mErr } = await admin.from("workspace_members").upsert(
+      { workspace_id: workspaceId, user_id: person.id, role },
+      { onConflict: "workspace_id,user_id" },
+    );
+    if (mErr) throw new Error(mErr.message);
+    await admin.from("number_assignees").upsert(
+      { phone_number_id: data.id, user_id: person.id, workspace_id: workspaceId },
+      { onConflict: "phone_number_id,user_id" },
+    );
+    await audit(admin, context.userId, workspaceId, "platform.person_added", { number: n.phone_number, email: data.email, role, newTeam: teamName ?? null, comp: Boolean(data.comp) });
+    return { ok: true };
   });
