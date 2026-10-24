@@ -24,13 +24,17 @@ export default function SignInScreen() {
     }
   }
 
-  async function submitGoogle() {
-    setBusy("google");
+  async function submitSocial(provider: "google" | "apple") {
+    setBusy(provider);
     setError(null);
     try {
-      await signInWithGoogle();
+      await (provider === "google" ? signInWithGoogle() : signInWithApple());
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Google sign-in failed.");
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : `${provider === "google" ? "Google" : "Apple"} sign-in failed.`,
+      );
     } finally {
       setBusy(null);
     }
