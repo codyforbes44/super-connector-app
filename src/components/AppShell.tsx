@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Inbox, PhoneCall, Hash, Wand2, Settings, Plus } from "lucide-react";
+import { Inbox, PhoneCall, Hash, Wand2, Settings, Plus, ShieldCheck } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
 import type { LucideIcon } from "lucide-react";
 import {
   createContext,
@@ -48,6 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // The in-app experience is dark-only; the public site's preference is
   // restored when the shell unmounts.
   useForcedDarkTheme();
+  const { isSuperAdmin } = useSubscription();
   const [fab, setFab] = useState<ScreenFab | null>(null);
   const set = useCallback((next: ScreenFab | null) => setFab(next), []);
   const fabValue = useMemo(() => ({ set }), [set]);
@@ -93,6 +95,20 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+          {isSuperAdmin ? (
+            <Link
+              to="/platform"
+              className={cn(
+                "mt-auto flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
+                pathname.startsWith("/platform")
+                  ? "bg-sidebar-accent text-primary ring-1 ring-sidebar-border"
+                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
+              )}
+            >
+              <ShieldCheck className="h-[1.15rem] w-[1.15rem] shrink-0" />
+              <span className="truncate">Platform admin</span>
+            </Link>
+          ) : null}
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
