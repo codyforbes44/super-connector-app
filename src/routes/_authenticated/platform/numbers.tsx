@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Hash, Lock } from "lucide-react";
 import { useState } from "react";
 
+import { ManageNumberSheet } from "@/components/platform/ManageNumberSheet";
+import { Button } from "@/components/ui/button";
 import { AsyncList, Empty, Screen, StatusPill } from "@/components/screen";
 import { Input } from "@/components/ui/input";
 import { formatPhone } from "@/lib/format";
@@ -15,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/platform/numbers")({
 
 function Fleet() {
   const [term, setTerm] = useState("");
+  const [manage, setManage] = useState<string | null>(null);
   const q = useQuery({ queryKey: ["platform", "numbers"], queryFn: () => platformNumbers(), retry: false });
   const t = term.trim().toLowerCase();
   const rows = (q.data ?? []).filter(
@@ -23,7 +26,7 @@ function Fleet() {
   return (
     <Screen className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Read-only view. Change routing from{" "}
+        Tap Manage to move a number to another team or choose who can use it. Change call routing from{" "}
         <Link to="/numbers" className="text-primary underline-offset-4 hover:underline">Numbers</Link>.
         Locked lines answer on the AI directly on purpose and are never rewritten.
       </p>
@@ -50,10 +53,14 @@ function Fleet() {
                   Texting: {n.textingStatus ?? "unknown"}
                 </StatusPill>
               </div>
+              {n.protected ? null : (
+                <Button variant="outline" className="mt-3 h-11 w-full" onClick={() => setManage(n.id)}>Manage</Button>
+              )}
             </div>
           ))
         }
       </AsyncList>
+      <ManageNumberSheet id={manage} onClose={() => setManage(null)} />
     </Screen>
   );
 }
