@@ -434,6 +434,17 @@ export const updateSubscriber = createServerFn({ method: "POST" })
         .insert({ user_id: data.targetUserId, role: data.role });
     }
 
+    // Platform audit trail; never block the change if logging fails.
+    try {
+      await supabaseAdmin.from("audit_log").insert({
+        actor: userId,
+        action: "platform.account.update",
+        detail: { ...data },
+      } as never);
+    } catch (error) {
+      console.error("audit_log insert failed", error);
+    }
+
     return { ok: true };
   });
 
