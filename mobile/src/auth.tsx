@@ -4,7 +4,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { api } from "@/api";
 import { previewMode, supabaseConfig } from "@/config";
 import { previewBootstrap } from "@/preview-data";
-import { getSupabase, signInWithGoogle as googleSignIn, supabaseConfigured } from "@/supabase";
+import {
+  getSupabase,
+  signInWithOauthProvider,
+  supabaseConfigured,
+} from "@/supabase";
 import type { Bootstrap } from "@/types";
 
 type AuthValue = {
@@ -17,6 +21,7 @@ type AuthValue = {
   refreshAccount: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -101,7 +106,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setPreviewSignedOut(false);
       return;
     }
-    await googleSignIn();
+    await signInWithOauthProvider("google");
+  }, []);
+
+  const signInWithApple = useCallback(async () => {
+    if (previewMode()) {
+      setPreviewSignedOut(false);
+      return;
+    }
+    await signInWithOauthProvider("apple");
   }, []);
 
   const signOut = useCallback(async () => {
@@ -127,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshAccount,
       signIn,
       signInWithGoogle,
+      signInWithApple,
       signOut,
     }),
     [
@@ -138,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshAccount,
       signIn,
       signInWithGoogle,
+      signInWithApple,
       signOut,
     ],
   );

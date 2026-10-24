@@ -6,11 +6,11 @@ import { colors, space } from "@/theme";
 import { Banner, Button, Field } from "@/ui";
 
 export default function SignInScreen() {
-  const { signIn, signInWithGoogle, configured } = useAuth();
+  const { signIn, signInWithGoogle, signInWithApple, configured } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"password" | "google" | null>(null);
+  const [busy, setBusy] = useState<"password" | "google" | "apple" | null>(null);
 
   async function submitPassword() {
     setBusy("password");
@@ -24,13 +24,17 @@ export default function SignInScreen() {
     }
   }
 
-  async function submitGoogle() {
-    setBusy("google");
+  async function submitSocial(provider: "google" | "apple") {
+    setBusy(provider);
     setError(null);
     try {
-      await signInWithGoogle();
+      await (provider === "google" ? signInWithGoogle() : signInWithApple());
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Google sign-in failed.");
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : `${provider === "google" ? "Google" : "Apple"} sign-in failed.`,
+      );
     } finally {
       setBusy(null);
     }
@@ -63,9 +67,16 @@ export default function SignInScreen() {
         <Button
           label="Continue with Google"
           tone="quiet"
-          onPress={() => void submitGoogle()}
+          onPress={() => void submitSocial("google")}
           disabled={!configured}
           busy={busy === "google"}
+        />
+        <Button
+          label="Continue with Apple"
+          tone="quiet"
+          onPress={() => void submitSocial("apple")}
+          disabled={!configured}
+          busy={busy === "apple"}
         />
         <View>
           <Text style={styles.note}>Use the same account as the SixVox web app. Numbers, billing, and the receptionist stay on the web.</Text>
