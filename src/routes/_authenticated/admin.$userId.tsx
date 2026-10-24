@@ -92,7 +92,7 @@ function MemberAccount() {
         subtitle={member?.email ?? userId}
         action={
           <Link
-            to="/subscribers"
+            to="/platform/accounts"
             className="grid size-9 place-items-center rounded-xl bg-secondary text-muted-foreground"
             aria-label="Back"
           >
@@ -233,7 +233,7 @@ function MemberAccount() {
 
         <Section>
           <Link
-            to="/subscribers"
+            to="/platform/accounts"
             className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
           >
             <div className="min-w-0 flex-1">

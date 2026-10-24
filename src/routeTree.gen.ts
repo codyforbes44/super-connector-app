@@ -35,6 +35,7 @@ import { Route as AuthenticatedInboxRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedInsightsRouteImport } from './routes/_authenticated/insights'
 import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
 import { Route as AuthenticatedNumbersRouteImport } from './routes/_authenticated/numbers'
+import { Route as AuthenticatedPlatformRouteRouteImport } from './routes/_authenticated/platform/route'
 import { Route as AuthenticatedReceptionistRouteImport } from './routes/_authenticated/receptionist'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSubscribersRouteImport } from './routes/_authenticated/subscribers'
@@ -54,6 +55,13 @@ import { Route as AuthenticatedAdminUserIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAssistantSidRouteImport } from './routes/_authenticated/assistant.$sid'
 import { Route as AuthenticatedInboxIndexRouteImport } from './routes/_authenticated/inbox/index'
 import { Route as AuthenticatedInboxIdRouteImport } from './routes/_authenticated/inbox/$id'
+import { Route as AuthenticatedPlatformIndexRouteImport } from './routes/_authenticated/platform/index'
+import { Route as AuthenticatedPlatformAccountsRouteImport } from './routes/_authenticated/platform/accounts'
+import { Route as AuthenticatedPlatformAiRouteImport } from './routes/_authenticated/platform/ai'
+import { Route as AuthenticatedPlatformAuditRouteImport } from './routes/_authenticated/platform/audit'
+import { Route as AuthenticatedPlatformHealthRouteImport } from './routes/_authenticated/platform/health'
+import { Route as AuthenticatedPlatformNumbersRouteImport } from './routes/_authenticated/platform/numbers'
+import { Route as AuthenticatedPlatformWorkspacesRouteImport } from './routes/_authenticated/platform/workspaces'
 import { Route as ApiMobileSplatRouteImport } from './routes/api/mobile/$'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as OauthJobberReturnRouteImport } from './routes/oauth/jobber/return'
@@ -209,6 +217,12 @@ const AuthenticatedNumbersRoute = AuthenticatedNumbersRouteImport.update({
   path: '/numbers',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlatformRouteRoute =
+  AuthenticatedPlatformRouteRouteImport.update({
+    id: '/platform',
+    path: '/platform',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReceptionistRoute =
   AuthenticatedReceptionistRouteImport.update({
     id: '/receptionist',
@@ -308,6 +322,47 @@ const AuthenticatedInboxIdRoute = AuthenticatedInboxIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedInboxRouteRoute,
 } as any)
+const AuthenticatedPlatformIndexRoute =
+  AuthenticatedPlatformIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedPlatformRouteRoute,
+  } as any)
+const AuthenticatedPlatformAccountsRoute =
+  AuthenticatedPlatformAccountsRouteImport.update({
+    id: '/accounts',
+    path: '/accounts',
+    getParentRoute: () => AuthenticatedPlatformRouteRoute,
+  } as any)
+const AuthenticatedPlatformAiRoute = AuthenticatedPlatformAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AuthenticatedPlatformRouteRoute,
+} as any)
+const AuthenticatedPlatformAuditRoute =
+  AuthenticatedPlatformAuditRouteImport.update({
+    id: '/audit',
+    path: '/audit',
+    getParentRoute: () => AuthenticatedPlatformRouteRoute,
+  } as any)
+const AuthenticatedPlatformHealthRoute =
+  AuthenticatedPlatformHealthRouteImport.update({
+    id: '/health',
+    path: '/health',
+    getParentRoute: () => AuthenticatedPlatformRouteRoute,
+  } as any)
+const AuthenticatedPlatformNumbersRoute =
+  AuthenticatedPlatformNumbersRouteImport.update({
+    id: '/numbers',
+    path: '/numbers',
+    getParentRoute: () => AuthenticatedPlatformRouteRoute,
+  } as any)
+const AuthenticatedPlatformWorkspacesRoute =
+  AuthenticatedPlatformWorkspacesRouteImport.update({
+    id: '/workspaces',
+    path: '/workspaces',
+    getParentRoute: () => AuthenticatedPlatformRouteRoute,
+  } as any)
 const ApiMobileSplatRoute = ApiMobileSplatRouteImport.update({
   id: '/api/mobile/$',
   path: '/api/mobile/$',
@@ -452,6 +507,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRoute
   '/inbox': typeof AuthenticatedInboxRouteRouteWithChildren
+  '/platform': typeof AuthenticatedPlatformRouteRouteWithChildren
   '/a2p': typeof AuthenticatedA2pRoute
   '/advanced': typeof AuthenticatedAdvancedRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -482,10 +538,17 @@ export interface FileRoutesByFullPath {
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/platform/accounts': typeof AuthenticatedPlatformAccountsRoute
+  '/platform/ai': typeof AuthenticatedPlatformAiRoute
+  '/platform/audit': typeof AuthenticatedPlatformAuditRoute
+  '/platform/health': typeof AuthenticatedPlatformHealthRoute
+  '/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
+  '/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/platform/': typeof AuthenticatedPlatformIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
@@ -551,10 +614,17 @@ export interface FileRoutesByTo {
   '/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/platform/accounts': typeof AuthenticatedPlatformAccountsRoute
+  '/platform/ai': typeof AuthenticatedPlatformAiRoute
+  '/platform/audit': typeof AuthenticatedPlatformAuditRoute
+  '/platform/health': typeof AuthenticatedPlatformHealthRoute
+  '/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
+  '/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/inbox': typeof AuthenticatedInboxIndexRoute
+  '/platform': typeof AuthenticatedPlatformIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
@@ -593,6 +663,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRouteRouteWithChildren
+  '/_authenticated/platform': typeof AuthenticatedPlatformRouteRouteWithChildren
   '/_authenticated/a2p': typeof AuthenticatedA2pRoute
   '/_authenticated/advanced': typeof AuthenticatedAdvancedRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
@@ -623,10 +694,17 @@ export interface FileRoutesById {
   '/_authenticated/admin/$userId': typeof AuthenticatedAdminUserIdRoute
   '/_authenticated/assistant/$sid': typeof AuthenticatedAssistantSidRoute
   '/_authenticated/inbox/$id': typeof AuthenticatedInboxIdRoute
+  '/_authenticated/platform/accounts': typeof AuthenticatedPlatformAccountsRoute
+  '/_authenticated/platform/ai': typeof AuthenticatedPlatformAiRoute
+  '/_authenticated/platform/audit': typeof AuthenticatedPlatformAuditRoute
+  '/_authenticated/platform/health': typeof AuthenticatedPlatformHealthRoute
+  '/_authenticated/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
+  '/_authenticated/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
+  '/_authenticated/platform/': typeof AuthenticatedPlatformIndexRoute
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
@@ -665,6 +743,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/use-cases'
     | '/inbox'
+    | '/platform'
     | '/a2p'
     | '/advanced'
     | '/billing'
@@ -695,10 +774,17 @@ export interface FileRouteTypes {
     | '/admin/$userId'
     | '/assistant/$sid'
     | '/inbox/$id'
+    | '/platform/accounts'
+    | '/platform/ai'
+    | '/platform/audit'
+    | '/platform/health'
+    | '/platform/numbers'
+    | '/platform/workspaces'
     | '/api/mobile/$'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
     | '/inbox/'
+    | '/platform/'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
@@ -764,10 +850,17 @@ export interface FileRouteTypes {
     | '/admin/$userId'
     | '/assistant/$sid'
     | '/inbox/$id'
+    | '/platform/accounts'
+    | '/platform/ai'
+    | '/platform/audit'
+    | '/platform/health'
+    | '/platform/numbers'
+    | '/platform/workspaces'
     | '/api/mobile/$'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
     | '/inbox'
+    | '/platform'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
@@ -805,6 +898,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/use-cases'
     | '/_authenticated/inbox'
+    | '/_authenticated/platform'
     | '/_authenticated/a2p'
     | '/_authenticated/advanced'
     | '/_authenticated/billing'
@@ -835,10 +929,17 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/$userId'
     | '/_authenticated/assistant/$sid'
     | '/_authenticated/inbox/$id'
+    | '/_authenticated/platform/accounts'
+    | '/_authenticated/platform/ai'
+    | '/_authenticated/platform/audit'
+    | '/_authenticated/platform/health'
+    | '/_authenticated/platform/numbers'
+    | '/_authenticated/platform/workspaces'
     | '/api/mobile/$'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
     | '/_authenticated/inbox/'
+    | '/_authenticated/platform/'
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
@@ -1095,6 +1196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNumbersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/platform': {
+      id: '/_authenticated/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof AuthenticatedPlatformRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/receptionist': {
       id: '/_authenticated/receptionist'
       path: '/receptionist'
@@ -1227,6 +1335,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/inbox/$id'
       preLoaderRoute: typeof AuthenticatedInboxIdRouteImport
       parentRoute: typeof AuthenticatedInboxRouteRoute
+    }
+    '/_authenticated/platform/': {
+      id: '/_authenticated/platform/'
+      path: '/'
+      fullPath: '/platform/'
+      preLoaderRoute: typeof AuthenticatedPlatformIndexRouteImport
+      parentRoute: typeof AuthenticatedPlatformRouteRoute
+    }
+    '/_authenticated/platform/accounts': {
+      id: '/_authenticated/platform/accounts'
+      path: '/accounts'
+      fullPath: '/platform/accounts'
+      preLoaderRoute: typeof AuthenticatedPlatformAccountsRouteImport
+      parentRoute: typeof AuthenticatedPlatformRouteRoute
+    }
+    '/_authenticated/platform/ai': {
+      id: '/_authenticated/platform/ai'
+      path: '/ai'
+      fullPath: '/platform/ai'
+      preLoaderRoute: typeof AuthenticatedPlatformAiRouteImport
+      parentRoute: typeof AuthenticatedPlatformRouteRoute
+    }
+    '/_authenticated/platform/audit': {
+      id: '/_authenticated/platform/audit'
+      path: '/audit'
+      fullPath: '/platform/audit'
+      preLoaderRoute: typeof AuthenticatedPlatformAuditRouteImport
+      parentRoute: typeof AuthenticatedPlatformRouteRoute
+    }
+    '/_authenticated/platform/health': {
+      id: '/_authenticated/platform/health'
+      path: '/health'
+      fullPath: '/platform/health'
+      preLoaderRoute: typeof AuthenticatedPlatformHealthRouteImport
+      parentRoute: typeof AuthenticatedPlatformRouteRoute
+    }
+    '/_authenticated/platform/numbers': {
+      id: '/_authenticated/platform/numbers'
+      path: '/numbers'
+      fullPath: '/platform/numbers'
+      preLoaderRoute: typeof AuthenticatedPlatformNumbersRouteImport
+      parentRoute: typeof AuthenticatedPlatformRouteRoute
+    }
+    '/_authenticated/platform/workspaces': {
+      id: '/_authenticated/platform/workspaces'
+      path: '/workspaces'
+      fullPath: '/platform/workspaces'
+      preLoaderRoute: typeof AuthenticatedPlatformWorkspacesRouteImport
+      parentRoute: typeof AuthenticatedPlatformRouteRoute
     }
     '/api/mobile/$': {
       id: '/api/mobile/$'
@@ -1415,8 +1572,35 @@ const AuthenticatedInboxRouteRouteWithChildren =
     AuthenticatedInboxRouteRouteChildren,
   )
 
+interface AuthenticatedPlatformRouteRouteChildren {
+  AuthenticatedPlatformAccountsRoute: typeof AuthenticatedPlatformAccountsRoute
+  AuthenticatedPlatformAiRoute: typeof AuthenticatedPlatformAiRoute
+  AuthenticatedPlatformAuditRoute: typeof AuthenticatedPlatformAuditRoute
+  AuthenticatedPlatformHealthRoute: typeof AuthenticatedPlatformHealthRoute
+  AuthenticatedPlatformNumbersRoute: typeof AuthenticatedPlatformNumbersRoute
+  AuthenticatedPlatformWorkspacesRoute: typeof AuthenticatedPlatformWorkspacesRoute
+  AuthenticatedPlatformIndexRoute: typeof AuthenticatedPlatformIndexRoute
+}
+
+const AuthenticatedPlatformRouteRouteChildren: AuthenticatedPlatformRouteRouteChildren =
+  {
+    AuthenticatedPlatformAccountsRoute: AuthenticatedPlatformAccountsRoute,
+    AuthenticatedPlatformAiRoute: AuthenticatedPlatformAiRoute,
+    AuthenticatedPlatformAuditRoute: AuthenticatedPlatformAuditRoute,
+    AuthenticatedPlatformHealthRoute: AuthenticatedPlatformHealthRoute,
+    AuthenticatedPlatformNumbersRoute: AuthenticatedPlatformNumbersRoute,
+    AuthenticatedPlatformWorkspacesRoute: AuthenticatedPlatformWorkspacesRoute,
+    AuthenticatedPlatformIndexRoute: AuthenticatedPlatformIndexRoute,
+  }
+
+const AuthenticatedPlatformRouteRouteWithChildren =
+  AuthenticatedPlatformRouteRoute._addFileChildren(
+    AuthenticatedPlatformRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedInboxRouteRoute: typeof AuthenticatedInboxRouteRouteWithChildren
+  AuthenticatedPlatformRouteRoute: typeof AuthenticatedPlatformRouteRouteWithChildren
   AuthenticatedA2pRoute: typeof AuthenticatedA2pRoute
   AuthenticatedAdvancedRoute: typeof AuthenticatedAdvancedRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
@@ -1441,6 +1625,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInboxRouteRoute: AuthenticatedInboxRouteRouteWithChildren,
+  AuthenticatedPlatformRouteRoute: AuthenticatedPlatformRouteRouteWithChildren,
   AuthenticatedA2pRoute: AuthenticatedA2pRoute,
   AuthenticatedAdvancedRoute: AuthenticatedAdvancedRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,

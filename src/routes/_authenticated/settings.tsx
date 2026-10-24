@@ -266,22 +266,13 @@ function SettingsScreen() {
           }
         />
         {billing.isSuperAdmin ? (
-          <>
-            <SettingsLink
-              to="/subscribers"
-              icon={Users}
-              tone="green"
-              title="Subscribers"
-              description="Manage accounts, plans and access"
-            />
-            <SettingsLink
-              to="/concierge"
-              icon={Bot}
-              tone="amber"
-              title="Website concierge"
-              description="Vox conversations, leads and callbacks"
-            />
-          </>
+          <SettingsLink
+            to="/platform"
+            icon={ShieldCheck}
+            tone="cyan"
+            title="Platform admin"
+            description="Accounts, teams, numbers, health and audit log"
+          />
         ) : null}
       </SettingsGroup>
 
