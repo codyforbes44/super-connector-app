@@ -67,9 +67,16 @@ export default function SignInScreen() {
         <Button
           label="Continue with Google"
           tone="quiet"
-          onPress={() => void submitGoogle()}
+          onPress={() => void submitSocial("google")}
           disabled={!configured}
           busy={busy === "google"}
+        />
+        <Button
+          label="Continue with Apple"
+          tone="quiet"
+          onPress={() => void submitSocial("apple")}
+          disabled={!configured}
+          busy={busy === "apple"}
         />
         <View>
           <Text style={styles.note}>Use the same account as the SixVox web app. Numbers, billing, and the receptionist stay on the web.</Text>
