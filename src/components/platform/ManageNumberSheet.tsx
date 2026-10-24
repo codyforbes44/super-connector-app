@@ -96,7 +96,7 @@ export function ManageNumberSheet({ id, onClose }: { id: string | null; onClose:
                 className="h-11 w-full"
                 disabled={!email.trim() || run.isPending}
                 onClick={() =>
-                  run.mutate(() => platformAddPerson({ data: { id: d.id, email, role, newTeamName: newTeam || undefined, comp } }), {
+                  run.mutate(() => platformAddPerson({ data: { id: d.id, email, role, newTeamName: newTeam, comp } }), {
                     onSuccess: () => { setEmail(""); setNewTeam(""); setComp(false); },
                   })
                 }
