@@ -30,23 +30,23 @@ export function supabaseConfigured(): boolean {
   return previewMode() || supabaseConfig() !== null;
 }
 
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWithOauthProvider(provider: "google" | "apple"): Promise<void> {
   const supabase = getSupabase();
   const redirectTo = Linking.createURL("auth/callback");
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
+    provider,
     options: { redirectTo, skipBrowserRedirect: true },
   });
   if (error) throw error;
-  if (!data.url) throw new Error("Google sign-in did not return a URL.");
+  if (!data.url) throw new Error("Sign-in did not return a URL.");
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-  if (result.type !== "success") throw new Error("Google sign-in was cancelled.");
+  if (result.type !== "success") throw new Error("Sign-in was cancelled.");
   const parsed = new URL(result.url);
   const hash = new URLSearchParams(parsed.hash.replace(/^#/, ""));
   const accessToken = hash.get("access_token") ?? parsed.searchParams.get("access_token");
   const refreshToken = hash.get("refresh_token") ?? parsed.searchParams.get("refresh_token");
   if (!accessToken || !refreshToken) {
-    throw new Error("Google sign-in did not return a session. Add this redirect in Supabase: " + redirectTo);
+    throw new Error("Sign-in did not return a session. Add this redirect in the backend: " + redirectTo);
   }
   const { error: sessionError } = await supabase.auth.setSession({
     access_token: accessToken,

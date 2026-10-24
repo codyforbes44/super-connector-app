@@ -124,15 +124,15 @@ function AuthScreen() {
     }
   }
 
-  async function handleGoogle() {
+  async function handleSocial(provider: "google" | "apple") {
     setBusy(true);
     setRememberMe(remember);
-    const result = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: returnUrl(next),
     });
     if (result.error) {
       setBusy(false);
-      toast.error("Google sign-in failed. Try again or use email.");
+      toast.error(`${provider === "apple" ? "Apple" : "Google"} sign-in failed. Try again or use email.`);
       return;
     }
     if (result.redirected) return;
