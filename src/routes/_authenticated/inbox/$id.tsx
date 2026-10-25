@@ -326,6 +326,9 @@ function ThreadScreen() {
                   </p>
                 ) : null}
                 <p className="tabular mt-1 text-[0.65rem] opacity-70">
+                  {channelLabel((m as { channel?: string | null }).channel)
+                    ? `${channelLabel((m as { channel?: string | null }).channel)} · `
+                    : ""}
                   {clockTime(m.created_at)}
                   {m.status && mine && !m.is_internal_note ? ` · ${m.status}` : ""}
                 </p>
