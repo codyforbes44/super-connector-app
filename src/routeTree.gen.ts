@@ -68,6 +68,7 @@ import { Route as OauthJobberReturnRouteImport } from './routes/oauth/jobber/ret
 import { Route as ApiPublicAgentPostCallRouteImport } from './routes/api/public/agent/post-call'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent/token'
 import { Route as ApiPublicAgentTranscriptRouteImport } from './routes/api/public/agent/transcript'
+import { Route as ApiPublicClawInboundRouteImport } from './routes/api/public/claw/inbound'
 import { Route as ApiPublicDigestRunRouteImport } from './routes/api/public/digest/run'
 import { Route as ApiPublicElevenlabsPostCallRouteImport } from './routes/api/public/elevenlabs/post-call'
 import { Route as ApiPublicPaymentsConnectWebhookRouteImport } from './routes/api/public/payments/connect-webhook'
@@ -394,6 +395,11 @@ const ApiPublicAgentTranscriptRoute =
     path: '/api/public/agent/transcript',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicClawInboundRoute = ApiPublicClawInboundRouteImport.update({
+  id: '/api/public/claw/inbound',
+  path: '/api/public/claw/inbound',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDigestRunRoute = ApiPublicDigestRunRouteImport.update({
   id: '/api/public/digest/run',
   path: '/api/public/digest/run',
@@ -552,6 +558,7 @@ export interface FileRoutesByFullPath {
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
+  '/api/public/claw/inbound': typeof ApiPublicClawInboundRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
@@ -628,6 +635,7 @@ export interface FileRoutesByTo {
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
+  '/api/public/claw/inbound': typeof ApiPublicClawInboundRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
@@ -708,6 +716,7 @@ export interface FileRoutesById {
   '/api/public/agent/post-call': typeof ApiPublicAgentPostCallRoute
   '/api/public/agent/token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent/transcript': typeof ApiPublicAgentTranscriptRoute
+  '/api/public/claw/inbound': typeof ApiPublicClawInboundRoute
   '/api/public/digest/run': typeof ApiPublicDigestRunRoute
   '/api/public/elevenlabs/post-call': typeof ApiPublicElevenlabsPostCallRoute
   '/api/public/payments/connect-webhook': typeof ApiPublicPaymentsConnectWebhookRoute
@@ -788,6 +797,7 @@ export interface FileRouteTypes {
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
+    | '/api/public/claw/inbound'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/connect-webhook'
@@ -864,6 +874,7 @@ export interface FileRouteTypes {
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
+    | '/api/public/claw/inbound'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/connect-webhook'
@@ -943,6 +954,7 @@ export interface FileRouteTypes {
     | '/api/public/agent/post-call'
     | '/api/public/agent/token'
     | '/api/public/agent/transcript'
+    | '/api/public/claw/inbound'
     | '/api/public/digest/run'
     | '/api/public/elevenlabs/post-call'
     | '/api/public/payments/connect-webhook'
@@ -992,6 +1004,7 @@ export interface RootRouteChildren {
   ApiPublicAgentPostCallRoute: typeof ApiPublicAgentPostCallRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicAgentTranscriptRoute: typeof ApiPublicAgentTranscriptRoute
+  ApiPublicClawInboundRoute: typeof ApiPublicClawInboundRoute
   ApiPublicDigestRunRoute: typeof ApiPublicDigestRunRoute
   ApiPublicElevenlabsPostCallRoute: typeof ApiPublicElevenlabsPostCallRoute
   ApiPublicPaymentsConnectWebhookRoute: typeof ApiPublicPaymentsConnectWebhookRoute
@@ -1427,6 +1440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAgentTranscriptRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/claw/inbound': {
+      id: '/api/public/claw/inbound'
+      path: '/api/public/claw/inbound'
+      fullPath: '/api/public/claw/inbound'
+      preLoaderRoute: typeof ApiPublicClawInboundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/digest/run': {
       id: '/api/public/digest/run'
       path: '/api/public/digest/run'
@@ -1680,6 +1700,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAgentPostCallRoute: ApiPublicAgentPostCallRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicAgentTranscriptRoute: ApiPublicAgentTranscriptRoute,
+  ApiPublicClawInboundRoute: ApiPublicClawInboundRoute,
   ApiPublicDigestRunRoute: ApiPublicDigestRunRoute,
   ApiPublicElevenlabsPostCallRoute: ApiPublicElevenlabsPostCallRoute,
   ApiPublicPaymentsConnectWebhookRoute: ApiPublicPaymentsConnectWebhookRoute,
