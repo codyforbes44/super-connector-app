@@ -295,7 +295,6 @@ export async function syncEmergencyTransfer(args: {
         conversation_config: {
           agent: {
             prompt: {
-              ...prompt,
               prompt: mergeEmergencyPrompt(prompt.prompt ?? "", args.keywords, phone),
               built_in_tools: tools,
             },
@@ -348,7 +347,6 @@ export async function syncAnsweringLanguage(args: {
           agent: {
             language: spoken,
             prompt: {
-              ...prompt,
               prompt: mergeAnsweringLanguagePrompt(prompt.prompt ?? "", args.language),
             },
           },
