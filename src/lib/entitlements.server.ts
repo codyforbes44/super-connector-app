@@ -103,6 +103,33 @@ export async function seedTrialEntitlements(workspaceId: string): Promise<void> 
   );
 }
 
+/** Grant a new team's complimentary plan without changing any subscription. */
+export async function grantFreeTeamEntitlements(workspaceId: string): Promise<void> {
+  const admin = await adminClient();
+  const { data: configured, error: readError } = await admin
+    .from("plan_limits")
+    .select("max_numbers, max_seats, included_ai_calls, ai_minute_cap, allow_international, sms_per_hour")
+    .eq("plan_code", "team")
+    .maybeSingle();
+  if (readError) throw new Error(`Couldn't load the Team plan: ${readError.message}`);
+  const defaults = limitsFor("team");
+  const { error } = await admin.from("workspace_entitlements").upsert(
+    {
+      workspace_id: workspaceId,
+      plan_code: "team",
+      status: "active",
+      max_numbers: configured?.["max_numbers"] ?? defaults.maxNumbers,
+      max_seats: configured?.["max_seats"] ?? defaults.maxSeats,
+      included_ai_calls: configured?.["included_ai_calls"] ?? defaults.includedAiCalls,
+      ai_minute_cap: configured ? configured["ai_minute_cap"] : defaults.aiMinuteCap,
+      allow_international: configured?.["allow_international"] ?? defaults.allowInternational,
+      sms_per_hour: configured?.["sms_per_hour"] ?? defaults.smsPerHour,
+    },
+    { onConflict: "workspace_id" },
+  );
+  if (error) throw new Error(`Couldn't attach the free Team plan: ${error.message}`);
+}
+
 export async function syncEntitlementsFromSubscription(input: {
   userId: string;
   planCode: string | null;
