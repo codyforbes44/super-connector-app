@@ -68,7 +68,10 @@ export type Agent = { agent_id: string; name: string };
  * numbers are treated as ours too, so the in-app "New agent" flow keeps working
  * without an env change.
  */
-export const DEFAULT_ALLOWED_AGENT_IDS = ["agent_2701kzz3f6aee48a38vw0qsehbks"];
+export const DEFAULT_ALLOWED_AGENT_IDS = [
+  "agent_2701kzz3f6aee48a38vw0qsehbks",
+  "agent_9701m5tte67we5mtnccf6ggn302h",
+];
 
 const DEV_NAME_PREFIX = "SixVox";
 
