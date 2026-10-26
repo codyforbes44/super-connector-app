@@ -44,9 +44,11 @@ describe("ElevenLabs partial agent updates", () => {
     const result = await syncAnsweringLanguage({ agentId, language: "es" });
     expect(result.synced).toBe(true);
     expect(patches).toHaveLength(1);
-    expect(Object.keys(patches[0])).toEqual(["prompt"]);
-    expect(patches[0]?.prompt).toContain(existing.prompt);
-    expect(patches[0]?.prompt).toContain("Spanish");
+    const patch = patches[0];
+    if (!patch) throw new Error("Expected a language PATCH request");
+    expect(Object.keys(patch)).toEqual(["prompt"]);
+    expect(patch["prompt"]).toContain(existing.prompt);
+    expect(patch["prompt"]).toContain("Spanish");
   });
 
   it("syncs emergency transfer without changing custom tools and preserves other built-in tools", async () => {
@@ -54,9 +56,11 @@ describe("ElevenLabs partial agent updates", () => {
     const result = await syncEmergencyTransfer({ agentId, keywords: ["urgent"], phone: "+15802384777" });
     expect(result.synced).toBe(true);
     expect(patches).toHaveLength(1);
-    expect(Object.keys(patches[0]).sort()).toEqual(["built_in_tools", "prompt"]);
-    expect(patches[0]?.prompt).toContain(existing.prompt);
-    expect(patches[0]?.built_in_tools).toMatchObject({
+    const patch = patches[0];
+    if (!patch) throw new Error("Expected an emergency PATCH request");
+    expect(Object.keys(patch).sort()).toEqual(["built_in_tools", "prompt"]);
+    expect(patch["prompt"]).toContain(existing.prompt);
+    expect(patch["built_in_tools"]).toMatchObject({
       end_call: existing.built_in_tools.end_call,
       transfer_to_number: expect.any(Object),
     });
