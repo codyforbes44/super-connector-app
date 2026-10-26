@@ -236,11 +236,12 @@ export const platformAddPerson = createServerFn({ method: "POST" })
       const { data: ws, error } = await admin.from("workspaces").insert({ name: teamName, business_name: teamName }).select("id").single();
       if (error || !ws) throw new Error(error?.message ?? "Couldn't create team");
       workspaceId = ws.id as string;
+      if (data.comp) {
+        const { grantFreeTeamEntitlements } = await import("./entitlements.server");
+        await grantFreeTeamEntitlements(workspaceId);
+      }
       await admin.from("number_assignees").delete().eq("phone_number_id", data.id);
       await admin.from("phone_numbers").update({ workspace_id: workspaceId }).eq("id", data.id);
-      if (data.comp) {
-        await admin.from("workspace_entitlements").upsert({ workspace_id: workspaceId, plan_code: "team", status: "active" } as never, { onConflict: "workspace_id" });
-      }
     }
     const { error: mErr } = await admin.from("workspace_members").upsert(
       { workspace_id: workspaceId, user_id: person.id, role },
