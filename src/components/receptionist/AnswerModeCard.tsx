@@ -158,11 +158,17 @@ export function AnswerModeCard({
         },
       });
       await onChanged();
-      toast.success(
-        languageSaved
-          ? `Answering mode saved. ${languageSaved.languageSync.detail}`
-          : "Answering mode saved.",
-      );
+      if (languageSaved && !languageSaved.languageSync.synced) {
+        toast.warning("Answering mode saved, but the AI language wasn't updated.", {
+          description: languageSaved.languageSync.detail,
+        });
+      } else {
+        toast.success(
+          languageSaved
+            ? `Answering mode saved. ${languageSaved.languageSync.detail}`
+            : "Answering mode saved.",
+        );
+      }
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
