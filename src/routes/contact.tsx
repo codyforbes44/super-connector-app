@@ -129,10 +129,10 @@ function ContactPage() {
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Button asChild className="min-h-11 rounded-full px-5">
-            <a href="tel:+15802384777">Call 580-238-4777</a>
+            <a href="tel:+15802178444">Call 580-217-8444</a>
           </Button>
           <Button asChild variant="secondary" className="min-h-11 rounded-full px-5">
-            <a href="sms:+15802384777">Text us</a>
+            <a href="sms:+15802178444">Text us</a>
           </Button>
           <Button asChild variant="secondary" className="min-h-11 rounded-full px-5">
             <a href="mailto:support@3bi.io">support@3bi.io</a>

@@ -145,7 +145,7 @@ function Terms() {
       <h2>Contact</h2>
       <p>
         Questions about these terms: <a href="mailto:support@3bi.io">support@3bi.io</a>, or call or
-        text <a href="tel:+15802384777">580-238-4777</a>.
+        text <a href="tel:+15802178444">580-217-8444</a>.
       </p>
     </LegalPage>
   );

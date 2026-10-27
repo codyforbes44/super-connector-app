@@ -53,7 +53,7 @@ describe("ElevenLabs partial agent updates", () => {
 
   it("syncs emergency transfer without changing custom tools and preserves other built-in tools", async () => {
     const { patches, existing } = provider();
-    const result = await syncEmergencyTransfer({ agentId, keywords: ["urgent"], phone: "+15802384777" });
+    const result = await syncEmergencyTransfer({ agentId, keywords: ["urgent"], phone: "+15802178444" });
     expect(result.synced).toBe(true);
     expect(patches).toHaveLength(1);
     const patch = patches[0];

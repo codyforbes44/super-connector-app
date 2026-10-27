@@ -301,8 +301,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             </p>
             <ul className="mt-4 space-y-1.5 text-xs text-muted-foreground">
               <li>
-                <a href="tel:+15802384777" className="hover:text-foreground">
-                  Call or text 580-238-4777
+                <a href="tel:+15802178444" className="hover:text-foreground">
+                  Call or text 580-217-8444
                 </a>
               </li>
               <li>
