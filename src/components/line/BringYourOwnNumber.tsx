@@ -115,7 +115,7 @@ function Wizard({
               onChange={(e) => setPersonal(e.target.value)}
               inputMode="tel"
               maxLength={20}
-              placeholder="(580) 238-4777"
+              placeholder="(580) 217-8444"
               className="h-11 rounded-xl px-4"
             />
           </div>

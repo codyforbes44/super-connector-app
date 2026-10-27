@@ -186,7 +186,7 @@ Useful pages: / (home), /features, /how-it-works, /pricing, /use-cases, /faq, /c
 Inside the app: /inbox, /calls, /contacts, /insights, /receptionist, /numbers, /tools, /billing,
 /settings.
 
-Support: email support@3bi.io, or call or text 580-238-4777. SixVox is a 3BI product
+Support: email support@3bi.io, or call or text 580-217-8444. SixVox is a 3BI product
 (https://3bi.io), based in Durant, OK. For anything account-specific — billing disputes, porting,
 compliance, refunds, outages — hand off to a human instead of guessing.`,
 };
