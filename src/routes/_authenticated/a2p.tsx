@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, Check, CircleDashed, TriangleAlert } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader } from "@/components/AppShell";
@@ -113,10 +113,12 @@ function Field({
   onChange: (v: string) => void;
   placeholder?: string;
 }) {
+  const id = useId();
   return (
     <div className="space-y-1.5">
-      <Label>{label}</Label>
+      <Label htmlFor={id}>{label}</Label>
       <Input
+        id={id}
         className="h-11 rounded-2xl"
         value={value}
         placeholder={placeholder}
@@ -252,7 +254,7 @@ function A2pScreen() {
         action={
           <Link
             to="/advanced"
-            className="key-raised grid size-9 place-items-center rounded-full text-muted-foreground"
+            className="key-raised grid size-11 place-items-center rounded-full text-muted-foreground"
             aria-label="Back to advanced"
           >
             <ArrowLeft className="size-4" />
@@ -304,7 +306,7 @@ function A2pScreen() {
             <button
               type="button"
               onClick={() => void readiness.refetch()}
-              className="key-raised rounded-full px-3 py-1 text-[0.7rem] text-muted-foreground"
+              className="key-raised inline-flex min-h-11 items-center rounded-full px-4 text-[0.7rem] text-muted-foreground"
             >
               {readiness.isFetching ? "Checking\u2026" : "Recheck"}
             </button>
@@ -597,6 +599,7 @@ function A2pScreen() {
           <div className="space-y-1.5">
             <Label>Campaign description</Label>
             <Textarea
+              aria-label="Campaign description"
               className="rounded-2xl"
               rows={3}
               value={camp.description}
@@ -607,6 +610,7 @@ function A2pScreen() {
           <div className="space-y-1.5">
             <Label>How people opt in</Label>
             <Textarea
+              aria-label="How people opt in"
               className="rounded-2xl"
               rows={3}
               value={camp.messageFlow}
@@ -617,6 +621,7 @@ function A2pScreen() {
           <div className="space-y-1.5">
             <Label>Sample message 1</Label>
             <Textarea
+              aria-label="Sample message 1"
               className="rounded-2xl"
               rows={2}
               value={camp.sampleOne}
@@ -626,6 +631,7 @@ function A2pScreen() {
           <div className="space-y-1.5">
             <Label>Sample message 2</Label>
             <Textarea
+              aria-label="Sample message 2"
               className="rounded-2xl"
               rows={2}
               value={camp.sampleTwo}
@@ -634,14 +640,14 @@ function A2pScreen() {
           </div>
           <div className="glass-panel flex items-center justify-between gap-3 rounded-2xl px-3.5 py-2.5">
             <span className="text-xs">Messages can contain links</span>
-            <Switch
+            <Switch aria-label="Messages can contain links"
               checked={camp.hasEmbeddedLinks}
               onCheckedChange={(v) => setCamp({ ...camp, hasEmbeddedLinks: v })}
             />
           </div>
           <div className="glass-panel flex items-center justify-between gap-3 rounded-2xl px-3.5 py-2.5">
             <span className="text-xs">Messages can contain phone numbers</span>
-            <Switch
+            <Switch aria-label="Messages can contain phone numbers"
               checked={camp.hasEmbeddedPhone}
               onCheckedChange={(v) => setCamp({ ...camp, hasEmbeddedPhone: v })}
             />

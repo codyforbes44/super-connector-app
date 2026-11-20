@@ -391,7 +391,7 @@ export function LivePhoneDemo() {
             onClick={() => setPlaying((value) => !value)}
             disabled={reduce}
             aria-label={playing ? "Pause demo" : "Play demo"}
-            className="surface-row grid size-8 shrink-0 place-items-center rounded-full text-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
+            className="surface-row grid size-11 shrink-0 place-items-center rounded-full text-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
           >
             {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
           </button>

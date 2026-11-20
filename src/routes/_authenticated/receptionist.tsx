@@ -71,7 +71,7 @@ function ReceptionistPage() {
         action={
           <Link
             to="/settings"
-            className="grid size-9 place-items-center rounded-xl bg-secondary text-muted-foreground"
+            className="grid size-11 place-items-center rounded-xl bg-secondary text-muted-foreground"
             aria-label="Back to settings"
           >
             <ArrowLeft className="size-4" />

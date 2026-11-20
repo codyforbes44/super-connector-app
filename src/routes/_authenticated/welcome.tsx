@@ -531,7 +531,7 @@ function Welcome() {
         </Button>
         <button
           type="button"
-          className="mt-4 w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
+          className="mt-2 min-h-11 w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
           disabled={busy}
           onClick={() => void skip()}
         >

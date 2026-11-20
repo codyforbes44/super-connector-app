@@ -107,7 +107,7 @@ export function CalendarSettingsPanel() {
         {list.map((c) => (
           <div key={c.id} className="flex items-center justify-between gap-3">
             <span className="truncate text-sm">{c.summary}</span>
-            <Switch
+            <Switch aria-label={`Use calendar ${c.summary}`}
               checked={form.activeCalendars.includes(c.id)}
               onCheckedChange={() => toggleCalendar(c.id)}
             />
@@ -192,14 +192,14 @@ export function CalendarSettingsPanel() {
         </div>
         <div className="flex items-center justify-between">
           <Label className="text-sm">Invite the contact by email</Label>
-          <Switch
+          <Switch aria-label="Invite the contact by email"
             checked={form.inviteContact}
             onCheckedChange={(v) => setForm({ ...form, inviteContact: v })}
           />
         </div>
         <div className="flex items-center justify-between">
           <Label className="text-sm">Add a Google Meet link</Label>
-          <Switch
+          <Switch aria-label="Add a Google Meet link"
             checked={form.addMeetLink}
             onCheckedChange={(v) => setForm({ ...form, addMeetLink: v })}
           />

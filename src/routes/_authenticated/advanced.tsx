@@ -192,7 +192,7 @@ function AdvancedBody() {
         action={
           <Link
             to="/settings"
-            className="key-raised grid size-9 place-items-center rounded-full text-muted-foreground"
+            className="key-raised grid size-11 place-items-center rounded-full text-muted-foreground"
             aria-label="Back to settings"
           >
             <ArrowLeft className="size-4" />

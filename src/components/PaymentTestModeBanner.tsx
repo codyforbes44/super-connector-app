@@ -17,7 +17,7 @@ export function PaymentTestModeBanner() {
           href="https://docs.lovable.dev/features/payments#test-and-live-environments"
           target="_blank"
           rel="noopener noreferrer"
-          className="font-medium underline"
+          className="inline-flex min-h-11 items-center font-medium underline"
         >
           Read more
         </a>

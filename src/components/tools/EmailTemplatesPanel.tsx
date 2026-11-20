@@ -107,7 +107,7 @@ export function EmailTemplatesPanel() {
       <div className="glass-panel space-y-3 rounded-3xl p-4">
         <div className="flex items-center justify-between">
           <Label className="text-sm">Use custom copy</Label>
-          <Switch
+          <Switch aria-label="Use custom copy"
             checked={draft.enabled}
             onCheckedChange={(enabled) => setDraft({ ...draft, enabled })}
           />

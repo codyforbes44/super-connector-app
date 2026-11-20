@@ -107,11 +107,12 @@ function ConciergeScreen() {
             <button
               key={value}
               type="button"
+              aria-pressed={tab === value}
               onClick={() => setTab(value)}
               className={
                 tab === value
-                  ? "flex-1 rounded-full bg-primary px-3 py-2 font-semibold text-primary-foreground capitalize"
-                  : "flex-1 rounded-full px-3 py-2 text-muted-foreground capitalize"
+                  ? "min-h-11 flex-1 rounded-full bg-primary px-3 py-2 font-semibold text-primary-foreground capitalize"
+                  : "min-h-11 flex-1 rounded-full px-3 py-2 text-muted-foreground capitalize"
               }
             >
               {value}
@@ -143,7 +144,7 @@ function ConciergeScreen() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <p className="truncate text-sm font-medium">
-                          {row.summary ?? row.page ?? "Website chat"}
+                          {row.summary || (row.page ? `Chat on ${pageName(row.page)}` : "Website chat")}
                         </p>
                         <span className="shrink-0 text-[0.65rem] text-muted-foreground">
                           {new Date(row.createdAt).toLocaleString()}
@@ -151,7 +152,7 @@ function ConciergeScreen() {
                       </div>
                       <p className="mt-1 flex flex-wrap gap-2 text-[0.7rem] text-muted-foreground">
                         <span className="capitalize">{row.mode}</span>
-                        {row.page ? <span>{row.page}</span> : null}
+                        {row.page ? <span>{pageName(row.page)}</span> : null}
                         {row.signedIn ? <span className="text-primary">signed in</span> : null}
                         {row.handoff ? <span className="text-primary">handoff</span> : null}
                         {row.outcome ? <span>{row.outcome}</span> : null}
@@ -311,4 +312,8 @@ function Transcript({ conversationId }: { conversationId: string }) {
       ))}
     </div>
   );
+}
+
+function pageName(path: string) {
+  return path === "/" ? "home page" : path;
 }

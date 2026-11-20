@@ -299,7 +299,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               Your business line that picks up when you can&apos;t. Built for plumbers, HVAC,
               electricians, and other small crews.
             </p>
-            <ul className="mt-4 space-y-1.5 text-xs text-muted-foreground">
+            <ul className="mt-4 space-y-0.5 text-xs text-muted-foreground [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
               <li>
                 <a href="tel:+15802178444" className="hover:text-foreground">
                   Call or text 580-217-8444

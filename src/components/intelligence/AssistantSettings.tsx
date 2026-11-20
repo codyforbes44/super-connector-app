@@ -48,7 +48,7 @@ export function AssistantSettings() {
             answers are always summarised.
           </p>
         </div>
-        <Switch
+        <Switch aria-label="Transcribe my calls"
           checked={Boolean(settings.data?.transcribeCalls)}
           onCheckedChange={(value) =>
             void save(
@@ -66,7 +66,7 @@ export function AssistantSettings() {
             One summary of who called, what they wanted and what still needs a reply.
           </p>
         </div>
-        <Switch
+        <Switch aria-label="Daily digest"
           checked={Boolean(settings.data?.digestEnabled)}
           onCheckedChange={(value) =>
             void save({ digestEnabled: value }, value ? "Digest on." : "Digest off.")

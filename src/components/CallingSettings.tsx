@@ -332,7 +332,7 @@ export function CallingSettings() {
                           setNewCallerId(item.phoneNumber);
                           startVerification.mutate();
                         }}
-                        className="key-raised shrink-0 rounded-full px-3 py-1.5 text-[0.7rem] font-medium"
+                        className="key-raised inline-flex min-h-11 shrink-0 items-center rounded-full px-3 text-[0.7rem] font-medium"
                       >
                         Retry
                       </button>
@@ -343,7 +343,7 @@ export function CallingSettings() {
                       onClick={() =>
                         removeCallerId.mutate({ sid: item.sid, phoneNumber: item.phoneNumber })
                       }
-                      className="key-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-foreground"
+                      className="key-raised flex size-11 shrink-0 items-center justify-center rounded-xl text-foreground"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

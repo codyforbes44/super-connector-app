@@ -144,7 +144,7 @@ export function EmailNotifications() {
         {TOGGLES.map((t) => (
           <div key={t.key} className="flex items-center justify-between">
             <span className="text-sm">{t.label}</span>
-            <Switch
+            <Switch aria-label={t.label}
               checked={Boolean(form[t.key])}
               onCheckedChange={(v) => setForm({ ...form, [t.key]: v })}
             />
@@ -155,7 +155,7 @@ export function EmailNotifications() {
       <div className="space-y-2 border-t border-border pt-3">
         <div className="flex items-center justify-between">
           <span className="text-sm">Quiet hours</span>
-          <Switch
+          <Switch aria-label="Quiet hours"
             checked={form.quiet_hours_enabled}
             onCheckedChange={(v) => setForm({ ...form, quiet_hours_enabled: v })}
           />
@@ -188,6 +188,7 @@ export function EmailNotifications() {
         </Button>
         <Button
           variant="secondary"
+          aria-label="Send a test email"
           disabled={test.isPending || !form.email_address}
           onClick={() => test.mutate()}
         >
@@ -249,7 +250,7 @@ function DigestSettings({
         <p className="flex items-center gap-2 text-sm font-medium">
           <Sunrise className="size-4" /> Daily digest
         </p>
-        <Switch checked={enabled} onCheckedChange={(v) => save.mutate({ enabled: v })} />
+        <Switch aria-label="Daily email digest" checked={enabled} onCheckedChange={(v) => save.mutate({ enabled: v })} />
       </div>
       <p className="text-xs text-muted-foreground">
         One email each morning with missed calls, voicemails and unread threads.
@@ -260,6 +261,7 @@ function DigestSettings({
           <div className="space-y-1">
             <Label>Delivered at (your time)</Label>
             <Input
+              aria-label="Digest delivery hour (0–23, your time)"
               type="number"
               min={0}
               max={23}
@@ -270,7 +272,7 @@ function DigestSettings({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm">Hold instant alerts for the digest</span>
-            <Switch checked={digestMode} onCheckedChange={onDigestModeChange} />
+            <Switch aria-label="Hold instant alerts for the digest" checked={digestMode} onCheckedChange={onDigestModeChange} />
           </div>
           {digest.data?.lastSentAt ? (
             <p className="text-xs text-muted-foreground">
