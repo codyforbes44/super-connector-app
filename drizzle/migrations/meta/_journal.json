@@ -29,6 +29,13 @@
       "when": 1795141407342,
       "tag": "0003_phase1_message_delivery_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795144353394,
+      "tag": "0004_restrict_plan_limits_read",
+      "breakpoints": true
     }
   ]
 }
