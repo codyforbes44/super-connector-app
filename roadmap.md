@@ -11,7 +11,7 @@
 - [x] Restyle whole app to match 3BI reference screenshot
 - [x] Platform admin area (overview, accounts, teams, number fleet, health, AI links, audit log)
 - [ ] Page-by-page mobile-first pass for remaining long pages (Numbers, Calls, A2P, Welcome, eSIM, Contacts) and public pages
-- [ ] Owner-free release step 1: lock plan-limits table to super admins (security)
+- [x] Owner-free release step 1: lock plan-limits table to super admins (security)
 - [ ] Owner-free release step 2: Phase 5 page/accessibility/state review
 - [ ] Owner-free release step 3: Phase 6 reliability and monitoring
 - [ ] Owner-free release step 4: Phase 4 plan-limit enforcement + test-mode eSIM checkout check
