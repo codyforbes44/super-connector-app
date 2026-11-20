@@ -2087,6 +2087,27 @@ export type Database = {
           },
         ]
       }
+      message_delivery_receipts: {
+        Row: {
+          error_code: string | null
+          sid: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          error_code?: string | null
+          sid: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          error_code?: string | null
+          sid?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           body: string | null
@@ -4112,6 +4133,10 @@ export type Database = {
       is_workspace_member: {
         Args: { _user_id: string; _workspace_id: string }
         Returns: boolean
+      }
+      record_message_delivery: {
+        Args: { p_error?: string; p_sid: string; p_status: string }
+        Returns: undefined
       }
       save_concierge_transcript: {
         Args: { p_conversation_id: string; p_turns: Json }

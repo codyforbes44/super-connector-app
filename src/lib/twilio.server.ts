@@ -133,6 +133,7 @@ export async function twilioRequest<T = unknown>(opts: {
    * Workspace subaccount calls pass the subaccount SID and auth token.
    */
   account?: TwilioAccountAuth | null;
+  binary?: boolean;
 }): Promise<T> {
   const method = opts.method ?? "GET";
   const host = opts.host ?? "api";
@@ -180,6 +181,7 @@ export async function twilioRequest<T = unknown>(opts: {
   }
 
   const response = await fetch(url, init);
+  if (opts.binary && response.ok) return new Uint8Array(await response.arrayBuffer()) as T;
   const text = await response.text();
 
   if (!response.ok) {

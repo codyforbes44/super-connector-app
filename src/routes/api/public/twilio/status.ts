@@ -39,6 +39,7 @@ export const Route = createFileRoute("/api/public/twilio/status")({
             callSid: get("CallSid") || null,
             appNumber: get("To") || get("From") || null,
           });
+          return new Response("Status persistence failed", { status: 500 });
         }
 
         return new Response("ok");
@@ -55,13 +56,10 @@ async function applyStatusCallback(
   const { logWebhookError } = await import("@/lib/webhook-errors.server");
   const messageSid = get("MessageSid") || get("SmsSid");
   if (messageSid) {
-    await supabaseAdmin
-      .from("messages")
-      .update({
-        status: get("MessageStatus") || get("SmsStatus"),
-        error_code: get("ErrorCode") || null,
-      })
-      .eq("sid", messageSid);
+    const status=get("MessageStatus") || get("SmsStatus");
+    if (!/^(SM|MM)[a-f0-9]{32}$/.test(messageSid)) throw new Error("Invalid message SID");
+    const {error}=await supabaseAdmin.rpc("record_message_delivery", {p_sid:messageSid,p_status:status,p_error:get("ErrorCode")||null});
+    if(error) throw error;
   }
 
   const callSid = get("CallSid");

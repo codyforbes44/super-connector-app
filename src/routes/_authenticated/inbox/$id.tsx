@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ThreadTradeActions } from "@/components/integrations/ThreadTradeActions";
+import { MessageAttachments } from "@/components/inbox/MessageAttachments";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
@@ -321,11 +322,7 @@ function ThreadScreen() {
                   </p>
                 ) : null}
                 {m.body ? <p className="whitespace-pre-wrap">{m.body}</p> : null}
-                {media.length ? (
-                  <p className="mt-1 text-[0.7rem] opacity-80">
-                    {media.length} attachment{media.length === 1 ? "" : "s"}
-                  </p>
-                ) : null}
+                {!m.is_internal_note && (media.length > 0 || m.sid?.startsWith("MM")) ? <MessageAttachments id={m.id} hasMedia={media.length > 0 || Boolean(m.sid?.startsWith("MM"))}/> : null}
                 <p className="tabular mt-1 text-[0.65rem] opacity-70">
                   {channelLabel((m as { channel?: string | null }).channel)
                     ? `${channelLabel((m as { channel?: string | null }).channel)} · `

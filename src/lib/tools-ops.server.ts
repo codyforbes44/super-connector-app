@@ -160,7 +160,7 @@ export async function emailDeliveries(
   const stats = {
     total: rows.length,
     sent: rows.filter((r) => r.status === "sent" || r.status === "delivered").length,
-    delivered: rows.filter((r) => Boolean(r.delivered_at)).length,
+    delivered: rows.filter((r) => r.status === "delivered" || Boolean(r.delivered_at)).length,
     opened: rows.filter((r) => Boolean(r.opened_at)).length,
     clicked: rows.filter((r) => Boolean(r.clicked_at)).length,
     failed: rows.filter((r) => r.status === "failed" || r.status === "bounced").length,

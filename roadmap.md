@@ -2,7 +2,8 @@
 - [x] Phase 0: audit provider writes, add missing event/session identity constraints, atomic concierge transcripts, private recovery backups, and confirmed SID-based import previews; all 269 tests pass.
 - [x] Phase 0: correlate proven self-forwarding legs with persistent SID aliases; backed up 598 calls and related records, merged 32 confirmed pairs, and passed 275 tests.
 - [x] Phase 0: both publications completed; final production GET returned version phase0-call-identity-2026-11-20.1 and deployment 85b29910-008e-4d5f-b623-e329ecffeb31 for tested source a0c4cf0; real inbound call/text checks belong to the user and do not block shipping.
-- [ ] Phase 0: 97 near-time candidate pairs remain unproven, including independent inbound connections and excluded-number forwarding; carrier self-forwarding still runs outside SixVox and needs a separately authorized routing change if unwanted.
+- [x] Phase 0 accepted by owner: 97 unproven pairs remain unmerged and external self-forwarding changes are not authorized; both items are parked, not active work.
+- [ ] Phase 1: assign owned orphan 580 number without carrier/settings changes; repair message delivery callbacks and truthful statistics; recover/render MMS attachments; verify recordings, summaries and identity guards, then publish.
 - [x] Make unmapped inbound call failures visible in platform diagnostics without assigning them to another workspace.
 - [ ] Complete the approved mobile-first web experience refactor across every public and signed-in page; shared layouts, navigation, primary work pages, and initial cross-device checks are done, but the remaining secondary pages need individual review.
 - [x] Create and implement a new SixVox logo throughout the web experience.

@@ -87,7 +87,7 @@ export function EmailLogPanel() {
       </div>
 
       {stats && (
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
           <StatusChip label="Sent" value={stats.sent} />
           <StatusChip label="Delivered" value={stats.delivered} />
           <StatusChip label="Opened" value={stats.opened} />

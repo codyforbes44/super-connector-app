@@ -8,6 +8,7 @@ import { Screen } from "@/components/screen";
 import { CalendarPanel } from "@/components/tools/CalendarPanel";
 import { CalendarSettingsPanel } from "@/components/tools/CalendarSettingsPanel";
 import { EmailLogPanel } from "@/components/tools/EmailLogPanel";
+import { MessageDeliveryPanel } from "@/components/tools/MessageDeliveryPanel";
 import { EmailTemplatesPanel } from "@/components/tools/EmailTemplatesPanel";
 import { MailPanel } from "@/components/tools/MailPanel";
 import { PlacesPanel } from "@/components/tools/PlacesPanel";
@@ -101,6 +102,8 @@ function ToolsScreen() {
             <PlacesPanel />
           </TabsContent>
           <TabsContent value="email" className="pt-4">
+            <MessageDeliveryPanel />
+            <h2 className="mt-6 mb-3 font-semibold">Email delivery</h2>
             <EmailLogPanel />
           </TabsContent>
           <TabsContent value="templates" className="pt-4">

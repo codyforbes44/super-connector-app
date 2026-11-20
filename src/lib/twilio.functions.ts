@@ -3,6 +3,24 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import * as ops from "./twilio-ops.server";
 import { validateImportConfirmation } from "./provider-identity";
+import { z } from "zod";
+
+export const getMessageAttachments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id:z.string().uuid() }).parse(input))
+  .handler(async ({context,data}) => {
+    const {messageAttachments}=await import("./message-media.server");
+    return messageAttachments(context.supabase,data.id);
+  });
+
+export const getMessageDeliveryStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({context}) => {
+    const {data,error}=await context.supabase.from("messages").select("direction,status").eq("direction","outbound");
+    if(error) throw error;
+    const {deliveryCounts}=await import("./communications");
+    return deliveryCounts(data??[]);
+  });
 
 export const getBootstrap = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
