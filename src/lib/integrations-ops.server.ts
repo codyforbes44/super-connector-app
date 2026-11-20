@@ -330,22 +330,26 @@ export async function bookSlot(
   });
 
   const db = await admin();
-  await db.from("calendar_bookings").insert({
-    event_id: event.id,
-    calendar_id: calendarId,
-    app_number: input.appNumber,
-    contact_number: input.contactNumber ?? null,
-    contact_email: input.contactEmail ?? null,
-    summary: event.summary,
-    html_link: event.htmlLink ?? null,
-    starts_at: input.start,
-    ends_at: input.end,
-    source: "manual",
-    call_sid: input.callSid ?? null,
-    conversation_id: input.conversationId ?? null,
-    created_by: userId,
-    workspace_id: workspaceId,
-  });
+  const { error: bookingError } = await db.from("calendar_bookings").upsert(
+    {
+      event_id: event.id,
+      calendar_id: calendarId,
+      app_number: input.appNumber,
+      contact_number: input.contactNumber ?? null,
+      contact_email: input.contactEmail ?? null,
+      summary: event.summary,
+      html_link: event.htmlLink ?? null,
+      starts_at: input.start,
+      ends_at: input.end,
+      source: "manual",
+      call_sid: input.callSid ?? null,
+      conversation_id: input.conversationId ?? null,
+      created_by: userId,
+      workspace_id: workspaceId,
+    },
+    { onConflict: "workspace_id,calendar_id,event_id", ignoreDuplicates: true },
+  );
+  if (bookingError) throw bookingError;
 
   try {
     await publishOutboundEvent(db, {

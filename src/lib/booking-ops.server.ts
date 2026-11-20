@@ -416,22 +416,26 @@ export async function confirmProposal(
     }
     eventId = event.id;
     htmlLink = event.htmlLink ?? null;
-    await admin.from("calendar_bookings").insert({
-      event_id: event.id,
-      calendar_id: line.calendarId,
-      app_number: line.phoneNumber,
-      contact_number: proposal["contact_number"],
-      summary: event.summary,
-      html_link: htmlLink,
-      starts_at: slot.start,
-      ends_at: slot.end,
-      source: "ai",
-      call_sid: proposal["call_sid"],
-      created_by: opts.actorId ?? line.assignedTo,
-      workspace_id: line.workspaceId,
-      proposal_id: proposalId,
-      status: "confirmed",
-    });
+    const { error: bookingError } = await admin.from("calendar_bookings").upsert(
+      {
+        event_id: event.id,
+        calendar_id: line.calendarId,
+        app_number: line.phoneNumber,
+        contact_number: proposal["contact_number"],
+        summary: event.summary,
+        html_link: htmlLink,
+        starts_at: slot.start,
+        ends_at: slot.end,
+        source: "ai",
+        call_sid: proposal["call_sid"],
+        created_by: opts.actorId ?? line.assignedTo,
+        workspace_id: line.workspaceId,
+        proposal_id: proposalId,
+        status: "confirmed",
+      },
+      { onConflict: "workspace_id,calendar_id,event_id", ignoreDuplicates: true },
+    );
+    if (bookingError) throw bookingError;
   }
 
   const language = (proposal["language"] === "es" ? "es" : "en") as SpokenLanguage;

@@ -30,7 +30,9 @@ export const Route = createFileRoute("/api/public/claw/inbound")({
         const appNumber = process.env["CLAW_HOME_NUMBER"]?.trim() || "";
         try {
           const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
-          const home = appNumber ? await resolveWorkspaceIdForNumber(appNumber) : { workspaceId: null };
+          const home = appNumber
+            ? await resolveWorkspaceIdForNumber(appNumber)
+            : { workspaceId: null };
           if (!home.workspaceId) {
             await logWebhookError(supabaseAdmin as never, {
               source: "claw",
@@ -40,7 +42,11 @@ export const Route = createFileRoute("/api/public/claw/inbound")({
             return Response.json({ ok: true });
           }
           const sid = `claw:${msg.messageId}`;
-          const { data: dupe } = await supabaseAdmin.from("messages").select("id").eq("sid", sid).maybeSingle();
+          const { data: dupe } = await supabaseAdmin
+            .from("messages")
+            .select("id")
+            .eq("sid", sid)
+            .maybeSingle();
           if (dupe) return Response.json({ ok: true, duplicate: true });
 
           const { upsertConversation } = await import("@/lib/app.server");
@@ -53,28 +59,41 @@ export const Route = createFileRoute("/api/public/claw/inbound")({
           });
           const channel = clawChannel(msg.service);
           const media = msg.attachments.map((a) => ({ url: a.url, contentType: a.mimeType ?? "" }));
-          const { error } = await supabaseAdmin.from("messages").insert({
-            conversation_id: conversationId,
-            sid,
-            direction: "inbound",
-            channel,
-            from_number: msg.from,
-            to_number: appNumber,
-            body: msg.text,
-            media,
-            status: "received",
-            workspace_id: home.workspaceId,
-          } as never);
+          const { data: insertedMessages, error } = await supabaseAdmin
+            .from("messages")
+            .upsert(
+              {
+                conversation_id: conversationId,
+                sid,
+                direction: "inbound",
+                channel,
+                from_number: msg.from,
+                to_number: appNumber,
+                body: msg.text,
+                media,
+                status: "received",
+                workspace_id: home.workspaceId,
+              } as never,
+              { onConflict: "sid", ignoreDuplicates: true },
+            )
+            .select("id");
           if (error) throw new Error(error.message);
+          if (!insertedMessages?.length) return Response.json({ ok: true, duplicate: true });
 
           const { data: convo } = await supabaseAdmin
-            .from("conversations").select("unread_count").eq("id", conversationId).maybeSingle();
-          await supabaseAdmin.from("conversations").update({
-            last_message_at: new Date().toISOString(),
-            last_message_preview: msg.text ? msg.text.slice(0, 140) : "[media]",
-            unread_count: (convo?.unread_count ?? 0) + 1,
-            archived: false,
-          }).eq("id", conversationId);
+            .from("conversations")
+            .select("unread_count")
+            .eq("id", conversationId)
+            .maybeSingle();
+          await supabaseAdmin
+            .from("conversations")
+            .update({
+              last_message_at: new Date().toISOString(),
+              last_message_preview: msg.text ? msg.text.slice(0, 140) : "[media]",
+              unread_count: (convo?.unread_count ?? 0) + 1,
+              archived: false,
+            })
+            .eq("id", conversationId);
 
           const { notifyNumber } = await import("@/lib/notify.server");
           await notifyNumber(supabaseAdmin as never, appNumber, {

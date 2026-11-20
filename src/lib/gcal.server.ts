@@ -1,5 +1,6 @@
 import { findOpenSlots, type BookingHours } from "./booking/slots";
 import { connectorConfigured, gatewayRequest } from "./connectors.server";
+import { uniqueProviderRows } from "./provider-identity";
 
 const BASE = "/calendar/v3";
 
@@ -48,7 +49,7 @@ export async function listCalendars(): Promise<CalendarSummary[]> {
   const res = await gatewayRequest<{
     items?: Array<{ id: string; summary: string; primary?: boolean; timeZone?: string }>;
   }>({ connector: "google_calendar", path: `${BASE}/users/me/calendarList` });
-  return (res.items ?? []).map((c) => ({
+  return uniqueProviderRows(res.items ?? [], (c) => c.id).map((c) => ({
     id: c.id,
     summary: c.summary,
     primary: Boolean(c.primary),
@@ -76,7 +77,7 @@ export async function listEvents(opts: {
       q: opts.q ?? "",
     },
   });
-  return (res.items ?? []).map(normalize);
+  return uniqueProviderRows(res.items ?? [], (e) => e.id).map(normalize);
 }
 
 export async function freeBusy(opts: { calendarId: string; timeMin: string; timeMax: string }) {

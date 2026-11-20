@@ -23,20 +23,27 @@ export async function createConversation(
     variables: Record<string, unknown>;
   },
 ): Promise<string> {
+  if (!input.sessionKey.trim()) throw new Error("A concierge session needs an identity.");
   const { data, error } = await admin
     .from("chat_conversations")
-    .insert({
-      session_id: input.sessionKey,
-      user_id: input.userId,
-      mode: input.mode,
-      page: input.page,
-      referrer: input.referrer,
-      dynamic_variables: input.variables,
-    })
+    .upsert(
+      {
+        session_id: input.sessionKey,
+        user_id: input.userId,
+        mode: input.mode,
+        page: input.page,
+        referrer: input.referrer,
+        dynamic_variables: input.variables,
+      },
+      { onConflict: "session_id", ignoreDuplicates: true },
+    )
     .select("id")
-    .single();
+    .maybeSingle();
   if (error) throw error;
-  return data.id as string;
+  if (data) return data.id as string;
+  const existing = await conversationForKey(admin, input.sessionKey);
+  if (!existing) throw new Error("Concierge session could not be saved.");
+  return existing.id;
 }
 
 /** Resolve a session key to its conversation row. Returns null when unknown. */
@@ -78,21 +85,12 @@ export async function saveTranscript(
   conversationId: string,
   turns: Array<{ role: string; content: string; at?: number }>,
 ): Promise<void> {
-  await admin
-    .from("chat_messages")
-    .delete()
-    .eq("conversation_id", conversationId)
-    .neq("role", "tool");
   if (!turns.length) return;
-  const { error } = await admin.from("chat_messages").insert(
-    turns.map((turn) => ({
-      conversation_id: conversationId,
-      role: turn.role,
-      content: turn.content,
-      at_seconds: turn.at ?? null,
-    })),
-  );
-  if (error) console.error("concierge: transcript insert failed", error);
+  const { error } = await admin.rpc("save_concierge_transcript", {
+    p_conversation_id: conversationId,
+    p_turns: turns.filter((turn) => turn.content.trim()),
+  });
+  if (error) throw new Error(`Concierge transcript could not be saved: ${error.message}`);
 }
 
 /** Everyone who should hear about a new lead, callback or handoff. */

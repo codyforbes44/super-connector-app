@@ -1,4 +1,7 @@
 # Current work
+- [x] Phase 0: audit provider writes, add missing event/session identity constraints, atomic concierge transcripts, private recovery backups, and confirmed SID-based import previews; all 269 tests pass.
+- [ ] Phase 0: determine why Twilio creates different inbound SIDs with matching caller/time and different forwarding metadata; no provider-ID duplicates exist to merge safely.
+- [ ] Phase 0: verify one real inbound call and text against the updated published handlers; awaiting publication and a designated test source/destination, without touching excluded numbers/settings.
 - [x] Make unmapped inbound call failures visible in platform diagnostics without assigning them to another workspace.
 - [ ] Complete the approved mobile-first web experience refactor across every public and signed-in page; shared layouts, navigation, primary work pages, and initial cross-device checks are done, but the remaining secondary pages need individual review.
 - [x] Create and implement a new SixVox logo throughout the web experience.

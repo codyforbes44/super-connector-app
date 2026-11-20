@@ -239,17 +239,21 @@ async function sendMissedCallText(
     contactNumber: caller,
     workspaceId: input.workspaceId,
   });
-  await admin.from("messages").insert({
-    conversation_id: conversationId,
-    sid: sent.sid,
-    direction: "outbound",
-    channel: "sms",
-    from_number: line,
-    to_number: caller,
-    body,
-    status: sent.status,
-    workspace_id: input.workspaceId,
-  });
+  const { error: messageError } = await admin.from("messages").upsert(
+    {
+      conversation_id: conversationId,
+      sid: sent.sid,
+      direction: "outbound",
+      channel: "sms",
+      from_number: line,
+      to_number: caller,
+      body,
+      status: sent.status,
+      workspace_id: input.workspaceId,
+    },
+    { onConflict: "sid", ignoreDuplicates: true },
+  );
+  if (messageError) throw messageError;
   await admin
     .from("conversations")
     .update({

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ScreenHeader, useScreenFab } from "@/components/AppShell";
+import { useHistoryImport } from "@/components/HistoryImportDialog";
 import { CallHistoryRow } from "@/components/calls/CallHistoryRow";
 import { CallSpamPanel } from "@/components/calls/CallSpamPanel";
 import { E911Disclosure } from "@/components/marketing/Disclosures";
@@ -43,12 +44,7 @@ import {
 } from "@/lib/call-spam";
 import { duration, errorMessage, formatPhone } from "@/lib/format";
 import { listCallerRules, saveCallerRule } from "@/lib/receptionist.functions";
-import {
-  getCallRecordings,
-  getRecordingAudio,
-  importCallHistory,
-  startCall,
-} from "@/lib/twilio.functions";
+import { getCallRecordings, getRecordingAudio, startCall } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
 import { useVoice } from "@/lib/voice-device";
 import type { Tables } from "@/integrations/supabase/types";
@@ -112,7 +108,10 @@ function CallsScreen() {
   const filters = search;
   const navigate = useNavigate({ from: Route.fullPath });
   const [dialing, setDialing] = useState(false);
-  const [syncing, setSyncing] = useState(false);
+  const historyImport = useHistoryImport("calls", () =>
+    queryClient.invalidateQueries({ queryKey: ["calls"] }),
+  );
+  const syncing = historyImport.busy;
   const [from, setFrom] = useState(
     (boot.profile?.default_number as string | null) ?? boot.numbers[0]?.phone_number ?? "",
   );
@@ -243,16 +242,7 @@ function CallsScreen() {
   }
 
   async function sync() {
-    setSyncing(true);
-    try {
-      const result = await importCallHistory();
-      toast.success(`Synced ${result.imported} call${result.imported === 1 ? "" : "s"}.`);
-      await queryClient.invalidateQueries({ queryKey: ["calls"] });
-    } catch (error) {
-      toast.error(errorMessage(error));
-    } finally {
-      setSyncing(false);
-    }
+    await historyImport.open();
   }
 
   async function dial(event: React.FormEvent) {
@@ -331,6 +321,7 @@ function CallsScreen() {
 
   return (
     <div className="min-w-0 overflow-x-clip">
+      {historyImport.dialog}
       <ScreenHeader
         title="Calls"
         subtitle="Blocked spam is marked so you don't call it back by mistake"

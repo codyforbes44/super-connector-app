@@ -125,26 +125,32 @@ export async function upsertConversation(
     workspaceId = (number?.["workspace_id"] as string | null) ?? null;
   }
 
-  let lookup = admin
-    .from("conversations")
-    .select("id")
-    .eq("channel", args.channel)
-    .eq("app_number", args.appNumber)
-    .eq("contact_number", args.contactNumber);
-  if (workspaceId) lookup = lookup.eq("workspace_id", workspaceId);
-  const { data: existing } = await lookup.maybeSingle();
-  if (existing) return existing.id as string;
-
+  if (!workspaceId || !args.appNumber || !args.contactNumber) {
+    throw new Error("A conversation needs a workspace and both phone numbers.");
+  }
   const { data: created, error } = await admin
     .from("conversations")
-    .insert({
-      channel: args.channel,
-      app_number: args.appNumber,
-      contact_number: args.contactNumber,
-      ...(workspaceId ? { workspace_id: workspaceId } : {}),
-    })
+    .upsert(
+      {
+        channel: args.channel,
+        app_number: args.appNumber,
+        contact_number: args.contactNumber,
+        workspace_id: workspaceId,
+      },
+      { onConflict: "workspace_id,channel,app_number,contact_number", ignoreDuplicates: true },
+    )
     .select("id")
-    .single();
+    .maybeSingle();
   if (error) throw error;
-  return created.id as string;
+  if (created) return created.id as string;
+  const { data: existing, error: lookupError } = await admin
+    .from("conversations")
+    .select("id")
+    .eq("workspace_id", workspaceId)
+    .eq("channel", args.channel)
+    .eq("app_number", args.appNumber)
+    .eq("contact_number", args.contactNumber)
+    .single();
+  if (lookupError) throw lookupError;
+  return existing.id as string;
 }

@@ -5,6 +5,7 @@
  */
 
 import { elevenLabsAgentLanguage, mergeAnsweringLanguagePrompt } from "@/lib/answering/language";
+import { uniqueProviderRows } from "./provider-identity";
 import {
   extractEmergencyBlock,
   mergeEmergencyPrompt,
@@ -45,7 +46,7 @@ export type Voice = {
 
 export async function listVoices(): Promise<Voice[]> {
   const data = await el<{ voices?: Voice[] }>("/v1/voices");
-  return (data.voices ?? []).map((v) => ({
+  return uniqueProviderRows(data.voices ?? [], (v) => v.voice_id).map((v) => ({
     voice_id: v.voice_id,
     name: v.name,
     category: v.category ?? null,
@@ -137,7 +138,7 @@ export async function listAgents(): Promise<Agent[]> {
   const data = await el<{ agents?: Array<{ agent_id: string; name?: string }> }>(
     "/v1/convai/agents?page_size=100",
   );
-  const all = (data.agents ?? []).map((a) => ({
+  const all = uniqueProviderRows(data.agents ?? [], (a) => a.agent_id).map((a) => ({
     agent_id: a.agent_id,
     name: a.name ?? a.agent_id,
   }));

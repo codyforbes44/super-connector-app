@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import * as ops from "./twilio-ops.server";
+import { validateImportConfirmation } from "./provider-identity";
 
 export const getBootstrap = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -100,11 +101,30 @@ export const setConversationFlags = createServerFn({ method: "POST" })
 
 export const importHistory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => ops.importHistory(context.supabase, context.userId));
+  .inputValidator(validateImportConfirmation)
+  .handler(async ({ context, data }) =>
+    ops.importHistory(context.supabase, context.userId, data.confirmedIds),
+  );
 
 export const importCallHistory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => ops.importCallHistory(context.supabase, context.userId));
+  .inputValidator(validateImportConfirmation)
+  .handler(async ({ context, data }) =>
+    ops.importCallHistory(context.supabase, context.userId, data.confirmedIds),
+  );
+
+export const previewHistoryImport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { kind: "calls" | "messages" }) => {
+    if (input.kind !== "calls" && input.kind !== "messages")
+      throw new Error("Invalid import type.");
+    return input;
+  })
+  .handler(async ({ context, data }) =>
+    data.kind === "calls"
+      ? ops.importCallHistory(context.supabase, context.userId)
+      : ops.importHistory(context.supabase, context.userId),
+  );
 
 export const startCall = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

@@ -47,6 +47,8 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
             return empty();
           }
 
+          const sid = get("MessageSid") || get("SmsSid");
+          if (!sid) throw new Error("Inbound message is missing its provider ID.");
           const conversationId = await upsertConversation(supabaseAdmin as never, {
             channel,
             appNumber,
@@ -55,18 +57,24 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
           });
 
           const body = get("Body");
-          const { error: messageError } = await supabaseAdmin.from("messages").insert({
-            conversation_id: conversationId,
-            sid: get("MessageSid") || get("SmsSid") || null,
-            direction: "inbound",
-            channel,
-            from_number: contactNumber,
-            to_number: appNumber,
-            body,
-            media,
-            status: "received",
-            workspace_id: numberHome.workspaceId,
-          } as never);
+          const { data: insertedMessages, error: messageError } = await supabaseAdmin
+            .from("messages")
+            .upsert(
+              {
+                conversation_id: conversationId,
+                sid,
+                direction: "inbound",
+                channel,
+                from_number: contactNumber,
+                to_number: appNumber,
+                body,
+                media,
+                status: "received",
+                workspace_id: numberHome.workspaceId,
+              } as never,
+              { onConflict: "sid", ignoreDuplicates: true },
+            )
+            .select("id");
           if (messageError) {
             await logWebhookError(supabaseAdmin as never, {
               source: "sms",
@@ -76,6 +84,7 @@ export const Route = createFileRoute("/api/public/twilio/sms")({
             });
             return empty();
           }
+          if (!insertedMessages?.length) return empty();
 
           // YES / CANCEL / RESCHEDULE (and Spanish) win over carrier keywords only
           // when a proposal is open. Bare STOP is not a booking reply, so it still

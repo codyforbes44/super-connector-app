@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { errorMessage, formatPhone, initialsFor, relativeTime } from "@/lib/format";
-import { importHistory, markConversationRead } from "@/lib/twilio.functions";
+import { markConversationRead } from "@/lib/twilio.functions";
+import { useHistoryImport } from "@/components/HistoryImportDialog";
 import { cn } from "@/lib/utils";
 
 /**
@@ -26,7 +27,10 @@ export function InboxList({ activeId }: { activeId?: string }) {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [composing, setComposing] = useState(false);
-  const [importing, setImporting] = useState(false);
+  const historyImport = useHistoryImport("messages", () =>
+    queryClient.invalidateQueries({ queryKey: ["conversations"] }),
+  );
+  const importing = historyImport.busy;
 
   useScreenFab({
     icon: MessageSquarePlus,
@@ -61,18 +65,7 @@ export function InboxList({ activeId }: { activeId?: string }) {
   }, [queryClient]);
 
   async function runImport() {
-    setImporting(true);
-    try {
-      const result = await importHistory();
-      toast.success(
-        `Pulled ${result.imported} message${result.imported === 1 ? "" : "s"} from Twilio.`,
-      );
-      await queryClient.invalidateQueries({ queryKey: ["conversations"] });
-    } catch (error) {
-      toast.error(errorMessage(error));
-    } finally {
-      setImporting(false);
-    }
+    await historyImport.open();
   }
 
   const rows = (conversations.data ?? []).filter((c) => {
@@ -106,6 +99,7 @@ export function InboxList({ activeId }: { activeId?: string }) {
 
   return (
     <div className="min-w-0">
+      {historyImport.dialog}
       <ScreenHeader
         title="Inbox"
         subtitle={`${boot.numbers.length} number${boot.numbers.length === 1 ? "" : "s"} · SMS & MMS`}

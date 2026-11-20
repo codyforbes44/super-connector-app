@@ -25,6 +25,8 @@ import {
   type TwilioHost,
 } from "./twilio.server";
 
+import { importableCall, importableMessage, uniqueProviderRows } from "./provider-identity";
+
 type SB = SupabaseClient;
 
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
@@ -891,20 +893,24 @@ export async function sendMessage(
     throw friendly ? new Error(friendly) : (error as Error);
   }
 
-  await admin.from("messages").insert({
-    conversation_id: conversationId,
-    sid: sent.sid,
-    direction: "outbound",
-    channel: data.channel,
-    from_number: appNumber,
-    to_number: to,
-    body: data.body,
-    ...(numberHome.workspaceId ? { workspace_id: numberHome.workspaceId } : {}),
-    media: (data.mediaUrls ?? []).map((url) => ({ url })),
-    status: sent.status,
-    sent_by: userId,
-    scheduled_for: data.sendAt ?? null,
-  });
+  const { error: messageError } = await admin.from("messages").upsert(
+    {
+      conversation_id: conversationId,
+      sid: sent.sid,
+      direction: "outbound",
+      channel: data.channel,
+      from_number: appNumber,
+      to_number: to,
+      body: data.body,
+      ...(numberHome.workspaceId ? { workspace_id: numberHome.workspaceId } : {}),
+      media: (data.mediaUrls ?? []).map((url) => ({ url })),
+      status: sent.status,
+      sent_by: userId,
+      scheduled_for: data.sendAt ?? null,
+    },
+    { onConflict: "sid", ignoreDuplicates: true },
+  );
+  if (messageError) throw messageError;
   await admin
     .from("conversations")
     .update({
@@ -971,9 +977,9 @@ export async function setConversationFlags(
 }
 
 /** Pull recent Twilio message history into the local inbox. */
-export async function importHistory(supabase: SB, userId: string) {
+export async function importHistory(supabase: SB, userId: string, confirmedIds?: string[]) {
   const { numbers } = await allowedNumbers(supabase, userId);
-  if (!numbers.length) return { imported: 0 };
+  if (!numbers.length) return { imported: 0, ids: [] as string[], skipped: 0 };
   const admin = await adminClient();
   const res = await twilioRequest<{
     messages: Array<{
@@ -990,28 +996,47 @@ export async function importHistory(supabase: SB, userId: string) {
     }>;
   }>({ path: "/Messages.json", params: { PageSize: 200 } });
 
+  const eligible = uniqueProviderRows(res.messages ?? [], (m) => m.sid).filter(importableMessage);
+  const { data: stored, error: storedError } = await admin
+    .from("messages")
+    .select("sid")
+    .in(
+      "sid",
+      eligible.map((m) => m.sid),
+    );
+  if (storedError) throw storedError;
+  const seen = new Set((stored ?? []).map((m) => m["sid"]));
+  const ids: string[] = [];
   let imported = 0;
-  for (const m of res.messages ?? []) {
+  for (const m of eligible) {
     const inbound = m.direction.startsWith("inbound");
     const rawApp = inbound ? m.to : m.from;
     const rawContact = inbound ? m.from : m.to;
     const channel = rawApp.startsWith("whatsapp:") ? "whatsapp" : "sms";
     const appNumber = stripChannel(rawApp);
     const contactNumber = stripChannel(rawContact);
-    if (!numbers.includes(appNumber)) continue;
+    if (!numbers.includes(appNumber) || seen.has(m.sid)) continue;
 
     const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
     const { workspaceId } = await resolveWorkspaceIdForNumber(appNumber);
     if (!workspaceId) continue;
-    const conversationId = await upsertConversation(admin, {
-      channel,
-      appNumber,
-      contactNumber,
-      workspaceId,
-    });
-    const { error } = await admin.from("messages").upsert(
-      {
-        conversation_id: conversationId,
+    ids.push(m.sid);
+    if (!confirmedIds || !confirmedIds.includes(m.sid)) continue;
+    let media: Array<{ url: string; contentType: string }> = [];
+    if (Number(m.num_media) > 0) {
+      const result = await twilioRequest<{
+        media_list: Array<{ uri: string; content_type: string }>;
+      }>({ path: `/Messages/${m.sid}/Media.json` });
+      media = (result.media_list ?? []).map((item) => ({
+        url: `https://api.twilio.com${item.uri.replace(/\.json$/, "")}`,
+        contentType: item.content_type,
+      }));
+      if (!m.body?.trim() && !media.length) continue;
+    }
+    const { data: inserted, error } = await admin.rpc("import_history_message", {
+      p_message: {
+        app_number: appNumber,
+        contact_number: contactNumber,
         sid: m.sid,
         direction: inbound ? "inbound" : "outbound",
         channel,
@@ -1020,21 +1045,22 @@ export async function importHistory(supabase: SB, userId: string) {
         body: m.body,
         status: m.status,
         price: m.price,
+        media,
         created_at: new Date(m.date_sent ?? m.date_created).toISOString(),
         workspace_id: workspaceId,
       },
-      { onConflict: "sid", ignoreDuplicates: true },
-    );
-    if (!error) imported += 1;
+    });
+    if (error) throw new Error(`Text import failed: ${error.message}`);
+    imported += Number(inserted ?? 0);
   }
-  return { imported };
+  return { imported, ids, skipped: (res.messages ?? []).length - ids.length };
 }
 
 /* ------------------------------------------------------------------ voice */
 
-export async function importCallHistory(supabase: SB, userId: string) {
+export async function importCallHistory(supabase: SB, userId: string, confirmedIds?: string[]) {
   const { numbers } = await allowedNumbers(supabase, userId);
-  if (!numbers.length) return { imported: 0 };
+  if (!numbers.length) return { imported: 0, ids: [] as string[], skipped: 0 };
   const admin = await adminClient();
   const res = await twilioRequest<{
     calls: Array<{
@@ -1046,36 +1072,54 @@ export async function importCallHistory(supabase: SB, userId: string) {
       duration: string | null;
       price: string | null;
       start_time: string | null;
+      parent_call_sid: string | null;
       date_created: string;
     }>;
   }>({ path: "/Calls.json", params: { PageSize: 100 } });
 
+  const eligible = uniqueProviderRows(res.calls ?? [], (c) => c.sid).filter(importableCall);
+  const { data: stored, error: storedError } = await admin
+    .from("calls")
+    .select("sid")
+    .in(
+      "sid",
+      eligible.map((c) => c.sid),
+    );
+  if (storedError) throw storedError;
+  const seen = new Set((stored ?? []).map((c) => c["sid"]));
+  const ids: string[] = [];
   let imported = 0;
-  for (const c of res.calls ?? []) {
+  for (const c of eligible) {
     const inbound = c.direction.startsWith("inbound");
     const appNumber = stripChannel(inbound ? c.to : c.from);
-    if (!numbers.includes(appNumber)) continue;
+    if (!numbers.includes(appNumber) || seen.has(c.sid)) continue;
     const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
     const { workspaceId } = await resolveWorkspaceIdForNumber(appNumber);
     if (!workspaceId) continue;
-    const { error } = await admin.from("calls").upsert(
-      {
-        sid: c.sid,
-        direction: inbound ? "inbound" : "outbound",
-        from_number: stripChannel(c.from),
-        to_number: stripChannel(c.to),
-        app_number: appNumber,
-        status: c.status,
-        duration: c.duration ? Number(c.duration) : null,
-        price: c.price,
-        started_at: new Date(c.start_time ?? c.date_created).toISOString(),
-        workspace_id: workspaceId,
-      },
-      { onConflict: "sid" },
-    );
-    if (!error) imported += 1;
+    ids.push(c.sid);
+    if (!confirmedIds || !confirmedIds.includes(c.sid)) continue;
+    const { data: inserted, error } = await admin
+      .from("calls")
+      .upsert(
+        {
+          sid: c.sid,
+          direction: inbound ? "inbound" : "outbound",
+          from_number: stripChannel(c.from),
+          to_number: stripChannel(c.to),
+          app_number: appNumber,
+          status: c.status,
+          duration: c.duration ? Number(c.duration) : null,
+          price: c.price,
+          started_at: new Date(c.start_time ?? c.date_created).toISOString(),
+          workspace_id: workspaceId,
+        },
+        { onConflict: "sid", ignoreDuplicates: true },
+      )
+      .select("id");
+    if (error) throw new Error(`Call import failed: ${error.message}`);
+    imported += inserted?.length ?? 0;
   }
-  return { imported };
+  return { imported, ids, skipped: (res.calls ?? []).length - ids.length };
 }
 
 export async function startCall(

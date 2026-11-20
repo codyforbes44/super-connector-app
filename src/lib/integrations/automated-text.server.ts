@@ -79,18 +79,22 @@ export async function sendAutomatedText(
     console.error("automated text not stored, no workspace", input.appNumber);
     return { sent: true, sid: sent.sid };
   }
-  await admin.from("messages").insert({
-    conversation_id: input.conversationId,
-    sid: sent.sid,
-    direction: "outbound",
-    channel: "sms",
-    from_number: input.appNumber,
-    to_number: input.to,
-    body: input.body,
-    status: sent.status,
-    sent_by: input.userId,
-    workspace_id: input.workspaceId,
-  });
+  const { error: messageError } = await admin.from("messages").upsert(
+    {
+      conversation_id: input.conversationId,
+      sid: sent.sid,
+      direction: "outbound",
+      channel: "sms",
+      from_number: input.appNumber,
+      to_number: input.to,
+      body: input.body,
+      status: sent.status,
+      sent_by: input.userId,
+      workspace_id: input.workspaceId,
+    },
+    { onConflict: "sid", ignoreDuplicates: true },
+  );
+  if (messageError) throw messageError;
   await admin
     .from("conversations")
     .update({

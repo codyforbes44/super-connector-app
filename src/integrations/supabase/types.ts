@@ -1235,6 +1235,7 @@ export type Database = {
           role: string
           tool_name: string | null
           tool_payload: Json | null
+          turn_index: number | null
         }
         Insert: {
           at_seconds?: number | null
@@ -1245,6 +1246,7 @@ export type Database = {
           role: string
           tool_name?: string | null
           tool_payload?: Json | null
+          turn_index?: number | null
         }
         Update: {
           at_seconds?: number | null
@@ -1255,6 +1257,7 @@ export type Database = {
           role?: string
           tool_name?: string | null
           tool_payload?: Json | null
+          turn_index?: number | null
         }
         Relationships: [
           {
@@ -2560,6 +2563,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      phase0_integrity_backups: {
+        Row: {
+          backed_up_at: string
+          row_id: string
+          snapshot: Json
+          table_name: string
+        }
+        Insert: {
+          backed_up_at?: string
+          row_id: string
+          snapshot: Json
+          table_name: string
+        }
+        Update: {
+          backed_up_at?: string
+          row_id?: string
+          snapshot?: Json
+          table_name?: string
+        }
+        Relationships: []
       }
       phone_numbers: {
         Row: {
@@ -4054,6 +4078,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      import_history_message: { Args: { p_message: Json }; Returns: number }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       is_workspace_admin: {
@@ -4063,6 +4088,10 @@ export type Database = {
       is_workspace_member: {
         Args: { _user_id: string; _workspace_id: string }
         Returns: boolean
+      }
+      save_concierge_transcript: {
+        Args: { p_conversation_id: string; p_turns: Json }
+        Returns: undefined
       }
     }
     Enums: {
