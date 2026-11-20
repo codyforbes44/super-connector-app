@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { errorMessage } from "@/lib/format";
 import { listCalendars } from "@/lib/integrations.functions";
 import { getCalendarSyncSettings, saveCalendarSyncSettings } from "@/lib/tools.functions";
+import { toastError } from "@/lib/toast-error";
 
 type Settings = {
   activeCalendars: string[];
@@ -81,7 +82,7 @@ export function CalendarSettingsPanel() {
       toast.success("Calendar sync settings saved");
       await queryClient.invalidateQueries({ queryKey: ["calendar-settings"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const list = (calendars.data ?? []) as Array<{ id: string; summary: string }>;

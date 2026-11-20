@@ -24,6 +24,7 @@ import { a2pStatus, submitBrand, submitBusinessProfile, submitCampaign } from "@
 import { A2P_FEE_SCHEDULE, type A2pPath } from "@/lib/a2p-fees";
 import { errorMessage } from "@/lib/format";
 import { listMessagingServices, refreshMessagingReadiness } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 const TITLE = "US texting registration — SixVox";
 const DESCRIPTION =
@@ -196,7 +197,7 @@ function A2pScreen() {
       await status.refetch();
       toast.success("Business profile submitted for review.");
     },
-    onError: (e) => toast.error(errorMessage(e)),
+    onError: (e) => toastError(e),
   });
   const saveBrand = useMutation({
     mutationFn: () => submitBrand({ data: { confirmFees } }),
@@ -204,7 +205,7 @@ function A2pScreen() {
       await status.refetch();
       toast.success("Brand submitted to the carriers.");
     },
-    onError: (e) => toast.error(errorMessage(e)),
+    onError: (e) => toastError(e),
   });
   const saveCampaign = useMutation({
     mutationFn: () => submitCampaign({ data: { ...camp, confirmFees } }),
@@ -212,7 +213,7 @@ function A2pScreen() {
       await status.refetch();
       toast.success("Campaign submitted. Carrier review usually takes a day or two.");
     },
-    onError: (e) => toast.error(errorMessage(e)),
+    onError: (e) => toastError(e),
   });
 
   if (!boot.isOwner) {

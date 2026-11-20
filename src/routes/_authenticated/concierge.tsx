@@ -23,6 +23,7 @@ import {
   setConciergeLeadHandled,
   syncConcierge,
 } from "@/lib/concierge.functions";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/concierge")({
   head: () => ({
@@ -61,21 +62,21 @@ function ConciergeScreen() {
     mutationFn: () => syncConcierge({ data: undefined }),
     onSuccess: (result) =>
       toast.success(`Vox updated — ${result.tools} tools, ${result.documents} documents`),
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const lead = useMutation({
     mutationFn: (input: { id: string; handled: boolean }) =>
       setConciergeLeadHandled({ data: input }),
     onSuccess: () => void refresh(),
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const callback = useMutation({
     mutationFn: (input: { id: string; status: "pending" | "done" | "cancelled" }) =>
       setConciergeCallbackStatus({ data: input }),
     onSuccess: () => void refresh(),
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const data = query.data;

@@ -39,6 +39,7 @@ import {
   wireNumber,
 } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/numbers")({
   head: () => ({
@@ -96,7 +97,7 @@ function NumbersScreen() {
           : `Synced ${result.synced} number${result.synced === 1 ? "" : "s"} from Twilio.`,
       );
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setSyncing(false);
     }
@@ -249,7 +250,7 @@ function BuySheet({
     mutationFn: () =>
       searchAvailableNumbers({ data: areaCode ? { country, areaCode, type } : { country, type } }),
     onSuccess: (data) => setResults(data as unknown as Available[]),
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const buy = useMutation({
@@ -258,7 +259,7 @@ function BuySheet({
       toast.success("Number purchased and webhooks wired.");
       await onDone();
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   return (
@@ -390,7 +391,7 @@ function NumberSheet({
       toast.success("Number updated.");
       onClose();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -485,7 +486,7 @@ function NumberSheet({
                   await onChanged();
                   toast.success(result?.skipped ?? "Webhooks pointed at SixVox.");
                 } catch (error) {
-                  toast.error(errorMessage(error));
+                  toastError(error);
                 }
               }}
             >
@@ -505,7 +506,7 @@ function NumberSheet({
                   onClose();
                   toast.success("Number released.");
                 } catch (error) {
-                  toast.error(errorMessage(error));
+                  toastError(error);
                 }
               }}
             >

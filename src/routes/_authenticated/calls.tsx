@@ -48,6 +48,7 @@ import { getCallRecordings, getRecordingAudio, startCall } from "@/lib/twilio.fu
 import { cn } from "@/lib/utils";
 import { useVoice } from "@/lib/voice-device";
 import type { Tables } from "@/integrations/supabase/types";
+import { toastError } from "@/lib/toast-error";
 
 type CallRow = Tables<"calls">;
 
@@ -229,7 +230,7 @@ function CallsScreen() {
       await queryClient.invalidateQueries({ queryKey: ["caller-lists"] });
       await queryClient.invalidateQueries({ queryKey: ["caller-rules"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   function listStatusFor(phone: string): CallerListKind | null {
@@ -266,7 +267,7 @@ function CallsScreen() {
       setDialing(false);
       setTo("");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     }
   }
 
@@ -281,7 +282,7 @@ function CallsScreen() {
       const result = await getRecordingAudio({ data: { sid: first.sid } });
       setAudio(result.dataUrl);
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     }
   }
 
@@ -315,7 +316,7 @@ function CallsScreen() {
       }
       setDetail(null);
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     }
   }
 

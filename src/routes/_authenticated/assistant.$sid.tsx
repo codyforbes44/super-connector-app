@@ -24,6 +24,7 @@ import {
   saveAssistantProfile,
 } from "@/lib/elevenlabs.functions";
 import { prepareReceptionistTools } from "@/lib/receptionist.functions";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/assistant/$sid")({
   head: () => ({
@@ -138,7 +139,7 @@ function AssistantConfigScreen() {
           : "Assistant settings saved.",
       );
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setSaving(false);
     }
@@ -297,7 +298,7 @@ function AssistantConfigScreen() {
                     },
                   })
                     .then((result) => toast.message(result.reason))
-                    .catch((error: unknown) => toast.error(errorMessage(error)));
+                    .catch((error: unknown) => toastError(error));
                 }}
               >
                 Prepare booking tools

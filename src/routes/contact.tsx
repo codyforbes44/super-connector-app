@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { errorMessage } from "@/lib/format";
 import { submitLead } from "@/lib/payments.functions";
 import { SITE_URL, breadcrumbLd, pageHead } from "@/lib/seo";
+import { toastError } from "@/lib/toast-error";
 
 const TITLE = "Contact SixVox — help with your business line";
 const DESCRIPTION =
@@ -77,7 +78,7 @@ function ContactPage() {
       setForm({ name: "", email: "", company: "", message: "" });
       toast.success("Thanks — we'll be in touch shortly.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

@@ -7,6 +7,7 @@ import { AgentEditorSheet } from "@/components/receptionist/AgentEditorSheet";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/format";
 import { deleteElevenLabsAgent, listElevenLabsAgents } from "@/lib/elevenlabs.functions";
+import { toastError } from "@/lib/toast-error";
 
 export const agentsQuery = {
   queryKey: ["el-agents"] as const,
@@ -36,7 +37,7 @@ export function AgentList({
       await onRefresh();
       toast.success("Agent deleted.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setRemoving(null);
     }

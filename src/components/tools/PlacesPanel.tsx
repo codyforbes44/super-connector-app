@@ -29,6 +29,7 @@ import {
   removeFavoritePlace,
   saveFavoritePlace,
 } from "@/lib/tools.functions";
+import { toastError } from "@/lib/toast-error";
 
 type Place = {
   id: string;
@@ -121,7 +122,7 @@ export function PlacesPanel() {
       setNickname("");
       await queryClient.invalidateQueries({ queryKey: ["saved-places"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const remove = useMutation({
@@ -129,7 +130,7 @@ export function PlacesPanel() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["saved-places"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const favoriteList = useMemo(

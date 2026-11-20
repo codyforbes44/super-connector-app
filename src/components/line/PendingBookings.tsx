@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { errorMessage, formatPhone } from "@/lib/format";
 import { approveBooking, declineBooking, listPendingBookings } from "@/lib/receptionist.functions";
+import { toastError } from "@/lib/toast-error";
 
 export type PendingPreview = {
   id: string;
@@ -41,7 +42,7 @@ export function PendingBookings({ preview }: { preview?: PendingPreview[] }) {
       );
       await queryClient.invalidateQueries({ queryKey: ["pending-bookings"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   if (!rows.length) return null;

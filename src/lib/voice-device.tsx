@@ -22,6 +22,7 @@ import {
   watchMicPermission,
   type MicState,
 } from "@/lib/media";
+import { toastError } from "@/lib/toast-error";
 
 type Call = {
   disconnect: () => void;
@@ -134,7 +135,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       return true;
     } catch (err) {
       setMicState(await readMicPermission());
-      toast.error(errorMessage(err));
+      toastError(err);
       return false;
     }
   }, []);

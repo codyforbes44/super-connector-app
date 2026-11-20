@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/format";
 import { getInsights } from "@/lib/intelligence.functions";
 import { emailWeeklyReport, previewWeeklyReport } from "@/lib/receptionist.functions";
+import { toastError } from "@/lib/toast-error";
 
 const DESCRIPTION =
   "See how your week went: calls answered and missed, busiest hours, and what people called about.";
@@ -162,7 +163,7 @@ function WeeklyReport() {
       toast.success(
         result.sent ? "Weekly report emailed." : (result.error ?? "Email was not sent."),
       ),
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
   return (
     <section className="space-y-2 px-4 pt-5" aria-label="Weekly report">

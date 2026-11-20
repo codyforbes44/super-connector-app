@@ -16,6 +16,7 @@ import { errorMessage, formatPhone, initialsFor, relativeTime } from "@/lib/form
 import { markConversationRead } from "@/lib/twilio.functions";
 import { useHistoryImport } from "@/components/HistoryImportDialog";
 import { cn } from "@/lib/utils";
+import { toastError } from "@/lib/toast-error";
 
 /**
  * Conversation list. On phones it is the whole Inbox screen; from `md:` up it
@@ -83,7 +84,7 @@ export function InboxList({ activeId }: { activeId?: string }) {
       await markConversationRead({ data: { conversationId: id } });
       await queryClient.invalidateQueries({ queryKey: ["conversations"] });
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     }
   }
 

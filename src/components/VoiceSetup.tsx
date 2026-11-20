@@ -14,6 +14,7 @@ import {
   voiceSetupStatus,
   listTwimlApps,
 } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 type AppRow = {
   sid: string;
@@ -52,7 +53,7 @@ export function VoiceSetup() {
         queryClient.invalidateQueries({ queryKey: ["voice-setup"] }),
       ]);
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

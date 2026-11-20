@@ -23,6 +23,7 @@ import {
   savePortInDraft,
   saveReviewRequestSettings,
 } from "@/lib/trade.functions";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/integrations")({
   validateSearch: (search: Record<string, unknown>): { stripe?: "return" | "refresh" } => {
@@ -112,7 +113,7 @@ function IntegrationsScreen() {
           await queryClient.invalidateQueries({ queryKey: ["integrations-overview"] });
         }
       } catch (error) {
-        if (!cancelled) toast.error(errorMessage(error));
+        if (!cancelled) toastError(error);
       }
     })();
     return () => {
@@ -126,7 +127,7 @@ function IntegrationsScreen() {
       await task();
       await queryClient.invalidateQueries({ queryKey: ["integrations-overview"] });
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(null);
     }
@@ -209,7 +210,7 @@ function IntegrationsScreen() {
             try {
               return await savePortInDraft({ data: { draft, bill } });
             } catch (error) {
-              toast.error(errorMessage(error));
+              toastError(error);
               throw error;
             } finally {
               setBusy(null);
@@ -222,7 +223,7 @@ function IntegrationsScreen() {
               await queryClient.invalidateQueries({ queryKey: ["integrations-overview"] });
               return { submitted: result.submitted, reason: result.reason };
             } catch (error) {
-              toast.error(errorMessage(error));
+              toastError(error);
               throw error;
             } finally {
               setBusy(null);

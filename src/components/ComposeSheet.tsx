@@ -17,6 +17,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage, formatPhone } from "@/lib/format";
 import { listMessagingServices, sendMessage, textingReadiness } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 export type AppNumber = { sid: string; phone_number: string; friendly_name: string | null };
 
@@ -84,7 +85,7 @@ export function ComposeSheet({
       setBody("");
       await navigate({ to: "/inbox/$id", params: { id: result.conversationId } });
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

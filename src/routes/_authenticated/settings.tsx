@@ -41,6 +41,7 @@ import { EmailNotifications } from "@/components/EmailNotifications";
 import { OutboundWebhooks } from "@/components/settings/OutboundWebhooks";
 import { Badge } from "@/components/ui/badge";
 import { listTeam, setTeamRole, updateMyProfile } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -109,7 +110,7 @@ function SettingsScreen() {
               await queryClient.invalidateQueries({ queryKey: ["bootstrap"] });
               toast.success("Profile saved.");
             } catch (error) {
-              toast.error(errorMessage(error));
+              toastError(error);
             }
           }}
         >
@@ -187,7 +188,7 @@ function SettingsScreen() {
                           await team.refetch();
                           toast.success("Role updated.");
                         } catch (error) {
-                          toast.error(errorMessage(error));
+                          toastError(error);
                         }
                       }}
                     >

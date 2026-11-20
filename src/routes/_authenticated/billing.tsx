@@ -23,6 +23,7 @@ import {
 } from "@/lib/plans";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   validateSearch: (
@@ -101,7 +102,7 @@ function BillingScreen() {
       if ("error" in result) throw new Error(result.error);
       window.open(result.url, "_blank", "noopener");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setPortalBusy(false);
     }

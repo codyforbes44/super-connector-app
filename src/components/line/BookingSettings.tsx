@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { errorMessage } from "@/lib/format";
 import { getBookingSettings, saveBookingSettings } from "@/lib/integrations.functions";
 import { campaignApproved } from "@/lib/message-status";
+import { toastError } from "@/lib/toast-error";
 
 const DAYS = [
   [1, "Mon"],
@@ -120,7 +121,7 @@ export function BookingSettings({ sid, preview }: { sid?: string; preview?: Book
       toast.success("Booking settings saved.");
       await queryClient.invalidateQueries({ queryKey: ["booking-settings", sid] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   return (

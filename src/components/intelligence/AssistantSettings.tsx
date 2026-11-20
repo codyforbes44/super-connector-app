@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage } from "@/lib/format";
 import { getAssistantSettings, saveAssistantSettings } from "@/lib/intelligence.functions";
+import { toastError } from "@/lib/toast-error";
 
 /**
  * Call intelligence controls: what the assistant is told, whether calls are
@@ -31,7 +32,7 @@ export function AssistantSettings() {
       await qc.invalidateQueries({ queryKey: ["assistant-settings"] });
       toast.success(message);
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     }
   }
 

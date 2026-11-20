@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { errorMessage } from "@/lib/format";
 import { listEmailTemplates, previewEmailTemplate, saveEmailTemplate } from "@/lib/tools.functions";
+import { toastError } from "@/lib/toast-error";
 
 type Draft = {
   subject: string;
@@ -71,7 +72,7 @@ export function EmailTemplatesPanel() {
       toast.success("Template copy saved");
       await queryClient.invalidateQueries({ queryKey: ["email-templates"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   return (

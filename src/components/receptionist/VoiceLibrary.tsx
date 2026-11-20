@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { errorMessage } from "@/lib/format";
 import { listElevenLabsVoices, previewVoice } from "@/lib/elevenlabs.functions";
+import { toastError } from "@/lib/toast-error";
 
 export type VoiceOption = {
   voice_id: string;
@@ -77,7 +78,7 @@ export function VoiceLibrary({
       audio.onended = () => setPlaying(null);
       await audio.play();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
       setPlaying(null);
     }
   }

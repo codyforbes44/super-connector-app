@@ -28,6 +28,7 @@ import {
   sendWebhookTest,
   updateWebhookEndpoint,
 } from "@/lib/webhook-settings.functions";
+import { toastError } from "@/lib/toast-error";
 
 type Endpoint = {
   id: string;
@@ -110,7 +111,7 @@ export function OutboundWebhooks({ preview = false }: { preview?: boolean }) {
       await query.refetch();
       await navigator.clipboard.writeText(created.secret).catch(() => undefined);
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -189,7 +190,7 @@ export function OutboundWebhooks({ preview = false }: { preview?: boolean }) {
                     data: { id: endpoint.id, enabled: !endpoint.enabled },
                   })
                     .then(() => query.refetch())
-                    .catch((error: unknown) => toast.error(errorMessage(error)));
+                    .catch((error: unknown) => toastError(error));
                 }}
               >
                 {endpoint.enabled ? "Disable" : "Enable"}
@@ -224,7 +225,7 @@ export function OutboundWebhooks({ preview = false }: { preview?: boolean }) {
                       toast.success("Test event queued.");
                       await query.refetch();
                     })
-                    .catch((error: unknown) => toast.error(errorMessage(error)));
+                    .catch((error: unknown) => toastError(error));
                 }}
               >
                 Send test event
@@ -237,7 +238,7 @@ export function OutboundWebhooks({ preview = false }: { preview?: boolean }) {
                   if (!confirm("Delete this endpoint and its delivery log?")) return;
                   void deleteWebhookEndpoint({ data: { id: endpoint.id } })
                     .then(() => query.refetch())
-                    .catch((error: unknown) => toast.error(errorMessage(error)));
+                    .catch((error: unknown) => toastError(error));
                 }}
               >
                 Delete
@@ -282,7 +283,7 @@ export function OutboundWebhooks({ preview = false }: { preview?: boolean }) {
                         toast.success("Delivery re-sent.");
                         await query.refetch();
                       })
-                      .catch((error: unknown) => toast.error(errorMessage(error)));
+                      .catch((error: unknown) => toastError(error));
                   }}
                 >
                   Re-send

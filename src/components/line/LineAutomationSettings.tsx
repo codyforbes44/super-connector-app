@@ -31,6 +31,7 @@ import {
   DEFAULT_TEXT_BACK_TEMPLATE,
   textBackDraftForLanguage,
 } from "@/lib/missed-call";
+import { toastError } from "@/lib/toast-error";
 
 const DAY_LABEL: Record<(typeof DAY_KEYS)[number], string> = {
   sun: "Sunday",
@@ -165,7 +166,7 @@ export function LineAutomationSettings({
       toast.success(`Line automation saved. ${transferNote} ${saved.languageSync.detail}`);
       await query.refetch();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

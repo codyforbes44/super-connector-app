@@ -25,6 +25,7 @@ import {
 } from "@/lib/compliance.functions";
 import { inferBusinessIdType } from "@/lib/compliance/trusthub";
 import { errorMessage } from "@/lib/format";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/trust")({
   head: () => ({
@@ -100,7 +101,7 @@ function TrustScreen() {
               setMessage(result.message);
               toast.success(result.message);
             })
-            .catch((error: unknown) => toast.error(errorMessage(error)))
+            .catch((error: unknown) => toastError(error))
             .finally(() => setBusy(false));
         }}
       />
@@ -160,7 +161,7 @@ function ConsentLogs() {
               data: { phoneNumber: phone, purpose, consented: true, source },
             })
               .then(() => toast.success("Consent saved."))
-              .catch((error: unknown) => toast.error(errorMessage(error)));
+              .catch((error: unknown) => toastError(error));
           }}
         >
           Save consent
@@ -194,7 +195,7 @@ function ConsentLogs() {
               data: { phoneNumber: aiPhone, consented: true, source: aiSource },
             })
               .then(() => toast.success("AI voice consent saved. No call was placed."))
-              .catch((error: unknown) => toast.error(errorMessage(error)));
+              .catch((error: unknown) => toastError(error));
           }}
         >
           Save AI voice consent
@@ -224,7 +225,7 @@ function ConsentLogs() {
               data: { messagingServiceSid: serviceSid, confirmed: true },
             })
               .then((result) => toast.success(result.note))
-              .catch((error: unknown) => toast.error(errorMessage(error)));
+              .catch((error: unknown) => toastError(error));
           }}
         >
           I enabled Advanced Opt-Out in the Console

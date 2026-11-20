@@ -10,6 +10,7 @@ import { errorMessage, formatPhone } from "@/lib/format";
 import { getCallDetail, reanalyseCall } from "@/lib/intelligence.functions";
 import { assignCallLead } from "@/lib/receptionist.functions";
 import { listTeam } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 type Turn = { speaker?: string; text?: string };
 
@@ -66,7 +67,7 @@ export function CallSummaryCard({
       await qc.invalidateQueries({ queryKey: ["call-summaries"] });
       toast.success("Summary refreshed.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const intel = detail.data?.intelligence as
@@ -220,7 +221,7 @@ export function CallSummaryCard({
                   await qc.invalidateQueries({ queryKey: ["call-detail", callSid] });
                   toast.success("Assignment saved.");
                 })
-                .catch((error: unknown) => toast.error(errorMessage(error)));
+                .catch((error: unknown) => toastError(error));
             }}
           >
             <option value="">Unassigned</option>

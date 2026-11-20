@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { QuietHoursCard, type QuietHoursValue } from "@/components/compliance/QuietHoursCard";
 import { getQuietHoursSettings, saveQuietHoursSettings } from "@/lib/compliance.functions";
 import { errorMessage } from "@/lib/format";
+import { toastError } from "@/lib/toast-error";
 
 const DEFAULTS: QuietHoursValue = {
   enabled: false,
@@ -35,7 +36,7 @@ export function QuietHoursSettings() {
             toast.success("Quiet hours saved.");
             return query.refetch();
           })
-          .catch((error: unknown) => toast.error(errorMessage(error)))
+          .catch((error: unknown) => toastError(error))
           .finally(() => setBusy(false));
       }}
     />

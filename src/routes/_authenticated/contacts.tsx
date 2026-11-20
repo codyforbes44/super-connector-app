@@ -19,6 +19,7 @@ import {
   removeContact,
   saveContact,
 } from "@/lib/contacts.functions";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/contacts")({
   head: () => ({
@@ -106,7 +107,7 @@ function ContactsScreen() {
         `Added ${result.imported} · updated ${result.updated}${result.skipped ? ` · skipped ${result.skipped}` : ""}`,
       );
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const del = useMutation({
@@ -115,7 +116,7 @@ function ContactsScreen() {
       await refresh();
       toast.success("Contact removed.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const rows = (contacts.data ?? []) as Contact[];
@@ -313,7 +314,7 @@ function ContactSheet({
       toast.success("Contact saved.");
       await onSaved();
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   return (

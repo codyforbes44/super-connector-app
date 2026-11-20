@@ -21,6 +21,7 @@ import {
   listUpcomingEvents,
 } from "@/lib/integrations.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { toastError } from "@/lib/toast-error";
 
 const fmt = (iso: string) =>
   iso
@@ -76,7 +77,7 @@ export function CalendarPanel() {
       void events.refetch();
       void slots.refetch();
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   if (calendars.data && calendars.data.length === 0) {

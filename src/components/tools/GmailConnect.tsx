@@ -9,6 +9,7 @@ import {
   getGmailConnection,
   startGmailConnect,
 } from "@/lib/gmail-connect.functions";
+import { toastError } from "@/lib/toast-error";
 
 const CONNECTOR_ID = "google_mail";
 
@@ -72,7 +73,7 @@ export function GmailConnect({ compact = false }: { compact?: boolean }) {
       await queryClient.invalidateQueries({ queryKey: ["gmail"] });
       await queryClient.invalidateQueries({ queryKey: ["integration-status"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const unlink = useMutation({
@@ -82,7 +83,7 @@ export function GmailConnect({ compact = false }: { compact?: boolean }) {
       await queryClient.invalidateQueries({ queryKey: ["gmail-connection"] });
       await queryClient.invalidateQueries({ queryKey: ["gmail"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const data = connection.data;

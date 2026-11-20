@@ -10,6 +10,7 @@ import {
   subscribeE911NoticeDismissals,
 } from "@/lib/compliance/e911-session";
 import { errorMessage } from "@/lib/format";
+import { toastError } from "@/lib/toast-error";
 
 /**
  * Shows the 911 disclosure when this user has not acknowledged the current
@@ -38,7 +39,7 @@ export function E911Gate({ userId }: { userId: string }) {
             await queryClient.invalidateQueries({ queryKey: ["e911-gate"] });
             toast.success("911 acknowledgment saved.");
           })
-          .catch((error: unknown) => toast.error(errorMessage(error)));
+          .catch((error: unknown) => toastError(error));
       }}
     />
   );

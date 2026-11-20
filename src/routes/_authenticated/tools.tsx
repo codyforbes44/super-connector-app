@@ -32,6 +32,7 @@ import {
   lookupNumber,
   startVerification,
 } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/tools")({
   head: () => ({
@@ -156,7 +157,7 @@ function VerifyPanel() {
                 await services.refetch();
                 toast.success("Verify service created.");
               } catch (error) {
-                toast.error(errorMessage(error));
+                toastError(error);
               }
             }}
           >
@@ -217,7 +218,7 @@ function VerifyPanel() {
             await startVerification({ data: { serviceSid: activeService, to: phone, channel } });
             toast.success("Passcode sent.");
           } catch (error) {
-            toast.error(errorMessage(error));
+            toastError(error);
           }
         }}
       >
@@ -247,7 +248,7 @@ function VerifyPanel() {
               if (result.status === "approved") toast.success("Code approved.");
               else toast.error(`Verification ${result.status ?? "failed"}.`);
             } catch (error) {
-              toast.error(errorMessage(error));
+              toastError(error);
             }
           }}
         >
@@ -268,7 +269,7 @@ function LookupPanel() {
       await history.refetch();
       toast.success("Lookup complete.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   return (

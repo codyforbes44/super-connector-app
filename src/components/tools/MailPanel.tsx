@@ -16,6 +16,7 @@ import {
   searchMail,
   sendMailMessage,
 } from "@/lib/integrations.functions";
+import { toastError } from "@/lib/toast-error";
 
 export function MailPanel({ presetEmail }: { presetEmail?: string }) {
   const [query, setQuery] = useState(presetEmail ?? "");
@@ -44,7 +45,7 @@ export function MailPanel({ presetEmail }: { presetEmail?: string }) {
       void thread.refetch();
       void mail.refetch();
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const send = useMutation({
@@ -54,7 +55,7 @@ export function MailPanel({ presetEmail }: { presetEmail?: string }) {
       setCompose((c) => ({ ...c, subject: "", body: "" }));
       void mail.refetch();
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   if (mail.data && !mail.data.connected) {

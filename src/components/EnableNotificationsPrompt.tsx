@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import { errorMessage } from "@/lib/format";
 import { currentSubscription, enablePush, pushPermission, pushSupported } from "@/lib/push";
 import { savePushSubscription } from "@/lib/push.functions";
+import { toastError } from "@/lib/toast-error";
 
 const SNOOZE_KEY = "sixvox.notifications.snoozed-until";
 const SNOOZE_MS = 3 * 24 * 60 * 60 * 1000;
@@ -50,7 +51,7 @@ export function EnableNotificationsPrompt() {
       setOpen(false);
       toast.success("Notifications on — calls, texts and voicemail will alert this device.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

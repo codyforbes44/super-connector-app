@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { errorMessage } from "@/lib/format";
 import { listSubscribers, updateSubscriber } from "@/lib/payments.functions";
 import { planByCode } from "@/lib/plans";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/platform/accounts")({
   head: () => ({
@@ -38,7 +39,7 @@ function SubscribersScreen() {
       toast.success("Subscriber updated");
       void queryClient.invalidateQueries({ queryKey: ["subscribers"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const term = search.trim().toLowerCase();

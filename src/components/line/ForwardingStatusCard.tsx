@@ -13,6 +13,7 @@ import {
   stepsFor,
   type ForwardMode,
 } from "@/lib/forwarding-codes";
+import { toastError } from "@/lib/toast-error";
 
 type Row = {
   personal_number: string;
@@ -99,7 +100,7 @@ export function ForwardingStatusCard({ row, onEdit }: { row: Row; onEdit: () => 
                 await qc.invalidateQueries({ queryKey: ["my-forwarding"] });
                 toast.success("Forwarding marked as off.");
               } catch (error) {
-                toast.error(errorMessage(error));
+                toastError(error);
               }
             }}
           >

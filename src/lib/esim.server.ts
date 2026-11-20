@@ -213,7 +213,10 @@ export async function finalizeOrder(
       })
       .eq("id", order.id);
 
-    const sim = await placeOrder(order.package_id, `sixvox-${order.id}`);
+    // A test-mode payment must never buy a real eSIM from the partner.
+    const sim = placesRealOrder((order as { environment?: string }).environment, process.env["AIRALO_BASE_URL"])
+      ? await placeOrder(order.package_id, `sixvox-${order.id}`)
+      : testModeSim(order.id);
 
     const { data: updated } = await supabaseAdmin
       .from("esim_orders")
@@ -257,4 +260,24 @@ export async function orderUsage(supabase: SB, userId: string, orderId: string) 
   const iccid = (data as { iccid: string | null } | null)?.iccid;
   if (!iccid) return null;
   return fetchUsage(iccid);
+}
+
+/** Real partner orders only for live payments, or test payments against the partner's sandbox. */
+export function placesRealOrder(environment: string | null | undefined, providerBaseUrl?: string): boolean {
+  if (environment === "live") return true;
+  return Boolean(providerBaseUrl && /sandbox/i.test(providerBaseUrl));
+}
+
+/** Clearly fake profile returned for test-mode purchases. */
+export function testModeSim(orderId: string) {
+  return {
+    orderId: `test-${orderId}`,
+    iccid: "TEST-0000000000000000000",
+    activationCode: "LPA:1$test.invalid$TEST-MODE",
+    matchingId: "TEST-MODE",
+    smdpAddress: "test.invalid",
+    qrCodeUrl: null as string | null,
+    apn: null as string | null,
+    instructions: { note: "Test-mode purchase — no real eSIM was issued." } as Record<string, string | null>,
+  };
 }

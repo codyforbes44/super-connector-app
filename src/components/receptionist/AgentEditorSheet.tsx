@@ -22,6 +22,7 @@ import {
   getElevenLabsAgent,
   updateElevenLabsAgent,
 } from "@/lib/elevenlabs.functions";
+import { toastError } from "@/lib/toast-error";
 
 export const AGENT_LANGUAGES = [
   ["en", "English"],
@@ -107,7 +108,7 @@ export function AgentEditorSheet({
       toast.success(agentId ? "Agent updated." : "Agent created.");
       onClose();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setSaving(false);
     }

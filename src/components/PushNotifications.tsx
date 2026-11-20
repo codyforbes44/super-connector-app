@@ -22,6 +22,7 @@ import {
   savePushAlertPrefs,
   sendTestPush,
 } from "@/lib/push.functions";
+import { toastError } from "@/lib/toast-error";
 
 export function PushNotifications() {
   const queryClient = useQueryClient();
@@ -49,7 +50,7 @@ export function PushNotifications() {
     try {
       await savePushAlertPrefs({ data: { [key]: value } });
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
       await queryClient.invalidateQueries({ queryKey: ["push-alert-prefs"] });
     }
   }
@@ -79,7 +80,7 @@ export function PushNotifications() {
       await queryClient.invalidateQueries({ queryKey: ["push-devices"] });
       toast.success("Alerts on. You'll be notified about new messages and missed calls.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -94,7 +95,7 @@ export function PushNotifications() {
       await queryClient.invalidateQueries({ queryKey: ["push-devices"] });
       toast.success("Alerts off on this device.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -108,7 +109,7 @@ export function PushNotifications() {
         sent ? "Test alert sent." : "No registered devices to notify yet.",
       );
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

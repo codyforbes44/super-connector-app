@@ -13,6 +13,7 @@ import { toast } from "sonner";
 
 import { errorMessage } from "@/lib/format";
 import { applySuggestedAction } from "@/lib/intelligence.functions";
+import { toastError } from "@/lib/toast-error";
 
 export type SuggestedAction = { kind: string; label: string; value?: string };
 
@@ -54,7 +55,7 @@ export function ActionSuggestions({
       setDone((prev) => ({ ...prev, [input.index]: true }));
       toast.success(result.message ?? "Done.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const usable = items.filter((item) => item.label?.trim());

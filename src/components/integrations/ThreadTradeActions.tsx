@@ -13,6 +13,7 @@ import {
   pushCallToJobber,
   sendPaymentLink,
 } from "@/lib/trade.functions";
+import { toastError } from "@/lib/toast-error";
 
 type Panel = "jobber" | "housecall" | "payment" | null;
 
@@ -86,7 +87,7 @@ export function ThreadTradeActions({
     try {
       await task();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

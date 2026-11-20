@@ -24,6 +24,7 @@ import {
   stepsFor,
   type ForwardMode,
 } from "@/lib/forwarding-codes";
+import { toastError } from "@/lib/toast-error";
 
 export const forwardingQuery = {
   queryKey: ["my-forwarding"] as const,
@@ -85,7 +86,7 @@ function Wizard({
       toast.success("Forwarding setup saved.");
       await onDone();
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const steps = stepsFor(carrier, mode);

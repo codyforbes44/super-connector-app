@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { errorMessage, formatPhone } from "@/lib/format";
 import { platformAddPerson, platformMoveNumber, platformNumberDetail, platformSetAssignee } from "@/lib/platform.functions";
+import { toastError } from "@/lib/toast-error";
 
 export function ManageNumberSheet({ id, onClose }: { id: string | null; onClose: () => void }) {
   const qc = useQueryClient();
@@ -24,7 +25,7 @@ export function ManageNumberSheet({ id, onClose }: { id: string | null; onClose:
   const run = useMutation({
     mutationFn: (fn: () => Promise<unknown>) => fn(),
     onSuccess: () => { toast.success("Saved"); refresh(); },
-    onError: (e) => toast.error(errorMessage(e)),
+    onError: (e) => toastError(e),
   });
   const d = q.data;
 

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { errorMessage, formatPhone } from "@/lib/format";
 import { deleteCallerRule, listCallerRules, saveCallerRule } from "@/lib/intelligence.functions";
+import { toastError } from "@/lib/toast-error";
 
 type Behavior = "vip" | "screen" | "block";
 
@@ -40,7 +41,7 @@ export function CallerRules() {
       await qc.invalidateQueries({ queryKey: ["caller-rules"] });
       toast.success("Rule saved.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const remove = useMutation({
@@ -48,7 +49,7 @@ export function CallerRules() {
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["caller-rules"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   return (

@@ -17,6 +17,7 @@ import { errorMessage } from "@/lib/format";
 import { esimUsage, finalizeEsimOrder, listEsimPackages, listMyEsims } from "@/lib/esim.functions";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/esim")({
   validateSearch: (search: Record<string, unknown>): { esim_order?: string } => {
@@ -76,7 +77,7 @@ function EsimScreen() {
         if (result.order) setDetail(result.order.id);
       }
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   // Coming back from Stripe: confirm payment and provision the profile.

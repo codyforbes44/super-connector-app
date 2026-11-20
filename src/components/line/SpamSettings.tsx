@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { errorMessage } from "@/lib/format";
 import { listCallerRules, removeCallerRule, saveCallerRule } from "@/lib/receptionist.functions";
+import { toastError } from "@/lib/toast-error";
 
 export type SpamPreviewRule = {
   id: string;
@@ -33,14 +34,14 @@ export function SpamSettings({ preview }: { preview?: SpamPreviewRule[] }) {
       toast.success(list === "block" ? "Blocked." : "Allowed.");
       await queryClient.invalidateQueries({ queryKey: ["caller-rules"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
   const remove = useMutation({
     mutationFn: (id: string) => removeCallerRule({ data: { id } }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["caller-rules"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   return (

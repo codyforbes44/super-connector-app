@@ -30,6 +30,7 @@ import {
   startCall,
 } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
+import { toastError } from "@/lib/toast-error";
 
 export const Route = createFileRoute("/_authenticated/inbox/$id")({
   head: () => ({
@@ -188,7 +189,7 @@ function ThreadScreen() {
       await queryClient.invalidateQueries({ queryKey: ["messages", id] });
     } catch (error) {
       setDraft(text);
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -200,7 +201,7 @@ function ThreadScreen() {
       await startCall({ data: { appNumber: convo.app_number, to: convo.contact_number } });
       toast.success("Calling your phone now — answer to be connected.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     }
   }
 

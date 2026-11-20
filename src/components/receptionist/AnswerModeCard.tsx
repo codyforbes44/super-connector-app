@@ -20,6 +20,7 @@ import type { LineLanguage } from "@/lib/answering/language";
 import { previewVoice, renderGreeting, saveVoiceAssistant } from "@/lib/elevenlabs.functions";
 import { errorMessage } from "@/lib/format";
 import { getLineAutomation, saveLineAnsweringLanguage } from "@/lib/line-automation.functions";
+import { toastError } from "@/lib/toast-error";
 
 export type AnswerModeNumber = {
   sid: string;
@@ -109,7 +110,7 @@ export function AnswerModeCard({
       const result = await previewVoice({ data: { voiceId, text: greeting } });
       play(result.dataUrl);
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(null);
     }
@@ -127,7 +128,7 @@ export function AnswerModeCard({
       await onChanged();
       toast.success("Greeting recorded in that voice.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(null);
     }
@@ -170,7 +171,7 @@ export function AnswerModeCard({
         );
       }
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(null);
     }

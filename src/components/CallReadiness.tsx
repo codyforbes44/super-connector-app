@@ -8,6 +8,7 @@ import { currentSubscription, enablePush, pushPermission, pushSupported } from "
 import { savePushSubscription } from "@/lib/push.functions";
 import { useVoice } from "@/lib/voice-device";
 import { cn } from "@/lib/utils";
+import { toastError } from "@/lib/toast-error";
 
 function isIosSafari() {
   if (typeof navigator === "undefined") return false;
@@ -45,7 +46,7 @@ export function CallReadiness() {
       setSubscribed(true);
       toast.success("Alerts on — this device will ring for incoming calls.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

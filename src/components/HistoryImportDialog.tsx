@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/format";
 import { importHistory, importCallHistory, previewHistoryImport } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 export function useHistoryImport(kind: "calls" | "messages", onComplete: () => Promise<unknown>) {
   const [busy, setBusy] = useState(false);
@@ -21,7 +22,7 @@ export function useHistoryImport(kind: "calls" | "messages", onComplete: () => P
     try {
       setPreview(await previewHistoryImport({ data: { kind } }));
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -36,7 +37,7 @@ export function useHistoryImport(kind: "calls" | "messages", onComplete: () => P
       setPreview(null);
       await onComplete();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

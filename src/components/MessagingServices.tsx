@@ -24,6 +24,7 @@ import {
   messagingServiceDetail,
   removeNumberFromMessagingService,
 } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 export type ServiceRow = { sid: string; friendly_name: string };
 type PoolNumber = { sid: string; phone_number: string };
@@ -53,7 +54,7 @@ export function MessagingServicesSection({
       await services.refetch();
       toast.success("Messaging Service created and pointed at SixVox.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const list = (services.data ?? []) as unknown as ServiceRow[];
@@ -226,7 +227,7 @@ function ServiceSheet({
                           await refresh();
                           toast.success("Number removed from pool.");
                         } catch (error) {
-                          toast.error(errorMessage(error));
+                          toastError(error);
                         }
                       }}
                     >
@@ -267,7 +268,7 @@ function ServiceSheet({
                     await refresh();
                     toast.success("Number added to pool.");
                   } catch (error) {
-                    toast.error(errorMessage(error));
+                    toastError(error);
                   }
                 }}
               >

@@ -12,6 +12,7 @@ import { errorMessage } from "@/lib/format";
 import { PLANS, type BillingInterval, type PlanCode } from "@/lib/plans";
 import { safeRedirectPath, useSession } from "@/hooks/useSession";
 import { isRemembered, setRememberMe } from "@/lib/session-keeper";
+import { toastError } from "@/lib/toast-error";
 
 const TITLE = "Sign in or start your free trial — SixVox";
 
@@ -118,7 +119,7 @@ function AuthScreen() {
       }
       await nextDestination();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }

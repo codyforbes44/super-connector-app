@@ -18,6 +18,7 @@ import {
   migrateWorkspaceTelephony,
   webhookDiagnostics,
 } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 const TITLE = "Advanced — SixVox";
 const DESCRIPTION = "Carrier account health, routing endpoints and the raw API console.";
@@ -139,7 +140,7 @@ function SubaccountMove() {
             .then((result) => {
               toast.success(`Moved ${result.moved.length}. Skipped ${result.skipped.length}.`);
             })
-            .catch((error) => toast.error(errorMessage(error)))
+            .catch((error) => toastError(error))
             .finally(() => setBusy(false));
         }}
       >

@@ -35,6 +35,7 @@ import {
   updateMyProfile,
   upsertCallerIdRoute,
 } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 const NONE = "__none__";
 
@@ -96,7 +97,7 @@ export function CallingSettings() {
       await refreshBoot();
       toast.success("Callback number saved.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const testCall = useMutation({
@@ -104,7 +105,7 @@ export function CallingSettings() {
       sendTestCall({ data: { appNumber: defaultNumber || null, to: testTo.trim() || null } }),
     onSuccess: (result) =>
       toast.success(`Calling ${formatPhone(result.to)} from ${formatPhone(result.callerId)}…`),
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const saveRoute = useMutation({
@@ -118,7 +119,7 @@ export function CallingSettings() {
       await routes.refetch();
       toast.success("Caller ID rule saved.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const removeRoute = useMutation({
@@ -127,7 +128,7 @@ export function CallingSettings() {
       await routes.refetch();
       toast.success("Rule removed.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const saveDefault = useMutation({
@@ -136,7 +137,7 @@ export function CallingSettings() {
       await refreshBoot();
       toast.success("Default number saved.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const startVerification = useMutation({
@@ -147,7 +148,7 @@ export function CallingSettings() {
       await callerIds.refetch();
       toast.success("We're calling that number now — enter the code shown below.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const removeCallerId = useMutation({
@@ -157,7 +158,7 @@ export function CallingSettings() {
       await Promise.all([callerIds.refetch(), refreshBoot()]);
       toast.success("Caller ID removed.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const assignCallerId = useMutation({
@@ -167,7 +168,7 @@ export function CallingSettings() {
       await refreshBoot();
       toast.success("Outbound caller ID updated.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   return (

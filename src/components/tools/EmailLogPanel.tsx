@@ -24,6 +24,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { errorMessage, relativeTime } from "@/lib/format";
 import { getIntegrationStatus } from "@/lib/integrations.functions";
 import { getEmailDetail, listEmailDeliveries, retryEmailDelivery } from "@/lib/tools.functions";
+import { toastError } from "@/lib/toast-error";
 
 const STATUSES = ["all", "sent", "delivered", "bounced", "complained", "failed", "skipped"];
 
@@ -67,7 +68,7 @@ export function EmailLogPanel() {
       setDetailId(null);
       await queryClient.invalidateQueries({ queryKey: ["email-deliveries"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const stats = deliveries.data?.stats;

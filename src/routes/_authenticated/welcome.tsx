@@ -27,6 +27,7 @@ import {
 } from "@/lib/onboarding.functions";
 import { purchaseNumber, searchAvailableNumbers, sendTestCall } from "@/lib/twilio.functions";
 import { cn } from "@/lib/utils";
+import { toastError } from "@/lib/toast-error";
 
 const TITLE = "Set up your workspace — SixVox";
 const DESCRIPTION =
@@ -128,7 +129,7 @@ function Welcome() {
       setOptions(list.slice(0, 3));
       if (list.length === 0) toast.info("No numbers in that area code — try another.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setSearching(false);
     }
@@ -143,7 +144,7 @@ function Welcome() {
       setOptions([]);
       toast.success(`${formatPhone(phoneNumber)} is yours.`);
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setClaiming(null);
     }
@@ -162,7 +163,7 @@ function Welcome() {
       setCalled(true);
       toast.success("Calling you now — pick up to hear your line.");
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -197,7 +198,7 @@ function Welcome() {
         await navigate({ to: "/inbox" });
       }
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -209,7 +210,7 @@ function Welcome() {
       await saveProfile({ onboarding_skipped: true });
       await navigate({ to: "/inbox" });
     } catch (error) {
-      toast.error(errorMessage(error));
+      toastError(error);
     } finally {
       setBusy(false);
     }
@@ -318,7 +319,7 @@ function Welcome() {
                       setBusy(true);
                       void startPhoneVerification({ data: { phone: verifyPhone } })
                         .then(() => toast.success("We texted you a code."))
-                        .catch((error) => toast.error(errorMessage(error)))
+                        .catch((error) => toastError(error))
                         .finally(() => setBusy(false));
                     }}
                   >
@@ -350,7 +351,7 @@ function Welcome() {
                           setPhoneVerified(true);
                           toast.success("Phone verified.");
                         })
-                        .catch((error) => toast.error(errorMessage(error)))
+                        .catch((error) => toastError(error))
                         .finally(() => setBusy(false));
                     }}
                   >

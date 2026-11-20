@@ -12,6 +12,7 @@ import {
 } from "@/lib/compliance.functions";
 import type { SuggestedAddress } from "@/lib/compliance/e911";
 import { errorMessage } from "@/lib/format";
+import { toastError } from "@/lib/toast-error";
 
 type StoredAddress = {
   phone_number_sid: string;
@@ -102,7 +103,7 @@ export function LineCompliance({
                 enabled ? "Recording is on for this line." : "Recording is off for this line.",
               );
             })
-            .catch((error: unknown) => toast.error(errorMessage(error)))
+            .catch((error: unknown) => toastError(error))
             .finally(() => setBusyRecording(false));
         }}
       />
@@ -154,7 +155,7 @@ export function LineCompliance({
                 `Address saved. Emergency calling is $${(result.feeCents / 100).toFixed(2)} per number per month.`,
               );
             })
-            .catch((error: unknown) => toast.error(errorMessage(error)))
+            .catch((error: unknown) => toastError(error))
             .finally(() => setBusyAddress(false));
         }}
       />

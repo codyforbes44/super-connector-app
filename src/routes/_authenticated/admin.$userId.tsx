@@ -22,6 +22,7 @@ import { listForwardingSetups, setForwardingStatus } from "@/lib/byo.functions";
 import { FORWARD_MODE_LABEL, carrierById, type ForwardMode } from "@/lib/forwarding-codes";
 import { errorMessage, formatPhone } from "@/lib/format";
 import { assignNumber, listTeam } from "@/lib/twilio.functions";
+import { toastError } from "@/lib/toast-error";
 
 const TITLE = "Member account — SixVox";
 const DESCRIPTION = "Set up a member's line, answering and forwarding on their behalf.";
@@ -66,7 +67,7 @@ function MemberAccount() {
       setAssigning("");
       toast.success("Line assigned to this member.");
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   if (!boot.isAdmin) {
@@ -216,7 +217,7 @@ function MemberAccount() {
                     await refresh();
                     toast.success("Forwarding status updated.");
                   } catch (error) {
-                    toast.error(errorMessage(error));
+                    toastError(error);
                   }
                 }}
               >

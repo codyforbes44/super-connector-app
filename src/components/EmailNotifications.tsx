@@ -15,6 +15,7 @@ import {
   saveNotificationPrefs,
   sendTestEmail,
 } from "@/lib/integrations.functions";
+import { toastError } from "@/lib/toast-error";
 
 type Toggle = {
   key:
@@ -104,13 +105,13 @@ export function EmailNotifications() {
       toast.success("Email alerts updated");
       void qc.invalidateQueries({ queryKey: ["notif-prefs"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const test = useMutation({
     mutationFn: () => sendTestEmail({ data: { to: form.email_address } }),
     onSuccess: (res) => toast.success(`Test email sent to ${res.to}`),
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const email = status.data?.email;
@@ -229,7 +230,7 @@ function DigestSettings({
       toast.success("Daily digest updated");
       void qc.invalidateQueries({ queryKey: ["digest-settings"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const now = useMutation({
@@ -239,7 +240,7 @@ function DigestSettings({
       toast.success(sent === false ? "Nothing new to digest right now" : "Digest sent");
       void qc.invalidateQueries({ queryKey: ["digest-settings"] });
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => toastError(error),
   });
 
   const enabled = Boolean(digest.data?.enabled);
