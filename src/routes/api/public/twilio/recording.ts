@@ -14,11 +14,13 @@ export const Route = createFileRoute("/api/public/twilio/recording")({
         if (!auth.ok) return rejectWebhook(request, auth.reason, auth.params);
 
         const get = (key: string) => auth.params[key] ?? "";
-        const callSid = get("CallSid");
+        let callSid = get("CallSid");
         const recordingUrl = get("RecordingUrl");
         if (!callSid || !recordingUrl) return new Response("ok");
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { knownCallIdentity } = await import("@/lib/call-identity.server");
+        callSid = await knownCallIdentity(supabaseAdmin, callSid);
 
         try {
           const { data: call } = await supabaseAdmin

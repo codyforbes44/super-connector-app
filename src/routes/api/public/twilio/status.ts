@@ -66,6 +66,8 @@ async function applyStatusCallback(
 
   const callSid = get("CallSid");
   if (callSid) {
+    const { knownCallIdentity } = await import("@/lib/call-identity.server");
+    if (await knownCallIdentity(supabaseAdmin, callSid) !== callSid) return;
     const patch: {
       status?: string;
       duration?: number;

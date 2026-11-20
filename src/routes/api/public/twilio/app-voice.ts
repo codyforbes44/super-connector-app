@@ -30,7 +30,11 @@ export const Route = createFileRoute("/api/public/twilio/app-voice")({
         const get = (key: string) => auth.params[key] ?? "";
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const from = get("From");
-        const callSid = get("CallSid");
+        let callSid = get("CallSid");
+        if (!from.startsWith("client:") && ![from, get("To")].includes("+12149786445")) {
+          const { knownCallIdentity } = await import("@/lib/call-identity.server");
+          callSid = await knownCallIdentity(supabaseAdmin, callSid);
+        }
 
         /* ---------------------------------------- outbound: Twilio Client leg */
         if (from.startsWith("client:")) {

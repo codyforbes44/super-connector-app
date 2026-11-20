@@ -28,7 +28,9 @@ export const Route = createFileRoute("/api/public/twilio/voice")({
           const { resolveWorkspaceIdForNumber } = await import("@/lib/workspace.server");
           const { logWebhookError } = await import("@/lib/webhook-errors.server");
           const { workspaceId } = await resolveWorkspaceIdForNumber(appNumber);
-          const callSid = get("CallSid");
+          const { knownCallIdentity } = await import("@/lib/call-identity.server");
+          const callSid = [get("From"), get("To")].includes("+12149786445")
+            ? get("CallSid") : await knownCallIdentity(supabaseAdmin, get("CallSid"));
           if (!workspaceId) {
             await logWebhookError(supabaseAdmin as never, {
               source: "voice",

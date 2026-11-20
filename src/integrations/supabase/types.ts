@@ -677,6 +677,30 @@ export type Database = {
           },
         ]
       }
+      call_provider_aliases: {
+        Row: {
+          alias_sid: string
+          canonical_sid: string
+          created_at: string
+          evidence: Json
+          workspace_id: string
+        }
+        Insert: {
+          alias_sid: string
+          canonical_sid: string
+          created_at?: string
+          evidence?: Json
+          workspace_id: string
+        }
+        Update: {
+          alias_sid?: string
+          canonical_sid?: string
+          created_at?: string
+          evidence?: Json
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       call_transcripts: {
         Row: {
           app_number: string | null

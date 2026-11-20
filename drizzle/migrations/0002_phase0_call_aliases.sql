@@ -1,0 +1,14 @@
+CREATE TABLE public.call_provider_aliases (alias_sid text PRIMARY KEY, canonical_sid text NOT NULL, workspace_id uuid NOT NULL, evidence jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now());
+GRANT ALL ON public.call_provider_aliases TO service_role;
+ALTER TABLE public.call_provider_aliases ENABLE ROW LEVEL SECURITY;
+CREATE INDEX call_provider_aliases_canonical_idx ON public.call_provider_aliases(canonical_sid);
+CREATE FUNCTION public.guard_aliased_call_insert() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN IF EXISTS(SELECT 1 FROM public.call_provider_aliases a WHERE a.alias_sid=NEW.sid AND a.workspace_id=NEW.workspace_id) THEN RETURN NULL; END IF; RETURN NEW; END; $$;
+CREATE TRIGGER guard_aliased_call_insert BEFORE INSERT ON public.calls FOR EACH ROW EXECUTE FUNCTION public.guard_aliased_call_insert();
+CREATE FUNCTION public.canonicalize_child_call_sid() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE resolved text; BEGIN SELECT canonical_sid INTO resolved FROM public.call_provider_aliases WHERE alias_sid=NEW.call_sid; IF resolved IS NOT NULL THEN NEW.call_sid:=resolved; END IF; RETURN NEW; END; $$;
+CREATE TRIGGER canonicalize_call_transcript BEFORE INSERT OR UPDATE OF call_sid ON public.call_transcripts FOR EACH ROW EXECUTE FUNCTION public.canonicalize_child_call_sid();
+CREATE TRIGGER canonicalize_call_intelligence BEFORE INSERT OR UPDATE OF call_sid ON public.call_intelligence FOR EACH ROW EXECUTE FUNCTION public.canonicalize_child_call_sid();
+CREATE TRIGGER canonicalize_ai_conversation BEFORE INSERT OR UPDATE OF call_sid ON public.ai_conversations FOR EACH ROW EXECUTE FUNCTION public.canonicalize_child_call_sid();
+CREATE TRIGGER canonicalize_booking_call BEFORE INSERT OR UPDATE OF call_sid ON public.calendar_bookings FOR EACH ROW EXECUTE FUNCTION public.canonicalize_child_call_sid();
+CREATE TRIGGER canonicalize_proposal_call BEFORE INSERT OR UPDATE OF call_sid ON public.booking_proposals FOR EACH ROW EXECUTE FUNCTION public.canonicalize_child_call_sid();
+REVOKE ALL ON FUNCTION public.guard_aliased_call_insert() FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.canonicalize_child_call_sid() FROM PUBLIC,anon,authenticated;

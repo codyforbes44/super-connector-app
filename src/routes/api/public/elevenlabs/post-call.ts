@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/public/elevenlabs/post-call")({
         const meta = (data["conversation_initiation_client_data"] ?? {}) as Record<string, unknown>;
         const dynamic = (meta["dynamic_variables"] ?? {}) as Record<string, unknown>;
 
-        const callSid =
+        let callSid =
           (dynamic["call_sid"] as string) ||
           (dynamic["system__call_sid"] as string) ||
           ((data["metadata"] as Record<string, unknown> | undefined)?.["call_sid"] as string) ||
@@ -40,6 +40,8 @@ export const Route = createFileRoute("/api/public/elevenlabs/post-call")({
         const summary = (analysis["transcript_summary"] as string) ?? null;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { knownCallIdentity } = await import("@/lib/call-identity.server");
+        callSid = await knownCallIdentity(supabaseAdmin, callSid);
         const { logWebhookError } = await import("@/lib/webhook-errors.server");
 
         try {

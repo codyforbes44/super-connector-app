@@ -25,7 +25,7 @@ import {
   type TwilioHost,
 } from "./twilio.server";
 
-import { importableCall, importableMessage, uniqueProviderRows } from "./provider-identity";
+import { forwardedCallParent, importableCall, importableMessage, uniqueProviderRows } from "./provider-identity";
 
 type SB = SupabaseClient;
 
@@ -1073,11 +1073,17 @@ export async function importCallHistory(supabase: SB, userId: string, confirmedI
       price: string | null;
       start_time: string | null;
       parent_call_sid: string | null;
+      forwarded_from: string | null;
       date_created: string;
     }>;
   }>({ path: "/Calls.json", params: { PageSize: 100 } });
 
-  const eligible = uniqueProviderRows(res.calls ?? [], (c) => c.sid).filter(importableCall);
+  const eligible = uniqueProviderRows(res.calls ?? [], (c) => c.sid).filter(
+    (call) => importableCall(call) && !forwardedCallParent(call, res.calls ?? []),
+  );
+  const { data: aliases, error: aliasesError } = await admin.from("call_provider_aliases").select("alias_sid");
+  if (aliasesError) throw aliasesError;
+  const aliased = new Set((aliases ?? []).map((row) => String(row.alias_sid)));
   const { data: stored, error: storedError } = await admin
     .from("calls")
     .select("sid")
@@ -1092,10 +1098,12 @@ export async function importCallHistory(supabase: SB, userId: string, confirmedI
   for (const c of eligible) {
     const inbound = c.direction.startsWith("inbound");
     const appNumber = stripChannel(inbound ? c.to : c.from);
-    if (!numbers.includes(appNumber) || seen.has(c.sid)) continue;
+    if (!numbers.includes(appNumber) || seen.has(c.sid) || aliased.has(c.sid)) continue;
     const { resolveWorkspaceIdForNumber } = await import("./workspace.server");
     const { workspaceId } = await resolveWorkspaceIdForNumber(appNumber);
     if (!workspaceId) continue;
+    const { resolveCallIdentity } = await import("./call-identity.server");
+    if (await resolveCallIdentity(admin, c.sid, c, res.calls) !== c.sid) continue;
     ids.push(c.sid);
     if (!confirmedIds || !confirmedIds.includes(c.sid)) continue;
     const { data: inserted, error } = await admin

@@ -63,6 +63,7 @@ import { Route as AuthenticatedPlatformHealthRouteImport } from './routes/_authe
 import { Route as AuthenticatedPlatformNumbersRouteImport } from './routes/_authenticated/platform/numbers'
 import { Route as AuthenticatedPlatformWorkspacesRouteImport } from './routes/_authenticated/platform/workspaces'
 import { Route as ApiMobileSplatRouteImport } from './routes/api/mobile/$'
+import { Route as ApiPublicVersionRouteImport } from './routes/api/public/version'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as OauthJobberReturnRouteImport } from './routes/oauth/jobber/return'
 import { Route as ApiPublicAgentPostCallRouteImport } from './routes/api/public/agent/post-call'
@@ -369,6 +370,11 @@ const ApiMobileSplatRoute = ApiMobileSplatRouteImport.update({
   path: '/api/mobile/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicVersionRoute = ApiPublicVersionRouteImport.update({
+  id: '/api/public/version',
+  path: '/api/public/version',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
   id: '/oauth/google/return',
   path: '/oauth/google/return',
@@ -551,6 +557,7 @@ export interface FileRoutesByFullPath {
   '/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
   '/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
+  '/api/public/version': typeof ApiPublicVersionRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/inbox/': typeof AuthenticatedInboxIndexRoute
@@ -628,6 +635,7 @@ export interface FileRoutesByTo {
   '/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
   '/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
+  '/api/public/version': typeof ApiPublicVersionRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/inbox': typeof AuthenticatedInboxIndexRoute
@@ -709,6 +717,7 @@ export interface FileRoutesById {
   '/_authenticated/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
   '/_authenticated/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
+  '/api/public/version': typeof ApiPublicVersionRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
   '/_authenticated/inbox/': typeof AuthenticatedInboxIndexRoute
@@ -790,6 +799,7 @@ export interface FileRouteTypes {
     | '/platform/numbers'
     | '/platform/workspaces'
     | '/api/mobile/$'
+    | '/api/public/version'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
     | '/inbox/'
@@ -867,6 +877,7 @@ export interface FileRouteTypes {
     | '/platform/numbers'
     | '/platform/workspaces'
     | '/api/mobile/$'
+    | '/api/public/version'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
     | '/inbox'
@@ -947,6 +958,7 @@ export interface FileRouteTypes {
     | '/_authenticated/platform/numbers'
     | '/_authenticated/platform/workspaces'
     | '/api/mobile/$'
+    | '/api/public/version'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
     | '/_authenticated/inbox/'
@@ -999,6 +1011,7 @@ export interface RootRouteChildren {
   LegalTermsRoute: typeof LegalTermsRoute
   PayReturnRoute: typeof PayReturnRoute
   ApiMobileSplatRoute: typeof ApiMobileSplatRoute
+  ApiPublicVersionRoute: typeof ApiPublicVersionRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
   OauthJobberReturnRoute: typeof OauthJobberReturnRoute
   ApiPublicAgentPostCallRoute: typeof ApiPublicAgentPostCallRoute
@@ -1405,6 +1418,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMobileSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/version': {
+      id: '/api/public/version'
+      path: '/api/public/version'
+      fullPath: '/api/public/version'
+      preLoaderRoute: typeof ApiPublicVersionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/oauth/google/return': {
       id: '/oauth/google/return'
       path: '/oauth/google/return'
@@ -1695,6 +1715,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalTermsRoute: LegalTermsRoute,
   PayReturnRoute: PayReturnRoute,
   ApiMobileSplatRoute: ApiMobileSplatRoute,
+  ApiPublicVersionRoute: ApiPublicVersionRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
   OauthJobberReturnRoute: OauthJobberReturnRoute,
   ApiPublicAgentPostCallRoute: ApiPublicAgentPostCallRoute,
