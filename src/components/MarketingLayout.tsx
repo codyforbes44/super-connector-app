@@ -347,6 +347,8 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
             title="Company"
             links={[
               { to: "/faq", label: "FAQ" },
+              { to: "/help", label: "Help" },
+              { to: "/status", label: "Status" },
               { to: "/developers/webhooks", label: "Webhooks" },
               { to: "/contact", label: "Contact" },
               { to: "/legal/privacy", label: "Privacy" },

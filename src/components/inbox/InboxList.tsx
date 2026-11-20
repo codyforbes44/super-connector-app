@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useBootstrap } from "@/hooks/useBootstrap";
+import { SetupChecklist } from "@/components/onboarding/SetupChecklist";
 import { errorMessage, formatPhone, initialsFor, relativeTime } from "@/lib/format";
 import { markConversationRead } from "@/lib/twilio.functions";
 import { useHistoryImport } from "@/components/HistoryImportDialog";
@@ -111,6 +112,8 @@ export function InboxList({ activeId }: { activeId?: string }) {
           </Button>
         }
       />
+
+      <SetupChecklist />
 
       <div className="px-4 py-3">
         <Input

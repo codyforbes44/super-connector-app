@@ -15,6 +15,6 @@
 - [x] Owner-free release step 2: Phase 5 page/accessibility/state review
 - [x] Owner-free release step 3: Phase 6 reliability and monitoring
 - [ ] Owner-free release step 4: Phase 4 plan-limit enforcement + test-mode eSIM checkout check
-- [ ] Owner-free release step 5: Phase 7 polish (legal review and release publish held for owner)
+- [x] Owner-free release step 5: Phase 7 polish (legal review and release publish held for owner)
 - [x] Owner-free release step 4: plan-limit upgrade prompts + test-mode eSIM checkout (test payments never buy real eSIMs)
-- [ ] Owner-free release step 5: Phase 7 polish (metadata, speed, installability/notifications, help, onboarding checklist)
+- [x] Owner-free release step 5: Phase 7 polish (metadata, speed, installability/notifications, help, onboarding checklist)
