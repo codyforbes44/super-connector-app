@@ -1,36 +1,45 @@
-# Remaining phases to a production-ready release
+# Release work that needs no owner decision
 
-Phases 0 (no duplicate records) and 1 (calls and texts work correctly) are live. Here's what's left, in a suggested order.
+Five steps, in this order. After each one: publish, check the live version and report what shipped and the test results.
 
-## Phase 2 — Make sure customers get every call and text
-- Set up the remaining numbers so they actually send calls and texts to SixVox. Today (580) 238-4777 sends to the AI service and (214) 978-6445 sends to magnoliamaids.pro. Each change needs your OK first.
-- Decide what to do with the 97 call pairs I couldn't prove were duplicates, and with the self-forwarding setup. Both are on hold until you decide.
-- Owner tests on the live site: one real call and one real text per number, then confirm each shows up once with its delivery status, recording and summary.
-- Sending iMessage from SixVox (today we only receive replies).
+## 1. Security fix (Phase 3, this item only)
+- Only signed-in admins and the app itself can read the plan limits table. Pricing pages keep their numbers because they read them from the app's own price list. A new sign-up can no longer list every plan's limits.
+- Test: a regular user's read is blocked and a super admin's still works.
 
-## Phase 3 — Texting approval, emergency calling and compliance
-- Finish texting approval (A2P) for every number that texts, and block texts from unapproved numbers with a clear message.
-- Emergency (E911) address check for each number, plus handling for opt-out words like STOP and HELP.
-- Fix the security warning: right now anyone who signs up can see every plan's limits.
+## 2. Page review on phones and computers (Phase 5)
+- Pages: Numbers, Calls, A2P, Welcome, eSIM, Contacts, Settings, Tools, Platform admin, and every public page. Checked at phone, tablet and desktop sizes.
+- Accessibility: buttons at least 44px to tap, text contrast, screen-reader labels on icon buttons, keyboard focus, one main area per page.
+- Every page gets clear empty, loading and error messages with a "Try again" button. Loading gives up after a time limit, so no endless spinners.
+- A screenshot pass of each page in both themes.
 
-## Phase 4 — Billing and plans in the live payment account
-- Move the Solo $29 / $290 prices, which so far exist only in test mode, to the live payment account. Then confirm checkout, upgrade, downgrade, cancellation and free-plan grants work from start to finish.
-- Enforce plan limits (number of phone lines, team seats, AI calls) and show clear upgrade prompts.
-- Check the eSIM checkout end to end.
+## 3. Reliability and monitoring (Phase 6)
+- Failed updates to the phone carrier or AI voice service are queued, retried with growing waits, and show up as alerts in Platform admin.
+- Per-number health check: whether it's set up to send calls and texts to SixVox, recent errors, last time it was used. This only reads settings and never changes routing.
+- A public status page plus a health check address.
+- Backup and restore drill: back up a copy of the important tables, restore it into a scratch copy, compare record counts, and write down the steps.
+- Review slow database requests and add indexes where needed.
+- Automated tests for sign-up, sending a text, answering a call and checkout. These use stand-in services, so no real calls, texts or charges happen.
 
-## Phase 5 — Finish the mobile-first page review
-- Review each remaining page on phones and computers: Numbers, Calls, A2P, Welcome, eSIM, Contacts, Settings, Tools, Platform admin and all public pages.
-- Accessibility pass: buttons big enough to tap, text contrast, screen-reader labels, keyboard use.
-- Every page gets a clear message when it's empty, loading or broken. No endless spinners.
+## 4. Plan limits and eSIM checkout (Phase 4, app side only)
+- Enforce phone lines, seats and AI calls on the server when someone adds a number, invites a member or makes an AI call. When a team hits a limit, show a clear upgrade prompt.
+- Tests for each limit, using the current plan values.
+- Walk through eSIM checkout end to end in test mode. Live prices stay where they are.
 
-## Phase 6 — Reliability and monitoring
-- Retries and alerts when phone-provider updates fail, health checks for each number, and a status page.
-- Backup and restore drill, plus a review of slow database requests.
-- Automated tests for sign-up, sending a text, answering a call and checkout.
+## 5. Launch polish (Phase 7, partial)
+- Search and share info on every public page, a speed budget (page size and load timing checks), and a check that the app installs on phones and shows notifications.
+- Help pages and a step-by-step setup checklist for new users.
+- Held for you: final legal review and the release publish.
 
-## Phase 7 — Launch polish
-- Search and share info on every public page, a speed budget, and a check that the app installs well on phones and shows notifications.
-- Help pages and onboarding checklist, final legal page review, then the release publish.
+## Not started and not queued
+- Routing changes for (580) 238-4777 or (214) 978-6445
+- The 97 call pairs on hold
+- Self-forwarding changes
+- Live-mode pricing
+- A2P submissions
+- E911 changes
+- iMessage sending
 
-## Needs your decision
-Phase 2 routing changes, the call pairs on hold, live-mode pricing in Phase 4, and anything that touches texting approval or emergency calling.
+## Technical notes
+- Security fix: change the access rules on the plan limits table so only super admins can read it; server code reads it with full access.
+- Version marker updated each phase (phase3-security, phase5-ux, phase6-reliability, phase4-limits, phase7-polish).
+- roadmap.md gets these five tasks when work begins.
