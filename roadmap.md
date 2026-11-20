@@ -13,6 +13,6 @@
 - [ ] Page-by-page mobile-first pass for remaining long pages (Numbers, Calls, A2P, Welcome, eSIM, Contacts) and public pages
 - [x] Owner-free release step 1: lock plan-limits table to super admins (security)
 - [x] Owner-free release step 2: Phase 5 page/accessibility/state review
-- [ ] Owner-free release step 3: Phase 6 reliability and monitoring
+- [x] Owner-free release step 3: Phase 6 reliability and monitoring
 - [ ] Owner-free release step 4: Phase 4 plan-limit enforcement + test-mode eSIM checkout check
 - [ ] Owner-free release step 5: Phase 7 polish (legal review and release publish held for owner)

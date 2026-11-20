@@ -255,3 +255,23 @@ export const platformAddPerson = createServerFn({ method: "POST" })
     await audit(admin, context.userId, workspaceId, "platform.person_added", { number: n.phone_number, email: data.email, role, newTeam: teamName ?? null, comp: Boolean(data.comp) });
     return { ok: true };
   });
+
+/** Read-only per-number health: setup state, last activity and recent errors. Never touches carrier routing. */
+export const platformNumberHealth = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const admin = await requireSuper(context as unknown as Ctx);
+    const [{ data: nums }, { data: calls }, { data: msgs }, { data: errs }] = await Promise.all([
+      admin.from("phone_numbers").select("phone_number, friendly_name, webhook_wired"),
+      admin.from("calls").select("from_number, to_number, created_at").gte("created_at", since(24 * 30)).order("created_at", { ascending: false }).limit(2000),
+      admin.from("messages").select("from_number, to_number, created_at").gte("created_at", since(24 * 30)).order("created_at", { ascending: false }).limit(2000),
+      admin.from("webhook_errors").select("app_number, created_at").gte("created_at", since(168)).limit(2000),
+    ]);
+    const { numberHealth } = await import("@/lib/number-health");
+    return numberHealth(
+      (nums ?? []).map((n) => ({ number: n.phone_number as string, label: (n.friendly_name as string | null) ?? "", wired: Boolean(n.webhook_wired) })),
+      [...(calls ?? []), ...(msgs ?? [])].map((r) => ({ from: r.from_number as string | null, to: r.to_number as string | null, at: r.created_at as string })),
+      (errs ?? []).map((e) => e.app_number as string | null),
+      Date.now(),
+    );
+  });

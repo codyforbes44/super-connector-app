@@ -180,12 +180,15 @@ export async function twilioRequest<T = unknown>(opts: {
     init.body = encodeForm(params);
   }
 
-  const response = await fetch(url, init);
+  const { fetchWithRetry } = await import("./provider-retry");
+  const response = await fetchWithRetry(() => fetch(url, init), { method });
   if (opts.binary && response.ok) return new Uint8Array(await response.arrayBuffer()) as T;
   const text = await response.text();
 
   if (!response.ok) {
     console.error(`Twilio ${method} ${opts.path} failed [${response.status}]: ${text}`);
+    const { recordProviderFailure } = await import("./provider-retry");
+    await recordProviderFailure({ provider: "twilio", method, path: opts.path, status: response.status, body: text });
     throw new TwilioError(response.status, text);
   }
   if (!text) return {} as T;

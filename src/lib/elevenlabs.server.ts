@@ -25,12 +25,19 @@ export function hasElevenLabs(): boolean {
 }
 
 export async function el<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: { "xi-api-key": elevenLabsKey(), ...(init.headers ?? {}) },
-  });
+  const { fetchWithRetry, recordProviderFailure } = await import("./provider-retry");
+  const method = init.method ?? "GET";
+  const response = await fetchWithRetry(
+    () =>
+      fetch(`${BASE}${path}`, {
+        ...init,
+        headers: { "xi-api-key": elevenLabsKey(), ...(init.headers ?? {}) },
+      }),
+    { method },
+  );
   if (!response.ok) {
     const body = await response.text();
+    await recordProviderFailure({ provider: "elevenlabs", method, path, status: response.status, body });
     throw new Error(`ElevenLabs request failed [${response.status}]: ${body.slice(0, 400)}`);
   }
   return (await response.json()) as T;

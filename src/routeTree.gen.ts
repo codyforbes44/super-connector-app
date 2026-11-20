@@ -20,6 +20,7 @@ import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as StatusRouteImport } from './routes/status'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UseCasesRouteImport } from './routes/use-cases'
 import { Route as AuthenticatedA2pRouteImport } from './routes/_authenticated/a2p'
@@ -63,6 +64,7 @@ import { Route as AuthenticatedPlatformHealthRouteImport } from './routes/_authe
 import { Route as AuthenticatedPlatformNumbersRouteImport } from './routes/_authenticated/platform/numbers'
 import { Route as AuthenticatedPlatformWorkspacesRouteImport } from './routes/_authenticated/platform/workspaces'
 import { Route as ApiMobileSplatRouteImport } from './routes/api/mobile/$'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiPublicVersionRouteImport } from './routes/api/public/version'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as OauthJobberReturnRouteImport } from './routes/oauth/jobber/return'
@@ -141,6 +143,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -370,6 +377,11 @@ const ApiMobileSplatRoute = ApiMobileSplatRouteImport.update({
   path: '/api/mobile/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicVersionRoute = ApiPublicVersionRouteImport.update({
   id: '/api/public/version',
   path: '/api/public/version',
@@ -516,6 +528,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRoute
   '/inbox': typeof AuthenticatedInboxRouteRouteWithChildren
@@ -557,6 +570,7 @@ export interface FileRoutesByFullPath {
   '/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
   '/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/version': typeof ApiPublicVersionRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
@@ -596,6 +610,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRoute
   '/a2p': typeof AuthenticatedA2pRoute
@@ -635,6 +650,7 @@ export interface FileRoutesByTo {
   '/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
   '/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/version': typeof ApiPublicVersionRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
@@ -676,6 +692,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRouteRouteWithChildren
@@ -717,6 +734,7 @@ export interface FileRoutesById {
   '/_authenticated/platform/numbers': typeof AuthenticatedPlatformNumbersRoute
   '/_authenticated/platform/workspaces': typeof AuthenticatedPlatformWorkspacesRoute
   '/api/mobile/$': typeof ApiMobileSplatRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/version': typeof ApiPublicVersionRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/oauth/jobber/return': typeof OauthJobberReturnRoute
@@ -758,6 +776,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/sitemap.xml'
+    | '/status'
     | '/terms'
     | '/use-cases'
     | '/inbox'
@@ -799,6 +818,7 @@ export interface FileRouteTypes {
     | '/platform/numbers'
     | '/platform/workspaces'
     | '/api/mobile/$'
+    | '/api/public/health'
     | '/api/public/version'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
@@ -838,6 +858,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/sitemap.xml'
+    | '/status'
     | '/terms'
     | '/use-cases'
     | '/a2p'
@@ -877,6 +898,7 @@ export interface FileRouteTypes {
     | '/platform/numbers'
     | '/platform/workspaces'
     | '/api/mobile/$'
+    | '/api/public/health'
     | '/api/public/version'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
@@ -917,6 +939,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/sitemap.xml'
+    | '/status'
     | '/terms'
     | '/use-cases'
     | '/_authenticated/inbox'
@@ -958,6 +981,7 @@ export interface FileRouteTypes {
     | '/_authenticated/platform/numbers'
     | '/_authenticated/platform/workspaces'
     | '/api/mobile/$'
+    | '/api/public/health'
     | '/api/public/version'
     | '/oauth/google/return'
     | '/oauth/jobber/return'
@@ -999,6 +1023,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StatusRoute: typeof StatusRoute
   TermsRoute: typeof TermsRoute
   UseCasesRoute: typeof UseCasesRoute
   DevCallsPreviewRoute: typeof DevCallsPreviewRoute
@@ -1011,6 +1036,7 @@ export interface RootRouteChildren {
   LegalTermsRoute: typeof LegalTermsRoute
   PayReturnRoute: typeof PayReturnRoute
   ApiMobileSplatRoute: typeof ApiMobileSplatRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicVersionRoute: typeof ApiPublicVersionRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
   OauthJobberReturnRoute: typeof OauthJobberReturnRoute
@@ -1115,6 +1141,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -1418,6 +1451,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMobileSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/version': {
       id: '/api/public/version'
       path: '/api/public/version'
@@ -1703,6 +1743,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StatusRoute: StatusRoute,
   TermsRoute: TermsRoute,
   UseCasesRoute: UseCasesRoute,
   DevCallsPreviewRoute: DevCallsPreviewRoute,
@@ -1715,6 +1756,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalTermsRoute: LegalTermsRoute,
   PayReturnRoute: PayReturnRoute,
   ApiMobileSplatRoute: ApiMobileSplatRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicVersionRoute: ApiPublicVersionRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
   OauthJobberReturnRoute: OauthJobberReturnRoute,
